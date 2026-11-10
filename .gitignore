@@ -1,0 +1,26 @@
+# Key material and secrets - never commit
+keys/*
+!keys/.gitkeep
+!keys/README.md
+node-a/secrets/*
+!node-a/secrets/.gitkeep
+node-b/secrets/*
+!node-b/secrets/.gitkeep
+*.pem
+*.key
+*_pk.txt
+jwt.txt
+p2p-node-key.txt
+
+# Local environment files (copies of the .env.example files)
+.env
+node-a/.env
+node-b/.env
+
+# Downloaded binaries and scratch
+bin/
+tmp/
+*.log
+
+# Node data directories if ever mounted locally
+data/
