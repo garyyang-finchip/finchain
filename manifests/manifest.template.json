@@ -1,0 +1,97 @@
+{
+  "manifestVersion": "1",
+  "referenceVersion": {
+    "id": "finchain-sepolia/2026.11-rc1",
+    "status": "candidate",
+    "publishedAt": "2026-01-01T00:00:00Z",
+    "supersedes": null,
+    "notes": "Template. Replace every placeholder before publishing; validate with manifest.schema.json."
+  },
+  "chain": {
+    "name": "Finchain Sepolia",
+    "l2ChainId": 83380,
+    "l1ChainId": 11155111,
+    "l2GenesisHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+    "l1Anchor": { "hash": "0x0000000000000000000000000000000000000000000000000000000000000000", "number": 0 },
+    "rollupConfigSha256": "0000000000000000000000000000000000000000000000000000000000000000",
+    "l1Contracts": {
+      "SystemConfigProxy": "0x0000000000000000000000000000000000000000",
+      "OptimismPortalProxy": "0x0000000000000000000000000000000000000000",
+      "DisputeGameFactoryProxy": "0x0000000000000000000000000000000000000000",
+      "AnchorStateRegistryProxy": "0x0000000000000000000000000000000000000000",
+      "L1StandardBridgeProxy": "0x0000000000000000000000000000000000000000"
+    },
+    "dataAvailability": "calldata",
+    "publicEndpoints": {
+      "rpc": "https://rpc.finchain.one",
+      "ws": "wss://ws.finchain.one",
+      "explorer": "https://explorer.finchain.one"
+    }
+  },
+  "software": {
+    "contractsRelease": "op-contracts/v7.0.0",
+    "opDeployer": { "version": "v0.7.1", "sha256": "" },
+    "images": {
+      "op-node": "us-docker.pkg.dev/oplabs-tools-artifacts/images/op-node:v1.19.3@sha256:0000000000000000000000000000000000000000000000000000000000000000",
+      "op-reth": "us-docker.pkg.dev/oplabs-tools-artifacts/images/op-reth:v2.4.2@sha256:0000000000000000000000000000000000000000000000000000000000000000",
+      "op-batcher": "us-docker.pkg.dev/oplabs-tools-artifacts/images/op-batcher:v1.16.11@sha256:0000000000000000000000000000000000000000000000000000000000000000",
+      "op-proposer": "us-docker.pkg.dev/oplabs-tools-artifacts/images/op-proposer:v1.16.3@sha256:0000000000000000000000000000000000000000000000000000000000000000",
+      "op-challenger": "us-docker.pkg.dev/oplabs-tools-artifacts/images/op-challenger:v1.9.5@sha256:0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    "faultProof": {
+      "programSource": "kona-node/v1.6.1",
+      "prestateHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "prestateEmbedsFinchainConfig": false,
+      "vm": "0x0000000000000000000000000000000000000000",
+      "buildProcedure": "docs/proof-plan.md"
+    }
+  },
+  "governance": {
+    "roles": {
+      "l1ProxyAdminOwner": "0x0000000000000000000000000000000000000000",
+      "l2ProxyAdminOwner": "0x0000000000000000000000000000000000000000",
+      "systemConfigOwner": "0x0000000000000000000000000000000000000000",
+      "unsafeBlockSigner": "0x0000000000000000000000000000000000000000",
+      "batcher": "0x0000000000000000000000000000000000000000",
+      "proposer": "0x0000000000000000000000000000000000000000",
+      "challenger": "0x0000000000000000000000000000000000000000"
+    },
+    "sharedAuthority": {
+      "superchainConfig": "0x0000000000000000000000000000000000000000",
+      "guardian": "0x0000000000000000000000000000000000000000",
+      "scope": "Pause authority over the shared SuperchainConfig and the upgrade controls it implies are held by the Superchain guardian and the shared proxy admin owner, not by Finchain roles (standard-overrides deployment)."
+    },
+    "respectedGameType": 1,
+    "proofLevel": "permissioned",
+    "onchainSnapshot": "manifests/onchain-<block>.json"
+  },
+  "covenantWorld": {
+    "ercs": [
+      { "erc": 8338, "name": "Token-Bound Executable Skills", "repository": "", "commit": "" },
+      { "erc": 8414, "name": "Token-Bound Task Tenders", "repository": "", "commit": "" },
+      { "erc": 8419, "name": "Know-Your-Agent (KYA) Framework", "repository": "", "commit": "" },
+      { "erc": 8434, "name": "Agent Identity (AID)", "repository": "", "commit": "" },
+      { "erc": 8436, "name": "Agent Collective Decision Framework", "repository": "", "commit": "" },
+      { "erc": 8444, "name": "Agentic Resource Discovery (ARD) Onchain", "repository": "", "commit": "" },
+      { "erc": 8447, "name": "Swarm AI Framework", "repository": "", "commit": "" },
+      { "erc": 8454, "name": "", "repository": "", "commit": "" },
+      { "erc": 8468, "name": "Agent Safety Framework", "repository": "", "commit": "" },
+      { "erc": 8471, "name": "AI Dispute Resolution Framework", "repository": "", "commit": "" }
+    ],
+    "completionBlock": { "number": 0, "hash": "0x0000000000000000000000000000000000000000000000000000000000000000" },
+    "contracts": [],
+    "addressBook": ""
+  },
+  "foga": {
+    "version": "",
+    "npmPackage": "@finchip.ai/foga",
+    "chainConfigCommit": "",
+    "confirmationPolicy": "docs/foga-confirmation-policy.md"
+  },
+  "acceptance": [
+    { "item": "M1 genesis published, continuous blocks, batches on L1, first output proposal of the respected game type", "milestone": "M1", "result": "not-run", "environment": "public-testnet", "evidence": "", "recordedAt": "2026-01-01T00:00:00Z" },
+    { "item": "M2 host B derives identical block hash and state root; safe and finalized advance; L1->L2 deposit; rebuild from L1 only", "milestone": "M2", "result": "not-run", "environment": "public-testnet", "evidence": "", "recordedAt": "2026-01-01T00:00:00Z" },
+    { "item": "M3 covenant World deployed by transactions; two independent FOGA cells complete the business loop; reorg, resend and duplicate-event checks", "milestone": "M3", "result": "not-run", "environment": "public-testnet", "evidence": "", "recordedAt": "2026-01-01T00:00:00Z" },
+    { "item": "M4 resident challenger; trace self-check; real VM step dispute; full withdrawal", "milestone": "M4", "result": "not-run", "environment": "local-devnet", "evidence": "", "recordedAt": "2026-01-01T00:00:00Z" }
+  ]
+}

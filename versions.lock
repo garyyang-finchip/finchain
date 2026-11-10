@@ -1,0 +1,35 @@
+# Finchain candidate version set (dotenv format; loaded by make and docker compose).
+#
+# STATUS: CANDIDATE. These versions were taken from the OP Stack documentation and
+# release notes in November 2026. They must be verified AS A SET with
+# `make preflight` (image architecture, flag presence, L1 fork support) and the
+# M1 run before this file is frozen. Known reasons for the chosen patch levels are
+# in docs/versions.md.
+#
+# `make lock` rewrites the *_IMAGE values to immutable digests (image@sha256:...)
+# and records the op-deployer binary checksum. Until then the tags below are
+# mutable references.
+
+# L1 contracts release (governance-approved) and the op-deployer release that targets it.
+# The registry also lists v8.0.0 and v9.0.0 (docs/versions.md); the release choice is
+# confirmed before freezing. The OPCM address is looked up from the registry by this tag.
+OP_CONTRACTS_TAG=op-contracts/v7.0.0
+OP_DEPLOYER_VERSION=v0.7.1
+
+# Rollup services (container images)
+OP_NODE_IMAGE=us-docker.pkg.dev/oplabs-tools-artifacts/images/op-node:v1.19.3
+OP_RETH_IMAGE=us-docker.pkg.dev/oplabs-tools-artifacts/images/op-reth:v2.4.2
+OP_BATCHER_IMAGE=us-docker.pkg.dev/oplabs-tools-artifacts/images/op-batcher:v1.16.11
+OP_PROPOSER_IMAGE=us-docker.pkg.dev/oplabs-tools-artifacts/images/op-proposer:v1.16.3
+OP_CHALLENGER_IMAGE=us-docker.pkg.dev/oplabs-tools-artifacts/images/op-challenger:v1.9.5
+
+# Fault-proof program source used to build the Finchain-embedding prestate (M4).
+KONA_NODE_TAG=kona-node/v1.6.1
+
+# Tooling
+FOUNDRY_IMAGE=ghcr.io/foundry-rs/foundry:stable
+CADDY_IMAGE=caddy:2
+
+# Filled by `make lock`
+OP_DEPLOYER_SHA256=
+LOCKED_AT=

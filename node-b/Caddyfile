@@ -1,0 +1,24 @@
+# Public JSON-RPC entry points for Finchain, served from host B.
+# Caddy obtains and renews TLS certificates automatically (ports 80/443 must be reachable
+# and the DNS A records for the two hostnames must point at this host).
+
+{
+	email {$ACME_EMAIL}
+}
+
+{$RPC_HOST} {
+	encode gzip
+	# Only JSON-RPC over POST is proxied; everything else gets a short status page.
+	@rpc {
+		method POST
+		path /
+	}
+	reverse_proxy @rpc op-reth:8545 {
+		header_up Host {upstream_hostport}
+	}
+	respond / "Finchain Sepolia JSON-RPC. POST JSON-RPC requests to this URL." 200
+}
+
+{$WS_HOST} {
+	reverse_proxy op-reth:8546
+}

@@ -1,0 +1,179 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://finchain.one/schemas/reference-version-manifest.json",
+  "title": "Finchain reference-version manifest",
+  "description": "One manifest per published reference version. It is the technical anchor behind the statement that Finchain is the native reference chain of the Finch covenant ERCs: chain identity, locked software versions, governance addresses and their scope, the covenant World deployment evidence, the FOGA version, and the acceptance results with the environment each was demonstrated in.",
+  "type": "object",
+  "required": ["manifestVersion", "referenceVersion", "chain", "software", "governance", "covenantWorld", "foga", "acceptance"],
+  "additionalProperties": false,
+  "properties": {
+    "manifestVersion": { "const": "1" },
+    "referenceVersion": {
+      "type": "object",
+      "required": ["id", "status", "publishedAt"],
+      "properties": {
+        "id": { "type": "string", "description": "e.g. finchain-sepolia/2026.11-rc1" },
+        "status": { "enum": ["candidate", "recommended", "superseded"] },
+        "publishedAt": { "type": "string", "format": "date-time" },
+        "supersedes": { "type": ["string", "null"] },
+        "notes": { "type": "string" }
+      }
+    },
+    "chain": {
+      "type": "object",
+      "required": ["name", "l2ChainId", "l1ChainId", "l2GenesisHash", "l1Anchor", "rollupConfigSha256", "l1Contracts"],
+      "properties": {
+        "name": { "type": "string" },
+        "l2ChainId": { "type": "integer" },
+        "l1ChainId": { "type": "integer" },
+        "l2GenesisHash": { "$ref": "#/$defs/hash32" },
+        "l1Anchor": {
+          "type": "object",
+          "required": ["hash", "number"],
+          "properties": { "hash": { "$ref": "#/$defs/hash32" }, "number": { "type": "integer" } }
+        },
+        "rollupConfigSha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "l1Contracts": {
+          "type": "object",
+          "description": "Proxy addresses of the L1 system contracts for this chain",
+          "additionalProperties": { "$ref": "#/$defs/address" }
+        },
+        "dataAvailability": { "enum": ["calldata", "blobs"] },
+        "publicEndpoints": {
+          "type": "object",
+          "properties": {
+            "rpc": { "type": "string", "format": "uri" },
+            "ws": { "type": "string", "format": "uri" },
+            "explorer": { "type": "string", "format": "uri" }
+          }
+        }
+      }
+    },
+    "software": {
+      "type": "object",
+      "required": ["contractsRelease", "opDeployer", "images"],
+      "properties": {
+        "contractsRelease": { "type": "string" },
+        "opDeployer": {
+          "type": "object",
+          "required": ["version"],
+          "properties": { "version": { "type": "string" }, "sha256": { "type": "string" } }
+        },
+        "images": {
+          "type": "object",
+          "description": "service name -> image reference with digest",
+          "additionalProperties": { "type": "string", "pattern": "@sha256:[0-9a-f]{64}$" }
+        },
+        "faultProof": {
+          "type": "object",
+          "properties": {
+            "programSource": { "type": "string", "description": "e.g. kona-node/v1.6.1" },
+            "prestateHash": { "$ref": "#/$defs/hash32" },
+            "prestateEmbedsFinchainConfig": { "type": "boolean" },
+            "vm": { "$ref": "#/$defs/address" },
+            "buildProcedure": { "type": "string" }
+          }
+        }
+      }
+    },
+    "governance": {
+      "type": "object",
+      "required": ["roles", "sharedAuthority", "onchainSnapshot"],
+      "properties": {
+        "roles": {
+          "type": "object",
+          "description": "Finchain-controlled roles with the controlling address",
+          "required": ["l1ProxyAdminOwner", "l2ProxyAdminOwner", "systemConfigOwner", "unsafeBlockSigner", "batcher", "proposer", "challenger"],
+          "additionalProperties": { "$ref": "#/$defs/address" }
+        },
+        "sharedAuthority": {
+          "type": "object",
+          "description": "Authority NOT held by Finchain under the chosen deployment configuration",
+          "required": ["superchainConfig", "guardian", "scope"],
+          "properties": {
+            "superchainConfig": { "$ref": "#/$defs/address" },
+            "guardian": { "$ref": "#/$defs/address" },
+            "scope": { "type": "string", "description": "e.g. pause of bridge/portal and shared upgrade controls" }
+          }
+        },
+        "respectedGameType": { "type": "integer" },
+        "proofLevel": { "enum": ["permissioned", "permissionless"] },
+        "onchainSnapshot": { "type": "string", "description": "path of the manifests/onchain-<block>.json used" }
+      }
+    },
+    "covenantWorld": {
+      "type": "object",
+      "required": ["ercs", "completionBlock", "contracts"],
+      "properties": {
+        "ercs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["erc", "name", "repository", "commit"],
+            "properties": {
+              "erc": { "type": "integer" },
+              "name": { "type": "string" },
+              "repository": { "type": "string" },
+              "commit": { "type": "string" },
+              "specVersion": { "type": "string" }
+            }
+          }
+        },
+        "completionBlock": {
+          "type": "object",
+          "description": "Block in which the first complete reference World became available",
+          "required": ["number", "hash"],
+          "properties": { "number": { "type": "integer" }, "hash": { "$ref": "#/$defs/hash32" } }
+        },
+        "contracts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name", "address", "codeHash", "deploymentTx"],
+            "properties": {
+              "name": { "type": "string" },
+              "erc": { "type": "integer" },
+              "address": { "$ref": "#/$defs/address" },
+              "codeHash": { "$ref": "#/$defs/hash32" },
+              "deploymentTx": { "$ref": "#/$defs/hash32" },
+              "initializationTxs": { "type": "array", "items": { "$ref": "#/$defs/hash32" } },
+              "owner": { "$ref": "#/$defs/address" },
+              "sourceVerification": { "type": "string" }
+            }
+          }
+        },
+        "addressBook": { "type": "string", "description": "URI of the FOGA World address book for this chain" }
+      }
+    },
+    "foga": {
+      "type": "object",
+      "required": ["version"],
+      "properties": {
+        "version": { "type": "string" },
+        "npmPackage": { "type": "string" },
+        "chainConfigCommit": { "type": "string" },
+        "confirmationPolicy": { "type": "string", "description": "e.g. docs/foga-confirmation-policy.md@<commit>" }
+      }
+    },
+    "acceptance": {
+      "type": "array",
+      "description": "One entry per acceptance item in docs/acceptance.md",
+      "items": {
+        "type": "object",
+        "required": ["item", "result", "environment"],
+        "properties": {
+          "item": { "type": "string" },
+          "milestone": { "enum": ["M1", "M2", "M3", "M4", "M5"] },
+          "result": { "enum": ["passed", "failed", "not-run"] },
+          "environment": { "enum": ["local-devnet", "public-testnet", "mainnet"] },
+          "evidence": { "type": "string", "description": "path or URI of the record" },
+          "recordedAt": { "type": "string", "format": "date-time" }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "address": { "type": "string", "pattern": "^0x[0-9a-fA-F]{40}$" },
+    "hash32": { "type": "string", "pattern": "^0x[0-9a-fA-F]{64}$" }
+  }
+}

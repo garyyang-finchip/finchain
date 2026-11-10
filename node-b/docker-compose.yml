@@ -1,0 +1,157 @@
+# Finchain host B: independent derivation, challenge, public RPC.
+# Services: op-reth (archive execution), op-node (verifier), op-challenger, caddy.
+#
+# Environment files are passed explicitly by the Makefile:
+#   ../versions.lock  ../profiles/<profile>.env  ./.env
+# Secrets are mounted read-only from ./secrets (never committed):
+#   jwt.txt             Engine API JWT (hex, 32 bytes)
+#   p2p-node-key.txt    op-node peer identity (hex, 32 bytes)
+#   op-challenger.env   OP_CHALLENGER_PRIVATE_KEY=<challenger private key>
+#
+# Independence rules (docs/acceptance.md): this host uses its own L1 provider, its own
+# data volumes and derives from L1. The p2p link to host A only delivers unsafe blocks
+# early; it is not a trust relationship.
+
+name: finchain-b
+
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "50m"
+    max-file: "10"
+
+services:
+  op-reth:
+    image: ${OP_RETH_IMAGE}
+    restart: unless-stopped
+    stop_grace_period: 3m
+    logging: *default-logging
+    volumes:
+      - reth-data:/data
+      - ../chain/out:/chain:ro
+      - ./secrets:/secrets:ro
+    ports:
+      - "${B_BIND_IP}:8545:8545"   # private HTTP (Caddy reaches the container directly)
+      - "${B_BIND_IP}:8546:8546"   # private WebSocket
+      - "${B_BIND_IP}:9001:9001"   # metrics
+    command:
+      - node
+      - --chain=/chain/genesis.json
+      - --datadir=/data
+      - --http
+      - --http.addr=0.0.0.0
+      - --http.port=8545
+      - --http.api=eth,net,web3
+      - --http.corsdomain=*
+      - --ws
+      - --ws.addr=0.0.0.0
+      - --ws.port=8546
+      - --ws.origins=*
+      - --ws.api=eth,net,web3
+      - --authrpc.addr=0.0.0.0
+      - --authrpc.port=8551
+      - --authrpc.jwtsecret=/secrets/jwt.txt
+      - --rollup.sequencer-http=${SEQUENCER_HTTP}
+      - --rollup.disable-tx-pool-gossip
+      - --disable-discovery
+      - --metrics=0.0.0.0:9001
+      - --log.stdout.format=json
+
+  op-node:
+    image: ${OP_NODE_IMAGE}
+    restart: unless-stopped
+    stop_grace_period: 1m
+    logging: *default-logging
+    depends_on:
+      - op-reth
+    environment:
+      OP_NODE_P2P_STATIC: ${P2P_STATIC_PEERS:-}
+    volumes:
+      - op-node-data:/data
+      - ../chain/out:/chain:ro
+      - ./secrets:/secrets:ro
+    ports:
+      - "9222:9222/tcp"            # p2p, public: future third-party verifiers dial here
+      - "9222:9222/udp"
+      - "${B_BIND_IP}:8547:8547"   # op-node RPC incl. admin (private)
+      - "${B_BIND_IP}:7300:7300"   # metrics
+    command:
+      - op-node
+      - --l1=${L1_RPC_URL}
+      - --l1.rpckind=${L1_RPC_KIND}
+      - --l1.beacon=${L1_BEACON_URL}
+      - --l2=http://op-reth:8551
+      - --l2.jwt-secret=/secrets/jwt.txt
+      - --l2.enginekind=reth
+      - --rollup.config=/chain/rollup.json
+      - --verifier.l1-confs=4
+      - --p2p.listen.ip=0.0.0.0
+      - --p2p.listen.tcp=9222
+      - --p2p.listen.udp=9222
+      - --p2p.advertise.ip=${P2P_ADVERTISE_IP}
+      - --p2p.advertise.tcp=9222
+      - --p2p.advertise.udp=9222
+      - --p2p.priv.path=/secrets/p2p-node-key.txt
+      - --p2p.peerstore.path=/data/peerstore
+      - --p2p.discovery.path=/data/discovery
+      - --p2p.no-discovery=true
+      - --rpc.addr=0.0.0.0
+      - --rpc.port=8547
+      - --rpc.enable-admin
+      - --metrics.enabled
+      - --metrics.addr=0.0.0.0
+      - --metrics.port=7300
+      - --log.level=info
+      - --log.format=json
+
+  op-challenger:
+    image: ${OP_CHALLENGER_IMAGE}
+    restart: unless-stopped
+    logging: *default-logging
+    depends_on:
+      - op-node
+    env_file:
+      - path: ./secrets/op-challenger.env
+        required: false   # created by make secrets-*/install-bundle-b; preflight warns when missing
+    volumes:
+      - challenger-data:/data
+      - ../chain/out:/chain:ro
+    command:
+      - op-challenger
+      - --trace-type=permissioned
+      - --l1-eth-rpc=${L1_RPC_URL}
+      - --l1-beacon=${L1_BEACON_URL}
+      - --l2-eth-rpc=http://op-reth:8545
+      - --rollup-rpc=http://op-node:8547
+      - --game-factory-address=${DISPUTE_GAME_FACTORY}
+      - --datadir=/data
+      - --cannon-rollup-config=/chain/rollup.json
+      - --cannon-l2-genesis=/chain/genesis.json
+      - --log.level=info
+      - --log.format=json
+
+  caddy:
+    image: ${CADDY_IMAGE}
+    restart: unless-stopped
+    logging: *default-logging
+    depends_on:
+      - op-reth
+    environment:
+      RPC_HOST: ${RPC_HOST}
+      WS_HOST: ${WS_HOST}
+      ACME_EMAIL: ${ACME_EMAIL}
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+
+volumes:
+  reth-data:
+  op-node-data:
+  challenger-data:
+  caddy-data:
+  caddy-config:

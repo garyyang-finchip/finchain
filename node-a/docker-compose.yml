@@ -1,0 +1,174 @@
+# Finchain host A: sequencing and submission.
+# Services: op-reth (archive execution), op-node (sequencer), op-batcher, op-proposer.
+#
+# Environment files are passed explicitly by the Makefile:
+#   ../versions.lock  ../profiles/<profile>.env  ./.env
+# Secrets are mounted read-only from ./secrets (never committed):
+#   jwt.txt            Engine API JWT (hex, 32 bytes)
+#   p2p-node-key.txt   op-node peer identity (hex, 32 bytes)
+#   op-node.env        OP_NODE_P2P_SEQUENCER_KEY=<unsafe block signer private key>
+#   op-batcher.env     OP_BATCHER_PRIVATE_KEY=<batcher private key>
+#   op-proposer.env    OP_PROPOSER_PRIVATE_KEY=<proposer private key>
+
+name: finchain-a
+
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "50m"
+    max-file: "10"
+
+services:
+  op-reth:
+    image: ${OP_RETH_IMAGE}
+    restart: unless-stopped
+    stop_grace_period: 3m
+    logging: *default-logging
+    volumes:
+      - reth-data:/data
+      - ../chain/out:/chain:ro
+      - ./secrets:/secrets:ro
+    ports:
+      - "${A_BIND_IP}:8545:8545"   # HTTP JSON-RPC (private: host B forwards transactions here)
+      - "${A_BIND_IP}:8546:8546"   # WebSocket JSON-RPC (private)
+      - "${A_BIND_IP}:9001:9001"   # metrics (private)
+    command:
+      - node
+      - --chain=/chain/genesis.json
+      - --datadir=/data
+      - --http
+      - --http.addr=0.0.0.0
+      - --http.port=8545
+      - --http.api=admin,debug,eth,net,txpool,web3
+      - --http.corsdomain=*
+      - --ws
+      - --ws.addr=0.0.0.0
+      - --ws.port=8546
+      - --ws.origins=*
+      - --ws.api=admin,debug,eth,net,txpool,web3
+      - --authrpc.addr=0.0.0.0
+      - --authrpc.port=8551
+      - --authrpc.jwtsecret=/secrets/jwt.txt
+      - --rollup.disable-tx-pool-gossip
+      - --builder.deadline=2
+      - --builder.interval=100ms
+      - --disable-discovery
+      - --metrics=0.0.0.0:9001
+      - --log.stdout.format=json
+
+  op-node:
+    image: ${OP_NODE_IMAGE}
+    restart: unless-stopped
+    stop_grace_period: 1m
+    logging: *default-logging
+    depends_on:
+      - op-reth
+    env_file:
+      - path: ./secrets/op-node.env
+        required: false   # created by make secrets-*/install-bundle-b; preflight warns when missing
+    environment:
+      OP_NODE_P2P_STATIC: ${P2P_STATIC_PEERS:-}
+    volumes:
+      - op-node-data:/data
+      - ../chain/out:/chain:ro
+      - ./secrets:/secrets:ro
+    ports:
+      - "9222:9222/tcp"            # p2p (host B dials this address over the private network)
+      - "9222:9222/udp"
+      - "${A_BIND_IP}:8547:8547"   # op-node RPC incl. admin (private, unauthenticated)
+      - "${A_BIND_IP}:7300:7300"   # metrics (private)
+    command:
+      - op-node
+      - --l1=${L1_RPC_URL}
+      - --l1.rpckind=${L1_RPC_KIND}
+      - --l1.beacon=${L1_BEACON_URL}
+      - --l2=http://op-reth:8551
+      - --l2.jwt-secret=/secrets/jwt.txt
+      - --l2.enginekind=reth
+      - --rollup.config=/chain/rollup.json
+      - --sequencer.enabled=true
+      - --sequencer.stopped=false
+      - --sequencer.max-safe-lag=3600
+      - --sequencer.l1-confs=4
+      - --verifier.l1-confs=4
+      - --p2p.listen.ip=0.0.0.0
+      - --p2p.listen.tcp=9222
+      - --p2p.listen.udp=9222
+      - --p2p.advertise.ip=${P2P_ADVERTISE_IP}
+      - --p2p.advertise.tcp=9222
+      - --p2p.advertise.udp=9222
+      - --p2p.priv.path=/secrets/p2p-node-key.txt
+      - --p2p.peerstore.path=/data/peerstore
+      - --p2p.discovery.path=/data/discovery
+      - --p2p.no-discovery=true
+      - --rpc.addr=0.0.0.0
+      - --rpc.port=8547
+      - --rpc.enable-admin
+      - --metrics.enabled
+      - --metrics.addr=0.0.0.0
+      - --metrics.port=7300
+      - --log.level=info
+      - --log.format=json
+
+  op-batcher:
+    image: ${OP_BATCHER_IMAGE}
+    restart: unless-stopped
+    logging: *default-logging
+    depends_on:
+      - op-node
+    env_file:
+      - path: ./secrets/op-batcher.env
+        required: false   # created by make secrets-*/install-bundle-b; preflight warns when missing
+    ports:
+      - "${A_BIND_IP}:8548:8548"   # batcher admin RPC (private)
+    command:
+      - op-batcher
+      - --l1-eth-rpc=${L1_RPC_URL}
+      - --l2-eth-rpc=http://op-reth:8545
+      - --rollup-rpc=http://op-node:8547
+      - --poll-interval=${BATCHER_POLL_INTERVAL}
+      - --sub-safety-margin=${BATCHER_SUB_SAFETY_MARGIN}
+      - --num-confirmations=1
+      - --safe-abort-nonce-too-low-count=3
+      - --resubmission-timeout=30s
+      - --max-channel-duration=${BATCHER_MAX_CHANNEL_DURATION}
+      - --batch-type=1
+      - --data-availability-type=calldata
+      - --compression-algo=brotli
+      - --rpc.addr=0.0.0.0
+      - --rpc.port=8548
+      - --rpc.enable-admin
+      - --log.level=info
+      - --log.format=json
+
+  op-proposer:
+    image: ${OP_PROPOSER_IMAGE}
+    restart: unless-stopped
+    logging: *default-logging
+    depends_on:
+      - op-node
+    env_file:
+      - path: ./secrets/op-proposer.env
+        required: false   # created by make secrets-*/install-bundle-b; preflight warns when missing
+    ports:
+      - "${A_BIND_IP}:8560:8560"   # proposer admin RPC (private)
+    command:
+      - op-proposer
+      - --l1-eth-rpc=${L1_RPC_URL}
+      - --rollup-rpc=http://op-node:8547
+      - --game-factory-address=${DISPUTE_GAME_FACTORY}
+      - --game-type=${PROPOSER_GAME_TYPE}
+      - --proposal-interval=${PROPOSER_INTERVAL}
+      - --poll-interval=${PROPOSER_POLL_INTERVAL}
+      - --num-confirmations=1
+      - --resubmission-timeout=30s
+      - --wait-node-sync=true
+      - --rpc.addr=0.0.0.0
+      - --rpc.port=8560
+      - --rpc.enable-admin
+      - --log.level=info
+      - --log.format=json
+
+volumes:
+  reth-data:
+  op-node-data:
