@@ -1,1 +1,42 @@
+name: lint
 
+on:
+  push:
+  pull_request:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: shellcheck
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq shellcheck
+          shellcheck -x scripts/*.sh
+
+      - name: compose config (host A)
+        working-directory: node-a
+        run: docker compose --env-file ../versions.lock --env-file ../profiles/demo.env --env-file .env.example config -q
+
+      - name: compose config (host B)
+        working-directory: node-b
+        run: docker compose --env-file ../versions.lock --env-file ../profiles/lowcost.env --env-file .env.example config -q
+
+      - name: json and schema
+        run: |
+          for f in manifests/*.json registry/*.json; do jq empty "$f"; done
+          pip install -q jsonschema
+          python3 - <<'EOF'
+          import json, jsonschema
+          schema = json.load(open("manifests/manifest.schema.json"))
+          doc = json.load(open("manifests/manifest.template.json"))
+          jsonschema.validate(doc, schema)
+          print("manifest template valid")
+          EOF
+
+      - name: no secrets committed
+        run: |
+          if git ls-files | grep -E '^(keys/|node-[ab]/secrets/)' | grep -v -E '(\.gitkeep|README\.md)$'; then
+            echo "secret paths are tracked"; exit 1; fi
+          echo "ok"
