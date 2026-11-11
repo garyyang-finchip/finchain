@@ -30,7 +30,7 @@ source and challenges invalid proposals. See `docs/execution-brief.md`.
 
 - Stack: upstream OP Stack, candidate version set in `versions.lock` (verified as a set, then frozen).
 - L1: Ethereum Sepolia (chain id 11155111). Intent type `standard-overrides`.
-- Chain id candidate: **83380** (parameterised; final uniqueness check before genesis). 8338 is excluded.
+- Chain id: **85422** for Finchain Sepolia (parameterised; registry check done before genesis). 8338 is excluded; 83380 was the first candidate and was replaced before deployment.
 - Gas asset: ETH, bridged from Sepolia. No custom gas token in v1.
 - Data availability: L1 calldata.
 - Genesis: official predeploys and system config only. No pre-minted native ETH on the public testnet; every balance enters through the L1 bridge.
@@ -47,7 +47,7 @@ make preflight                       # host, Docker, image architecture, flag an
 make keys                            # generate role keys into keys/ (never committed)
 make intent                          # op-deployer init + Finchain overrides -> chain/deployer/intent.toml
 make funding-table                   # itemised Sepolia ETH budget for the chosen profile
-make deploy-l1                       # op-deployer apply (needs a funded deployer key)
+make deploy-l1                       # L1 contracts (needs a funded deployer key; auto-selects the calldata path on EIP-8037 L1s)
 make export                          # genesis.json, rollup.json, L1 addresses -> chain/out/
 make verify-onchain                  # on-chain configuration snapshot at a fixed L1 block
 make up-a PROFILE=demo               # on host A
@@ -74,9 +74,11 @@ The full procedure, with expected outputs and acceptance checks, is in
 
 ## Status
 
-v0.1.3: repository skeleton (scripts are run through `bash`, so the execute bit is not required; flag check and L1 probe hardened after the first preflight runs on both hosts). Nothing in this repository has been run against
-Sepolia yet. Every version in `versions.lock` is a candidate until `make preflight`
-and the M1 run have passed. See `docs/acceptance.md` for what "passed" means and
+v0.1.6: preflight passed on both hosts; keys, secrets, intent (chain id 85422) and the
+funding table done on Sepolia; the first deployment attempts showed that Sepolia now runs
+Glamsterdam (EIP-8037 state gas), which op-deployer v0.7.1's own broadcaster cannot size,
+so `make deploy-l1` sends the deployment through the calldata path (`docs/versions.md`).
+Every version in `versions.lock` is a candidate until the M1 run has passed. See `docs/acceptance.md` for what "passed" means and
 where (local devnet or public testnet) each item has been demonstrated.
 
 ## License

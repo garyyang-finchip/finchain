@@ -2,7 +2,7 @@
 
 | Network | Chain id | Status |
 | --- | --- | --- |
-| Finchain Sepolia | 83380 | candidate; final uniqueness check before genesis |
+| Finchain Sepolia | 85422 | chosen 2026-11-11 (replaces the first candidate 83380); registry check passed before deployment |
 | Finchain (mainnet) | to be decided | frozen before mainnet deployment |
 
 ## Why 8338 is excluded
@@ -14,15 +14,15 @@ whether that network is still producing blocks or is in any registry.
 ## Procedure before genesis
 
 1. `make chain-id-check` - confirms the id is absent from `ethereum-lists/chains`
-   (`_data/chains/eip155-83380.json`). Absence is necessary, not sufficient.
+   (`_data/chains/eip155-85422.json`). Absence is necessary, not sufficient.
 2. Manual checks, results recorded here with the date: chainlist.org entry, thirdweb chain
-   page, web search for "chain id 83380" / "chainId 83380".
+   page, web search for "chain id 85422" / "chainId 85422".
 3. The id is a parameter everywhere (`CHAIN_ID` in `.env`); a change before genesis costs
    nothing. After genesis it cannot change.
 
 ## Registration after launch
 
-Submit `registry/eip155-83380.json` to `ethereum-lists/chains` once the public RPC answers
+Submit `registry/eip155-85422.json` to `ethereum-lists/chains` once the public RPC answers
 and the explorer exists. Wallets pick the entry up from there.
 
 ## Record

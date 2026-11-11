@@ -7,11 +7,16 @@ from the parameters below and the current gas price.
 
 ## 1. L1 contract deployment (one-off)
 
-`op-deployer apply` sends several transactions through the OP Contracts Manager. Cost =
-gas used x gas price at the time. Until measured, `EST_DEPLOY_GAS` in `.env` is a
-placeholder; `chain/out/deployment.json` records the actual `deployerSpentEth` after the
-run and replaces it. If the deployer runs dry midway, top it up and re-run `apply`: the
-tool resumes from `state.json`.
+With a standard intent the deployment is one transaction to the OP Contracts Manager
+(`deploy()`), which creates the chain's proxies, the per-chain dispute game implementation
+and their storage. Cost = gas used x gas price at the time. On Sepolia under EIP-8037
+(Glamsterdam, `docs/versions.md`) the live estimate is about 56M gas in total, of which
+about 9M is execution gas and the rest state gas for the new contracts and slots; at 1 gwei
+that is 0.056 ETH, at 20 gwei 1.1 ETH. `EST_DEPLOY_GAS` in `.env` holds the planning figure;
+`chain/out/deployment.json` records the actual gas and `deployerSpentEth` after the run.
+The deployer must hold gas limit x fee cap when the transaction is sent (the node refuses it
+otherwise); the unused part of the gas limit is refunded. If a live-mode `apply` runs dry
+midway, top the deployer up and re-run it: the tool resumes from `state.json`.
 
 ## 2. Daily operations
 
@@ -21,7 +26,12 @@ tool resumes from `state.json`.
 | proposer | 24 h / `PROPOSER_INTERVAL` game creations per day | demo (1 h): 24/day; lowcost (6 h): 4/day |
 | challenger | resolve + claim per game, plus any counter-moves | permissioned games with no adversary: a few transactions per game |
 
-Gas per transaction is measured after M1 (`EST_*_GAS` placeholders in `.env`).
+Gas per transaction is measured after M1 (`EST_*_GAS` placeholders in `.env`). Under
+EIP-8037 every transaction that creates state pays the higher state-gas prices: a game
+creation deploys a clone proxy (new account 183,600 plus code and slots) and is expected
+around 1M gas rather than the pre-Glamsterdam 600K; batcher calldata pays the EIP-7976
+floor cost (about 1.5x the previous floor). The placeholders are set on the high side until
+measured.
 
 ## 3. Bonds
 

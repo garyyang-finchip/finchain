@@ -1,0 +1,31 @@
+{
+  "name": "Finchain Sepolia",
+  "chain": "ETH",
+  "rpc": [
+    "https://rpc.finchain.one",
+    "wss://ws.finchain.one"
+  ],
+  "faucets": [],
+  "nativeCurrency": {
+    "name": "Sepolia Ether",
+    "symbol": "ETH",
+    "decimals": 18
+  },
+  "infoURL": "https://finchain.one",
+  "shortName": "finchain-sepolia",
+  "chainId": 85422,
+  "networkId": 85422,
+  "explorers": [
+    {
+      "name": "Finchain Explorer",
+      "url": "https://explorer.finchain.one",
+      "standard": "EIP3091"
+    }
+  ],
+  "parent": {
+    "type": "L2",
+    "chain": "eip155-11155111",
+    "bridges": []
+  },
+  "status": "incubating"
+}

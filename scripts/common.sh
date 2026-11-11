@@ -68,7 +68,12 @@ host_arch() {
 # Run Foundry's cast through Docker so that no host install is required.
 # The foundry image's entrypoint is a shell (`/bin/sh -c`), so the binary is named
 # explicitly with --entrypoint; otherwise the arguments are swallowed and cast prints help.
+# CAST_BIN=/path/to/cast uses a native binary instead (hosts without Docker, tests).
 cast() {
+  if [ -n "${CAST_BIN:-}" ]; then
+    "$CAST_BIN" "$@"
+    return
+  fi
   docker run --rm -i --network host --entrypoint cast \
     -v "$FINCHAIN_ROOT":"$FINCHAIN_ROOT" -w "$FINCHAIN_ROOT" \
     "${FOUNDRY_IMAGE:?FOUNDRY_IMAGE not set (load versions.lock)}" "$@"
@@ -79,6 +84,27 @@ rpc() {
   local url="$1" method="$2" params="${3:-[]}"
   curl -sS -X POST "$url" -H 'content-type: application/json' \
     --data "{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"$method\",\"params\":$params}"
+}
+
+# hex_to_eth 0x<wei>: ETH with 6 decimals. Goes through jq because wei balances exceed the
+# 64-bit range of shell arithmetic (relative precision 1e-16 is enough for display).
+hex_to_eth() {
+  jq -rn --arg h "$1" '$h | ltrimstr("0x") | ascii_downcase | explode
+    | map(if . >= 97 then . - 87 else . - 48 end) | reduce .[] as $d (0; . * 16 + $d) | . / 1e18' \
+    | awk '{ printf "%.6f", $1 }'
+}
+
+# Current L1 gas price in wei. eth_gasPrice first; when the provider answers null (seen on
+# public Sepolia endpoints), 2 x baseFeePerGas of the latest block; 0 if neither answers.
+l1_gas_price_wei() {
+  local url="$1" p
+  p="$(rpc "$url" eth_gasPrice 2>/dev/null | jq -r '.result // empty' 2>/dev/null || true)"
+  if [ -z "$p" ]; then
+    p="$(rpc "$url" eth_getBlockByNumber '["latest",false]' 2>/dev/null | jq -r '.result.baseFeePerGas // empty' 2>/dev/null || true)"
+    if [ -n "$p" ]; then echo $(( p * 2 )); else echo 0; fi
+  else
+    echo $(( p ))
+  fi
 }
 
 # Path to the op-deployer binary for this host (downloaded by scripts/get-op-deployer.sh).

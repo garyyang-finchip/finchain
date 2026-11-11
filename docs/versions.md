@@ -10,7 +10,7 @@ Digest pinning fixes identity; compatibility is shown by the run, not by the pin
 | Component | Candidate | Reason |
 | --- | --- | --- |
 | op-contracts | v7.0.0 (Upgrade 19) | current governance-approved L1 contracts release |
-| op-deployer | v0.7.1 | the v0.7 minor targets op-contracts/v7.0.0 (each op-deployer minor supports one contracts release). Verified 2026-11-11: release assets are `op-deployer-0.7.1-<os>-<arch>.tar.gz`; `init` writes `l1ContractsLocator = "embedded"` (artifacts ship inside the binary) and fills `opcmAddress` with the registry's v7.0.0 OPCM on Sepolia (0x44e1…8297), which `make intent` cross-checks |
+| op-deployer | v0.7.1 | the v0.7 minor targets op-contracts/v7.0.0 (each op-deployer minor supports one contracts release). Verified 2026-11-11: release assets are `op-deployer-0.7.1-<os>-<arch>.tar.gz`; `init` writes `l1ContractsLocator = "embedded"` (artifacts ship inside the binary) and fills `opcmAddress` with the registry's v7.0.0 OPCM on Sepolia (0x44e1...8297), which `make intent` cross-checks. Its live broadcaster cannot size transactions on an EIP-8037 L1; see "L1 rules" below |
 | op-reth | v2.4.2 | the tutorial pins v2.4.0; v2.4.2 adds fixes for history proof data gaps after restart, relevant to host B rebuilds and proof work |
 | op-node | v1.19.3 | tutorial pin; check for a newer patch in the same minor before freezing |
 | op-batcher | v1.16.11 | tutorial pin |
@@ -38,6 +38,46 @@ series; it is not used. Before freezing, the release choice is made explicitly: 
 governance-approved release for which an op-deployer minor exists and for which the
 op-node / op-challenger / kona candidates are documented as compatible. v7.0.0 stays the
 candidate until that check is recorded here.
+
+## L1 rules: Glamsterdam on Sepolia (recorded 2026-11-11)
+
+Sepolia activated Glamsterdam (execution fork Amsterdam) on 2026-10-06; block headers carry
+`blockAccessListHash`. Two of its EIPs change the cost of a chain deployment:
+
+| EIP | Effect | Numbers |
+| --- | --- | --- |
+| EIP-8037 state creation gas cost increase | new state is metered in a second gas dimension ("state gas") at 1,530 gas per state byte | `CREATE`/`CREATE2` base 32,000 -> 183,600; code deposit 200 -> 1,530 gas per byte; new storage slot 20,000 -> 97,920; new account 25,000 -> 183,600 |
+| EIP-7825 (Fusaka) | per-transaction gas cap 16,777,216 | under EIP-8037 the cap applies to execution gas only; `tx.gas` as a whole is bounded by the block gas limit |
+
+Consequences observed with op-deployer v0.7.1 and the v7.0.0 OPCM on Sepolia:
+
+- `OPContractsManager.deploy()` for one chain creates about fifteen contracts (proxies, the
+  per-chain PermissionedDisputeGame implementation, DelayedWETH) and hundreds of storage
+  slots. Pre-Glamsterdam rules: 8.9M gas (anvil, cast with `--evm-version osaka`). Live
+  Sepolia `eth_estimateGas`: 55,667,351 gas (Tenderly gateway; providers that cap estimates
+  at 50M return an error instead). The difference is state gas.
+- op-deployer's live mode runs the deployment in its built-in EVM, whose chain config is
+  hard-coded to Cancun-era forks, pads the result by 1.2x (10.66M) and has txmgr check that
+  limit with `eth_call` before sending. On Sepolia that call reverts with
+  `DeploymentFailed()` (selector `0x30116425`: a CREATE2 inside the OPCM ran out of gas and
+  returned the zero address). Nothing is sent, nothing is spent, and no chain id or RPC
+  choice changes this.
+- op-deployer v0.8.0 and later take the gas limit from the target node's `eth_estimateGas`
+  (develop branch: "A zero gas limit makes txmgr estimate against the target chain"), but
+  those releases target op-contracts v8.0.0 / v9.0.0 and their OPCMs, not v7.0.0.
+- Resolution kept here: `make deploy-l1` detects Amsterdam rules and uses
+  `scripts/deploy-l1-calldata.sh`: op-deployer produces the calldata and the predicted
+  CREATE2 addresses (`--deployment-target calldata`), the gas limit comes from the live
+  node's estimate plus 5% (capped at the block gas limit), an `eth_call` dry run at that
+  limit must succeed, and cast sends the transaction from the deployer key. The L1 start
+  block recorded in `state.json` is the block that included the deployment.
+- The same repricing raises every state-creating transaction of the chain: proposer game
+  creation (clone proxy plus new slots), bridge deposits to fresh accounts, the Covenant
+  World deployment. `docs/funding-model.md` carries the updated inputs. EIP-7976 (also
+  Glamsterdam) raises the calldata floor cost, which the batcher pays.
+
+References: EIP-8037 (eips.ethereum.org/EIPS/eip-8037), optimism issue #23609 (anvil
+Amsterdam estimates), op-deployer broadcaster history.
 
 ## Verification order
 

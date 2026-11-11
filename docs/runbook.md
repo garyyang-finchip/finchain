@@ -67,14 +67,28 @@ release (`docs/versions.md`).
 ## 4. L1 deployment and artifacts
 
 ```bash
-make deploy-l1            # confirms, then op-deployer apply; writes chain/out/deployment.json
+make deploy-l1            # confirms, then deploys; writes chain/out/deployment.json
 make export               # genesis.json, rollup.json, l1-addresses.json, chain-record.json
 make verify-onchain       # manifests/onchain-<block>.json at the latest finalized L1 block
 ```
 
+`make deploy-l1` looks at the L1 head first. When it carries `blockAccessListHash`
+(Amsterdam rules: Sepolia since 2026-10-06) the calldata path runs: op-deployer only
+produces the transaction calldata and the predicted addresses, the gas limit is taken from
+the live node's estimate (about 56M gas for one chain under EIP-8037; the 16.7M cap of
+EIP-7825 applies to execution gas only), an `eth_call` dry run at that limit must succeed,
+and cast sends the transaction from the deployer key. `L1_RPC_URL` must be an endpoint
+whose `eth_estimateGas` and `eth_call` accept the block gas limit (the Tenderly gateway
+does; endpoints that cap at 50M fail the estimate and the script falls back to the block
+gas limit for the dry run). `DEPLOY_MODE=live` forces op-deployer's own broadcaster, which
+fails on such an L1 with `DeploymentFailed()` before sending anything (`docs/versions.md`).
+`TX_PRIORITY_GWEI` (default 2) sets the priority fee; a transaction of this size needs a
+block with enough free state gas, so inclusion can take a few blocks. `SEND_RPC_URL` sends
+through a different endpoint than the one used for the estimate and the dry run.
+
 From the snapshot: set `PROPOSER_GAME_TYPE` in `node-a/.env` to the respected game type;
 confirm `DISPUTE_GAME_FACTORY` was filled into both host env files (copy `chain/out/` and
-`node-b/.env` to host B). Record `deployerSpentEth` from `chain/out/deployment.json` as the
+`node-b/.env` to host B). Record `deployerSpentEth` and the transaction gas from `chain/out/deployment.json` as the
 measured deployment cost and replace `EST_DEPLOY_GAS` accordingly.
 
 If the initial bond is to be lowered for the testnet:

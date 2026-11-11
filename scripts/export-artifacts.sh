@@ -44,7 +44,7 @@ portal="$(pick '.optimismPortalProxyAddress' '.OptimismPortalProxy' '.opChainCon
 syscfg="$(pick '.systemConfigProxyAddress' '.SystemConfigProxy' '.opChainContracts.systemConfigProxy')" || true
 asr="$(pick '.anchorStateRegistryProxyAddress' '.AnchorStateRegistryProxy' '.opChainContracts.anchorStateRegistryProxy')" || true
 bridge="$(pick '.l1StandardBridgeProxyAddress' '.L1StandardBridgeProxy' '.opChainContracts.l1StandardBridgeProxy')" || true
-pdg="$(pick '.permissionedDisputeGameAddress' '.PermissionedDisputeGame' '.opChainContracts.permissionedDisputeGame')" || true
+pdg="$(pick '.permissionedDisputeGameAddress' '.PermissionedDisputeGameImpl' '.PermissionedDisputeGame' '.opChainContracts.permissionedDisputeGame')" || true
 
 genesis_hash="$(jq -r '.genesis.l2.hash // empty' "$OUT/rollup.json")"
 l1_anchor="$(jq -r '.genesis.l1.hash // empty' "$OUT/rollup.json")"

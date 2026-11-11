@@ -31,7 +31,7 @@ is not.
 | Data availability | L1 calldata. A later switch to blobs requires a blob archive for long-term rebuildability. |
 | Genesis | Official predeploys and system configuration only. No pre-minted native ETH on the public testnet; the deployer, treasury and faucet obtain balances through real L1 -> L2 deposits. Local devnets may pre-fund. |
 | Covenant World | Deployed by ordinary transactions after chain start, before public opening. The completing block number and hash, the transaction list, code hashes and permission configuration go into the manifest. |
-| Chain id | 83380 candidate for Finchain Sepolia, parameterised everywhere, final uniqueness check before genesis. 8338 is excluded because of prior network use. Mainnet id decided before mainnet. |
+| Chain id | 85422 for Finchain Sepolia (83380 was the first candidate), parameterised everywhere, registry check before genesis. 8338 is excluded because of prior network use. Mainnet id decided before mainnet. |
 | Domain | `finchain.one`: `rpc.`, `ws.`, `explorer.` sub-domains served from host B. |
 | Key handling | Hot keys generated on the operator hosts and never leave them except the one-time move of host B's secrets over the private network. Owner roles on an externally controlled address. No `.pem` or key file is ever placed in a shared folder or the repository. |
 | Delivery mode | This repository plus the runbook; the operator runs the steps on the hosts. |

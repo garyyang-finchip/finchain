@@ -3,13 +3,14 @@ SHELL := /bin/bash
 
 ROOT    := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
 PROFILE ?= demo
+DEPLOY_MODE ?= auto
 
 ENV_COMMON := --env-file $(ROOT)/versions.lock --env-file $(ROOT)/profiles/$(PROFILE).env
 COMPOSE_A  := docker compose -f $(ROOT)/node-a/docker-compose.yml $(ENV_COMMON) --env-file $(ROOT)/node-a/.env
 COMPOSE_B  := docker compose -f $(ROOT)/node-b/docker-compose.yml $(ENV_COMMON) --env-file $(ROOT)/node-b/.env
 
 .PHONY: help init-env preflight-a preflight-b op-deployer keys secrets-a secrets-b bundle-b install-bundle-b \
-        chain-id-check l1-probe intent funding-table deploy-l1 export verify-onchain lock \
+        chain-id-check l1-probe intent funding-table deploy-l1 deploy-l1-calldata export verify-onchain lock \
         up-a down-a restart-a logs-a up-b down-b restart-b logs-b status-a status-b peers-a peers-b \
         compare rebuild-b deposit set-init-bond lint
 
@@ -51,8 +52,10 @@ intent: ## op-deployer init + Finchain overrides -> chain/deployer/intent.toml
 funding-table: ## Itemised Sepolia ETH budget for PROFILE
 	@PROFILE=$(PROFILE) bash $(ROOT)/scripts/funding-table.sh $(GAS_GWEI)
 
-deploy-l1: ## op-deployer apply on Sepolia (spends ETH, asks for confirmation)
-	@bash $(ROOT)/scripts/deploy-l1.sh
+deploy-l1: ## Deploy the L1 contracts (spends ETH, asks for confirmation; DEPLOY_MODE=auto|live|calldata)
+	@DEPLOY_MODE=$(DEPLOY_MODE) bash $(ROOT)/scripts/deploy-l1.sh
+deploy-l1-calldata: ## op-deployer calldata + gas from the live node + cast send (EIP-8037 L1s)
+	@bash $(ROOT)/scripts/deploy-l1-calldata.sh
 
 export: ## Export genesis.json, rollup.json, L1 addresses, chain record
 	@bash $(ROOT)/scripts/export-artifacts.sh

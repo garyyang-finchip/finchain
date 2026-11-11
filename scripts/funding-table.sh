@@ -17,7 +17,7 @@ load_standard_env
 if [ -n "${1:-}" ]; then
   gwei="$1"; src="given"
 else
-  gwei="$(awk -v p="$(( $(rpc "$L1_RPC_URL" eth_gasPrice | jq -r .result) ))" 'BEGIN { printf "%.6f", p / 1e9 }')"; src="live ($L1_RPC_URL)"
+  gwei="$(awk -v p="$(l1_gas_price_wei "$L1_RPC_URL")" 'BEGIN { printf "%.6f", p / 1e9 }')"; src="live ($L1_RPC_URL)"
 fi
 
 to_seconds() { # 6h | 90m | 3600s | 3600
@@ -48,7 +48,7 @@ channel_blocks="${BATCHER_MAX_CHANNEL_DURATION:?}"
 proposal_s="$(to_seconds "${PROPOSER_INTERVAL:?}")"
 
 awk -v gwei="$gwei" -v src="$src" -v profile="$PROFILE" \
-    -v deploy_gas="${EST_DEPLOY_GAS:-40000000}" \
+    -v deploy_gas="${EST_DEPLOY_GAS:-60000000}" \
     -v batcher_gas="${EST_BATCHER_GAS_PER_TX:-160000}" -v channel_blocks="$channel_blocks" \
     -v proposer_gas="${EST_PROPOSER_GAS_PER_TX:-600000}" -v proposal_s="$proposal_s" \
     -v challenger_gas="${EST_CHALLENGER_GAS_PER_GAME:-350000}" \
