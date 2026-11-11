@@ -1,0 +1,26 @@
+{
+  "chainId": 85422,
+  "l1ChainId": 11155111,
+  "deployer": "0xA199250F15DCE1399288F967f8652A882B1947e9",
+  "contractsRelease": "op-contracts/v7.0.0",
+  "opDeployerVersion": "v0.7.1",
+  "mode": "calldata-cast",
+  "startedAt": "2026-11-11T16:30:58Z",
+  "l1AmsterdamRules": true,
+  "transactions": [
+    {
+      "hash": "0xed7911150ab7e85087f7cb1d0892dba1b8b7e0fa542dfa0ff1a7ebd14261fb1b",
+      "to": "0x44e197058fb98fb3618453b3d90cdef6f5db8297",
+      "blockNumber": 12112920,
+      "gasLimit": 58450718,
+      "gasUsed": 55227867,
+      "effectiveGasPriceWei": 2000000018
+    }
+  ],
+  "startBlock": {
+    "number": 12112920,
+    "hash": "0x10fc1193802668896d6aadc3db867c47ec3f3660ba53d940a649fb6a8aa0594b",
+    "timestamp": "0x6af49850"
+  },
+  "deployerSpentEth": 0.110456
+}

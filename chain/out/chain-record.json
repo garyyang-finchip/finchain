@@ -1,0 +1,18 @@
+{
+  "chainId": 85422,
+  "name": "Finchain Sepolia",
+  "l2GenesisHash": "0xcd6c17a0678d331d06ac2b8c8e820450bd5f2e3b91a1606289eca7b0fee631c5",
+  "l1Anchor": {
+    "hash": "0x10fc1193802668896d6aadc3db867c47ec3f3660ba53d940a649fb6a8aa0594b",
+    "number": 12112920
+  },
+  "rollupConfigSha256": "530063a1f949afead2d96efb63cc99817656fe9c9f18d54c854699f1f59dccd9",
+  "l1": {
+    "DisputeGameFactoryProxy": "0xc752f10ab0696860b11b789a2ab9f4f93331329c",
+    "OptimismPortalProxy": "0xeb8fbc0732fc7719838cf73d5377320a6c086b14",
+    "SystemConfigProxy": "0xe99755f8447984d1cbc6a86e8ae0771c6ee15402",
+    "AnchorStateRegistryProxy": "0x31ffb1c4a5d40c7c39a122320db733389eb9c1fb",
+    "L1StandardBridgeProxy": "0x4273ec08f893d66b1fbc525de946ca5666c27dc4",
+    "PermissionedDisputeGame": "0xe1dffcbe4e22b813f26d2106d943c102e7cab87e"
+  }
+}

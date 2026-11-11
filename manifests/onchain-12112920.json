@@ -1,0 +1,69 @@
+{
+  "snapshot": {
+    "l1Block": 12112920,
+    "l1Rpc": "https://sepolia.gateway.tenderly.co",
+    "takenAt": "2026-11-11T16:42:22Z",
+    "l2ChainId": 85422
+  },
+  "systemConfig": {
+    "address": "0xe99755f8447984d1cbc6a86e8ae0771c6ee15402",
+    "version": "\"3.14.2\"",
+    "owner": "0xF8D8846e505E5478C60B57182D39f61b066cA8E2",
+    "unsafeBlockSigner": "0x6aa496d0B1E3fdbfd2083433F54eFEACbEa47c3f",
+    "batcherHash": "0x0000000000000000000000007487f13d57e19d8cbeac42fd1130b4311eb32157"
+  },
+  "optimismPortal": {
+    "address": "0xeb8fbc0732fc7719838cf73d5377320a6c086b14",
+    "version": "\"5.6.1\"",
+    "respectedGameType": "1",
+    "proofMaturityDelaySeconds": "604800 [6.048e5]",
+    "disputeGameFinalityDelaySeconds": "302400 [3.024e5]",
+    "guardian": "0x7a50f00e8D05b95F98fE38d8BeE366a7324dCf7E",
+    "paused": "false"
+  },
+  "anchorStateRegistry": {
+    "address": "0x31ffb1c4a5d40c7c39a122320db733389eb9c1fb",
+    "respectedGameType": "1",
+    "retirementTimestamp": "1794414672 [1.794e9]"
+  },
+  "disputeGameFactory": {
+    "address": "0xc752f10ab0696860b11b789a2ab9f4f93331329c",
+    "owner": "0xF8D8846e505E5478C60B57182D39f61b066cA8E2",
+    "gameCount": "0",
+    "games": [
+      {
+        "gameType": 0,
+        "implementation": "0x0000000000000000000000000000000000000000"
+      },
+      {
+        "gameType": 1,
+        "implementation": "0xe1dFFCBE4e22B813F26d2106D943C102e7cAb87e",
+        "parametersFrom": "factory gameArgs",
+        "initBondWei": "80000000000000000 [8e16]",
+        "absolutePrestate": "0x038512e02c4c3f7bdaec27d00edf55b7155e0905301e1a88083e4e0a6764d54c",
+        "vm": "0xacc005dcd857b401e4732e6f7837135a22825cfa",
+        "anchorStateRegistry": "0x31ffb1c4a5d40c7c39a122320db733389eb9c1fb",
+        "maxGameDepth": "73",
+        "splitDepth": "30",
+        "clockExtensionSeconds": "10800 [1.08e4]",
+        "maxClockDurationSeconds": "302400 [3.024e5]",
+        "l2ChainId": "85422",
+        "permissioned": {
+          "proposer": "0xde49748ec95ac4eab9a12f3bc7124a469b4073b6",
+          "challenger": "0xd0236e0d768cc4456eed2a5373feb35413192e58"
+        },
+        "delayedWeth": {
+          "address": "0x3c40a4e728246f4c0456760f435be6f9788604b6",
+          "delaySeconds": "302400 [3.024e5]"
+        },
+        "version": "\"2.4.0\""
+      }
+    ]
+  },
+  "superchainConfig": {
+    "address": "0xC2Be75506d5724086DEB7245bd260Cc9753911Be",
+    "guardian": "0x7a50f00e8D05b95F98fE38d8BeE366a7324dCf7E",
+    "paused": "false",
+    "note": "shared with other chains under standard-overrides; guardian and pause authority are not Finchain roles"
+  }
+}
