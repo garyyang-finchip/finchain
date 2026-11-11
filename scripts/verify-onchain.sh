@@ -42,27 +42,45 @@ respected="$(call "$PORTAL" 'respectedGameType()(uint32)')"
 if [ -z "$ASR" ] || [ "$ASR" = "n/a" ]; then ASR="$(call "$PORTAL" 'anchorStateRegistry()(address)')"; fi
 
 game_block() { # <type>
-  local t="$1" impl
+  local t="$1" impl args hex prestate vm asr_a weth l2id proposer challenger src
   impl="$(call "$DGF" 'gameImpls(uint32)(address)' "$t")"
   if [ "$impl" = "n/a" ] || [ "$impl" = "0x0000000000000000000000000000000000000000" ]; then
     jq -n --arg t "$t" '{gameType: ($t|tonumber), implementation: "0x0000000000000000000000000000000000000000"}'
     return
   fi
-  local weth; weth="$(call "$impl" 'weth()(address)')"
-  jq -n --arg t "$t" --arg impl "$impl" \
+  # Since op-contracts v7 the game implementation is shared by all chains and the per-chain
+  # parameters live in the factory's game args, packed as
+  #   absolutePrestate(32) | vm(20) | anchorStateRegistry(20) | delayedWETH(20) | l2ChainId(32)
+  #   [| proposer(20) | challenger(20)]   (the last two for permissioned games)
+  # Reading absolutePrestate() on the implementation itself returns zero on such releases.
+  args="$(call "$DGF" 'gameArgs(uint32)(bytes)' "$t")"
+  hex="${args#0x}"
+  if [ "$args" != "n/a" ] && [ "${#hex}" -ge 248 ]; then
+    src="factory gameArgs"
+    prestate="0x${hex:0:64}"; vm="0x${hex:64:40}"; asr_a="0x${hex:104:40}"; weth="0x${hex:144:40}"
+    l2id="${hex:184:64}"; l2id="$(printf '%s' "$l2id" | sed 's/^0*//')"; l2id=$(( 16#${l2id:-0} ))
+    proposer=""; challenger=""
+    if [ "${#hex}" -ge 328 ]; then proposer="0x${hex:248:40}"; challenger="0x${hex:288:40}"; fi
+  else
+    src="implementation getters"
+    prestate="$(call "$impl" 'absolutePrestate()(bytes32)')"; vm="$(call "$impl" 'vm()(address)')"
+    asr_a="$(call "$impl" 'anchorStateRegistry()(address)')"; weth="$(call "$impl" 'weth()(address)')"
+    l2id="$(call "$impl" 'l2ChainId()(uint256)')"
+    proposer="$(call "$impl" 'proposer()(address)')"; challenger="$(call "$impl" 'challenger()(address)')"
+  fi
+  jq -n --arg t "$t" --arg impl "$impl" --arg src "$src" \
     --arg bond "$(call "$DGF" 'initBonds(uint32)(uint256)' "$t")" \
-    --arg prestate "$(call "$impl" 'absolutePrestate()(bytes32)')" \
-    --arg vm "$(call "$impl" 'vm()(address)')" \
+    --arg prestate "$prestate" --arg vm "$vm" --arg asr "$asr_a" \
     --arg maxDepth "$(call "$impl" 'maxGameDepth()(uint256)')" \
     --arg splitDepth "$(call "$impl" 'splitDepth()(uint256)')" \
     --arg clockExt "$(call "$impl" 'clockExtension()(uint64)')" \
     --arg maxClock "$(call "$impl" 'maxClockDuration()(uint64)')" \
-    --arg l2ChainId "$(call "$impl" 'l2ChainId()(uint256)')" \
-    --arg proposer "$(call "$impl" 'proposer()(address)')" \
-    --arg challenger "$(call "$impl" 'challenger()(address)')" \
+    --arg l2ChainId "$l2id" \
+    --arg proposer "$proposer" --arg challenger "$challenger" \
     --arg weth "$weth" --arg wethDelay "$(call "$weth" 'delay()(uint256)')" \
     --arg version "$(call "$impl" 'version()(string)')" \
-    '{gameType: ($t|tonumber), implementation: $impl, initBondWei: $bond, absolutePrestate: $prestate, vm: $vm,
+    '{gameType: ($t|tonumber), implementation: $impl, parametersFrom: $src, initBondWei: $bond,
+      absolutePrestate: $prestate, vm: $vm, anchorStateRegistry: $asr,
       maxGameDepth: $maxDepth, splitDepth: $splitDepth, clockExtensionSeconds: $clockExt,
       maxClockDurationSeconds: $maxClock, l2ChainId: $l2ChainId,
       permissioned: {proposer: $proposer, challenger: $challenger},
@@ -121,6 +139,21 @@ if [ -n "$expected_signer" ]; then
 fi
 echo "  respected game type: $(jq -r .optimismPortal.respectedGameType "$OUTFILE") (set PROPOSER_GAME_TYPE in node-a/.env to this value)"
 echo "  game impl for respected type: $(jq -r --arg t "$(jq -r .optimismPortal.respectedGameType "$OUTFILE")" '.disputeGameFactory.games[] | select((.gameType|tostring) == $t) | .implementation' "$OUTFILE")"
-echo "  absolute prestate (respected type): $(jq -r --arg t "$(jq -r .optimismPortal.respectedGameType "$OUTFILE")" '.disputeGameFactory.games[] | select((.gameType|tostring) == $t) | .absolutePrestate' "$OUTFILE")"
+rt="$(jq -r .optimismPortal.respectedGameType "$OUTFILE")"
+rg() { jq -r --arg t "$rt" ".disputeGameFactory.games[] | select((.gameType|tostring) == \$t) | $1" "$OUTFILE"; }
+echo "  absolute prestate (respected type): $(rg .absolutePrestate)  [from $(rg .parametersFrom)]"
+echo "  game l2ChainId: $(rg .l2ChainId) (must be $CHAIN_ID)"
+for role in proposer challenger; do
+  case "$role" in proposer) exp_key=PROPOSER_ADDRESS ;; *) exp_key=CHALLENGER_ADDRESS ;; esac
+  exp="$(grep -E "^${exp_key}=" "$FINCHAIN_ROOT/keys/addresses.env" 2>/dev/null | cut -d= -f2 || true)"
+  act="$(rg ".permissioned.$role")"
+  if [ -n "$exp" ] && [ -n "$act" ]; then
+    if [ "$(echo "$exp" | tr 'A-F' 'a-f')" = "$(echo "$act" | tr 'A-F' 'a-f')" ]; then
+      echo "  $role matches keys/addresses.env"
+    else
+      echo "  MISMATCH: $role on chain $act vs expected $exp"
+    fi
+  fi
+done
 echo "  init bond (respected type, wei): $(jq -r --arg t "$(jq -r .optimismPortal.respectedGameType "$OUTFILE")" '.disputeGameFactory.games[] | select((.gameType|tostring) == $t) | .initBondWei' "$OUTFILE")"
 echo "  DGF owner: $(jq -r .disputeGameFactory.owner "$OUTFILE")  (must be the owner address for set-init-bond)"
