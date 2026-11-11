@@ -66,10 +66,12 @@ host_arch() {
 }
 
 # Run Foundry's cast through Docker so that no host install is required.
+# The foundry image's entrypoint is a shell (`/bin/sh -c`), so the binary is named
+# explicitly with --entrypoint; otherwise the arguments are swallowed and cast prints help.
 cast() {
-  docker run --rm -i --network host \
+  docker run --rm -i --network host --entrypoint cast \
     -v "$FINCHAIN_ROOT":"$FINCHAIN_ROOT" -w "$FINCHAIN_ROOT" \
-    "${FOUNDRY_IMAGE:?FOUNDRY_IMAGE not set (load versions.lock)}" cast "$@"
+    "${FOUNDRY_IMAGE:?FOUNDRY_IMAGE not set (load versions.lock)}" "$@"
 }
 
 # JSON-RPC helper: rpc <url> <method> [params-json]
