@@ -13,7 +13,7 @@ Digest pinning fixes identity; compatibility is shown by the run, not by the pin
 | op-deployer | v0.7.1 | the v0.7 minor targets op-contracts/v7.0.0 (each op-deployer minor supports one contracts release). Verified 2026-11-11: release assets are `op-deployer-0.7.1-<os>-<arch>.tar.gz`; `init` writes `l1ContractsLocator = "embedded"` (artifacts ship inside the binary) and fills `opcmAddress` with the registry's v7.0.0 OPCM on Sepolia (0x44e1...8297), which `make intent` cross-checks. Its live broadcaster cannot size transactions on an EIP-8037 L1; see "L1 rules" below |
 | op-reth | v2.4.2 | the tutorial pins v2.4.0; v2.4.2 adds fixes for history proof data gaps after restart, relevant to host B rebuilds and proof work |
 | op-node | v1.19.11 | the tutorial pin v1.19.3 predates Glamsterdam on Sepolia and fails at start-up ("failed to verify block hash": L1 headers now carry `blockAccessListHash` and `slotNumber`, which its header type lacks). The v1.19.5 release notes require v1.19.5+ for Sepolia before 2026-10-06; v1.19.11 is the latest patch of that minor (checked 2026-11-12) |
-| op-batcher | v1.16.13 | first (and latest) v1.16 patch whose L1 header type knows the Glamsterdam fields; also sizes calldata transactions for the EIP-7976 floor |
+| op-batcher | v1.17.2 | v1.16.13 knows the Glamsterdam header fields but still sizes calldata transactions with the pre-Amsterdam EIP-7623 floor, so every batch is refused with "intrinsic gas too low" (seen in the first M1 run). v1.17.0 added `maxFloorDataGas` (the larger of the EIP-7623 and EIP-7976 floors); v1.17.2 is the latest patch (checked 2026-11-12) |
 | op-proposer | v1.16.7 | latest v1.16 patch; Glamsterdam L1 headers since v1.16.4 |
 | op-challenger | v1.9.6 | v1.9.5 fixes VM selection during Cannon-Kona prestate conversion; v1.9.6 adds the Glamsterdam L1 header fields (the challenger computes head hashes itself, so `--l1.trustrpc` would not help it); the permissioned path registration must be re-checked on this version |
 | kona-node (prestate source) | v1.6.1 | tutorial reference for building the prestate; the built kona-client, host, Cannon VM, procedure and prestate hash are recorded separately |
@@ -77,7 +77,13 @@ Consequences observed with op-deployer v0.7.1 and the v7.0.0 OPCM on Sepolia:
   RPC said ...") and restarts in a loop; the batcher, proposer and challenger share the same
   header code. The version set therefore moved to op-node v1.19.11, op-batcher v1.16.13,
   op-proposer v1.16.7 and op-challenger v1.9.6 (first M1 attempt, 2026-11-12). `--l1.trustrpc`
-  would silence op-node but not the challenger and is not used.
+  is set for a different reason (`docs/networking.md`: the public provider has no
+  `eth_getProof` at the head); it would not have helped the challenger with the headers.
+- EIP-7976 (Glamsterdam) raises the calldata floor cost from 10 to 15 gas per token. The
+  batcher computes the gas limit of its calldata transactions itself and txmgr checks that
+  limit with `eth_call` before sending; op-batcher v1.16.x uses the old floor and every
+  batch fails with "intrinsic gas too low". op-batcher v1.17.0+ takes the larger of both
+  floors. The version set moved to op-batcher v1.17.2 (same M1 run).
 - The same repricing raises every state-creating transaction of the chain: proposer game
   creation (clone proxy plus new slots), bridge deposits to fresh accounts, the Covenant
   World deployment. `docs/funding-model.md` carries the updated inputs. EIP-7976 (also

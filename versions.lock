@@ -19,10 +19,11 @@ OP_DEPLOYER_VERSION=v0.7.1
 # Rollup services (container images). Sepolia runs Glamsterdam since 2026-10-06: L1 headers
 # carry blockAccessListHash and slotNumber, so every service that reads L1 headers must be
 # at a release that knows them (op-node >= v1.19.5, op-batcher >= v1.16.13,
-# op-proposer >= v1.16.4, op-challenger >= v1.9.6; docs/versions.md).
+# op-proposer >= v1.16.4, op-challenger >= v1.9.6; docs/versions.md). The batcher also
+# needs the Amsterdam calldata floor (EIP-7976) in its gas limits: op-batcher >= v1.17.0.
 OP_NODE_IMAGE=us-docker.pkg.dev/oplabs-tools-artifacts/images/op-node:v1.19.11
 OP_RETH_IMAGE=us-docker.pkg.dev/oplabs-tools-artifacts/images/op-reth:v2.4.2
-OP_BATCHER_IMAGE=us-docker.pkg.dev/oplabs-tools-artifacts/images/op-batcher:v1.16.13
+OP_BATCHER_IMAGE=us-docker.pkg.dev/oplabs-tools-artifacts/images/op-batcher:v1.17.2
 OP_PROPOSER_IMAGE=us-docker.pkg.dev/oplabs-tools-artifacts/images/op-proposer:v1.16.7
 OP_CHALLENGER_IMAGE=us-docker.pkg.dev/oplabs-tools-artifacts/images/op-challenger:v1.9.6
 
