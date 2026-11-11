@@ -10,7 +10,7 @@ COMPOSE_A  := docker compose -f $(ROOT)/node-a/docker-compose.yml $(ENV_COMMON) 
 COMPOSE_B  := docker compose -f $(ROOT)/node-b/docker-compose.yml $(ENV_COMMON) --env-file $(ROOT)/node-b/.env
 
 .PHONY: help init-env preflight-a preflight-b op-deployer keys secrets-a secrets-b bundle-b install-bundle-b \
-        chain-id-check l1-probe intent funding-table deploy-l1 deploy-l1-calldata export verify-onchain lock \
+        chain-id-check l1-probe intent funding-table deploy-l1 deploy-l1-calldata export verify-onchain lock fund-roles \
         up-a down-a restart-a logs-a up-b down-b restart-b logs-b status-a status-b peers-a peers-b \
         compare rebuild-b deposit set-init-bond lint
 
@@ -56,6 +56,9 @@ deploy-l1: ## Deploy the L1 contracts (spends ETH, asks for confirmation; DEPLOY
 	@DEPLOY_MODE=$(DEPLOY_MODE) bash $(ROOT)/scripts/deploy-l1.sh
 deploy-l1-calldata: ## op-deployer calldata + gas from the live node + cast send (EIP-8037 L1s)
 	@bash $(ROOT)/scripts/deploy-l1-calldata.sh
+
+fund-roles: ## Send ETH from the deployer key to the hot roles (ROLES="batcher=0.3 proposer=0.2 challenger=0.1")
+	@bash $(ROOT)/scripts/fund-roles.sh $(ROLES)
 
 export: ## Export genesis.json, rollup.json, L1 addresses, chain record
 	@bash $(ROOT)/scripts/export-artifacts.sh

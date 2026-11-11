@@ -49,6 +49,9 @@ On **B**: `make install-bundle-b && rm keys/node-b-bundle.tar`.
 
 Fund the hot roles on Sepolia per the funding table: deployer (deployment), batcher and
 proposer (daily operations and initial bonds), challenger (resolution transactions).
+After the deployment, what the deployer key still holds can be distributed from host A with
+`make fund-roles ROLES="batcher=0.3 proposer=0.2 challenger=0.1"` (one transfer per role,
+confirmed in turn).
 
 ## 3. Intent and funding table
 
