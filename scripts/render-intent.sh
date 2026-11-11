@@ -93,9 +93,19 @@ if [ -n "${DEPLOY_OVERRIDES_JSON:-}" ]; then
   fi
 fi
 
-# Locator check
+# Contracts version check. Since op-deployer v0.7 the locators read "embedded" (the artifacts
+# ship inside the binary) and the OPCM address is the real anchor: it must equal the
+# registry's OPCM for OP_CONTRACTS_TAG. Older releases reference a tag:// locator instead.
 if grep -q "tag://${OP_CONTRACTS_TAG}" "$INTENT"; then
   log "contracts locator matches ${OP_CONTRACTS_TAG}"
+elif grep -Eq '^[[:space:]]*l1ContractsLocator[[:space:]]*=[[:space:]]*"embedded"' "$INTENT"; then
+  intent_opcm="$(grep -E '^[[:space:]]*opcmAddress[[:space:]]*=' "$INTENT" | grep -oE '0x[0-9a-fA-F]+' | head -1 || true)"
+  registry_opcm="$(bash "$FINCHAIN_ROOT/scripts/lookup-opcm.sh" "$OP_CONTRACTS_TAG" 2>/dev/null || true)"
+  if [ -n "$registry_opcm" ] && [ "$(echo "$intent_opcm" | tr 'A-F' 'a-f')" = "$(echo "$registry_opcm" | tr 'A-F' 'a-f')" ]; then
+    log "embedded contracts; opcmAddress ${intent_opcm} matches the registry entry for ${OP_CONTRACTS_TAG}"
+  else
+    warn "embedded contracts but opcmAddress ${intent_opcm:-<none>} does not match the registry entry for ${OP_CONTRACTS_TAG} (${registry_opcm:-lookup failed}); check versions.lock before deploying"
+  fi
 else
   warn "l1ContractsLocator in intent.toml does not reference ${OP_CONTRACTS_TAG}. Either the op-deployer release targets another contracts version (fix versions.lock) or the locator must be set by hand."
 fi
@@ -103,4 +113,4 @@ fi
 echo
 echo "intent.toml written: $INTENT"
 echo "Review the roles and vault recipients:"
-grep -E '^[[:space:]]*(configType|l1ChainID|fundDevAccounts|opcmAddress|l1ContractsLocator|l2ContractsLocator|id|.*Recipient|l1ProxyAdminOwner|l2ProxyAdminOwner|systemConfigOwner|unsafeBlockSigner|batcher|proposer|challenger)[[:space:]]*=' "$INTENT"
+grep -E '^[[:space:]]*(configType|opDeployerVersion|l1ChainID|fundDevAccounts|opcmAddress|l1ContractsLocator|l2ContractsLocator|id|.*Recipient|gasLimit|l1ProxyAdminOwner|l2ProxyAdminOwner|systemConfigOwner|unsafeBlockSigner|batcher|proposer|challenger|liquidityControllerOwner)[[:space:]]*=' "$INTENT"

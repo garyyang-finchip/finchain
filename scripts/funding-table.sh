@@ -17,7 +17,7 @@ load_standard_env
 if [ -n "${1:-}" ]; then
   gwei="$1"; src="given"
 else
-  gwei="$(awk -v p="$(( $(rpc "$L1_RPC_URL" eth_gasPrice | jq -r .result) ))" 'BEGIN { printf "%.3f", p / 1e9 }')"; src="live ($L1_RPC_URL)"
+  gwei="$(awk -v p="$(( $(rpc "$L1_RPC_URL" eth_gasPrice | jq -r .result) ))" 'BEGIN { printf "%.6f", p / 1e9 }')"; src="live ($L1_RPC_URL)"
 fi
 
 to_seconds() { # 6h | 90m | 3600s | 3600
@@ -68,15 +68,16 @@ BEGIN {
   in_flight      = proposals_day * recovery_days;
   bonds_eth      = in_flight * init_bond_eth;
 
-  printf "Finchain Sepolia funding table - profile %s, gas price %.3f gwei (%s)\n\n", profile, gwei, src;
+  printf "Finchain Sepolia funding table - profile %s, gas price %.6f gwei (%s)\n\n", profile, gwei, src;
   printf "| # | Need | Driver | Estimate |\n|---|---|---|---|\n";
-  printf "| 1 | L1 contract deployment (one-off, deployer key) | %d gas x price | %.4f ETH |\n", deploy_gas, deploy_eth;
-  printf "| 2a | Batcher, daily | %.1f tx/day x %d gas | %.4f ETH/day |\n", batcher_tx_day, batcher_gas, batcher_eth;
-  printf "| 2b | Proposer, daily | %.1f proposals/day x %d gas | %.4f ETH/day |\n", proposals_day, proposer_gas, proposer_eth;
-  printf "| 2c | Challenger, daily (resolve + claim) | %.1f games/day x %d gas | %.4f ETH/day |\n", proposals_day, challenger_gas, challenger_eth;
+  printf "| 1 | L1 contract deployment (one-off, deployer key) | %d gas x price | %.6f ETH |\n", deploy_gas, deploy_eth;
+  printf "| 2a | Batcher, daily | %.1f tx/day x %d gas | %.6f ETH/day |\n", batcher_tx_day, batcher_gas, batcher_eth;
+  printf "| 2b | Proposer, daily | %.1f proposals/day x %d gas | %.6f ETH/day |\n", proposals_day, proposer_gas, proposer_eth;
+  printf "| 2c | Challenger, daily (resolve + claim) | %.1f games/day x %d gas | %.6f ETH/day |\n", proposals_day, challenger_gas, challenger_eth;
   printf "| 3a | Initial bonds in flight (proposer) | %.1f games x %.4f ETH, recovery %.1f days (%s) | %.4f ETH locked |\n", in_flight, init_bond_eth, recovery_days, bond_src, bonds_eth;
   printf "| 3b | Full dispute path (both sides) | per-move bonds from getRequiredBond(position); documented reference up to ~315.6 ETH per side at standard parameters | measured on the isolated devnet in M4; not budgeted on public Sepolia |\n";
   printf "| 4 | ETH deposited into L2 (users, faucet) | bridged through OptimismPortal | %.2f ETH |\n\n", deposit;
-  printf "Daily operations total: %.4f ETH/day; 30 days: %.3f ETH (excluding bonds and deposits).\n", batcher_eth + proposer_eth + challenger_eth, 30 * (batcher_eth + proposer_eth + challenger_eth);
+  printf "Daily operations total: %.6f ETH/day; 30 days: %.4f ETH (excluding bonds and deposits).\n", batcher_eth + proposer_eth + challenger_eth, 30 * (batcher_eth + proposer_eth + challenger_eth);
+  printf "Gas prices on Sepolia swing by orders of magnitude; re-run before each funding decision.\n";
   printf "Gas-per-transaction inputs are placeholders until measured after M1 (see .env).\n";
 }'

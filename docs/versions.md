@@ -10,7 +10,7 @@ Digest pinning fixes identity; compatibility is shown by the run, not by the pin
 | Component | Candidate | Reason |
 | --- | --- | --- |
 | op-contracts | v7.0.0 (Upgrade 19) | current governance-approved L1 contracts release |
-| op-deployer | v0.7.1 | the v0.7 minor targets op-contracts/v7.0.0 (each op-deployer minor supports one contracts release) |
+| op-deployer | v0.7.1 | the v0.7 minor targets op-contracts/v7.0.0 (each op-deployer minor supports one contracts release). Verified 2026-11-11: release assets are `op-deployer-0.7.1-<os>-<arch>.tar.gz`; `init` writes `l1ContractsLocator = "embedded"` (artifacts ship inside the binary) and fills `opcmAddress` with the registry's v7.0.0 OPCM on Sepolia (0x44e1…8297), which `make intent` cross-checks |
 | op-reth | v2.4.2 | the tutorial pins v2.4.0; v2.4.2 adds fixes for history proof data gaps after restart, relevant to host B rebuilds and proof work |
 | op-node | v1.19.3 | tutorial pin; check for a newer patch in the same minor before freezing |
 | op-batcher | v1.16.11 | tutorial pin |
