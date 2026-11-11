@@ -79,6 +79,7 @@ services:
       - op-node
       - --l1=${L1_RPC_URL}
       - --l1.rpckind=${L1_RPC_KIND}
+      - --l1.trustrpc=${L1_TRUST_RPC:-true}
       - --l1.beacon=${L1_BEACON_URL}
       - --l2=http://op-reth:8551
       - --l2.jwt-secret=/secrets/jwt.txt

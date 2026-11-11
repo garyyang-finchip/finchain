@@ -14,6 +14,19 @@ Host A sits behind a home router. No inbound port forwarding is required: B is d
 over the private network, and transactions received on B are forwarded to A's execution
 client over the same network.
 
+## L1 providers and `L1_TRUST_RPC`
+
+op-node verifies what the L1 provider returns unless `--l1.trustrpc` is set: header hashes,
+transaction and receipt roots, and the SystemConfig storage it reads at start-up through
+`eth_getProof`. Public endpoints do not all support that: the Tenderly gateway answers
+`eth_getProof` at the head with "distance to target block exceeds maximum proof window",
+which stops op-node after five attempts ("failed to fetch unsafe block signing address").
+`L1_TRUST_RPC=true` (the default in the env examples, and what the OP Stack tutorial sets)
+switches op-node to `eth_getStorageAt` and skips the root checks. The data source is then
+trusted; the derivation itself is still re-executed locally. For host B as an independent
+verifier, the stronger setting is `L1_TRUST_RPC=false` with a provider account that serves
+`eth_getProof` at the head; record the setting in the manifest either way.
+
 ## Private network between A and B
 
 Use Tailscale (or WireGuard) on both hosts. In the env files:
