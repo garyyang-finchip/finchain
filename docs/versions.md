@@ -12,10 +12,10 @@ Digest pinning fixes identity; compatibility is shown by the run, not by the pin
 | op-contracts | v7.0.0 (Upgrade 19) | current governance-approved L1 contracts release |
 | op-deployer | v0.7.1 | the v0.7 minor targets op-contracts/v7.0.0 (each op-deployer minor supports one contracts release). Verified 2026-11-11: release assets are `op-deployer-0.7.1-<os>-<arch>.tar.gz`; `init` writes `l1ContractsLocator = "embedded"` (artifacts ship inside the binary) and fills `opcmAddress` with the registry's v7.0.0 OPCM on Sepolia (0x44e1...8297), which `make intent` cross-checks. Its live broadcaster cannot size transactions on an EIP-8037 L1; see "L1 rules" below |
 | op-reth | v2.4.2 | the tutorial pins v2.4.0; v2.4.2 adds fixes for history proof data gaps after restart, relevant to host B rebuilds and proof work |
-| op-node | v1.19.3 | tutorial pin; check for a newer patch in the same minor before freezing |
-| op-batcher | v1.16.11 | tutorial pin |
-| op-proposer | v1.16.3 | tutorial pin |
-| op-challenger | v1.9.5 | v1.9.4 is the tutorial pin; v1.9.5 fixes VM selection during Cannon-Kona prestate conversion; the permissioned path registration must be re-checked on this version |
+| op-node | v1.19.11 | the tutorial pin v1.19.3 predates Glamsterdam on Sepolia and fails at start-up ("failed to verify block hash": L1 headers now carry `blockAccessListHash` and `slotNumber`, which its header type lacks). The v1.19.5 release notes require v1.19.5+ for Sepolia before 2026-10-06; v1.19.11 is the latest patch of that minor (checked 2026-11-12) |
+| op-batcher | v1.16.13 | first (and latest) v1.16 patch whose L1 header type knows the Glamsterdam fields; also sizes calldata transactions for the EIP-7976 floor |
+| op-proposer | v1.16.7 | latest v1.16 patch; Glamsterdam L1 headers since v1.16.4 |
+| op-challenger | v1.9.6 | v1.9.5 fixes VM selection during Cannon-Kona prestate conversion; v1.9.6 adds the Glamsterdam L1 header fields (the challenger computes head hashes itself, so `--l1.trustrpc` would not help it); the permissioned path registration must be re-checked on this version |
 | kona-node (prestate source) | v1.6.1 | tutorial reference for building the prestate; the built kona-client, host, Cannon VM, procedure and prestate hash are recorded separately |
 
 op-geth reached end of support on 2026-05-31 and does not follow the Karst hardfork;
@@ -71,6 +71,13 @@ Consequences observed with op-deployer v0.7.1 and the v7.0.0 OPCM on Sepolia:
   node's estimate plus 5% (capped at the block gas limit), an `eth_call` dry run at that
   limit must succeed, and cast sends the transaction from the deployer key. The L1 start
   block recorded in `state.json` is the block that included the deployment.
+- Glamsterdam also changes the L1 block header (EIP-7928 `blockAccessListHash`, EIP-7843
+  `slotNumber`). op-node v1.19.3 recomputes header hashes from a header type without these
+  fields, so it refuses every Sepolia header ("failed to verify block hash: computed ... but
+  RPC said ...") and restarts in a loop; the batcher, proposer and challenger share the same
+  header code. The version set therefore moved to op-node v1.19.11, op-batcher v1.16.13,
+  op-proposer v1.16.7 and op-challenger v1.9.6 (first M1 attempt, 2026-11-12). `--l1.trustrpc`
+  would silence op-node but not the challenger and is not used.
 - The same repricing raises every state-creating transaction of the chain: proposer game
   creation (clone proxy plus new slots), bridge deposits to fresh accounts, the Covenant
   World deployment. `docs/funding-model.md` carries the updated inputs. EIP-7976 (also

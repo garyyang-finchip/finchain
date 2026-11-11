@@ -16,12 +16,15 @@
 OP_CONTRACTS_TAG=op-contracts/v7.0.0
 OP_DEPLOYER_VERSION=v0.7.1
 
-# Rollup services (container images)
-OP_NODE_IMAGE=us-docker.pkg.dev/oplabs-tools-artifacts/images/op-node:v1.19.3
+# Rollup services (container images). Sepolia runs Glamsterdam since 2026-10-06: L1 headers
+# carry blockAccessListHash and slotNumber, so every service that reads L1 headers must be
+# at a release that knows them (op-node >= v1.19.5, op-batcher >= v1.16.13,
+# op-proposer >= v1.16.4, op-challenger >= v1.9.6; docs/versions.md).
+OP_NODE_IMAGE=us-docker.pkg.dev/oplabs-tools-artifacts/images/op-node:v1.19.11
 OP_RETH_IMAGE=us-docker.pkg.dev/oplabs-tools-artifacts/images/op-reth:v2.4.2
-OP_BATCHER_IMAGE=us-docker.pkg.dev/oplabs-tools-artifacts/images/op-batcher:v1.16.11
-OP_PROPOSER_IMAGE=us-docker.pkg.dev/oplabs-tools-artifacts/images/op-proposer:v1.16.3
-OP_CHALLENGER_IMAGE=us-docker.pkg.dev/oplabs-tools-artifacts/images/op-challenger:v1.9.5
+OP_BATCHER_IMAGE=us-docker.pkg.dev/oplabs-tools-artifacts/images/op-batcher:v1.16.13
+OP_PROPOSER_IMAGE=us-docker.pkg.dev/oplabs-tools-artifacts/images/op-proposer:v1.16.7
+OP_CHALLENGER_IMAGE=us-docker.pkg.dev/oplabs-tools-artifacts/images/op-challenger:v1.9.6
 
 # Fault-proof program source used to build the Finchain-embedding prestate (M4).
 KONA_NODE_TAG=kona-node/v1.6.1
