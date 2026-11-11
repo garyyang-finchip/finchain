@@ -3,11 +3,16 @@
 # Flag names drift between releases; this catches drift before a container crash-loops.
 #
 # Usage: scripts/check-flags.sh [a|b|all]   (default all)
+#
+# Each image is started with its own entrypoint (the service binary) and asked for --help;
+# if that yields no flag list, the binary is tried by name with the entrypoint cleared.
+# On a failure the first lines of the captured output are printed for diagnosis.
 
 # shellcheck source=scripts/common.sh
 . "$(dirname "${BASH_SOURCE[0]}")/common.sh"
 require_cmd docker awk
 load_env "$FINCHAIN_ROOT/versions.lock"
+docker info >/dev/null 2>&1 || die "docker daemon not reachable - start Docker (OrbStack / Docker Desktop / dockerd) and re-run"
 
 target="${1:-all}"
 fail=0
@@ -27,20 +32,39 @@ flags_from_compose() {
   ' "$1" | sort -u
 }
 
-check_service() { # <compose-file> <service> <image> <help-command...>
-  local file="$1" svc="$2" image="$3"; shift 3
-  local help flags missing=()
-  log "checking $svc ($image)"
-  if ! help="$(docker run --rm --entrypoint "" "$image" "$@" 2>&1)"; then
-    # some images print help to stderr with a non-zero exit; keep the output anyway
-    :
+# help_output <image> <binary> [subcommand]  -> prints the --help text (best effort)
+help_output() {
+  local image="$1" binary="$2" sub="${3:-}" out=""
+  # 1. image entrypoint (the service binary itself)
+  if [ -n "$sub" ]; then
+    out="$(docker run --rm "$image" "$sub" --help 2>&1 || true)"
+  else
+    out="$(docker run --rm "$image" --help 2>&1 || true)"
   fi
-  flags="$(flags_from_compose "$file" "$svc")"
-  for f in $flags; do
-    if ! printf '%s' "$help" | grep -q -- "$f"; then missing+=("$f"); fi
+  if printf '%s' "$out" | grep -q -- '--'; then printf '%s' "$out"; return; fi
+  # 2. binary by name with the entrypoint cleared
+  if [ -n "$sub" ]; then
+    out="$(docker run --rm --entrypoint "" "$image" "$binary" "$sub" --help 2>&1 || true)"
+  else
+    out="$(docker run --rm --entrypoint "" "$image" "$binary" --help 2>&1 || true)"
+  fi
+  printf '%s' "$out"
+}
+
+# check_service <compose-file> <service> <image> <binary> [subcommand]
+check_service() {
+  local compose_file="$1" svc="$2" image="$3" binary="$4" sub="${5:-}"
+  local help flags flag missing=()
+  log "checking $svc ($image)"
+  help="$(help_output "$image" "$binary" "$sub")"
+  flags="$(flags_from_compose "$compose_file" "$svc")"
+  for flag in $flags; do
+    if ! printf '%s' "$help" | grep -q -- "$flag"; then missing+=("$flag"); fi
   done
   if [ "${#missing[@]}" -gt 0 ]; then
     echo "  MISSING in $svc help output: ${missing[*]}"
+    echo "  first lines of what the container printed:"
+    printf '%s\n' "$help" | head -8 | sed 's/^/    | /'
     fail=1
   else
     echo "  all $(echo "$flags" | wc -w | tr -d ' ') flags present"
@@ -48,17 +72,17 @@ check_service() { # <compose-file> <service> <image> <help-command...>
 }
 
 if [ "$target" = "a" ] || [ "$target" = "all" ]; then
-  f="$FINCHAIN_ROOT/node-a/docker-compose.yml"
-  check_service "$f" op-reth     "$OP_RETH_IMAGE"     op-reth node --help
-  check_service "$f" op-node     "$OP_NODE_IMAGE"     op-node --help
-  check_service "$f" op-batcher  "$OP_BATCHER_IMAGE"  op-batcher --help
-  check_service "$f" op-proposer "$OP_PROPOSER_IMAGE" op-proposer --help
+  compose_a="$FINCHAIN_ROOT/node-a/docker-compose.yml"
+  check_service "$compose_a" op-reth     "$OP_RETH_IMAGE"     op-reth node
+  check_service "$compose_a" op-node     "$OP_NODE_IMAGE"     op-node
+  check_service "$compose_a" op-batcher  "$OP_BATCHER_IMAGE"  op-batcher
+  check_service "$compose_a" op-proposer "$OP_PROPOSER_IMAGE" op-proposer
 fi
 if [ "$target" = "b" ] || [ "$target" = "all" ]; then
-  f="$FINCHAIN_ROOT/node-b/docker-compose.yml"
-  check_service "$f" op-reth       "$OP_RETH_IMAGE"       op-reth node --help
-  check_service "$f" op-node       "$OP_NODE_IMAGE"       op-node --help
-  check_service "$f" op-challenger "$OP_CHALLENGER_IMAGE" op-challenger --help
+  compose_b="$FINCHAIN_ROOT/node-b/docker-compose.yml"
+  check_service "$compose_b" op-reth       "$OP_RETH_IMAGE"       op-reth node
+  check_service "$compose_b" op-node       "$OP_NODE_IMAGE"       op-node
+  check_service "$compose_b" op-challenger "$OP_CHALLENGER_IMAGE" op-challenger
 fi
 
 if [ "$fail" -ne 0 ]; then

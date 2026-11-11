@@ -11,6 +11,8 @@ host; unmarked steps run on host A.
   machine awake (`sudo pmset -a sleep 0 disablesleep 1`) and on a wired connection.
 - Private network between A and B (Tailscale or WireGuard). Note A's and B's private IPs.
 - Two L1 providers (one per host) with Sepolia execution RPC; one beacon API.
+  `make l1-probe` shows which public endpoints answer from a host; a provider account
+  (Alchemy, Infura, QuickNode) gives a dedicated endpoint with higher limits.
 - DNS for `rpc.finchain.one` and `ws.finchain.one` pointing at host B's public IP; ports
   80/443 open on B; 9222 TCP/UDP open on B.
 - Sepolia ETH plan from `docs/funding-model.md`.

@@ -74,7 +74,7 @@ The full procedure, with expected outputs and acceptance checks, is in
 
 ## Status
 
-v0.1.1: repository skeleton (scripts are run through `bash`, so the execute bit is not required). Nothing in this repository has been run against
+v0.1.2: repository skeleton (scripts are run through `bash`, so the execute bit is not required; flag check and L1 probe fixed/added after the first preflight runs). Nothing in this repository has been run against
 Sepolia yet. Every version in `versions.lock` is a candidate until `make preflight`
 and the M1 run have passed. See `docs/acceptance.md` for what "passed" means and
 where (local devnet or public testnet) each item has been demonstrated.

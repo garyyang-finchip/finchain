@@ -9,7 +9,7 @@ COMPOSE_A  := docker compose -f $(ROOT)/node-a/docker-compose.yml $(ENV_COMMON) 
 COMPOSE_B  := docker compose -f $(ROOT)/node-b/docker-compose.yml $(ENV_COMMON) --env-file $(ROOT)/node-b/.env
 
 .PHONY: help init-env preflight-a preflight-b op-deployer keys secrets-a secrets-b bundle-b install-bundle-b \
-        chain-id-check intent funding-table deploy-l1 export verify-onchain lock \
+        chain-id-check l1-probe intent funding-table deploy-l1 export verify-onchain lock \
         up-a down-a restart-a logs-a up-b down-b restart-b logs-b status-a status-b peers-a peers-b \
         compare rebuild-b deposit set-init-bond lint
 
@@ -41,6 +41,9 @@ install-bundle-b: ## On host B: unpack keys/node-b-bundle.tar into node-b/secret
 
 chain-id-check: ## Registry check for CHAIN_ID plus the manual check list
 	@bash $(ROOT)/scripts/chain-id-check.sh
+
+l1-probe: ## Test Sepolia RPC endpoints from this host (URLS="..." optional)
+	@bash $(ROOT)/scripts/l1-probe.sh $(URLS)
 
 intent: ## op-deployer init + Finchain overrides -> chain/deployer/intent.toml
 	@bash $(ROOT)/scripts/render-intent.sh
