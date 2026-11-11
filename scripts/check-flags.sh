@@ -4,9 +4,11 @@
 #
 # Usage: scripts/check-flags.sh [a|b|all]   (default all)
 #
-# Each image is started with its own entrypoint (the service binary) and asked for --help;
-# if that yields no flag list, the binary is tried by name with the entrypoint cleared.
-# On a failure the first lines of the captured output are printed for diagnosis.
+# How the help text is obtained: the image is pulled quietly first, then run with its own
+# entrypoint; if that does not produce a flag list (several OP Stack images have no
+# entrypoint, only a CMD), the binary is invoked by name with the entrypoint cleared.
+# Matching is done with here-strings, not pipes, so `pipefail` cannot turn an early
+# grep exit into a false "missing" result.
 
 # shellcheck source=scripts/common.sh
 . "$(dirname "${BASH_SOURCE[0]}")/common.sh"
@@ -32,21 +34,32 @@ flags_from_compose() {
   ' "$1" | sort -u
 }
 
-# help_output <image> <binary> [subcommand]  -> prints the --help text (best effort)
-help_output() {
-  local image="$1" binary="$2" sub="${3:-}" out=""
-  # 1. image entrypoint (the service binary itself)
-  if [ -n "$sub" ]; then
-    out="$(docker run --rm "$image" "$sub" --help 2>&1 || true)"
+# looks_like_help <text> -> true when the text lists at least five distinct --flags
+looks_like_help() {
+  local n
+  n="$(grep -oE -- '--[a-z][a-z0-9.-]+' <<< "$1" | sort -u | wc -l | tr -d ' ')"
+  [ "${n:-0}" -ge 5 ]
+}
+
+# run_help <image> <binary-or-empty> [subcommand] -> captured output (never fails)
+run_help() {
+  local image="$1" binary="$2" sub="${3:-}"
+  if [ -n "$binary" ]; then
+    if [ -n "$sub" ]; then docker run --rm --entrypoint "" "$image" "$binary" "$sub" --help 2>&1 || true
+    else docker run --rm --entrypoint "" "$image" "$binary" --help 2>&1 || true; fi
   else
-    out="$(docker run --rm "$image" --help 2>&1 || true)"
+    if [ -n "$sub" ]; then docker run --rm "$image" "$sub" --help 2>&1 || true
+    else docker run --rm "$image" --help 2>&1 || true; fi
   fi
-  if printf '%s' "$out" | grep -q -- '--'; then printf '%s' "$out"; return; fi
-  # 2. binary by name with the entrypoint cleared
-  if [ -n "$sub" ]; then
-    out="$(docker run --rm --entrypoint "" "$image" "$binary" "$sub" --help 2>&1 || true)"
-  else
-    out="$(docker run --rm --entrypoint "" "$image" "$binary" --help 2>&1 || true)"
+}
+
+# help_output <image> <binary> [subcommand] -> best-effort --help text
+help_output() {
+  local image="$1" binary="$2" sub="${3:-}" out
+  docker pull -q "$image" >/dev/null 2>&1 || true
+  out="$(run_help "$image" "" "$sub")"
+  if ! looks_like_help "$out"; then
+    out="$(run_help "$image" "$binary" "$sub")"
   fi
   printf '%s' "$out"
 }
@@ -59,12 +72,12 @@ check_service() {
   help="$(help_output "$image" "$binary" "$sub")"
   flags="$(flags_from_compose "$compose_file" "$svc")"
   for flag in $flags; do
-    if ! printf '%s' "$help" | grep -q -- "$flag"; then missing+=("$flag"); fi
+    if ! grep -q -- "$flag" <<< "$help"; then missing+=("$flag"); fi
   done
   if [ "${#missing[@]}" -gt 0 ]; then
     echo "  MISSING in $svc help output: ${missing[*]}"
-    echo "  first lines of what the container printed:"
-    printf '%s\n' "$help" | head -8 | sed 's/^/    | /'
+    echo "  last lines of what the container printed:"
+    printf '%s\n' "$help" | tail -6 | sed 's/^/    | /'
     fail=1
   else
     echo "  all $(echo "$flags" | wc -w | tr -d ' ') flags present"

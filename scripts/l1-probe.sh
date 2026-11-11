@@ -8,6 +8,13 @@
 # shellcheck source=scripts/common.sh
 . "$(dirname "${BASH_SOURCE[0]}")/common.sh"
 require_cmd curl jq
+set +e   # a misbehaving endpoint must not abort the probe
+
+# json_field <url> <json-rpc body> <jq filter>  -> value or empty (non-JSON answers tolerated)
+json_field() {
+  curl -sS -m 15 -X POST "$1" -H 'content-type: application/json' --data "$2" 2>/dev/null \
+    | jq -r "$3" 2>/dev/null
+}
 
 if [ "$#" -gt 0 ]; then
   urls=("$@")
@@ -26,19 +33,17 @@ fi
 printf '%-60s %-8s %-10s %-9s %-8s\n' "endpoint" "chainId" "finalized" "getLogs" "ms"
 for u in "${urls[@]}"; do
   start=$(date +%s%N 2>/dev/null || echo 0)
-  cid="$(curl -sS -m 10 -X POST "$u" -H 'content-type: application/json' \
-          --data '{"jsonrpc":"2.0","id":1,"method":"eth_chainId","params":[]}' 2>/dev/null | jq -r '.result // empty')"
+  cid="$(json_field "$u" '{"jsonrpc":"2.0","id":1,"method":"eth_chainId","params":[]}' '.result // empty')"
   end=$(date +%s%N 2>/dev/null || echo 0)
   if [ -z "$cid" ]; then
     printf '%-60s %-8s %-10s %-9s %-8s\n' "$u" "-" "-" "-" "unreachable"
     continue
   fi
   ms=$(( (end - start) / 1000000 ))
-  fin="$(curl -sS -m 10 -X POST "$u" -H 'content-type: application/json' \
-          --data '{"jsonrpc":"2.0","id":1,"method":"eth_getBlockByNumber","params":["finalized",false]}' 2>/dev/null | jq -r '.result.number // empty')"
+  fin="$(json_field "$u" '{"jsonrpc":"2.0","id":1,"method":"eth_getBlockByNumber","params":["finalized",false]}' '.result.number // empty')"
   [ -n "$fin" ] && fin="$((fin))" || fin="no"
-  logs="$(curl -sS -m 15 -X POST "$u" -H 'content-type: application/json' \
-          --data '{"jsonrpc":"2.0","id":1,"method":"eth_getLogs","params":[{"fromBlock":"latest","toBlock":"latest"}]}' 2>/dev/null | jq -r 'if .result then "ok" elif .error then "ERR" else "no" end')"
+  logs="$(json_field "$u" '{"jsonrpc":"2.0","id":1,"method":"eth_getLogs","params":[{"fromBlock":"latest","toBlock":"latest"}]}' 'if .result then "ok" elif .error then "ERR" else "no" end')"
+  [ -n "$logs" ] || logs="no"
   printf '%-60s %-8s %-10s %-9s %-8s\n' "$u" "$((cid))" "$fin" "$logs" "$ms"
 done
 echo
