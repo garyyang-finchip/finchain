@@ -39,7 +39,9 @@ services:
       - --http
       - --http.addr=0.0.0.0
       - --http.port=8545
-      - --http.api=admin,debug,eth,net,txpool,web3
+      # miner: op-batcher's DA throttling calls miner_setMaxDASize on the sequencer's
+      # execution client and shuts down when the method is missing. Private port.
+      - --http.api=admin,debug,eth,miner,net,txpool,web3
       - --http.corsdomain=*
       - --ws
       - --ws.addr=0.0.0.0
