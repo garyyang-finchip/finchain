@@ -24,6 +24,11 @@
 # The deployer key must be the one op-deployer simulated with: the CREATE2 salt mixes in
 # msg.sender, so another sender would create different addresses than those in state.json.
 #
+# Fees: EIP-1559 with an explicit priority fee (TX_PRIORITY_GWEI, default 2) and a fee cap of
+# priority fee + 2 x current base fee + 1 gwei. Both are passed to cast explicitly because
+# cast's own fee estimate on a quiet L1 (Sepolia base fee near zero) comes out below the
+# chosen priority fee, which the node rejects ("max priority fee per gas higher than max fee").
+#
 # Variables: TX_PRIORITY_GWEI (priority fee, default 2), RECEIPT_TIMEOUT (seconds, default
 # 1200), SEND_RPC_URL (endpoint for sending and receipts when it differs from L1_RPC_URL,
 # which must accept estimates and calls up to the block gas limit), YES=1 (no prompt),
@@ -111,13 +116,16 @@ fi
 blk="$(rpc_result eth_getBlockByNumber '["latest",false]')" || die "eth_getBlockByNumber: $RPC_ERROR"
 block_gas_limit=$(( $(printf '%s' "$blk" | jq -r .gasLimit) ))
 amsterdam="$(printf '%s' "$blk" | jq -r 'has("blockAccessListHash")')"
-gas_price_wei="$(l1_gas_price_wei "$L1_RPC_URL")"
+base_fee_wei=$(( $(printf '%s' "$blk" | jq -r '.baseFeePerGas // "0x0"') ))
+prio_wei="$(awk -v g="${TX_PRIORITY_GWEI:-2}" 'BEGIN { printf "%d", g * 1e9 }')"
+max_fee_wei=$(( prio_wei + 2 * base_fee_wei + 1000000000 ))
+exp_price_wei=$(( base_fee_wei + prio_wei ))
 bal_eth="$(hex_to_eth "$(rpc_result eth_getBalance "[\"$deployer_addr\",\"latest\"]" || echo 0x0)")"
 
 echo "Deployer:             $deployer_addr"
 echo "Deployer balance:     $bal_eth ETH"
 echo "L1 head:              block $(( $(printf '%s' "$blk" | jq -r .number) )), gas limit $block_gas_limit, Amsterdam rules: $amsterdam"
-echo "L1 gas price:         $(to_gwei "$gas_price_wei") gwei (priority fee ${TX_PRIORITY_GWEI:-2} gwei)"
+echo "L1 fees:              base fee $(to_gwei "$base_fee_wei") gwei, priority fee $(to_gwei "$prio_wei") gwei, fee cap $(to_gwei "$max_fee_wei") gwei"
 echo "Contracts release:    ${OP_CONTRACTS_TAG}  op-deployer ${OP_DEPLOYER_VERSION}"
 echo "Chain id:             ${CHAIN_ID}  SystemConfigProxy (predicted) $sys_cfg"
 echo "Transactions:         $n_tx"
@@ -163,17 +171,17 @@ while [ "$i" -lt "$n_tx" ]; do
       note=" (above the EIP-7825 cap of $EIP7825_CAP and the L1 does not show Amsterdam rules: the node will refuse this transaction)"
     fi
   fi
-  printf 'tx %d: %s\n      estimate %s, gas limit %d, max cost at current price %s ETH%s\n' \
-    "$((i+1))" "$kind" "${est:-n/a}" "$gas" "$(cost_eth "$gas" "$gas_price_wei")" "$note"
+  printf 'tx %d: %s\n      estimate %s, gas limit %d, expected cost %s ETH, maximum %s ETH%s\n' \
+    "$((i+1))" "$kind" "${est:-n/a}" "$gas" "$(cost_eth "${est:-$gas}" "$exp_price_wei")" "$(cost_eth "$gas" "$max_fee_wei")" "$note"
   GAS_LIMITS="$GAS_LIMITS $gas"
   total_gas=$(( total_gas + gas ))
   i=$((i+1))
 done
 echo
-max_cost_eth="$(cost_eth "$total_gas" "$gas_price_wei")"
-echo "Total gas limit $total_gas; maximum cost at the current gas price $max_cost_eth ETH (unused gas is refunded)."
-if awk -v b="$bal_eth" -v c="$max_cost_eth" 'BEGIN { exit !(b < 2 * c) }'; then
-  warn "deployer balance is below 2 x the maximum cost; the node rejects a transaction whose fee cap exceeds the balance"
+max_cost_eth="$(cost_eth "$total_gas" "$max_fee_wei")"
+echo "Total gas limit $total_gas; maximum cost at the fee cap $max_cost_eth ETH (unused gas is refunded; the expected cost is gas used x (base fee + priority fee))."
+if awk -v b="$bal_eth" -v c="$max_cost_eth" 'BEGIN { exit !(b < c) }'; then
+  die "deployer balance $bal_eth ETH is below gas limit x fee cap ($max_cost_eth ETH); the node rejects such a transaction. Top up or lower TX_PRIORITY_GWEI."
 fi
 
 if [ "${YES:-0}" != "1" ]; then
@@ -208,7 +216,7 @@ for gas in $GAS_LIMITS; do
 
   log "sending tx $((i+1)) with gas limit $gas via $send_url"
   set -- --rpc-url "$send_url" --private-key "$deployer_pk" --gas-limit "$gas" \
-    --priority-gas-price "${TX_PRIORITY_GWEI:-2}gwei" --async
+    --gas-price "$max_fee_wei" --priority-gas-price "$prio_wei" --async
   [ "$((value))" -eq 0 ] || set -- "$@" --value "$((value))"
   if [ -n "$to" ]; then
     tx_hash="$(cast send "$@" "$to" "$data" | tr -d '[:space:]')"
