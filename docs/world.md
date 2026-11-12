@@ -97,6 +97,15 @@ The Validation registry is not deployed: nothing in the World calls it (the Worl
 ERC-8004 validation companion comes from kya-standard), and the upstream text says that part
 is still changing. It can be added later as a further external root.
 
+Deployed on 2026-11-12 (Finchain blocks 26019-26046, eight transactions from the chain
+operations deployer, every check passed, record `chain/out/erc8004.json`): IdentityRegistry
+proxy `0x363E71C6c33d4B5980B31B558D1E16B52EB3C8E9` (implementation
+`0x5acfaf6c0fdabf9f83a8a0d0a8f25bf6e98ffa8e`, version 2.0.0), ReputationRegistry proxy
+`0xF0A3ba008486cCc0bf994d5c06cE095E0b1D08e2` (implementation
+`0x6964d60ccc11f9800e5bee77d9f3f51f8cfd9250`), both owned by
+`0xF8D8846e505E5478C60B57182D39f61b066cA8E2`; completing block 26046. FOGA's
+`worlds/finchain-sepolia.json` names the Identity proxy as its identity root.
+
 Before the World binds to the registry, the first FOGA cell born on Finchain is the live
 registration test: `ownerOf(agentId)` must be the cell's account contract. The genesis T1
 checks exactly that; the evidence names the agent id. Whether an external indexer lists the

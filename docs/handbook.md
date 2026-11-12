@@ -58,6 +58,7 @@ Sepolia are reused, state is not.
 | Active profile | `demo`: a batch about every 3 minutes, an output proposal every hour |
 | Contracts release | op-contracts/v7.0.0, deployed with op-deployer v0.7.1 (`standard-overrides`) |
 | Software | op-reth v2.4.2, op-node v1.19.11, op-batcher v1.17.2, op-proposer v1.16.7, op-challenger v1.9.6 (digests in `versions.lock`) |
+| ERC-8004 identity root (on Finchain) | IdentityRegistry `0x363E71C6c33d4B5980B31B558D1E16B52EB3C8E9`, ReputationRegistry `0xF0A3ba008486cCc0bf994d5c06cE095E0b1D08e2`; upstream reference contracts, owned by the owner address (`chain/out/erc8004.json`, `docs/world.md`) |
 
 L1 contracts on Sepolia (`chain/out/l1-addresses.json`):
 

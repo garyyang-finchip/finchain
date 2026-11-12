@@ -479,9 +479,12 @@
               "dependsOn": {
                 "type": "array",
                 "items": {
-                  "type": "integer"
+                  "type": [
+                    "integer",
+                    "string"
+                  ]
                 },
-                "description": "covenant numbers (or 8004) whose addresses this module's contracts take at construction or wiring"
+                "description": "covenant numbers (8004 for the identity root; the string foga for a FOGA-authored contract inside a module) whose addresses this module's contracts take at construction or wiring"
               },
               "standalone": {
                 "type": "boolean",
