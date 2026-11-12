@@ -30,6 +30,7 @@ flags_from_compose() {
       if (line ~ /^--/) { split(line, kv, "="); print kv[1] }
       next
     }
+    insvc && incmd && /^[ \t]*#/ { next }     # comment lines inside the list do not end it
     insvc && incmd && !/^      - / { incmd = 0 }
   ' "$1" | sort -u
 }
