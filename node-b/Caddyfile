@@ -9,14 +9,20 @@
 {$RPC_HOST} {
 	encode gzip
 	# Only JSON-RPC over POST is proxied; everything else gets a short status page.
+	# handle blocks are mutually exclusive, so the status page cannot shadow the proxy
+	# (Caddy orders a bare `respond` before `reverse_proxy`, which made every POST get the page).
 	@rpc {
 		method POST
 		path /
 	}
-	reverse_proxy @rpc op-reth:8545 {
-		header_up Host {upstream_hostport}
+	handle @rpc {
+		reverse_proxy op-reth:8545 {
+			header_up Host {upstream_hostport}
+		}
 	}
-	respond / "Finchain Sepolia JSON-RPC. POST JSON-RPC requests to this URL." 200
+	handle {
+		respond "Finchain Sepolia JSON-RPC. POST JSON-RPC requests to this URL." 200
+	}
 }
 
 {$WS_HOST} {
