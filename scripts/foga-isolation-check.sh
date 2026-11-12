@@ -43,11 +43,15 @@ run_env() { # run a command with the clean home and the preload
       ${FOGA_FOUNDRY_DIR:+FOGA_FOUNDRY_DIR="$FOGA_FOUNDRY_DIR"} ${SEPOLIA_RPC_URL:+SEPOLIA_RPC_URL="$SEPOLIA_RPC_URL"} $PASS_ENV "$@"
 }
 mkdir -p "$WORK/tmp" "$WORK/pkg"
+redact() { # stdin -> stdout with the Sepolia RPC URL (which may carry a provider key) replaced
+  local s; s="$(cat)"
+  if [ -n "${SEPOLIA_RPC_URL:-}" ]; then printf '%s' "${s//"$SEPOLIA_RPC_URL"/<SEPOLIA_RPC_URL>}"; else printf '%s' "$s"; fi
+}
 LEGS=""
 leg() { # <name> <expected exit> <command...>  -> runs in $WORK/pkg, records exit code and the last output lines
   local name="$1" expect="$2"; shift 2
   local out code
-  out="$(cd "$WORK/pkg" && run_env "$@" 2>&1)" && code=0 || code=$?
+  out="$(cd "$WORK/pkg" && run_env "$@" 2>&1 | redact)" && code=0 || code=$?
   local verdict=pass; [ "$code" = "$expect" ] || verdict=fail
   printf '  %-6s %-22s exit %s (expected %s)\n' "$verdict" "$name" "$code" "$expect"
   LEGS="$LEGS$(jq -cn --arg n "$name" --arg v "$verdict" --argjson c "$code" --argjson e "$expect" --arg tail "$(printf '%s' "$out" | tail -n 12)" '{leg: $n, result: $v, exit: $c, expected: $e, tail: $tail}'),"
@@ -92,10 +96,10 @@ else
 fi
 if [ -n "${SEPOLIA_RPC_URL:-}" ]; then
   # the doctor exits 3 on a known failing layer of the Sepolia world (an upstream fixture); the leg is the read itself
-  out="$(cd "$WORK/pkg" && run_env "${FOGA[@]}" doctor --world "$PKG/deployments/sepolia.example.json" --rpc "$SEPOLIA_RPC_URL" --out "$WORK/sepolia.doctor.json" 2>&1)" && code=0 || code=$?
+  out="$(cd "$WORK/pkg" && run_env "${FOGA[@]}" doctor --world "$PKG/deployments/sepolia.example.json" --rpc "$SEPOLIA_RPC_URL" --out "$WORK/sepolia.doctor.json" 2>&1 | redact)" && code=0 || code=$?
   if [ -f "$WORK/sepolia.doctor.json" ]; then verdict=pass; else verdict=fail; FAILED=1; fi
   printf '  %-6s %-22s exit %s (a report was %s)\n' "$verdict" sepolia-world-read "$code" "$([ "$verdict" = pass ] && echo written || echo 'not written')"
-  LEGS="$LEGS$(jq -cn --arg v "$verdict" --argjson c "$code" --arg tail "$(printf '%s' "$out" | tail -n 12)" --arg summary "$(jq -c '.summary // {}' "$WORK/sepolia.doctor.json" 2>/dev/null || echo '{}')" '{leg: "sepolia-world-read", result: $v, exit: $c, doctorSummary: ($summary | fromjson? // $summary), tail: $tail}'),"
+  LEGS="$LEGS$(jq -cn --arg v "$verdict" --argjson c "$code" --arg tail "$(printf '%s' "$out" | tail -n 12)" --arg summary "$(jq -c '.summary // {}' "$WORK/sepolia.doctor.json" 2>/dev/null | redact || echo '{}')" '{leg: "sepolia-world-read", result: $v, exit: $c, doctorSummary: ($summary | fromjson? // $summary), tail: $tail}'),"
 else
   echo "  skip   sepolia-world-read (SEPOLIA_RPC_URL not set)"
 fi
