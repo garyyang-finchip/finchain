@@ -1,0 +1,115 @@
+{
+  "milestone": "M1",
+  "environment": "public-testnet",
+  "recordedAt": "2026-11-12T02:00:00Z",
+  "source": "operator command outputs (make status-a, make verify-onchain, container logs) collected on host A; values below were read from the chain or from the running services, not from configuration files",
+  "chain": {
+    "name": "Finchain Sepolia",
+    "l2ChainId": 85422,
+    "l1ChainId": 11155111,
+    "l2GenesisHash": "0xcd6c17a0678d331d06ac2b8c8e820450bd5f2e3b91a1606289eca7b0fee631c5",
+    "l2GenesisTime": 1794414672,
+    "l1Anchor": { "number": 12112920, "hash": "0x10fc1193802668896d6aadc3db867c47ec3f3660ba53d940a649fb6a8aa0594b" },
+    "rollupConfigSha256": "530063a1f949afead2d96efb63cc99817656fe9c9f18d54c854699f1f59dccd9",
+    "record": "chain/out/chain-record.json"
+  },
+  "l1Deployment": {
+    "mode": "calldata-cast",
+    "contractsRelease": "op-contracts/v7.0.0",
+    "opDeployerVersion": "v0.7.1",
+    "opcm": "0x44e197058fb98fb3618453b3d90cdef6f5db8297",
+    "deployer": "0xA199250F15DCE1399288F967f8652A882B1947e9",
+    "transaction": "0xed7911150ab7e85087f7cb1d0892dba1b8b7e0fa542dfa0ff1a7ebd14261fb1b",
+    "l1Block": 12112920,
+    "gasUsed": 55227867,
+    "gasLimit": 58450718,
+    "costEth": 0.110456,
+    "note": "Sepolia runs Glamsterdam (EIP-8037 state gas) since 2026-10-06; about 9M of the gas is execution gas, the rest state gas. The 16,777,216 cap of EIP-7825 applies to execution gas only. See docs/versions.md.",
+    "record": "chain/out/deployment.json"
+  },
+  "l1Contracts": {
+    "SystemConfigProxy": "0xe99755f8447984d1cbc6a86e8ae0771c6ee15402",
+    "OptimismPortalProxy": "0xeb8fbc0732fc7719838cf73d5377320a6c086b14",
+    "DisputeGameFactoryProxy": "0xc752f10ab0696860b11b789a2ab9f4f93331329c",
+    "AnchorStateRegistryProxy": "0x31ffb1c4a5d40c7c39a122320db733389eb9c1fb",
+    "L1StandardBridgeProxy": "0x4273ec08f893d66b1fbc525de946ca5666c27dc4",
+    "PermissionedDisputeGameImpl": "0xe1dffcbe4e22b813f26d2106d943c102e7cab87e",
+    "record": "chain/out/l1-addresses.json"
+  },
+  "onchainConfiguration": {
+    "snapshot": "manifests/onchain-12115562.json",
+    "respectedGameType": 1,
+    "absolutePrestate": "0x038512e02c4c3f7bdaec27d00edf55b7155e0905301e1a88083e4e0a6764d54c",
+    "initBondWei": "0",
+    "initBondNote": "set to 0 by the owner with DisputeGameFactory.setInitBond(1, 0) on 2026-11-11 (testnet cost control, docs/funding-model.md); observed as 0 from L1 block 12113326. Owner transaction hash: add from the owner wallet's activity.",
+    "dgfOwner": "0xF8D8846e505E5478C60B57182D39f61b066cA8E2",
+    "rolesMatchKeys": ["unsafeBlockSigner", "proposer", "challenger"]
+  },
+  "blockProduction": {
+    "blockTimeSeconds": 2,
+    "firstObservedSequencing": "2026-11-11T18:12:07Z (catch-up from genesis time, then real time)",
+    "restartTest": {
+      "action": "make restart-a (all four containers recreated) at 2026-11-11T18:17:37Z",
+      "result": "sequencing resumed from the execution client's head (block 3253 sealed at 18:19:37Z); no reorg, no data loss"
+    },
+    "statusAfter7h": {
+      "takenAt": "2026-11-12T01:46Z",
+      "unsafe": 16541,
+      "safe": 16470,
+      "finalized": 15990,
+      "l1Head": 12115649,
+      "l1Finalized": 12115562
+    }
+  },
+  "batches": {
+    "daType": "calldata",
+    "profile": "demo",
+    "firstTransactions": [
+      { "tx": "0x88abe9645c0459f4d13a674af342716f40037f0ac38c727892b85af32e734b8e", "l1Block": 12113491, "effectiveGasPriceWei": 1000000022 },
+      { "tx": "0xc55d06e18adf13861e43a4a42c94a59e45e9bc32e1b3433618bce2738cb2316e", "l1Block": 12113492, "effectiveGasPriceWei": 1000000022 }
+    ],
+    "derivation": "op-node derives one span batch of about 60 L2 blocks per channel every 10 L1 blocks (log: 'Found next valid span batch'); safe head trails unsafe by about one channel",
+    "batcherSpentEthFirst7h": 0.0052
+  },
+  "proposals": {
+    "gameCountAtL1Block12115562": 7,
+    "firstGame": {
+      "index": 0,
+      "gameType": 1,
+      "createdAt": 1794422640,
+      "address": "0xC5deFA0D17554E231EbC5BBA3304Fdbd32846075"
+    },
+    "gameTypeEqualsRespected": true,
+    "proposerSpentEthFirst7h": 0.0141
+  },
+  "softwareAsRun": {
+    "op-node": "v1.19.11",
+    "op-reth": "v2.4.2",
+    "op-batcher": "v1.17.2",
+    "op-proposer": "v1.16.7",
+    "op-deployer": "v0.7.1",
+    "op-contracts": "v7.0.0",
+    "digests": "not yet pinned; make lock after M2 (docs/versions.md, verification order)",
+    "changesDuringM1": [
+      "op-node v1.19.3 -> v1.19.11, op-batcher v1.16.11 -> v1.17.2, op-proposer v1.16.3 -> v1.16.7, op-challenger v1.9.5 -> v1.9.6: Glamsterdam L1 headers (blockAccessListHash, slotNumber) and the EIP-7976 calldata floor",
+      "op-node --l1.trustrpc=true (L1_TRUST_RPC): the public provider has no eth_getProof at the head (docs/networking.md)",
+      "op-reth --http.api gained miner: op-batcher DA throttling calls miner_setMaxDASize"
+    ]
+  },
+  "hostA": {
+    "platform": "macOS arm64, OrbStack, Docker Compose 5.5.0",
+    "l1Provider": "Tenderly public gateway (L1_TRUST_RPC=true)",
+    "keepAwake": "pmset -a sleep 0 disablesleep 1"
+  },
+  "funding": {
+    "measuredDeploymentGas": 55227867,
+    "roleBalancesAfter7h": { "batcher": 0.9898, "proposer": 0.2359, "challenger": 0.1, "deployer": 1.8395 },
+    "fundingTable": "run make funding-table PROFILE=demo with the gas-price fallback (0.1.6+) and attach the output"
+  },
+  "openItems": [
+    "make lock after M2 to pin image digests",
+    "owner transaction hash for setInitBond(1, 0)",
+    "funding table output for the demo profile",
+    "op-challenger not yet exercised (host B, M2)"
+  ]
+}
