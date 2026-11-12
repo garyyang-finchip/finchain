@@ -1,0 +1,247 @@
+{
+  "schema": "finchain.erc8004-root/1",
+  "chainId": 85422,
+  "rpc": "https://rpc.finchain.one",
+  "recordedAt": "2026-11-12T06:59:27Z",
+  "upstream": {
+    "commit": "b9e466c250744a7e06b13dff9d3c2844ed64f825",
+    "repository": "https://github.com/erc-8004/erc-8004-contracts"
+  },
+  "compiler": {
+    "evmVersion": "shanghai",
+    "metadata": {
+      "bytecodeHash": "ipfs"
+    },
+    "optimizer": {
+      "enabled": true,
+      "runs": 200
+    },
+    "solc": "0.8.24",
+    "viaIR": true
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "5.4.0",
+    "@openzeppelin/contracts-upgradeable": "5.4.0"
+  },
+  "deployer": "0xA199250F15DCE1399288F967f8652A882B1947e9",
+  "owner": "0xF8D8846e505E5478C60B57182D39f61b066cA8E2",
+  "placeholderImplementation": {
+    "address": "0x9f2f88ebfacf69431cdee3f5c720459abb472812",
+    "contract": "HardhatMinimalUUPS",
+    "deployment": {
+      "tx": "0x37924bf87da272d1c61364e1eaab55db648e4e54a1d657007b6be9385f25fd30",
+      "block": 26019,
+      "gasUsed": 536314
+    },
+    "runtimeCodeKeccak": "0xa53192f9b35a1504f9fb65b1d66ef8a5173500e920af2867210e630a73f6b1fe"
+  },
+  "contracts": {
+    "IdentityRegistry": {
+      "proxy": "0x363e71c6c33d4b5980b31b558d1e16b52eb3c8e9",
+      "implementation": "0x5acfaf6c0fdabf9f83a8a0d0a8f25bf6e98ffa8e",
+      "contract": "IdentityRegistryUpgradeable",
+      "version": "2.0.0",
+      "transactions": {
+        "proxy": {
+          "tx": "0x7f9064639fd8447e1744a37f5305790bd25c72631e355380456c83ffd47091e6",
+          "block": 26021,
+          "gasUsed": 168624
+        },
+        "implementation": {
+          "tx": "0x49ff022a6463334e5d817eef4c970e851107f8c3ff4607581a398b081f03afed",
+          "block": 26025,
+          "gasUsed": 3208633
+        },
+        "upgradeToAndCall": {
+          "tx": "0x0264f5ac95f1854756072e603fc353019b50a111679a4e5d117c51a8e7094037",
+          "block": 26027,
+          "gasUsed": 140387
+        },
+        "transferOwnership": {
+          "tx": "0x7bcf75639be34decadc1d8598092cba8e9999f7ce5ae8115e4169782656af2bc",
+          "block": 26043,
+          "gasUsed": 33966
+        }
+      },
+      "runtimeCodeKeccak": {
+        "proxy": "0xe65b40a84f34ef23cb6537663429e382c822c510fdd205e5aa7629ad3cde5fce",
+        "implementation": "0x792e6190076b9c82799a81964ef7a12e117cbffea5548e1b5d5608a788a31eb3"
+      },
+      "runtimeIdentity": {
+        "implementation": "0x7243165cee30a394e514f113bceae46f2c2236eb64fcc9bc5a075157bb8ca994",
+        "note": "keccak of the runtime code with the immutable slots zeroed; equals build.json runtimeBytecodeKeccak"
+      },
+      "eip712Domain": {
+        "name": "ERC8004IdentityRegistry",
+        "version": "1",
+        "chainId": 85422,
+        "verifyingContract": "0x363e71c6c33d4b5980b31b558d1e16b52eb3c8e9"
+      }
+    },
+    "ReputationRegistry": {
+      "proxy": "0xf0a3ba008486ccc0bf994d5c06ce095e0b1d08e2",
+      "implementation": "0x6964d60ccc11f9800e5bee77d9f3f51f8cfd9250",
+      "contract": "ReputationRegistryUpgradeable",
+      "identityRegistry": "0x363e71c6c33d4b5980b31b558d1e16b52eb3c8e9",
+      "transactions": {
+        "proxy": {
+          "tx": "0xd1acb50bba7b87fcd62403ca6c3ece94dd187d643abf995d1ed9890c35566451",
+          "block": 26023,
+          "gasUsed": 188764
+        },
+        "implementation": {
+          "tx": "0x227aeb0fa8901617fbf7a7c25c384f7497b1a6794c676469ff62d173b281ad3b",
+          "block": 26029,
+          "gasUsed": 2347094
+        },
+        "upgradeToAndCall": {
+          "tx": "0x44fe79a1d4bec38a75b85f533abccd0b104e5da6202dc54b667a83c3354254e1",
+          "block": 26031,
+          "gasUsed": 47232
+        },
+        "transferOwnership": {
+          "tx": "0x706f470520ee2439b65f51ef0019e8c3e6b7f1c464ee43df2a2a494953e5d22e",
+          "block": 26046,
+          "gasUsed": 33639
+        }
+      },
+      "runtimeCodeKeccak": {
+        "proxy": "0xe65b40a84f34ef23cb6537663429e382c822c510fdd205e5aa7629ad3cde5fce",
+        "implementation": "0xea8984159cf639b04f5eb3c7c34bcebfc4f3196e39b6fee8324f5992f21c74d9"
+      },
+      "runtimeIdentity": {
+        "implementation": "0xaa04cd5ab1c3d13563635bff29e047e01207c1cc884a9cb3dae879a56b9c548e"
+      }
+    }
+  },
+  "notDeployed": {
+    "ValidationRegistry": "not needed by the World (kya-standard ValidationRegistry8004 companion is part of the World); deploy later if an application needs the upstream one"
+  },
+  "completion": {
+    "number": 26046,
+    "hash": "0xcf034465affa2ded6d634b4b74df4c26f058d9b1a076bcea2b44fb27e16d604a"
+  },
+  "checks": [
+    {
+      "check": "identity.implementationSlot",
+      "result": "pass",
+      "value": "0x5acfaf6c0fdabf9f83a8a0d0a8f25bf6e98ffa8e",
+      "expected": "0x5acfaf6c0fdabf9f83a8a0d0a8f25bf6e98ffa8e"
+    },
+    {
+      "check": "identity.getVersion",
+      "result": "pass",
+      "value": "2.0.0",
+      "expected": "2.0.0"
+    },
+    {
+      "check": "identity.name",
+      "result": "pass",
+      "value": "AgentIdentity",
+      "expected": "AgentIdentity"
+    },
+    {
+      "check": "identity.symbol",
+      "result": "pass",
+      "value": "AGENT",
+      "expected": "AGENT"
+    },
+    {
+      "check": "identity.owner.beforeTransfer",
+      "result": "pass",
+      "value": "0xA199250F15DCE1399288F967f8652A882B1947e9",
+      "expected": "0xA199250F15DCE1399288F967f8652A882B1947e9"
+    },
+    {
+      "check": "identity.eip712.name",
+      "result": "pass",
+      "value": "ERC8004IdentityRegistry",
+      "expected": "ERC8004IdentityRegistry"
+    },
+    {
+      "check": "identity.eip712.version",
+      "result": "pass",
+      "value": "1",
+      "expected": "1"
+    },
+    {
+      "check": "identity.eip712.chainId",
+      "result": "pass",
+      "value": "85422",
+      "expected": "85422"
+    },
+    {
+      "check": "identity.eip712.verifyingContract",
+      "result": "pass",
+      "value": "0x363E71C6c33d4B5980B31B558D1E16B52EB3C8E9",
+      "expected": "0x363e71c6c33d4b5980b31b558d1e16b52eb3c8e9"
+    },
+    {
+      "check": "identity.impl.runtimeIdentity",
+      "result": "pass",
+      "value": "0x7243165cee30a394e514f113bceae46f2c2236eb64fcc9bc5a075157bb8ca994",
+      "expected": "0x7243165cee30a394e514f113bceae46f2c2236eb64fcc9bc5a075157bb8ca994"
+    },
+    {
+      "check": "identity.proxy.runtimeIdentity",
+      "result": "pass",
+      "value": "0xe65b40a84f34ef23cb6537663429e382c822c510fdd205e5aa7629ad3cde5fce",
+      "expected": "0xe65b40a84f34ef23cb6537663429e382c822c510fdd205e5aa7629ad3cde5fce"
+    },
+    {
+      "check": "placeholder.runtimeIdentity",
+      "result": "pass",
+      "value": "0x9ed565b5f8adccf11d73009adc9bf128aa2443eb069203badf2b17fc47c839b3",
+      "expected": "0x9ed565b5f8adccf11d73009adc9bf128aa2443eb069203badf2b17fc47c839b3"
+    },
+    {
+      "check": "identity.register.simulatedFirstAgentId",
+      "result": "pass",
+      "value": "0",
+      "expected": "0"
+    },
+    {
+      "check": "identity.probeBalanceUntouched",
+      "result": "pass",
+      "value": "0",
+      "expected": "0"
+    },
+    {
+      "check": "reputation.implementationSlot",
+      "result": "pass",
+      "value": "0x6964d60ccc11f9800e5bee77d9f3f51f8cfd9250",
+      "expected": "0x6964d60ccc11f9800e5bee77d9f3f51f8cfd9250"
+    },
+    {
+      "check": "reputation.getIdentityRegistry",
+      "result": "pass",
+      "value": "0x363E71C6c33d4B5980B31B558D1E16B52EB3C8E9",
+      "expected": "0x363e71c6c33d4b5980b31b558d1e16b52eb3c8e9"
+    },
+    {
+      "check": "reputation.owner.beforeTransfer",
+      "result": "pass",
+      "value": "0xA199250F15DCE1399288F967f8652A882B1947e9",
+      "expected": "0xA199250F15DCE1399288F967f8652A882B1947e9"
+    },
+    {
+      "check": "reputation.impl.runtimeIdentity",
+      "result": "pass",
+      "value": "0xaa04cd5ab1c3d13563635bff29e047e01207c1cc884a9cb3dae879a56b9c548e",
+      "expected": "0xaa04cd5ab1c3d13563635bff29e047e01207c1cc884a9cb3dae879a56b9c548e"
+    },
+    {
+      "check": "identity.owner",
+      "result": "pass",
+      "value": "0xF8D8846e505E5478C60B57182D39f61b066cA8E2",
+      "expected": "0xF8D8846e505E5478C60B57182D39f61b066cA8E2"
+    },
+    {
+      "check": "reputation.owner",
+      "result": "pass",
+      "value": "0xF8D8846e505E5478C60B57182D39f61b066cA8E2",
+      "expected": "0xF8D8846e505E5478C60B57182D39f61b066cA8E2"
+    }
+  ],
+  "note": "Finchain-deployed ERC-8004 reference registries: the identity root of the covenant World, not the upstream singleton deployment. The proxies are owned by the Finchain owner address, which is the upgrade authority."
+}
