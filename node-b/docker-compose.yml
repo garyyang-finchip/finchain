@@ -85,6 +85,10 @@ services:
       - --l2.jwt-secret=/secrets/jwt.txt
       - --l2.enginekind=reth
       - --rollup.config=/chain/rollup.json
+      # safe-head history per L1 block; op-challenger asks for it (optimism_safeHeadAtL1Block)
+      # to decide whether a proposal's root claim is correct. Complete from genesis only when
+      # the node derived from genesis with this flag set (the rebuild-from-L1 run does).
+      - --safedb.path=/data/safedb
       - --verifier.l1-confs=4
       - --p2p.listen.ip=0.0.0.0
       - --p2p.listen.tcp=9222
