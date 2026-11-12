@@ -1,0 +1,146 @@
+{
+  "schema": "finchain.evm-acceptance/1",
+  "acceptance": "M3-A Finchain on its own: transfer, deploy, write, read through the public RPC",
+  "chainId": 85422,
+  "rpc": "https://rpc.finchain.one",
+  "client": "op-reth/v2.4.2-f863ff4c/x86_64-linux",
+  "recordedAt": "2026-11-12T13:23:54Z",
+  "mode": "from-receipts",
+  "transfer": {
+    "from": "0xA199250F15DCE1399288F967f8652A882B1947e9",
+    "role": "deployer",
+    "to": "0xF8D8846e505E5478C60B57182D39f61b066cA8E2",
+    "amountEth": "0.050000",
+    "receipt": {
+      "tx": "0xfc1bcf63f647e87f5c945b5e3c5672f413c5c638d525968e4997f6fe084f7ea9",
+      "block": 37178,
+      "blockHash": "0x65ab862ca2a54ca89df26c5577b69ecc8b5865ea70d28b6e7fea2c61eb8c38b9",
+      "gasUsed": 21000,
+      "effectiveGasPrice": "0xfc",
+      "l1Fee": "0xd9",
+      "status": "0x1"
+    }
+  },
+  "contract": {
+    "name": "FinchainProbe",
+    "address": "0x4f82fbcb887aa4004942eecc770c70b23ec6e246",
+    "build": {
+      "compiler": {
+        "evmVersion": "shanghai",
+        "metadata": {
+          "bytecodeHash": "ipfs"
+        },
+        "optimizer": {
+          "enabled": true,
+          "runs": 200
+        },
+        "solc": "0.8.24+commit.e11b9ed9",
+        "viaIR": false
+      },
+      "runtimeBytecodeKeccak": "0x1c479ca05cfb9f1ff7afb8f7267d147d6952296ff21b6a2d340d8ef4869ccf90",
+      "sourceSha256": "d46c2140773f5b8f8fff7b091d25d5693c982f483d78e67de298f102597a92e2"
+    },
+    "runtimeCodeKeccak": "0x1c479ca05cfb9f1ff7afb8f7267d147d6952296ff21b6a2d340d8ef4869ccf90",
+    "deployment": {
+      "tx": "0x4a150729998f6ac94a5aa8d8246285d5a22049c50e4194e0dc86402a04f0f882",
+      "block": 37180,
+      "blockHash": "0xf8c1eed0339fd898ffbf4c9f40b1b32d5358256085777ca3f9eaeb5893ada118",
+      "gasUsed": 160270,
+      "effectiveGasPrice": "0xfc",
+      "l1Fee": "0x32c",
+      "status": "0x1"
+    }
+  },
+  "write": {
+    "call": "set(uint256)",
+    "value": 37180,
+    "receipt": {
+      "tx": "0x01f2a8371cd5d2e4c659d86dc32d6f8228106aa493ecac23fba81276820ebfce",
+      "block": 37183,
+      "blockHash": "0x9ce840c0a6d449d704ec5703b841bc5b1cabe42b457739fdae2df666e6021160",
+      "gasUsed": 67578,
+      "effectiveGasPrice": "0xfc",
+      "l1Fee": "0xd9",
+      "status": "0x1"
+    }
+  },
+  "completion": {
+    "number": 37183,
+    "hash": "0x9ce840c0a6d449d704ec5703b841bc5b1cabe42b457739fdae2df666e6021160"
+  },
+  "checks": [
+    {
+      "check": "transfer.from",
+      "result": "pass",
+      "value": "0xa199250f15dce1399288f967f8652a882b1947e9",
+      "expected": "0xA199250F15DCE1399288F967f8652A882B1947e9"
+    },
+    {
+      "check": "transfer.to",
+      "result": "pass",
+      "value": "0xf8d8846e505e5478c60b57182d39f61b066ca8e2",
+      "expected": "0xF8D8846e505E5478C60B57182D39f61b066cA8E2"
+    },
+    {
+      "check": "transfer.recipientDelta",
+      "result": "pass",
+      "value": "0.050000",
+      "expected": "0.050000"
+    },
+    {
+      "check": "deployment.from",
+      "result": "pass",
+      "value": "0xa199250f15dce1399288f967f8652a882b1947e9",
+      "expected": "0xA199250F15DCE1399288F967f8652A882B1947e9"
+    },
+    {
+      "check": "probe.runtimeKeccak",
+      "result": "pass",
+      "value": "0x1c479ca05cfb9f1ff7afb8f7267d147d6952296ff21b6a2d340d8ef4869ccf90",
+      "expected": "0x1c479ca05cfb9f1ff7afb8f7267d147d6952296ff21b6a2d340d8ef4869ccf90"
+    },
+    {
+      "check": "probe.deployer",
+      "result": "pass",
+      "value": "0xA199250F15DCE1399288F967f8652A882B1947e9",
+      "expected": "0xA199250F15DCE1399288F967f8652A882B1947e9"
+    },
+    {
+      "check": "write.to",
+      "result": "pass",
+      "value": "0x4f82fbcb887aa4004942eecc770c70b23ec6e246",
+      "expected": "0x4f82fbcb887aa4004942eecc770c70b23ec6e246"
+    },
+    {
+      "check": "set.eventTopic",
+      "result": "pass",
+      "value": "0x9eca8f7bcfb868d72b4ed95b71c627c194ab6bcb9b83adb2280e8a0320bb8476",
+      "expected": "0x9eca8f7bcfb868d72b4ed95b71c627c194ab6bcb9b83adb2280e8a0320bb8476"
+    },
+    {
+      "check": "set.eventEmitter",
+      "result": "pass",
+      "value": "0x4f82fbcb887aa4004942eecc770c70b23ec6e246",
+      "expected": "0x4f82fbcb887aa4004942eecc770c70b23ec6e246"
+    },
+    {
+      "check": "value()",
+      "result": "pass",
+      "value": "37180",
+      "expected": "37180"
+    },
+    {
+      "check": "writes()",
+      "result": "pass",
+      "value": "1",
+      "expected": "1"
+    },
+    {
+      "check": "storage.slot0",
+      "result": "pass",
+      "value": "37180",
+      "expected": "37180"
+    }
+  ],
+  "note": "Nothing here belongs to a covenant or to an agent runtime: an ordinary key, cast, the public endpoint. scripts/verify-evm.sh re-reads this record on host B at a finalized block."
+}
