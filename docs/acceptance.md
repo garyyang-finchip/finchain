@@ -31,7 +31,7 @@ or reproduced, not read from a configuration file.
 
 | Item | Evidence |
 | --- | --- |
-| Ten covenant ERC reference implementations deployed by ordinary transactions; completing block number and hash recorded | manifest `covenantWorld` section: contracts, code hashes, deployment and initialization txs |
+| Twelve covenant ERC reference implementations deployed by ordinary transactions; completing block number and hash recorded | manifest `covenantWorld` section: contracts, code hashes, deployment and initialization txs |
 | Address book published and consistent with on-chain code hashes | address book URI, verification script output |
 | FOGA chain configuration for Finchain merged in the FOGA repository | commit reference |
 | Two independent cells complete discovery -> eligibility -> task -> execution -> submission -> acceptance -> payment | transaction list |

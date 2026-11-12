@@ -74,9 +74,11 @@
       { "erc": 8436, "name": "Agent Collective Decision Framework", "repository": "", "commit": "" },
       { "erc": 8444, "name": "Agentic Resource Discovery (ARD) Onchain", "repository": "", "commit": "" },
       { "erc": 8447, "name": "Swarm AI Framework", "repository": "", "commit": "" },
-      { "erc": 8454, "name": "", "repository": "", "commit": "" },
+      { "erc": 8454, "name": "AIFi Unit Framework", "repository": "", "commit": "" },
       { "erc": 8468, "name": "Agent Safety Framework", "repository": "", "commit": "" },
-      { "erc": 8471, "name": "AI Dispute Resolution Framework", "repository": "", "commit": "" }
+      { "erc": 8471, "name": "AI Dispute Resolution Framework", "repository": "", "commit": "" },
+      { "erc": 8489, "name": "Agent Information Flow Paradigm", "repository": "", "commit": "" },
+      { "erc": 8490, "name": "Agent Meditation Mechanism", "repository": "", "commit": "" }
     ],
     "completionBlock": { "number": 0, "hash": "0x0000000000000000000000000000000000000000000000000000000000000000" },
     "contracts": [],

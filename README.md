@@ -1,12 +1,14 @@
 # Finchain
 
 Finchain is an EVM Layer 2 built on the upstream OP Stack and settled on Ethereum.
-It is the reference chain for the ten Finch agent-economy ERCs
-(ERC-8338, 8414, 8419, 8434, 8436, 8444, 8447, 8454, 8468, 8471) and the native
-runtime environment for FOGA (Finch OG Agent).
+It is the reference chain for the twelve Finch agent-economy ERCs
+(ERC-8338, 8414, 8419, 8434, 8436, 8444, 8447, 8454, 8468, 8471, 8489, 8490) and the
+native runtime environment for FOGA (Finch OG Agent).
 
 The first public network is **Finchain Sepolia**, settled on Ethereum Sepolia.
-Mainnet is a separate, later deployment with its own genesis.
+Mainnet is a separate, later deployment with its own genesis. `docs/handbook.md` is the
+reader's entry point: chain facts, wallet and developer use, running a verifier node,
+how the chain was built.
 
 This repository holds everything needed to deploy and operate the network:
 op-deployer intent handling, genesis and rollup artifacts, Docker Compose stacks
@@ -70,11 +72,11 @@ The full procedure, with expected outputs and acceptance checks, is in
 | `scripts/` | Preflight, key generation, intent rendering, deployment, export, verification, funding table |
 | `manifests/` | Reference-version manifest schema and template |
 | `registry/` | Draft `ethereum-lists/chains` entry |
-| `docs/` | Execution brief, runbook, funding model, proof plan, FOGA confirmation policy, acceptance, governance, networking, versions |
+| `docs/` | Handbook, execution brief, runbook, funding model, proof plan, FOGA confirmation policy, acceptance, governance, networking, versions, chain id |
 
 ## Status
 
-v0.1.17: Finchain Sepolia (chain id 85422) is live. L1 contracts deployed 2026-11-11 at
+v0.1.19: Finchain Sepolia (chain id 85422) is live. L1 contracts deployed 2026-11-11 at
 Sepolia block 12112920 (`chain/out/`), host A sequencing since the same day, host B
 verifying independently; M1 and M2 acceptance records are in `manifests/evidence/`.
 `versions.lock` is frozen (digests, 2026-11-12). The road to the chain went through

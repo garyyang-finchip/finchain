@@ -8,8 +8,8 @@ the execution work must settle and document. It is the reference for `docs/runbo
 ## 1. Definition
 
 Finchain is an EVM Layer 2 on the upstream OP Stack, settled on Ethereum. It is the
-normative reference chain for the ten Finch covenant ERCs (8338, 8414, 8419, 8434, 8436,
-8444, 8447, 8454, 8468, 8471) and the native runtime environment of FOGA. Other EVM
+normative reference chain for the twelve Finch covenant ERCs (8338, 8414, 8419, 8434, 8436,
+8444, 8447, 8454, 8468, 8471, 8489, 8490) and the native runtime environment of FOGA. Other EVM
 ecosystems can deploy, verify and adopt the same versioned rules; Finchain is where the
 reference implementation lives and where each reference version is demonstrated.
 
