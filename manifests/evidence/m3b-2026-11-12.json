@@ -1,0 +1,37 @@
+{
+  "milestone": "M3-B",
+  "title": "FOGA on its own: the released package runs with every Finchain endpoint refused",
+  "environment": "public-testnet",
+  "recordedAt": "2026-11-12T15:20:00Z",
+  "source": "manifests/evidence/foga-isolation-1.0.7-20261112T151124Z.json, written by scripts/foga-isolation-check.sh (make foga-isolation VERSION=1.0.7) on an AWS EC2 host of the project (Amazon Linux, Node v22.22.0, npm 10.9.4, anvil 1.7.1-dev from the FOGA Foundry directory); an earlier run the same day without the Sepolia leg (foga-isolation-1.0.7-20261112T144653Z.json, not committed) gave the same result",
+  "boundary": "docs/world.md section 3, docs/acceptance.md M3-B: FOGA is a separate product; nothing in it reaches for Finchain unless a world file names a Finchain address. This record is the baseline for every later FOGA candidate.",
+  "package": {
+    "name": "@finchip.ai/foga",
+    "version": "1.0.7",
+    "installedFrom": "the npm registry into a clean directory with a clean HOME (nothing of the operator's FOGA configuration, keys or store)",
+    "finchainCode": "none: the chain table has no Finchain entry and the default chain is sepolia with a packaged world"
+  },
+  "method": {
+    "hook": "scripts/foga-isolation-preload.mjs preloaded into every Node process of the package (NODE_OPTIONS=--import): every host name resolved (dns.lookup, dns.promises.lookup) or connected to (net.Socket.prototype.connect) is logged; any name under finchain.one fails as ENOTFOUND at the resolver and at the socket",
+    "controls": "pass: a real name (registry.npmjs.org) is logged, a socket to an IP literal (127.0.0.1) is logged, rpc.finchain.one is refused at the resolver and at the socket",
+    "installerExcluded": "the installer's own lookups are cleared from the log before the legs run"
+  },
+  "legs": [
+    { "leg": "help", "result": "pass", "what": "foga --help from the installed package" },
+    { "leg": "chain-table", "result": "pass", "what": "the package's chain table: no Finchain entry; sepolia carries a packaged world (the default of a bare foga join)" },
+    { "leg": "quickstart", "result": "pass", "what": "foga quickstart --exit: a local world and a live cell on anvil, no public chain" },
+    { "leg": "genesis-T9", "result": "pass", "what": "foga demo --genesis T9 --port 8599: the local genesis T0-T9 on anvil" },
+    { "leg": "sepolia-world-read", "result": "pass", "what": "foga doctor --world deployments/sepolia.example.json --rpc <SEPOLIA_RPC_URL>: the packaged Sepolia World read through the operator's Sepolia provider; the doctor exits 3 on the Sepolia fixture's known failing layer (the upstream ARD fixture registry's older source), and the leg is the read: a report was written" }
+  ],
+  "hostNames": {
+    "entries": 63,
+    "seen": { "eth-sepolia.g.alchemy.com": 32, "127.0.0.1": 31 },
+    "underFinchainOne": 0,
+    "note": "the Sepolia provider's host name is the operator's choice (SEPOLIA_RPC_URL); the URL itself is redacted from the evidence"
+  },
+  "result": "PASS: every leg passing, zero names under finchain.one",
+  "storeResume": "an old cell store continued by the package under test is covered by FOGA's own test suite and release check, not by this script (docs/acceptance.md M3-B, third item): recorded there, not here",
+  "openItems": [
+    "repeat this check, same command, for every later FOGA candidate before it is published; the record of each goes beside this one"
+  ]
+}
