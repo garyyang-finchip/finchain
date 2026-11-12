@@ -41,15 +41,17 @@ check_contract() { # <name> <address> <expected keccak>
   rows="$rows{\"name\":\"$1\",\"address\":\"$2\",\"expected\":\"$3\",\"actual\":\"$actual\",\"result\":\"$verdict\"},"
 }
 
+# The lists are read on fd 3: cast runs through docker with stdin attached, which would otherwise swallow the
+# rest of a list read on stdin.
 echo "== identity root"
-while IFS=$'\t' read -r name addr hash; do
+while IFS=$'\t' read -r -u 3 name addr hash; do
   [ -n "$name" ] && check_contract "$name" "$addr" "$hash"
-done < <(jq -r '.identityRoot.contracts[]? | [.name, .address, .codeHash] | @tsv' "$SECTION")
+done 3< <(jq -r '.identityRoot.contracts[]? | [.name, .address, .codeHash] | @tsv' "$SECTION")
 
 echo "== covenant World contracts"
-while IFS=$'\t' read -r name addr hash; do
+while IFS=$'\t' read -r -u 3 name addr hash; do
   [ -n "$name" ] && check_contract "$name" "$addr" "$hash"
-done < <(jq -r '.contracts[]? | [.name, .address, .codeHash] | @tsv' "$SECTION")
+done 3< <(jq -r '.contracts[]? | [.name, .address, .codeHash] | @tsv' "$SECTION")
 
 echo "== blocks"
 completion_n="$(jq -r '.completionBlock.number // empty' "$SECTION")"; completion_h="$(jq -r '.completionBlock.hash // empty' "$SECTION")"

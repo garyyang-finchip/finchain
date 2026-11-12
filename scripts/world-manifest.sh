@@ -38,14 +38,16 @@ echo "address book $BOOK: world $(jq -r .worldId "$BOOK") on chain $((chain_hex)
 
 log "transactions: receipts of the wiring and flows transactions"
 # Every transaction hash the World needed beyond the deployments: steps marked wired, the wiring table, the flows.
+# The loops below read their lists on fd 3: cast runs through docker with stdin attached, which would otherwise
+# swallow the rest of a list read on stdin.
 receipts="{}"
-while read -r tx; do
+while read -r -u 3 tx; do
   [ -n "$tx" ] || continue
   r="$(rpc "$L2_RPC" eth_getTransactionReceipt "[\"$tx\"]" | jq -c '.result // empty')"
   [ -n "$r" ] || die "receipt not found for $tx"
   [ "$(printf '%s' "$r" | jq -r .status)" = "0x1" ] || die "transaction $tx did not succeed"
   receipts="$(printf '%s' "$receipts" | jq -c --arg tx "$tx" --argjson r "$r" '. + {($tx): {block: ($r.blockNumber | ltrimstr("0x") | ascii_downcase | explode | map(if . >= 97 then . - 87 else . - 48 end) | reduce .[] as $d (0; . * 16 + $d)), to: ($r.to // "" | ascii_downcase)}}')"
-done < <(jq -r '[ (.steps[]? | select(.status == "wired") | .txHash), (.wiring[]? | objects | .txHashes[]?), (.flows.paradigms[]? | .txHash), (.flows.market.txHash) ] | map(select(. != null)) | unique[]' "$BOOK")
+done 3< <(jq -r '[ (.steps[]? | select(.status == "wired") | .txHash), (.wiring[]? | objects | .txHashes[]?), (.flows.paradigms[]? | .txHash), (.flows.market.txHash) ] | map(select(. != null)) | unique[]' "$BOOK")
 echo "  $(printf '%s' "$receipts" | jq 'length') transactions read"
 
 completion=$(jq -r --argjson r "$receipts" '[ (.contracts[]? | .block // 0), ($r[] | .block) ] | max' "$BOOK")
@@ -57,14 +59,14 @@ echo "  completing block $completion $completion_hash"
 
 log "code: keccak256 of every World contract's runtime code at block $completion"
 codes="{}"; n=0
-while IFS=$'\t' read -r cname addr; do
+while IFS=$'\t' read -r -u 3 cname addr; do
   [ -n "$cname" ] || continue
   code="$(rpc "$L2_RPC" eth_getCode "[\"$addr\",\"$completion_hex\"]" | jq -r '.result // "0x"')"
   [ "$code" != "0x" ] || die "no code at $addr ($cname) at block $completion"
   h="$(cast keccak "$code")"
   codes="$(printf '%s' "$codes" | jq -c --arg k "$cname" --arg v "$h" '. + {($k): $v}')"
   n=$((n + 1))
-done < <(jq -r '.contracts | to_entries[] | select(.key != "identity8004") | [.key, .value.address] | @tsv' "$BOOK")
+done 3< <(jq -r '.contracts | to_entries[] | select(.key != "identity8004") | [.key, .value.address] | @tsv' "$BOOK")
 echo "  $n contracts hashed"
 
 # The identity root: chain/out/erc8004.json when it is the registry the address book names.
