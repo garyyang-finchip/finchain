@@ -1,9 +1,10 @@
 # Version set
 
-`versions.lock` holds a **candidate** set. It becomes the frozen set only after
-`make preflight-a`, `make preflight-b` (architecture and flag checks) and the M1 run have
-passed with exactly these artifacts, and `make lock` has replaced tags with digests.
-Digest pinning fixes identity; compatibility is shown by the run, not by the pin.
+`versions.lock` is **frozen** since 2026-11-12T05:00:33Z: `make preflight-a`,
+`make preflight-b` and the M1 and M2 runs passed with exactly this set, and `make lock`
+replaced the tags with multi-arch index digests. Digest pinning fixes identity;
+compatibility is shown by the run, not by the pin. The table below records why each
+patch level was chosen, including the changes made during the first M1 run.
 
 ## Candidates and why
 

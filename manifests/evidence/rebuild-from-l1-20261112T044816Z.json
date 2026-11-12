@@ -1,0 +1,19 @@
+{
+  "acceptance": "M2 rebuild-from-L1",
+  "startedAt": "2026-11-12T04:13:13Z",
+  "finishedAt": "2026-11-12T04:48:16Z",
+  "l1DataSourceHost": "https://eth-sepolia.g.alchemy.com",
+  "targetHeight": 19836,
+  "rebuilt": {
+    "number": "0x4d7c",
+    "hash": "0xd240bcd6778b0c84fa0e2376ac807d98c8192537648cb030eeaae950de5c702c",
+    "stateRoot": "0x74e3748803336a41b294f49b1c67dcfd4d7de10b4ad2b0f4842ff2f08faba4c2"
+  },
+  "reference": {
+    "number": "0x4d7c",
+    "hash": "0xd240bcd6778b0c84fa0e2376ac807d98c8192537648cb030eeaae950de5c702c",
+    "stateRoot": "0x74e3748803336a41b294f49b1c67dcfd4d7de10b4ad2b0f4842ff2f08faba4c2"
+  },
+  "result": "MATCH",
+  "method": "empty data volumes, no p2p peers, derivation from public genesis/rollup config and L1 data only"
+}

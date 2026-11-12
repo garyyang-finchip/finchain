@@ -1,10 +1,10 @@
 # Finchain candidate version set (dotenv format; loaded by make and docker compose).
 #
-# STATUS: CANDIDATE. These versions were taken from the OP Stack documentation and
-# release notes in November 2026. They must be verified AS A SET with
-# `make preflight` (image architecture, flag presence, L1 fork support) and the
-# M1 run before this file is frozen. Known reasons for the chosen patch levels are
-# in docs/versions.md.
+# STATUS: FROZEN 2026-11-12 (make lock on host A, darwin/arm64) after preflight on both
+# hosts and the M1 and M2 runs passed with exactly this set. The digests are multi-arch
+# index digests and resolve on amd64 and arm64 alike. Reasons for the chosen patch levels,
+# including the Glamsterdam-driven changes, are in docs/versions.md. OP_DEPLOYER_SHA256 is
+# the darwin/arm64 binary that performed the deployment.
 #
 # `make lock` rewrites the *_IMAGE values to immutable digests (image@sha256:...)
 # and records the op-deployer binary checksum. Until then the tags below are
@@ -21,19 +21,19 @@ OP_DEPLOYER_VERSION=v0.7.1
 # at a release that knows them (op-node >= v1.19.5, op-batcher >= v1.16.13,
 # op-proposer >= v1.16.4, op-challenger >= v1.9.6; docs/versions.md). The batcher also
 # needs the Amsterdam calldata floor (EIP-7976) in its gas limits: op-batcher >= v1.17.0.
-OP_NODE_IMAGE=us-docker.pkg.dev/oplabs-tools-artifacts/images/op-node:v1.19.11
-OP_RETH_IMAGE=us-docker.pkg.dev/oplabs-tools-artifacts/images/op-reth:v2.4.2
-OP_BATCHER_IMAGE=us-docker.pkg.dev/oplabs-tools-artifacts/images/op-batcher:v1.17.2
-OP_PROPOSER_IMAGE=us-docker.pkg.dev/oplabs-tools-artifacts/images/op-proposer:v1.16.7
-OP_CHALLENGER_IMAGE=us-docker.pkg.dev/oplabs-tools-artifacts/images/op-challenger:v1.9.6
+OP_NODE_IMAGE=us-docker.pkg.dev/oplabs-tools-artifacts/images/op-node:v1.19.11@sha256:e9eb72b7f13847a953fcf7d798814f128e2fdaa9edbc83bcffa0b7e6e9427c00
+OP_RETH_IMAGE=us-docker.pkg.dev/oplabs-tools-artifacts/images/op-reth:v2.4.2@sha256:01b4c25938cb08753e0a7ff7415d627cb566465eb618620d0586f0943fbeaf68
+OP_BATCHER_IMAGE=us-docker.pkg.dev/oplabs-tools-artifacts/images/op-batcher:v1.17.2@sha256:80234d8cc116ca0574148e2e9a927d5b24f0ec18d74f48807982eb099eec7335
+OP_PROPOSER_IMAGE=us-docker.pkg.dev/oplabs-tools-artifacts/images/op-proposer:v1.16.7@sha256:e56f448fd12d5a076805841fc9e24cb9c465a9a700ca37cef0fdc9a2518db90a
+OP_CHALLENGER_IMAGE=us-docker.pkg.dev/oplabs-tools-artifacts/images/op-challenger:v1.9.6@sha256:4f01ba7d5f4e58d771534522e5624ab3e6e200d8be619a17e1b04c47548bdb93
 
 # Fault-proof program source used to build the Finchain-embedding prestate (M4).
 KONA_NODE_TAG=kona-node/v1.6.1
 
 # Tooling
-FOUNDRY_IMAGE=ghcr.io/foundry-rs/foundry:stable
-CADDY_IMAGE=caddy:2
+FOUNDRY_IMAGE=ghcr.io/foundry-rs/foundry:stable@sha256:043752653d5be351c71709091b3db97c4421c907eb40ea294195e7f532aadf46
+CADDY_IMAGE=caddy:2@sha256:9c1b76fb701c1f77383d3124d9f626e38bcf83bc1255ed47475d4f2420701d03
 
 # Filled by `make lock`
-OP_DEPLOYER_SHA256=
-LOCKED_AT=
+OP_DEPLOYER_SHA256=a0e22834e98d8d5d890713c19168805ffb85efdad36c092b5b1b265b17c1055d
+LOCKED_AT=2026-11-12T05:00:33Z

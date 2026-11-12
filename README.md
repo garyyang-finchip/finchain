@@ -74,11 +74,13 @@ The full procedure, with expected outputs and acceptance checks, is in
 
 ## Status
 
-v0.1.6: preflight passed on both hosts; keys, secrets, intent (chain id 85422) and the
-funding table done on Sepolia; the first deployment attempts showed that Sepolia now runs
-Glamsterdam (EIP-8037 state gas), which op-deployer v0.7.1's own broadcaster cannot size,
-so `make deploy-l1` sends the deployment through the calldata path (`docs/versions.md`).
-Every version in `versions.lock` is a candidate until the M1 run has passed. See `docs/acceptance.md` for what "passed" means and
+v0.1.17: Finchain Sepolia (chain id 85422) is live. L1 contracts deployed 2026-11-11 at
+Sepolia block 12112920 (`chain/out/`), host A sequencing since the same day, host B
+verifying independently; M1 and M2 acceptance records are in `manifests/evidence/`.
+`versions.lock` is frozen (digests, 2026-11-12). The road to the chain went through
+Sepolia's Glamsterdam rules (EIP-8037 state gas, new L1 header fields, EIP-7976 calldata
+floor); the adaptations are recorded in `docs/versions.md`. Public RPC:
+`https://rpc.finchain.one`. See `docs/acceptance.md` for what "passed" means and
 where (local devnet or public testnet) each item has been demonstrated.
 
 ## License

@@ -1,0 +1,77 @@
+{
+  "milestone": "M2",
+  "environment": "public-testnet",
+  "recordedAt": "2026-11-12T05:05:00Z",
+  "source": "operator command outputs on host A (make compare, make deposit, curl) and host B (make status-b, make rebuild-b, container logs); values read from the chain or the running services",
+  "hostB": {
+    "platform": "AWS EC2 t3.medium, Amazon Linux, Docker Compose 5.7.0, 150 GiB gp3",
+    "privateIp": "100.120.188.50 (tailnet)",
+    "publicIp": "3.147.206.136",
+    "l1Provider": "Alchemy, dedicated Sepolia endpoint (L1_RPC_KIND=alchemy); host A uses the Tenderly public gateway, so the two hosts read L1 from different providers",
+    "l1TrustRpc": true,
+    "dataVolumes": ["finchain-b_reth-data", "finchain-b_op-node-data", "finchain-b_challenger-data", "finchain-b_caddy-data", "finchain-b_caddy-config"],
+    "services": ["op-reth v2.4.2", "op-node v1.19.11 (verifier, --safedb.path)", "op-challenger v1.9.6 (--trace-type=permissioned)", "caddy 2"],
+    "p2p": { "staticPeer": "host A over the tailnet", "connectedPeersObserved": 1 }
+  },
+  "sameChainOnBothHosts": {
+    "firstSync": "host B derived from L1 only on its first start (safe equal to unsafe while catching up): 7237 blocks after 8 minutes, caught up with the L1 head after about 25 minutes, then followed host A's gossip",
+    "compare": {
+      "command": "make compare RPC_A=http://100.89.247.8:8545 RPC_B=http://100.120.188.50:8545 AT=finalized",
+      "height": 19836,
+      "hash": "0xd240bcd6778b0c84fa0e2376ac807d98c8192537648cb030eeaae950de5c702c",
+      "stateRoot": "0x74e3748803336a41b294f49b1c67dcfd4d7de10b4ad2b0f4842ff2f08faba4c2",
+      "result": "MATCH",
+      "syncStatusAtCompare": {
+        "A": { "unsafe": 20415, "safe": 20371, "finalized": 19836, "l1Head": 12116291, "l1Finalized": 12116197 },
+        "B": { "unsafe": 20415, "safe": 20371, "finalized": 19836, "l1Head": 12116292, "l1Finalized": 12116197 }
+      }
+    },
+    "safeAndFinalizedAdvance": "both hosts: safe trails unsafe by about one batcher channel (demo profile, 60 L2 blocks); finalized follows Sepolia finality (about 2 epochs)"
+  },
+  "deposit": {
+    "portal": "0xeb8fbc0732fc7719838cf73d5377320a6c086b14",
+    "from": "0xA199250F15DCE1399288F967f8652A882B1947e9",
+    "transactions": [
+      { "l1Tx": "0x07aab95dc7a75772ead741f246efafd6c1b5122012a21c0528f1630d1f5482b1", "l1Block": 12116301, "amountEth": 0.5, "gasUsed": 126752, "l2BalanceAfterEth": 0.5 },
+      { "l1Tx": "0x1b421c3c99815f9b48328efec0c71031a790adad649d8d96b635debb855c18cd", "l1Block": 12116351, "amountEth": 0.5, "gasUsed": 126920, "l2BalanceAfterEth": 1.0 }
+    ],
+    "l2BalanceBeforeEth": 0,
+    "note": "first balances on Finchain Sepolia; the genesis holds no pre-funded accounts"
+  },
+  "rebuildFromL1": {
+    "record": "manifests/evidence/rebuild-from-l1-20261112T044816Z.json",
+    "method": "host B execution and rollup-node volumes removed, P2P_STATIC_PEERS cleared, derivation from chain/out/genesis.json, chain/out/rollup.json and Sepolia data only",
+    "startedAt": "2026-11-12T04:13:13Z",
+    "finishedAt": "2026-11-12T04:48:16Z",
+    "finalizedReached": 21552,
+    "comparedAt": 19836,
+    "result": "MATCH",
+    "sideEffect": "safe-head database complete from genesis; op-challenger processes all seven games without 'not found' errors"
+  },
+  "publicRpc": {
+    "url": "https://rpc.finchain.one",
+    "tls": "Let's Encrypt via Caddy on host B",
+    "checks": [
+      { "method": "eth_chainId", "result": "0x14dae" },
+      { "method": "eth_getBalance(0xA199250F15DCE1399288F967f8652A882B1947e9)", "result": "0xde0b6b3a7640000 (1 ETH)" }
+    ],
+    "websocket": "wss://ws.finchain.one (configured, not yet exercised)"
+  },
+  "challenger": {
+    "gamesTracked": 7,
+    "status": "all In Progress with a single claim each (no adversary on the permissioned game type)",
+    "earlierErrors": [
+      "429 Too Many Requests from the Tenderly public gateway while host B caught up (resolved by the dedicated provider)",
+      "'safe head database not enabled' until op-node ran with --safedb.path (resolved; history complete after the rebuild)"
+    ]
+  },
+  "versionSet": {
+    "frozen": "versions.lock locked 2026-11-12T05:00:33Z (make lock on host A; multi-arch index digests)",
+    "opDeployerSha256": "a0e22834e98d8d5d890713c19168805ffb85efdad36c092b5b1b265b17c1055d (darwin/arm64)"
+  },
+  "openItems": [
+    "exercise wss://ws.finchain.one",
+    "L1_TRUST_RPC=false on host B once eth_getProof at the head is confirmed on the dedicated provider",
+    "second public endpoint or DNS failover for rpc.finchain.one before public opening"
+  ]
+}
