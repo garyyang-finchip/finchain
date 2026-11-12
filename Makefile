@@ -105,6 +105,15 @@ deposit: ## Bridge ETH into L2 via OptimismPortal: AMOUNT=0.5 ROLE=deployer L2_R
 set-init-bond: ## DGF owner: set initial bond for a game type: TYPE=1 BOND=0
 	@bash $(ROOT)/scripts/set-init-bond.sh $(TYPE) $(BOND)
 
+deploy-8004: ## M3: deploy the ERC-8004 identity root on L2 from the deployer key (L2_RPC=https://rpc.finchain.one)
+	@bash $(ROOT)/scripts/deploy-8004.sh $(L2_RPC)
+build-8004: ## Rebuild chain/contracts/erc8004 with solc 0.8.24 and compare the bytecode hashes
+	@bash $(ROOT)/scripts/build-8004.sh
+l2-send: ## Plain L2 transfer from a repository key: TO=0x... AMOUNT=0.3 ROLE=deployer L2_RPC=https://...
+	@bash $(ROOT)/scripts/l2-send.sh $(TO) $(AMOUNT) $(ROLE) $(L2_RPC)
+verify-world: ## M3: check a covenantWorld section against chain code at a block: SECTION=path L2_RPC=... AT=finalized
+	@bash $(ROOT)/scripts/verify-world.sh $(SECTION) $(L2_RPC) $(AT)
+
 lint: ## Static checks: shellcheck, compose config, JSON/YAML validity
 	@shellcheck -x $(ROOT)/scripts/*.sh
 	@cd $(ROOT)/node-a && docker compose $(ENV_COMMON) --env-file .env.example config -q

@@ -65,25 +65,27 @@ The full procedure, with expected outputs and acceptance checks, is in
 | Path | Content |
 | --- | --- |
 | `versions.lock` | Candidate version set and image references; digests filled by `make lock` |
-| `chain/` | Chain parameters, op-deployer workdir (`chain/deployer/`), exported artifacts (`chain/out/`) |
+| `chain/` | Chain parameters, op-deployer workdir (`chain/deployer/`), exported artifacts (`chain/out/`), pinned external contract builds (`chain/contracts/erc8004/`) |
 | `keys/` | Key material (git-ignored) and the key policy |
 | `node-a/`, `node-b/` | Docker Compose stacks for the two hosts |
 | `profiles/` | Runtime profiles: `demo` (fast batches) and `lowcost` (low L1 spend) |
 | `scripts/` | Preflight, key generation, intent rendering, deployment, export, verification, funding table |
 | `manifests/` | Reference-version manifest schema and template |
 | `registry/` | Draft `ethereum-lists/chains` entry |
-| `docs/` | Handbook, execution brief, runbook, funding model, proof plan, FOGA confirmation policy, acceptance, governance, networking, versions, chain id |
+| `docs/` | Handbook, execution brief, runbook, funding model, proof plan, FOGA confirmation policy, covenant World design (M3), acceptance, governance, networking, versions, chain id |
 
 ## Status
 
-v0.1.19: Finchain Sepolia (chain id 85422) is live. L1 contracts deployed 2026-11-11 at
-Sepolia block 12112920 (`chain/out/`), host A sequencing since the same day, host B
-verifying independently; M1 and M2 acceptance records are in `manifests/evidence/`.
-`versions.lock` is frozen (digests, 2026-11-12). The road to the chain went through
-Sepolia's Glamsterdam rules (EIP-8037 state gas, new L1 header fields, EIP-7976 calldata
-floor); the adaptations are recorded in `docs/versions.md`. Public RPC:
-`https://rpc.finchain.one`. See `docs/acceptance.md` for what "passed" means and
-where (local devnet or public testnet) each item has been demonstrated.
+v0.2.0-alpha.1: M3 (covenant World and FOGA) opened. Finchain Sepolia (chain id 85422) is
+live: L1 contracts deployed 2026-11-11 at Sepolia block 12112920 (`chain/out/`), host A
+sequencing since the same day, host B verifying independently; M1 and M2 acceptance records
+are in `manifests/evidence/`; `versions.lock` is frozen (digests, 2026-11-12). M3 design and
+rules: `docs/world.md`; first step: `make deploy-8004` (the ERC-8004 identity root), then
+FOGA's World deployment from the locked bundle. The road to the chain went through Sepolia's
+Glamsterdam rules (EIP-8037 state gas, new L1 header fields, EIP-7976 calldata floor); the
+adaptations are recorded in `docs/versions.md`. Public RPC: `https://rpc.finchain.one`. See
+`docs/acceptance.md` for what "passed" means and where (local devnet or public testnet) each
+item has been demonstrated.
 
 ## License
 

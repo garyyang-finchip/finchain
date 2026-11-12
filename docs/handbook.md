@@ -168,7 +168,9 @@ The Finchain world (the covenant World of the manifest, deployed by ordinary tra
 after chain start) and FOGA's Finchain chain configuration are the M3 deliverables. When
 they land, the address book is published in both repositories and a cell joins with
 `foga join --chain finchain-sepolia`; the confirmation policy above is enforced by the cell.
-Until then, FOGA cells run on Ethereum Sepolia.
+Until then, FOGA cells run on Ethereum Sepolia. The World binds to an ERC-8004 identity root
+deployed on Finchain from the upstream reference contracts (`chain/out/erc8004.json` once
+deployed); design, roles and verification rules are in `docs/world.md`.
 
 ## 4. Running a verifier node
 

@@ -29,14 +29,17 @@ or reproduced, not read from a configuration file.
 
 ## M3 - covenant World and FOGA
 
+Design and rules: `docs/world.md`.
+
 | Item | Evidence |
 | --- | --- |
-| Twelve covenant ERC reference implementations deployed by ordinary transactions; completing block number and hash recorded | manifest `covenantWorld` section: contracts, code hashes, deployment and initialization txs |
-| Address book published and consistent with on-chain code hashes | address book URI, verification script output |
-| FOGA chain configuration for Finchain merged in the FOGA repository | commit reference |
-| Two independent cells complete discovery -> eligibility -> task -> execution -> submission -> acceptance -> payment | transaction list |
-| Organisation, collective decision, safety and dispute scenarios each exercised | per-scenario transaction lists |
-| Rollback, resend and duplicate-event tests pass per `docs/foga-confirmation-policy.md` | test records (devnet for the induced rollback) |
+| ERC-8004 identity root deployed on Finchain (Identity and Reputation registries), verified and owned by the owner address | `chain/out/erc8004.json` (checks, code hashes, ownership transfer) |
+| Twelve covenant ERC reference implementations deployed by ordinary transactions from the locked bundle by W; `completionBlock` (last needed transaction) and `verifiedAt` (finalized block of the last check) recorded | manifest `covenantWorld` section: modules, contracts, code hashes, deployment and initialization txs, both blocks |
+| Address book published and consistent with on-chain code at one fixed finalized block: raw code hashes (`make verify-world`), build identity and links/permissions/wiring (`foga world check`) | `manifests/evidence/world-verify-<block>.json`, the `foga world check` report |
+| FOGA chain configuration for Finchain merged in the FOGA repository and shipped in the package (`foga join --chain finchain-sepolia` from the real tarball of both package names) | commit reference, release-check run |
+| Two independent cells complete discovery -> eligibility -> task -> execution -> submission -> acceptance -> payment; the second cell run by another operator from the candidate package | transaction list, both cell accounts, task id, confirmation level per step, active profile |
+| Organisation, collective decision, safety and dispute scenarios each exercised (genesis T0-T9 on Finchain) | per-scenario transaction lists from the genesis evidence |
+| Confirmation and recovery tests pass per `docs/foga-confirmation-policy.md`: mock chain, anvil reorg, public Finchain normal path, each recorded with its environment | test records |
 
 ## M4 - proofs and assets
 

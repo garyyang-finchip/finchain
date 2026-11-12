@@ -9,9 +9,23 @@
     "publicIp": "3.147.206.136",
     "l1Provider": "Alchemy, dedicated Sepolia endpoint (L1_RPC_KIND=alchemy); host A uses the Tenderly public gateway, so the two hosts read L1 from different providers",
     "l1TrustRpc": true,
-    "dataVolumes": ["finchain-b_reth-data", "finchain-b_op-node-data", "finchain-b_challenger-data", "finchain-b_caddy-data", "finchain-b_caddy-config"],
-    "services": ["op-reth v2.4.2", "op-node v1.19.11 (verifier, --safedb.path)", "op-challenger v1.9.6 (--trace-type=permissioned)", "caddy 2"],
-    "p2p": { "staticPeer": "host A over the tailnet", "connectedPeersObserved": 1 }
+    "dataVolumes": [
+      "finchain-b_reth-data",
+      "finchain-b_op-node-data",
+      "finchain-b_challenger-data",
+      "finchain-b_caddy-data",
+      "finchain-b_caddy-config"
+    ],
+    "services": [
+      "op-reth v2.4.2",
+      "op-node v1.19.11 (verifier, --safedb.path)",
+      "op-challenger v1.9.6 (--trace-type=permissioned)",
+      "caddy 2"
+    ],
+    "p2p": {
+      "staticPeer": "host A over the tailnet",
+      "connectedPeersObserved": 1
+    }
   },
   "sameChainOnBothHosts": {
     "firstSync": "host B derived from L1 only on its first start (safe equal to unsafe while catching up): 7237 blocks after 8 minutes, caught up with the L1 head after about 25 minutes, then followed host A's gossip",
@@ -22,8 +36,20 @@
       "stateRoot": "0x74e3748803336a41b294f49b1c67dcfd4d7de10b4ad2b0f4842ff2f08faba4c2",
       "result": "MATCH",
       "syncStatusAtCompare": {
-        "A": { "unsafe": 20415, "safe": 20371, "finalized": 19836, "l1Head": 12116291, "l1Finalized": 12116197 },
-        "B": { "unsafe": 20415, "safe": 20371, "finalized": 19836, "l1Head": 12116292, "l1Finalized": 12116197 }
+        "A": {
+          "unsafe": 20415,
+          "safe": 20371,
+          "finalized": 19836,
+          "l1Head": 12116291,
+          "l1Finalized": 12116197
+        },
+        "B": {
+          "unsafe": 20415,
+          "safe": 20371,
+          "finalized": 19836,
+          "l1Head": 12116292,
+          "l1Finalized": 12116197
+        }
       }
     },
     "safeAndFinalizedAdvance": "both hosts: safe trails unsafe by about one batcher channel (demo profile, 60 L2 blocks); finalized follows Sepolia finality (about 2 epochs)"
@@ -32,8 +58,20 @@
     "portal": "0xeb8fbc0732fc7719838cf73d5377320a6c086b14",
     "from": "0xA199250F15DCE1399288F967f8652A882B1947e9",
     "transactions": [
-      { "l1Tx": "0x07aab95dc7a75772ead741f246efafd6c1b5122012a21c0528f1630d1f5482b1", "l1Block": 12116301, "amountEth": 0.5, "gasUsed": 126752, "l2BalanceAfterEth": 0.5 },
-      { "l1Tx": "0x1b421c3c99815f9b48328efec0c71031a790adad649d8d96b635debb855c18cd", "l1Block": 12116351, "amountEth": 0.5, "gasUsed": 126920, "l2BalanceAfterEth": 1.0 }
+      {
+        "l1Tx": "0x07aab95dc7a75772ead741f246efafd6c1b5122012a21c0528f1630d1f5482b1",
+        "l1Block": 12116301,
+        "amountEth": 0.5,
+        "gasUsed": 126752,
+        "l2BalanceAfterEth": 0.5
+      },
+      {
+        "l1Tx": "0x1b421c3c99815f9b48328efec0c71031a790adad649d8d96b635debb855c18cd",
+        "l1Block": 12116351,
+        "amountEth": 0.5,
+        "gasUsed": 126920,
+        "l2BalanceAfterEth": 1.0
+      }
     ],
     "l2BalanceBeforeEth": 0,
     "note": "first balances on Finchain Sepolia; the genesis holds no pre-funded accounts"
@@ -52,10 +90,20 @@
     "url": "https://rpc.finchain.one",
     "tls": "Let's Encrypt via Caddy on host B",
     "checks": [
-      { "method": "eth_chainId", "result": "0x14dae" },
-      { "method": "eth_getBalance(0xA199250F15DCE1399288F967f8652A882B1947e9)", "result": "0xde0b6b3a7640000 (1 ETH)" }
+      {
+        "method": "eth_chainId",
+        "result": "0x14dae"
+      },
+      {
+        "method": "eth_getBalance(0xA199250F15DCE1399288F967f8652A882B1947e9)",
+        "result": "0xde0b6b3a7640000 (1 ETH)"
+      }
     ],
-    "websocket": "wss://ws.finchain.one (configured, not yet exercised)"
+    "websocket": {
+      "url": "wss://ws.finchain.one",
+      "exercised": "2026-11-12 by the project reviewer from outside the operator hosts: eth_subscribe(\"newHeads\") delivered block 23798, hash 0xee05dd0c1e44338a180fa772263234c98c348bbb145bf72d5f13ef7b6bf84960, then eth_unsubscribe succeeded",
+      "note": "external observation added 2026-11-12; the HTTP check of #19836 by the same reviewer matched the hash and state root recorded above"
+    }
   },
   "challenger": {
     "gamesTracked": 7,
@@ -70,8 +118,8 @@
     "opDeployerSha256": "a0e22834e98d8d5d890713c19168805ffb85efdad36c092b5b1b265b17c1055d (darwin/arm64)"
   },
   "openItems": [
-    "exercise wss://ws.finchain.one",
     "L1_TRUST_RPC=false on host B once eth_getProof at the head is confirmed on the dedicated provider",
-    "second public endpoint or DNS failover for rpc.finchain.one before public opening"
+    "second public endpoint or DNS failover for rpc.finchain.one before public opening",
+    "before 3a sends its first transaction, confirm on host B that finalized advanced after the last container start (a started container is not a ready node)"
   ]
 }

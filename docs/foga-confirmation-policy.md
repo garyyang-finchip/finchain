@@ -57,11 +57,30 @@ proposal interval affects only withdrawals.
 
 ## Acceptance (M3)
 
+Three judgements are made separately for every chain write: the receipt exists; the block
+holding it is still on the canonical chain; that block has reached the required level.
+
+| Test | Must be observed |
+| --- | --- |
+| Same height, new block hash; the transaction is included again later | provisional records of the old branch withdrawn, replay from the common ancestor, one settlement per task |
+| Block hash unchanged, `safe` moved backwards | the record falls back to provisional; the next step that depends on `safe` pauses (heights or hashes alone miss this case) |
+| Logs missing, connection lost, or a switch to a lagging node | rescan from the known cursor with identity checks; one empty answer is not a reorg; a missing `finalized` never degrades to `latest` |
+| External payment delivered, crash before the local record | the receiver is queried or deduplicated by the stable business id; a counterparty that is neither idempotent nor queryable leaves "outcome unknown, to be reconciled", never a second payment |
+
 - Two independent cells complete discovery -> eligibility -> task -> execution ->
   submission -> acceptance -> payment with the confirmation levels above enforced.
-- Induced rollback test on a devnet: an `unsafe` segment dropped and re-sequenced; the cell
-  rewinds its cursor, no duplicate payment, no duplicate external message.
+- Environments, recorded separately: the in-process mock chain (levels and anomalous
+  views), anvil with a real reorg (`unsafe` segment dropped and re-mined; the test asserts the
+  common ancestor unchanged and the replaced hash changed), public Finchain (real tags,
+  restart, resume, settlement). No induced reorg on public Finchain; a real L1 reorg with
+  re-derivation is an M4 item.
 - Resend test: a dropped transaction is detected from on-chain state before resend.
 - Crash test: process killed between external payment and local record; recovery performs
   no second payment.
+- Business idempotency keys bind chain id + World + task or fulfilment + action; on-chain
+  event identity is block hash + transaction hash + log index.
+- Timing: FOGA's public windows (180 s council, 60 s appeal, 180 s evidence) are shorter
+  than a `demo` batch interval; Finchain runs get their own drill windows, "expected to
+  pass" and "deliberately undecided" runs are distinguished, and the active profile is in
+  every record.
 - Each result recorded with the profile and environment.
