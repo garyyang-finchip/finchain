@@ -1,0 +1,109 @@
+{
+  "acceptance": "M3-A Finchain on its own (verification)",
+  "record": "/home/ec2-user/finchip/finch/finchain/chain/out/evm-acceptance.json",
+  "rpc": "http://100.120.188.50:8545",
+  "checkedAt": "2026-11-12T13:51:20Z",
+  "block": 37854,
+  "tag": "finalized",
+  "finalizedHead": 37854,
+  "checks": [
+    {
+      "check": "transfer.status",
+      "result": "match",
+      "actual": "0x1",
+      "expected": "0x1"
+    },
+    {
+      "check": "transfer.block",
+      "result": "match",
+      "actual": "37178",
+      "expected": "37178"
+    },
+    {
+      "check": "transfer.blockHash",
+      "result": "match",
+      "actual": "0x65ab862ca2a54ca89df26c5577b69ecc8b5865ea70d28b6e7fea2c61eb8c38b9",
+      "expected": "0x65ab862ca2a54ca89df26c5577b69ecc8b5865ea70d28b6e7fea2c61eb8c38b9"
+    },
+    {
+      "check": "deployment.status",
+      "result": "match",
+      "actual": "0x1",
+      "expected": "0x1"
+    },
+    {
+      "check": "deployment.block",
+      "result": "match",
+      "actual": "37180",
+      "expected": "37180"
+    },
+    {
+      "check": "deployment.blockHash",
+      "result": "match",
+      "actual": "0xf8c1eed0339fd898ffbf4c9f40b1b32d5358256085777ca3f9eaeb5893ada118",
+      "expected": "0xf8c1eed0339fd898ffbf4c9f40b1b32d5358256085777ca3f9eaeb5893ada118"
+    },
+    {
+      "check": "write.status",
+      "result": "match",
+      "actual": "0x1",
+      "expected": "0x1"
+    },
+    {
+      "check": "write.block",
+      "result": "match",
+      "actual": "37183",
+      "expected": "37183"
+    },
+    {
+      "check": "write.blockHash",
+      "result": "match",
+      "actual": "0x9ce840c0a6d449d704ec5703b841bc5b1cabe42b457739fdae2df666e6021160",
+      "expected": "0x9ce840c0a6d449d704ec5703b841bc5b1cabe42b457739fdae2df666e6021160"
+    },
+    {
+      "check": "code.keccak",
+      "result": "match",
+      "actual": "0x1c479ca05cfb9f1ff7afb8f7267d147d6952296ff21b6a2d340d8ef4869ccf90",
+      "expected": "0x1c479ca05cfb9f1ff7afb8f7267d147d6952296ff21b6a2d340d8ef4869ccf90"
+    },
+    {
+      "check": "storage.slot0",
+      "result": "match",
+      "actual": "37180",
+      "expected": "37180"
+    },
+    {
+      "check": "call.value",
+      "result": "match",
+      "actual": "37180",
+      "expected": "37180"
+    },
+    {
+      "check": "call.writes",
+      "result": "match",
+      "actual": "1",
+      "expected": "1"
+    },
+    {
+      "check": "recipient.balance",
+      "result": "match",
+      "actual": "0.050000",
+      "expected": ">= 0.050000"
+    },
+    {
+      "check": "completion.canonical",
+      "result": "match",
+      "actual": "0x9ce840c0a6d449d704ec5703b841bc5b1cabe42b457739fdae2df666e6021160",
+      "expected": "0x9ce840c0a6d449d704ec5703b841bc5b1cabe42b457739fdae2df666e6021160"
+    },
+    {
+      "check": "completion.finalized",
+      "result": "match",
+      "actual": "37854",
+      "expected": ">= 37183"
+    }
+  ],
+  "result": "MATCH",
+  "method": "receipts by hash (status, block, block hash), code keccak at the checked block, storage slot 0, eth_call and the recipient balance at the completing block, completion block canonical and finalized"
+}
