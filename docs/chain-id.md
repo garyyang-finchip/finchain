@@ -3,7 +3,7 @@
 | Network | Chain id | Status |
 | --- | --- | --- |
 | Finchain Sepolia | 85422 | chosen 2026-11-11 (replaces the first candidate 83380); registry check passed before deployment |
-| Finchain (mainnet) | to be decided | frozen before mainnet deployment |
+| Finchain (mainnet) | 8454 | decided 2026-11-12 by the project owner: adjacent to Base (8453) and a nod to ERC-8454 (AIFi). Registry check 2026-11-12: absent from `ethereum-lists/chains` (2858 entries; 8450-8459 holds only Base) and no network found in a web search. Fixed at mainnet genesis; registered after launch |
 
 ## Why 8338 is excluded
 
@@ -29,7 +29,9 @@ and the explorer exists. Wallets pick the entry up from there.
 
 | Date | Check | Result |
 | --- | --- | --- |
-| | ethereum-lists/chains | |
+| 2026-11-11 | testnet id 85422: `make chain-id-check` against `ethereum-lists/chains` | absent; deployed 2026-11-11 |
+| 2026-11-12 | mainnet id 8454: `ethereum-lists/chains` `_data/chains/eip155-8454.json` | absent (neighbours: 8453 Base only) |
+| 2026-11-12 | mainnet id 8454: web search for networks using the id | none found |
 | | chainlist.org | |
 | | thirdweb | |
 | | web search | |
