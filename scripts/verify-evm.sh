@@ -51,21 +51,26 @@ receipt_check transfer "$(jq -r .transfer.receipt.tx "$RECORD")" "$(jq -r .trans
 receipt_check deployment "$(jq -r .contract.deployment.tx "$RECORD")" "$(jq -r .contract.deployment.block "$RECORD")" "$(jq -r .contract.deployment.blockHash "$RECORD")"
 receipt_check write "$(jq -r .write.receipt.tx "$RECORD")" "$(jq -r .write.receipt.block "$RECORD")" "$(jq -r .write.receipt.blockHash "$RECORD")"
 
-echo "== state at block $block"
+# The code is checked at the chosen (finalized) block; the state and the balance at the completing block itself,
+# which the block checks below require to be canonical and at or below the finalized head. The probe has no
+# access control, so a later write by anyone would change its state without touching the acceptance.
+cn="$(jq -r .completion.number "$RECORD")"; ch="$(jq -r .completion.hash "$RECORD")"; cn_hex="$(printf '0x%x' "$cn")"
+[ "$cn" -le "$block" ] || die "the completion block $cn is above the checked block $block ($AT); check again later"
+echo "== code at block $block, state at the completing block $cn"
 probe="$(jq -r .contract.address "$RECORD")"; value="$(jq -r .write.value "$RECORD")"
 code="$(rpc "$L2_RPC" eth_getCode "[\"$probe\",\"$block_hex\"]" | jq -r '.result // "0x"')"
 if [ "$code" = "0x" ]; then code_hash="0x (no code)"; else code_hash="$(cast keccak "$code")"; fi
 check "code.keccak" "$code_hash" "$(jq -r .contract.runtimeCodeKeccak "$RECORD")"
-check "storage.slot0" "$(( $(rpc "$L2_RPC" eth_getStorageAt "[\"$probe\",\"0x0\",\"$block_hex\"]" | jq -r .result) ))" "$value"
-check "call.value" "$(cast call "$probe" 'value()(uint256)' --block "$block" --rpc-url "$L2_RPC")" "$value"
-check "call.writes" "$(cast call "$probe" 'writes()(uint256)' --block "$block" --rpc-url "$L2_RPC")" "1"
+check "storage.slot0" "$(( $(rpc "$L2_RPC" eth_getStorageAt "[\"$probe\",\"0x0\",\"$cn_hex\"]" | jq -r .result) ))" "$value"
+# cast prints large numbers as "37180 [3.718e4]"; the JSON form carries the bare value
+check "call.value" "$(cast call --json "$probe" 'value()(uint256)' --block "$cn" --rpc-url "$L2_RPC" | jq -r '.[0]')" "$value"
+check "call.writes" "$(cast call --json "$probe" 'writes()(uint256)' --block "$cn" --rpc-url "$L2_RPC" | jq -r '.[0]')" "1"
 to="$(jq -r .transfer.to "$RECORD")"
-bal="$(hex_to_eth "$(rpc "$L2_RPC" eth_getBalance "[\"$to\",\"$block_hex\"]" | jq -r .result)")"
+bal="$(hex_to_eth "$(rpc "$L2_RPC" eth_getBalance "[\"$to\",\"$cn_hex\"]" | jq -r .result)")"
 amt="$(jq -r .transfer.amountEth "$RECORD")"
 if awk -v b="$bal" -v a="$amt" 'BEGIN { exit !(b >= a) }'; then printf '  %-10s %s = %s ETH (>= %s)\n' match "recipient.balance" "$bal" "$amt"; rows="$rows{\"check\":\"recipient.balance\",\"result\":\"match\",\"actual\":\"$bal\",\"expected\":\">= $amt\"},"; else printf '  %-10s %s = %s ETH (< %s)\n' MISMATCH "recipient.balance" "$bal" "$amt"; rows="$rows{\"check\":\"recipient.balance\",\"result\":\"mismatch\",\"actual\":\"$bal\",\"expected\":\">= $amt\"},"; failed=1; fi
 
 echo "== blocks"
-cn="$(jq -r .completion.number "$RECORD")"; ch="$(jq -r .completion.hash "$RECORD")"
 onchain="$(rpc "$L2_RPC" eth_getBlockByNumber "[\"$(printf '0x%x' "$cn")\",false]" | jq -r '.result.hash // empty')"
 check "completion.canonical" "$onchain" "$ch"
 fin=$(( $(rpc "$L2_RPC" eth_getBlockByNumber '["finalized",false]' | jq -r .result.number) ))
@@ -76,6 +81,6 @@ mkdir -p "$FINCHAIN_ROOT/manifests/evidence"
 out="$FINCHAIN_ROOT/manifests/evidence/evm-acceptance-verify-$block.json"
 jq -n --arg record "$RECORD" --arg rpc "$L2_RPC" --argjson block "$block" --arg tag "$AT" --arg at "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --argjson finalized "$fin" --argjson rows "[${rows%,}]" --arg result "$result" '
   { acceptance: "M3-A Finchain on its own (verification)", record: $record, rpc: $rpc, checkedAt: $at, block: $block, tag: $tag, finalizedHead: $finalized, checks: $rows, result: $result,
-    method: "receipts by hash (status, block, block hash), code keccak and storage slot 0 at the fixed block, eth_call at the block, recipient balance, completion block canonical and finalized" }' > "$out"
+    method: "receipts by hash (status, block, block hash), code keccak at the checked block, storage slot 0, eth_call and the recipient balance at the completing block, completion block canonical and finalized" }' > "$out"
 echo "RESULT: $result; report $out"
 [ "$result" = "MATCH" ] || exit 3

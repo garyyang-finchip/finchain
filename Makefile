@@ -106,7 +106,7 @@ deposit: ## Bridge ETH into L2 via OptimismPortal: AMOUNT=0.5 ROLE=deployer L2_R
 set-init-bond: ## DGF owner: set initial bond for a game type: TYPE=1 BOND=0
 	@bash $(ROOT)/scripts/set-init-bond.sh $(TYPE) $(BOND)
 
-evm-acceptance: ## M3-A: transfer, deploy, write, read through the public RPC (L2_RPC=https://rpc.finchain.one AMOUNT=0.05)
+evm-acceptance: ## M3-A: transfer, deploy, write, read through the public RPC (L2_RPC=https://rpc.finchain.one AMOUNT=0.05; RECEIPTS="tx tx tx" records sent transactions)
 	@bash $(ROOT)/scripts/evm-acceptance.sh "$(L2_RPC)" "$(AMOUNT)"
 verify-evm: ## M3-A on host B: re-read chain/out/evm-acceptance.json at a finalized block (RECORD=... L2_RPC=... AT=finalized)
 	@bash $(ROOT)/scripts/verify-evm.sh "$(RECORD)" "$(L2_RPC)" "$(AT)"
