@@ -1,0 +1,906 @@
+{
+  "schema": "foga.world/1",
+  "worldId": "finchain-sepolia-85422-20261112T154525Z",
+  "name": "finchain-sepolia",
+  "network": "finchain-sepolia",
+  "chainId": 85422,
+  "mode": "deployed",
+  "bundleHash": "0xc01f2099206e968ac207672b375b6bc30f205fe3fdc668dd1e163a659b0d89e8",
+  "batch": "2026-11-12T15:45:25.223Z",
+  "forkSourceBlock": null,
+  "deployer": "0x82FAA8878a94788379973A843F314AB4b5F60471",
+  "identity8004": {
+    "mode": "address",
+    "address": "0x363E71C6c33d4B5980B31B558D1E16B52EB3C8E9",
+    "note": "Finchain-deployed ERC-8004 reference instance: IdentityRegistry proxy (ReputationRegistry proxy 0xF0A3ba008486cCc0bf994d5c06cE095E0b1D08e2), upstream contracts at commit b9e466c, owned by the Finchain owner address; deployment record chain/out/erc8004.json. Not a stub, not part of the World W deploys."
+  },
+  "params": {
+    "skillToken": {
+      "name": "FOGA Skill",
+      "symbol": "FSKL"
+    },
+    "taskToken": {
+      "name": "FOGA Task",
+      "symbol": "FTSK"
+    },
+    "aid": {
+      "defaultLivenessWindow": 7776000,
+      "maxLivenessWindow": 31536000
+    },
+    "kya": {
+      "issuerSetRoot": "0x1de029c3b70d5efa4af25f0d1ffb02831eb7c0d9f5a02f3c781d216e2c54b5e8",
+      "epochLength": 2592000,
+      "epochGrace": 1
+    },
+    "ard": {
+      "kindURIs": {
+        "skill": "kind:skill",
+        "task": "kind:task",
+        "agent": "kind:agent",
+        "registry": "kind:registry"
+      }
+    }
+  },
+  "contracts": {
+    "identity8004": {
+      "address": "0x363E71C6c33d4B5980B31B558D1E16B52EB3C8E9",
+      "note": "Finchain-deployed ERC-8004 reference instance: IdentityRegistry proxy (ReputationRegistry proxy 0xF0A3ba008486cCc0bf994d5c06cE095E0b1D08e2), upstream contracts at commit b9e466c, owned by the Finchain owner address; deployment record chain/out/erc8004.json. Not a stub, not part of the World W deploys."
+    },
+    "8338/SkillToken": {
+      "address": "0xF7b6b89fE7c11B333FD63658EacE6Cc7b5c48419",
+      "bundleKey": "skill-token-standard:SkillToken",
+      "txHash": "0x1c399385fe7f4b5453260a238c7feef38cab65e7f05be21e2a3eb827c6fbb03d",
+      "block": 41827,
+      "args": [
+        "FOGA Skill",
+        "FSKL"
+      ]
+    },
+    "8414/TaskToken": {
+      "address": "0xF7570dFCf72E54dF627ee80E0579867cCB2c75dc",
+      "bundleKey": "task-token-standard:TaskToken",
+      "txHash": "0xb449d789553cbce73576a44b8db523647e2fc0a15a776eea0f17cea50feb6bf9",
+      "block": 41830,
+      "args": [
+        "FOGA Task",
+        "FTSK"
+      ]
+    },
+    "8414/HashlockVerifier": {
+      "address": "0x07ff2a8A6e212b98bd75B7CF61235afD54B4a7F6",
+      "bundleKey": "task-token-standard:HashlockVerifier",
+      "txHash": "0x49f21900f5188f1dacadf96d2e389b468200d87ee026590381efe12b24670027",
+      "block": 41832,
+      "args": []
+    },
+    "8419/KYASchemeRegistry": {
+      "address": "0x9A4d9072Ecbd3197821739Ada2c6d2d772582DA6",
+      "bundleKey": "kya-standard:KYASchemeRegistry",
+      "txHash": "0x4f3fb1465996777360548fada37972c90d82efc9b30a6732446fefc3ca016e89",
+      "block": 41834,
+      "args": []
+    },
+    "8419/KYARegistry": {
+      "address": "0x528d7018402C14F5c25AA997627Ffa31D5fc5264",
+      "bundleKey": "kya-standard:KYARegistry",
+      "txHash": "0xcd252256f67d2ee81a32d54b41ea435d92efef198cc29ae9cc3323e2fd1c0e7b",
+      "block": 41837,
+      "args": [
+        "0x9A4d9072Ecbd3197821739Ada2c6d2d772582DA6"
+      ]
+    },
+    "8419/KYAPolicyRegistry": {
+      "address": "0x09381E0828101615b7cD445c2362d051B09dff0B",
+      "bundleKey": "kya-standard:KYAPolicyRegistry",
+      "txHash": "0x4b4b53ff603c4a0c3b462b9da07f3a71c9d7efeb4a85bedecc852471353b7635",
+      "block": 41839,
+      "args": [
+        "0x528d7018402C14F5c25AA997627Ffa31D5fc5264"
+      ]
+    },
+    "8419/ValidationRegistry8004": {
+      "address": "0x90e9d3aC23B31bd9BF87fB8B21EAad7dF4Df883D",
+      "bundleKey": "kya-standard:ValidationRegistry8004",
+      "txHash": "0x04621e62fb42f4416852408f28fd2d284257615d652f8555ff3461bd82958b93",
+      "block": 41841,
+      "args": [
+        "0x363E71C6c33d4B5980B31B558D1E16B52EB3C8E9"
+      ],
+      "note": "spec-conforming ERC-8004 Validation Registry companion from kya-standard, bound to the world's identity registry"
+    },
+    "8419/KYABridge8004": {
+      "address": "0x3362466B3A0578f9C8F135669CB4Db7Bf5c6C5b4",
+      "bundleKey": "kya-standard:KYABridge8004",
+      "txHash": "0x5d70356150f29f1223b3d3c2673be251ad8898aaedf5fcb9fd8ca13624748d72",
+      "block": 41843,
+      "args": [
+        "0x528d7018402C14F5c25AA997627Ffa31D5fc5264",
+        "0x90e9d3aC23B31bd9BF87fB8B21EAad7dF4Df883D",
+        "0x82FAA8878a94788379973A843F314AB4b5F60471"
+      ]
+    },
+    "8419/Groth16Verifier": {
+      "address": "0x41f188a432a1CBE672a0fF48D5BcF73fD569D1C9",
+      "bundleKey": "kya-standard:Groth16Verifier",
+      "txHash": "0x8358103541e957f5600b1b5a2657f60460ad6a6b5ffc539887b822709a7a6d4e",
+      "block": 41845,
+      "args": [],
+      "note": "credential-pattern ZK-KYA verifier (kya_public_v1 circuit)"
+    },
+    "8419/Groth16KYAVerifierAdapter": {
+      "address": "0x91198DbFD8D6e1A9c78f21b0EF3CA103B73352FB",
+      "bundleKey": "kya-standard:Groth16KYAVerifierAdapter",
+      "txHash": "0x2f2ae0b3f42212c2660dbd30c2eb877b1be5e2f67415eaa1f09919d2f99b5e46",
+      "block": 41846,
+      "args": [
+        "0x41f188a432a1CBE672a0fF48D5BcF73fD569D1C9",
+        "0x1de029c3b70d5efa4af25f0d1ffb02831eb7c0d9f5a02f3c781d216e2c54b5e8",
+        2592000,
+        1
+      ]
+    },
+    "8434/AIDRegistry": {
+      "address": "0x769FDF07b59115916e156A35ef745E38dD26bc9f",
+      "bundleKey": "aid-standard:AIDRegistry",
+      "txHash": "0x417b256702803df6f388f5d9ab67d552521c6ab9011b306cef73541dee2c0bd1",
+      "block": 41848,
+      "args": [
+        7776000,
+        31536000
+      ]
+    },
+    "8436/ACDFPolicyRegistry": {
+      "address": "0x3Fb449fe822253c2Cb50F612e71e58DC1eB4E0C5",
+      "bundleKey": "acd-framework:ACDFPolicyRegistry",
+      "txHash": "0xb3d8950bfff613e4b54afde83c501de0077d896fe43346bdf0cec7b2ecc9774f",
+      "block": 41850,
+      "args": []
+    },
+    "8436/ACDFRegistry": {
+      "address": "0x6d859a89338a7eE6d3624cB5cDf2caA4D183E434",
+      "bundleKey": "acd-framework:ACDFRegistry",
+      "txHash": "0xbc273ca2d89c007d5dd61d18054b576f66ffb3543006e53fa6a9c6558f62c060",
+      "block": 41853,
+      "args": [
+        "0x3Fb449fe822253c2Cb50F612e71e58DC1eB4E0C5"
+      ]
+    },
+    "8444/ARDOnchainRegistry": {
+      "address": "0x5f3E2f25aFd55Cf5fC86b9F2B951b22AD49F6C67",
+      "bundleKey": "ard-onchain-framework:ARDOnchainRegistry",
+      "txHash": "0xc54cd152174710f8ee715393655c4e7e5a9d219bf8c247347d1dfb83f56b5fc6",
+      "block": 41855,
+      "args": [],
+      "note": "owner = deployer; the four kinds are registered by the wiring step"
+    },
+    "8444/SkillAdapter": {
+      "address": "0x02bE12E84b3B06F75CA4aFA8D1139783c3672503",
+      "bundleKey": "ard-onchain-framework:SkillAdapter",
+      "txHash": "0xe431a707cd74936346700cb11e076bfb6d8b1a83e2ce023d50f6d2b7421e7e6a",
+      "block": 41857,
+      "args": []
+    },
+    "8444/TaskAdapter": {
+      "address": "0x0DD3093a6346172cB7530BBC7Bc18d19C6a77489",
+      "bundleKey": "ard-onchain-framework:TaskAdapter",
+      "txHash": "0x395e2deb4be88af4f6b9f9e50f0c068c944e52b1023f95ad120ed6b505e45912",
+      "block": 41859,
+      "args": []
+    },
+    "8444/AgentAdapter": {
+      "address": "0x15e77C9526B444b8CFC26D965338Dd4A6f8815d6",
+      "bundleKey": "ard-onchain-framework:AgentAdapter",
+      "txHash": "0x0f1f2bda053c7f1871f9eecbab4df82ddea64254eb31ce093fec69fbfb55bbbc",
+      "block": 41862,
+      "args": [
+        "0x769FDF07b59115916e156A35ef745E38dD26bc9f"
+      ],
+      "note": "bound to the world's ERC-8434 AIDRegistry (on Sepolia the upstream instance is bound to ARD's own fixture registry — see worlds/sepolia.json)"
+    },
+    "8444/RegistryAdapter": {
+      "address": "0x3F33642cCd437EEF6883C21B1FEd753c1Fd059c8",
+      "bundleKey": "ard-onchain-framework:RegistryAdapter",
+      "txHash": "0x8023ea206f37dbc93aaa8ee2d847e9cd098dcaf67259ef2709ad57cb980c7560",
+      "block": 41864,
+      "args": []
+    },
+    "8447/SpecValidator": {
+      "address": "0x22868E30B754D7d572A010D102d482C0A9c16330",
+      "bundleKey": "swarm-ai-framework:SpecValidator",
+      "txHash": "0x947d4194ec356f47df27107a85fabc4703fe38bcece0dc1eda11fb3a5a5c7d7f",
+      "block": 41866,
+      "args": [],
+      "note": "external library"
+    },
+    "8447/LifecycleLib": {
+      "address": "0x2A1F9554bbb0E7a8FA2E84784314aA444EeEE06f",
+      "bundleKey": "swarm-ai-framework:LifecycleLib",
+      "txHash": "0xe2946aca826351958fd85687ca5a5a06b618c8127ba20e040397275937dbc77e",
+      "block": 41868,
+      "args": [],
+      "libraries": {
+        "SpecValidator": "0x22868E30B754D7d572A010D102d482C0A9c16330"
+      },
+      "note": "external library, links SpecValidator"
+    },
+    "8447/MembershipLib": {
+      "address": "0x76ECBed1FCeB4Cd6BE66d3B553cbf6AD989c788a",
+      "bundleKey": "swarm-ai-framework:MembershipLib",
+      "txHash": "0xf6af9d7cc6b83765b5cada5a455a77048eacf47f22a04a2f1082c5a383b8180e",
+      "block": 41871,
+      "args": [],
+      "note": "external library"
+    },
+    "8447/ResourceLib": {
+      "address": "0x3Fa49fcA97628c77d430B768Ad94069d3924aD2c",
+      "bundleKey": "swarm-ai-framework:ResourceLib",
+      "txHash": "0xe2758264946e2d01fbe6d704251d2ff524fc654fd8f3f9c8f1d79b9c33cddc63",
+      "block": 41873,
+      "args": [],
+      "note": "external library"
+    },
+    "8447/SwarmRegistry": {
+      "address": "0x3ACF584577a88F7518EE6214ca556a62A13d3D1b",
+      "bundleKey": "swarm-ai-framework:SwarmRegistry",
+      "txHash": "0xea0468a3229146d1f6d98ac9d14ef3d50fafb79bf2ce50a8c646617e3867a26c",
+      "block": 41875,
+      "args": [
+        [],
+        []
+      ],
+      "libraries": {
+        "LifecycleLib": "0x2A1F9554bbb0E7a8FA2E84784314aA444EeEE06f",
+        "MembershipLib": "0x76ECBed1FCeB4Cd6BE66d3B553cbf6AD989c788a",
+        "ResourceLib": "0x3Fa49fcA97628c77d430B768Ad94069d3924aD2c"
+      },
+      "note": "constructed with no resource kinds, as upstream did on Sepolia"
+    },
+    "8447/AllowlistEligibility": {
+      "address": "0x76CE1494A223B772E65b6a60Cbd7133817462FB5",
+      "bundleKey": "swarm-ai-framework:AllowlistEligibility",
+      "txHash": "0xc0470dc776af872b0fbc7c40bc49be2b45be0e6fd71cc0248ce1004a73c6588e",
+      "block": 41877,
+      "args": [
+        "0x82FAA8878a94788379973A843F314AB4b5F60471"
+      ]
+    },
+    "8447/ERC8004Eligibility": {
+      "address": "0xff2956875C0F3A9e22a41d27d1F1e0125d814CC2",
+      "bundleKey": "swarm-ai-framework:ERC8004Eligibility",
+      "txHash": "0x619719d18f14cdd43eddada1beb69a35053233b94a98f416aaac2b6741e2f55e",
+      "block": 41880,
+      "args": [
+        "0x363E71C6c33d4B5980B31B558D1E16B52EB3C8E9"
+      ]
+    },
+    "8447/IdentityStateEligibility": {
+      "address": "0xf12f0514F3e55Eaabf0dafA99aec2f4434b25A7a",
+      "bundleKey": "swarm-ai-framework:IdentityStateEligibility",
+      "txHash": "0xa901c45b16908afa52bb00d6471c680cc82ccc002e9eb04305688ea7b35eaf36",
+      "block": 41882,
+      "args": [
+        "0x769FDF07b59115916e156A35ef745E38dD26bc9f"
+      ]
+    },
+    "8447/SwarmTenderAdapter": {
+      "address": "0x6db70832E6E0Fa2F9E6B1488A3009D02DECd9A68",
+      "bundleKey": "swarm-ai-framework:SwarmTenderAdapter",
+      "txHash": "0x0131420ee071855dad12742324447924266b0e16a01f2d781487d0a4a2e7b14f",
+      "block": 41884,
+      "args": [
+        "0x3ACF584577a88F7518EE6214ca556a62A13d3D1b",
+        "0xF7570dFCf72E54dF627ee80E0579867cCB2c75dc"
+      ]
+    },
+    "8454/AUFUnitRegistry": {
+      "address": "0x020678F204454a908d97a0112470B01403995027",
+      "bundleKey": "aifi-unit-framework:AUFUnitRegistry",
+      "txHash": "0x77f60dee43050e257999cede88569a098c8a07174aba76ae4a54c893e1815d27",
+      "block": 41886,
+      "args": []
+    },
+    "8454/AUFAssertionRegistry": {
+      "address": "0xF1c40078BD35aD7A0Bce6b9dA6B41002f4D14FDA",
+      "bundleKey": "aifi-unit-framework:AUFAssertionRegistry",
+      "txHash": "0x016ffa8fb7ad644852215068f0e6e13ee529c7bb52be7a631a3ba0995dcc4181",
+      "block": 41888,
+      "args": [
+        "0x020678F204454a908d97a0112470B01403995027"
+      ]
+    },
+    "8468/ASFEvaluation": {
+      "address": "0xeE26395b9566af7226C0e09ACe1c3bEcF31ebfC9",
+      "bundleKey": "agent-safety-framework:ASFEvaluation",
+      "txHash": "0x6f49edb5d381db3980781532e6d0bfd33067258c80cd780f3f59e57f55aa0ff6",
+      "block": 41891,
+      "args": [],
+      "note": "external library"
+    },
+    "8468/ASFLifecycle": {
+      "address": "0x3B19c5469eE0946c28A429ec012b25bf8Fad49a6",
+      "bundleKey": "agent-safety-framework:ASFLifecycle",
+      "txHash": "0x045d57505bae5f741d1cc328cbf874d1cd37065b1ea9ad97043074a148beb4fc",
+      "block": 41893,
+      "args": [],
+      "note": "external library, links ASFEvaluation"
+    },
+    "8468/ASFSpecificationRegistry": {
+      "address": "0x3309B66383A9B77e8963C8f6A07534E38dcd1a40",
+      "bundleKey": "agent-safety-framework:ASFSpecificationRegistry",
+      "txHash": "0x9b2a65e6cb86e2f142eb02440b2c3a4616917b3e10d3efde98ad296a9facc1e2",
+      "block": 41895,
+      "args": []
+    },
+    "8468/ASFBindingRegistry": {
+      "address": "0xc7B878007D0057688A2470a5Db25AA6E09b4d0a2",
+      "bundleKey": "agent-safety-framework:ASFBindingRegistry",
+      "txHash": "0x30fe4c9a3c1b2352a4e3012f29a5bc5fa71a8f8d618c5800c2c6cd5aff196982",
+      "block": 41897,
+      "args": [],
+      "libraries": {
+        "ASFEvaluation": "0xeE26395b9566af7226C0e09ACe1c3bEcF31ebfC9",
+        "ASFLifecycle": "0x3B19c5469eE0946c28A429ec012b25bf8Fad49a6"
+      },
+      "note": "links ASFEvaluation and ASFLifecycle"
+    },
+    "8471/ADRFPolicyRegistry": {
+      "address": "0x76a58BFc0C84579Ae76690326Bc12E720f35FF58",
+      "bundleKey": "ai-dispute-resolution:ADRFPolicyRegistry",
+      "txHash": "0x5857a82e76c4efdfa7814196c7e4fa14092f9e14274655a7708d457fdf06109a",
+      "block": 41900,
+      "args": []
+    },
+    "8471/ADRFBindingModule": {
+      "address": "0xB9f007049cAfC337A5cBe456B700ABef11582b2b",
+      "bundleKey": "ai-dispute-resolution:ADRFBindingModule",
+      "txHash": "0xcaff1974405a1653f855b4d3d7ed68ec4b9eb34d7324b412e335ec1c78e02968",
+      "block": 41902,
+      "args": [
+        "0x76a58BFc0C84579Ae76690326Bc12E720f35FF58"
+      ]
+    },
+    "8471/ADRFFilingModule": {
+      "address": "0x05dab593fA291aA8287B60c0a44E093F83Aa9722",
+      "bundleKey": "ai-dispute-resolution:ADRFFilingModule",
+      "txHash": "0xc53647f1fe8333c2b587ae23029cd816f41a0790074b6c7df3faf2b5864e5577",
+      "block": 41904,
+      "args": [
+        "0x76a58BFc0C84579Ae76690326Bc12E720f35FF58"
+      ]
+    },
+    "8471/ADRFResolutionModule": {
+      "address": "0xe9ABb31cD16F510f883fbb9Bdf8E66C5AEBc8C76",
+      "bundleKey": "ai-dispute-resolution:ADRFResolutionModule",
+      "txHash": "0xb70f925683caadf20cdf34afb0a1e8cb6eadecffb8f1777f9ab5b968e5e1165d",
+      "block": 41907,
+      "args": [
+        "0x76a58BFc0C84579Ae76690326Bc12E720f35FF58"
+      ]
+    },
+    "8471/ADRFDecisionModule": {
+      "address": "0xb77C42c24efFa17deCeE42E29A16eBAd6541AFa2",
+      "bundleKey": "ai-dispute-resolution:ADRFDecisionModule",
+      "txHash": "0x5b731cf2eeacb9ad677211b5aa340b52a748c3dfb5058acec17e48a1cfdd4e00",
+      "block": 41909,
+      "args": [
+        "0x76a58BFc0C84579Ae76690326Bc12E720f35FF58"
+      ]
+    },
+    "8471/ADRFRecordModule": {
+      "address": "0xE18ea94a926E2C867226e8eD84a721010be78f15",
+      "bundleKey": "ai-dispute-resolution:ADRFRecordModule",
+      "txHash": "0x307352ac0879ea5d2cddaab3be5234000197190850945ade3fb9d2fa02df3c99",
+      "block": 41911,
+      "args": [
+        "0x76a58BFc0C84579Ae76690326Bc12E720f35FF58"
+      ]
+    },
+    "8471/ADRFOutcomeModule": {
+      "address": "0x3ccD2270654B586b7907Ce1B63ff726D2E24E15A",
+      "bundleKey": "ai-dispute-resolution:ADRFOutcomeModule",
+      "txHash": "0x833fa7ffeec12eea8fcc03f5fed553ebb49bdcd97d1838683ae2dbf42034a693",
+      "block": 41913,
+      "args": [
+        "0x76a58BFc0C84579Ae76690326Bc12E720f35FF58"
+      ]
+    },
+    "8471/ADRFDisputeRegistry": {
+      "address": "0x68ECBE600EB73E97C41aDbC64D954c43b8b724E1",
+      "bundleKey": "ai-dispute-resolution:ADRFDisputeRegistry",
+      "txHash": "0xd295fb54a84b1ca615045b3811826f9b87986bbd7da84b5a86ffe250fd243b1a",
+      "block": 41915,
+      "args": [
+        "0x76a58BFc0C84579Ae76690326Bc12E720f35FF58",
+        "0xB9f007049cAfC337A5cBe456B700ABef11582b2b",
+        "0x05dab593fA291aA8287B60c0a44E093F83Aa9722",
+        "0xe9ABb31cD16F510f883fbb9Bdf8E66C5AEBc8C76",
+        "0xb77C42c24efFa17deCeE42E29A16eBAd6541AFa2",
+        "0xE18ea94a926E2C867226e8eD84a721010be78f15",
+        "0x3ccD2270654B586b7907Ce1B63ff726D2E24E15A"
+      ],
+      "note": "router over six delegatecall modules (each unit fits Sepolia's per-transaction gas cap)"
+    },
+    "8471/DuplicateSettlementVerifier": {
+      "address": "0xd757343919BfC5Ab4b9Bdd433D8625A075C2E268",
+      "bundleKey": "ai-dispute-resolution:DuplicateSettlementVerifier",
+      "txHash": "0xb2ba03ef7fc394f194379dc8cc2d50a78dba1e56be802c4405cb31c439c59459",
+      "block": 41918,
+      "args": []
+    },
+    "8471/DeclaredVersionVerifier": {
+      "address": "0x7Fac7887770074241C75ff64a793486FAc5c0392",
+      "bundleKey": "ai-dispute-resolution:DeclaredVersionVerifier",
+      "txHash": "0x887fae7e52a0d68bf0015d56f6a3e23dca2f56cd4efe7ed6f6a5d5836cc89194",
+      "block": 41920,
+      "args": []
+    },
+    "8471/AttestorQuorumRule": {
+      "address": "0x6f6564ff5fe0D7342b6510Eeb9E2F063591250c3",
+      "bundleKey": "ai-dispute-resolution:AttestorQuorumRule",
+      "txHash": "0x9c810d7afc6b7951d2c52fe8a6ce5bb041981091c9d1b6e6b132953e8f03a964",
+      "block": 41922,
+      "args": []
+    },
+    "8471/ADRFACDFBridge": {
+      "address": "0xe4F775F550bf983d90E0D950A01B04280F4Dc4F1",
+      "bundleKey": "ai-dispute-resolution:ADRFACDFBridge",
+      "txHash": "0x3c526be054200ec06303c4cd9fb3023d7d2fec06d837292673aa75f517df2b30",
+      "block": 41924,
+      "args": [
+        "0x68ECBE600EB73E97C41aDbC64D954c43b8b724E1",
+        "0x6d859a89338a7eE6d3624cB5cDf2caA4D183E434"
+      ]
+    },
+    "8471/ADRFServiceEscrow": {
+      "address": "0x2DFa1651a22d7E133d148eC14B2247688918F33f",
+      "bundleKey": "ai-dispute-resolution:ADRFServiceEscrow",
+      "txHash": "0xbca678b7f7c603a0b14e9c78d051fa66c8857d78d8ab0fbf23cd02f25c5ec04f",
+      "block": 41926,
+      "args": [
+        "0x68ECBE600EB73E97C41aDbC64D954c43b8b724E1"
+      ],
+      "note": "service escrow example (obligation source + executor); bound to a policy by the genesis runner"
+    },
+    "8490/AgentMeditationRegistry": {
+      "address": "0x62026ADC48177Efb8fCE1c2Fd959483c5Ab90479",
+      "bundleKey": "agent-meditation-mechanism:AgentMeditationRegistry",
+      "txHash": "0xbf148ac83e7e1ce86c79a9d547f1f69128d14935cb0ec7d89adaefc69c225eaa",
+      "block": 41929,
+      "args": [],
+      "note": "Agent Meditation Mechanism registry (no constructor arguments; clock mode=timestamp)"
+    },
+    "8489/AIFPParadigmRegistry": {
+      "address": "0xC5893833663d6b6716a4F3363583201686613FAd",
+      "bundleKey": "aif-paradigm:AIFPParadigmRegistry",
+      "txHash": "0xd9ee37bea53ba5f61f218bf03b98ec78d2e515468a09a19398c493de43dc65c6",
+      "block": 41931,
+      "args": [],
+      "note": "Agent Information Flow Paradigm: paradigm registry (clock mode=timestamp)"
+    },
+    "8489/AIFPCompositeVerifier": {
+      "address": "0x31a166F05F962052B0d7C84ACaFEB9379D31c6F1",
+      "bundleKey": "aif-paradigm:AIFPCompositeVerifier",
+      "txHash": "0x61902e0775c5bbaf225cab04af959c881ad5954125fe1455886fe91f5bd3c58b",
+      "block": 41933,
+      "args": [],
+      "note": "the composite predicate verifier (leaf calls bounded to LEAF_GAS_LIMIT)"
+    },
+    "8489/AIFPChannelRegistry": {
+      "address": "0xa6541739D9F06b67FBE319BC2A4E82a0b18151CA",
+      "bundleKey": "aif-paradigm:AIFPChannelRegistry",
+      "txHash": "0xb45986b29b63fb31c3dd50d5ee5d5884a9d8823c0a8045e5bd67eab55d8113d5",
+      "block": 41935,
+      "args": [
+        "0xC5893833663d6b6716a4F3363583201686613FAd"
+      ],
+      "note": "the channel registry; the wiring step links the participation registry"
+    },
+    "8489/AIFPParticipationRegistry": {
+      "address": "0x72A6F05d28c9A9da07EaD80d196922Fe3bbDb2A9",
+      "bundleKey": "aif-paradigm:AIFPParticipationRegistry",
+      "txHash": "0x8dffd04643e5fdca444b5f1e881bb647dd565ab693d6e8514f35b200808524c0",
+      "block": 41938,
+      "args": [
+        "0xa6541739D9F06b67FBE319BC2A4E82a0b18151CA",
+        "0xC5893833663d6b6716a4F3363583201686613FAd",
+        "0x31a166F05F962052B0d7C84ACaFEB9379D31c6F1"
+      ]
+    },
+    "8489/AIFPEventAnchor": {
+      "address": "0xd432ac02e8caddA41010ab1F57D11B4a07d8DBdA",
+      "bundleKey": "aif-paradigm:AIFPEventAnchor",
+      "txHash": "0x15b5051462cfbd5f69e10a784d32d28e3dda371734a4ccd4b2e91738c2f97152",
+      "block": 41940,
+      "args": [
+        "0xa6541739D9F06b67FBE319BC2A4E82a0b18151CA",
+        "0x72A6F05d28c9A9da07EaD80d196922Fe3bbDb2A9"
+      ],
+      "note": "the event-anchor profile: a cell anchors what it publishes"
+    },
+    "8489/AIFPObjectionWindow": {
+      "address": "0x9F2459Ad4323e30AF0022AF957D8C43DdF1ccf69",
+      "bundleKey": "aif-paradigm:AIFPObjectionWindow",
+      "txHash": "0xaf4474168b81d8d48a6c1bfe45eae99fafce8c9fe31233f56b61a19e30a72f81",
+      "block": 41942,
+      "args": [
+        "0xa6541739D9F06b67FBE319BC2A4E82a0b18151CA",
+        "0x72A6F05d28c9A9da07EaD80d196922Fe3bbDb2A9"
+      ],
+      "note": "companion (objection-window profile); not used by FOGA's paradigms in 0.9.0"
+    },
+    "8489/AIFPSubjectSet": {
+      "address": "0x601cB2D6fD95E8e4253B50bCc10E834007EE02A1",
+      "bundleKey": "aif-paradigm:AIFPSubjectSet",
+      "txHash": "0x95397a248e071c7f6caf982035a180082ca52785abf0f20b57f392d54f02a8ed",
+      "block": 41944,
+      "args": [
+        "0x82FAA8878a94788379973A843F314AB4b5F60471"
+      ],
+      "note": "an allowlist subject set owned by the deployer; not used by FOGA's paradigms"
+    },
+    "8489/FogaIdentityVerifier": {
+      "address": "0xF65827683A6cB631fBd703300d6E00f217cDFd28",
+      "bundleKey": "foga:FogaIdentityVerifier",
+      "txHash": "0xaab41383c3664b5a407cffd0beda8d63a71012fcc7e8ef1033638aedac201e95",
+      "block": 41946,
+      "args": [
+        "0x363E71C6c33d4B5980B31B558D1E16B52EB3C8E9",
+        "0x769FDF07b59115916e156A35ef745E38dD26bc9f"
+      ],
+      "note": "FOGA's identity predicate verifier (ERC-8489 kind 7): the subject's account owns an ERC-8004 identity in the world's registry and its ERC-8434 anchor is ACTIVE"
+    }
+  },
+  "wiring": {
+    "8489/setParticipationRegistry": {
+      "txHashes": [
+        "0x2864b4aa89960fd7af2032f120b7d76dfab4c0aeb37562dd0a6aa5cbdbd7840f"
+      ]
+    },
+    "8444/registerKinds": {
+      "txHashes": [
+        "0x4fe37f207e6924f284673daaac13e28fb67381a9b5a44733cd7ae05caaaa3ab9",
+        "0x40790938775834b9f719a9f6a0e2140261a240ae939567cf5ea258573a4df397",
+        "0x2b2654fefe9a2ee3a0c136966591e6296336652f9e48e7e157b4b454615046a0",
+        "0x7246e46becc9def3d1e2ff3adbcdd9d969576824876e328bc21fdc5de6cf4e19"
+      ]
+    },
+    "8444/kindIds": {
+      "skill": "0x75357da1ea166b9845548f84f7855b7f122cfc7dc349e5edbdca01bd8ca7b0bb",
+      "task": "0x119c021f95332a1e2d06adbfe8e298dc2484ac0daa16e4cd837d8de82fbba87c",
+      "agent": "0x283cdd5ece2ad33dc6be3a32a7a140a653c611b0296c9b54878ae0439bbef3a2",
+      "registry": "0x455d1d9d2b151bdfaa173c1cee0ee26ece8e7bdb98830e8e3ca1e180989cf3c6"
+    }
+  },
+  "steps": [
+    {
+      "id": "identity8004",
+      "status": "skipped",
+      "note": "attached to an existing ERC-8004 Identity Registry"
+    },
+    {
+      "id": "8338/SkillToken",
+      "status": "deployed",
+      "txHash": "0x1c399385fe7f4b5453260a238c7feef38cab65e7f05be21e2a3eb827c6fbb03d"
+    },
+    {
+      "id": "8414/TaskToken",
+      "status": "deployed",
+      "txHash": "0xb449d789553cbce73576a44b8db523647e2fc0a15a776eea0f17cea50feb6bf9"
+    },
+    {
+      "id": "8414/HashlockVerifier",
+      "status": "deployed",
+      "txHash": "0x49f21900f5188f1dacadf96d2e389b468200d87ee026590381efe12b24670027"
+    },
+    {
+      "id": "8419/KYASchemeRegistry",
+      "status": "deployed",
+      "txHash": "0x4f3fb1465996777360548fada37972c90d82efc9b30a6732446fefc3ca016e89"
+    },
+    {
+      "id": "8419/KYARegistry",
+      "status": "deployed",
+      "txHash": "0xcd252256f67d2ee81a32d54b41ea435d92efef198cc29ae9cc3323e2fd1c0e7b"
+    },
+    {
+      "id": "8419/KYAPolicyRegistry",
+      "status": "deployed",
+      "txHash": "0x4b4b53ff603c4a0c3b462b9da07f3a71c9d7efeb4a85bedecc852471353b7635"
+    },
+    {
+      "id": "8419/ValidationRegistry8004",
+      "status": "deployed",
+      "txHash": "0x04621e62fb42f4416852408f28fd2d284257615d652f8555ff3461bd82958b93"
+    },
+    {
+      "id": "8419/KYABridge8004",
+      "status": "deployed",
+      "txHash": "0x5d70356150f29f1223b3d3c2673be251ad8898aaedf5fcb9fd8ca13624748d72"
+    },
+    {
+      "id": "8419/Groth16Verifier",
+      "status": "deployed",
+      "txHash": "0x8358103541e957f5600b1b5a2657f60460ad6a6b5ffc539887b822709a7a6d4e"
+    },
+    {
+      "id": "8419/Groth16KYAVerifierAdapter",
+      "status": "deployed",
+      "txHash": "0x2f2ae0b3f42212c2660dbd30c2eb877b1be5e2f67415eaa1f09919d2f99b5e46"
+    },
+    {
+      "id": "8434/AIDRegistry",
+      "status": "deployed",
+      "txHash": "0x417b256702803df6f388f5d9ab67d552521c6ab9011b306cef73541dee2c0bd1"
+    },
+    {
+      "id": "8436/ACDFPolicyRegistry",
+      "status": "deployed",
+      "txHash": "0xb3d8950bfff613e4b54afde83c501de0077d896fe43346bdf0cec7b2ecc9774f"
+    },
+    {
+      "id": "8436/ACDFRegistry",
+      "status": "deployed",
+      "txHash": "0xbc273ca2d89c007d5dd61d18054b576f66ffb3543006e53fa6a9c6558f62c060"
+    },
+    {
+      "id": "8444/ARDOnchainRegistry",
+      "status": "deployed",
+      "txHash": "0xc54cd152174710f8ee715393655c4e7e5a9d219bf8c247347d1dfb83f56b5fc6"
+    },
+    {
+      "id": "8444/SkillAdapter",
+      "status": "deployed",
+      "txHash": "0xe431a707cd74936346700cb11e076bfb6d8b1a83e2ce023d50f6d2b7421e7e6a"
+    },
+    {
+      "id": "8444/TaskAdapter",
+      "status": "deployed",
+      "txHash": "0x395e2deb4be88af4f6b9f9e50f0c068c944e52b1023f95ad120ed6b505e45912"
+    },
+    {
+      "id": "8444/AgentAdapter",
+      "status": "deployed",
+      "txHash": "0x0f1f2bda053c7f1871f9eecbab4df82ddea64254eb31ce093fec69fbfb55bbbc"
+    },
+    {
+      "id": "8444/RegistryAdapter",
+      "status": "deployed",
+      "txHash": "0x8023ea206f37dbc93aaa8ee2d847e9cd098dcaf67259ef2709ad57cb980c7560"
+    },
+    {
+      "id": "8447/SpecValidator",
+      "status": "deployed",
+      "txHash": "0x947d4194ec356f47df27107a85fabc4703fe38bcece0dc1eda11fb3a5a5c7d7f"
+    },
+    {
+      "id": "8447/LifecycleLib",
+      "status": "deployed",
+      "txHash": "0xe2946aca826351958fd85687ca5a5a06b618c8127ba20e040397275937dbc77e"
+    },
+    {
+      "id": "8447/MembershipLib",
+      "status": "deployed",
+      "txHash": "0xf6af9d7cc6b83765b5cada5a455a77048eacf47f22a04a2f1082c5a383b8180e"
+    },
+    {
+      "id": "8447/ResourceLib",
+      "status": "deployed",
+      "txHash": "0xe2758264946e2d01fbe6d704251d2ff524fc654fd8f3f9c8f1d79b9c33cddc63"
+    },
+    {
+      "id": "8447/SwarmRegistry",
+      "status": "deployed",
+      "txHash": "0xea0468a3229146d1f6d98ac9d14ef3d50fafb79bf2ce50a8c646617e3867a26c"
+    },
+    {
+      "id": "8447/AllowlistEligibility",
+      "status": "deployed",
+      "txHash": "0xc0470dc776af872b0fbc7c40bc49be2b45be0e6fd71cc0248ce1004a73c6588e"
+    },
+    {
+      "id": "8447/ERC8004Eligibility",
+      "status": "deployed",
+      "txHash": "0x619719d18f14cdd43eddada1beb69a35053233b94a98f416aaac2b6741e2f55e"
+    },
+    {
+      "id": "8447/IdentityStateEligibility",
+      "status": "deployed",
+      "txHash": "0xa901c45b16908afa52bb00d6471c680cc82ccc002e9eb04305688ea7b35eaf36"
+    },
+    {
+      "id": "8447/SwarmTenderAdapter",
+      "status": "deployed",
+      "txHash": "0x0131420ee071855dad12742324447924266b0e16a01f2d781487d0a4a2e7b14f"
+    },
+    {
+      "id": "8454/AUFUnitRegistry",
+      "status": "deployed",
+      "txHash": "0x77f60dee43050e257999cede88569a098c8a07174aba76ae4a54c893e1815d27"
+    },
+    {
+      "id": "8454/AUFAssertionRegistry",
+      "status": "deployed",
+      "txHash": "0x016ffa8fb7ad644852215068f0e6e13ee529c7bb52be7a631a3ba0995dcc4181"
+    },
+    {
+      "id": "8468/ASFEvaluation",
+      "status": "deployed",
+      "txHash": "0x6f49edb5d381db3980781532e6d0bfd33067258c80cd780f3f59e57f55aa0ff6"
+    },
+    {
+      "id": "8468/ASFLifecycle",
+      "status": "deployed",
+      "txHash": "0x045d57505bae5f741d1cc328cbf874d1cd37065b1ea9ad97043074a148beb4fc"
+    },
+    {
+      "id": "8468/ASFSpecificationRegistry",
+      "status": "deployed",
+      "txHash": "0x9b2a65e6cb86e2f142eb02440b2c3a4616917b3e10d3efde98ad296a9facc1e2"
+    },
+    {
+      "id": "8468/ASFBindingRegistry",
+      "status": "deployed",
+      "txHash": "0x30fe4c9a3c1b2352a4e3012f29a5bc5fa71a8f8d618c5800c2c6cd5aff196982"
+    },
+    {
+      "id": "8471/ADRFPolicyRegistry",
+      "status": "deployed",
+      "txHash": "0x5857a82e76c4efdfa7814196c7e4fa14092f9e14274655a7708d457fdf06109a"
+    },
+    {
+      "id": "8471/ADRFBindingModule",
+      "status": "deployed",
+      "txHash": "0xcaff1974405a1653f855b4d3d7ed68ec4b9eb34d7324b412e335ec1c78e02968"
+    },
+    {
+      "id": "8471/ADRFFilingModule",
+      "status": "deployed",
+      "txHash": "0xc53647f1fe8333c2b587ae23029cd816f41a0790074b6c7df3faf2b5864e5577"
+    },
+    {
+      "id": "8471/ADRFResolutionModule",
+      "status": "deployed",
+      "txHash": "0xb70f925683caadf20cdf34afb0a1e8cb6eadecffb8f1777f9ab5b968e5e1165d"
+    },
+    {
+      "id": "8471/ADRFDecisionModule",
+      "status": "deployed",
+      "txHash": "0x5b731cf2eeacb9ad677211b5aa340b52a748c3dfb5058acec17e48a1cfdd4e00"
+    },
+    {
+      "id": "8471/ADRFRecordModule",
+      "status": "deployed",
+      "txHash": "0x307352ac0879ea5d2cddaab3be5234000197190850945ade3fb9d2fa02df3c99"
+    },
+    {
+      "id": "8471/ADRFOutcomeModule",
+      "status": "deployed",
+      "txHash": "0x833fa7ffeec12eea8fcc03f5fed553ebb49bdcd97d1838683ae2dbf42034a693"
+    },
+    {
+      "id": "8471/ADRFDisputeRegistry",
+      "status": "deployed",
+      "txHash": "0xd295fb54a84b1ca615045b3811826f9b87986bbd7da84b5a86ffe250fd243b1a"
+    },
+    {
+      "id": "8471/DuplicateSettlementVerifier",
+      "status": "deployed",
+      "txHash": "0xb2ba03ef7fc394f194379dc8cc2d50a78dba1e56be802c4405cb31c439c59459"
+    },
+    {
+      "id": "8471/DeclaredVersionVerifier",
+      "status": "deployed",
+      "txHash": "0x887fae7e52a0d68bf0015d56f6a3e23dca2f56cd4efe7ed6f6a5d5836cc89194"
+    },
+    {
+      "id": "8471/AttestorQuorumRule",
+      "status": "deployed",
+      "txHash": "0x9c810d7afc6b7951d2c52fe8a6ce5bb041981091c9d1b6e6b132953e8f03a964"
+    },
+    {
+      "id": "8471/ADRFACDFBridge",
+      "status": "deployed",
+      "txHash": "0x3c526be054200ec06303c4cd9fb3023d7d2fec06d837292673aa75f517df2b30"
+    },
+    {
+      "id": "8471/ADRFServiceEscrow",
+      "status": "deployed",
+      "txHash": "0xbca678b7f7c603a0b14e9c78d051fa66c8857d78d8ab0fbf23cd02f25c5ec04f"
+    },
+    {
+      "id": "8490/AgentMeditationRegistry",
+      "status": "deployed",
+      "txHash": "0xbf148ac83e7e1ce86c79a9d547f1f69128d14935cb0ec7d89adaefc69c225eaa"
+    },
+    {
+      "id": "8489/AIFPParadigmRegistry",
+      "status": "deployed",
+      "txHash": "0xd9ee37bea53ba5f61f218bf03b98ec78d2e515468a09a19398c493de43dc65c6"
+    },
+    {
+      "id": "8489/AIFPCompositeVerifier",
+      "status": "deployed",
+      "txHash": "0x61902e0775c5bbaf225cab04af959c881ad5954125fe1455886fe91f5bd3c58b"
+    },
+    {
+      "id": "8489/AIFPChannelRegistry",
+      "status": "deployed",
+      "txHash": "0xb45986b29b63fb31c3dd50d5ee5d5884a9d8823c0a8045e5bd67eab55d8113d5"
+    },
+    {
+      "id": "8489/AIFPParticipationRegistry",
+      "status": "deployed",
+      "txHash": "0x8dffd04643e5fdca444b5f1e881bb647dd565ab693d6e8514f35b200808524c0"
+    },
+    {
+      "id": "8489/AIFPEventAnchor",
+      "status": "deployed",
+      "txHash": "0x15b5051462cfbd5f69e10a784d32d28e3dda371734a4ccd4b2e91738c2f97152"
+    },
+    {
+      "id": "8489/AIFPObjectionWindow",
+      "status": "deployed",
+      "txHash": "0xaf4474168b81d8d48a6c1bfe45eae99fafce8c9fe31233f56b61a19e30a72f81"
+    },
+    {
+      "id": "8489/AIFPSubjectSet",
+      "status": "deployed",
+      "txHash": "0x95397a248e071c7f6caf982035a180082ca52785abf0f20b57f392d54f02a8ed"
+    },
+    {
+      "id": "8489/FogaIdentityVerifier",
+      "status": "deployed",
+      "txHash": "0xaab41383c3664b5a407cffd0beda8d63a71012fcc7e8ef1033638aedac201e95"
+    },
+    {
+      "id": "8489/setParticipationRegistry",
+      "status": "wired",
+      "txHash": "0x2864b4aa89960fd7af2032f120b7d76dfab4c0aeb37562dd0a6aa5cbdbd7840f"
+    },
+    {
+      "id": "8444/registerKinds",
+      "status": "wired",
+      "txHash": "0x7246e46becc9def3d1e2ff3adbcdd9d969576824876e328bc21fdc5de6cf4e19"
+    },
+    {
+      "id": "8489/flows",
+      "status": "wired",
+      "txHash": "0x8b3f7860cf930f920e03816041f89817817ab7c4cc603c106f113f78425e3012",
+      "note": "paradigms foga:cell-source/v1, foga:tender-market/v1; market 0x81e81f419f3fe713d9cff10daf6ffe16a3ffbc6a98c694a53cbabddf33d1fb50"
+    }
+  ],
+  "notes": [
+    "Finchain Sepolia (OP Stack L2 on Ethereum Sepolia, chain id 85422, public RPC https://rpc.finchain.one) as a world for the released FOGA package: `foga world deploy --world chain/world/finchain-sepolia.world.json --rpc https://rpc.finchain.one --out deployments/finchain-sepolia.json` deploys the full stack (mode deploy, every contract from the locked bundle) with the key in FOGA_DEPLOYER_PK or W from the phrase; the address book it writes is copied into this repository as chain/world/finchain-sepolia.json and is what `foga join --world <that file> --rpc https://rpc.finchain.one` takes. This file lives in the Finchain repository, not in FOGA's package: FOGA's default chain stays Sepolia, and a cell reaches Finchain only when its operator names this world.",
+    "AID liveness windows (90 d / 365 d), the KYA Groth16 adapter parameters (issuer set root of the upstream kya_public_v1 prover, 30 d epochs, 1 epoch grace) and the ARD kind URIs mirror FOGA's other world templates so the upstream provers and resolvers work unchanged.",
+    "Fees: a Finchain transaction pays the L2 execution fee (the base fee is near zero on a quiet chain, plus the priority fee) and an L1 data fee for its calldata on Sepolia (receipt field l1Fee). FOGA budgets execution gas at its fee floor (FOGA_FEE_FLOOR_GWEI); the evidence reports the three fee components from the receipts (docs/world.md, section 5.3).",
+    "Confirmation: the chain has unsafe, safe and finalized heads (safe a few minutes after the block, finalized about 20 minutes, following Sepolia finality). The released FOGA waits for receipts; docs/foga-confirmation-policy.md is the specification handed to FOGA for safe- and finalized-aware steps."
+  ],
+  "flows": {
+    "family": "foga",
+    "familyId": "0x576af79f3c37ac413b2d02ca44efd679f95a9471cf53e233081fd547107b9040",
+    "controller": "0x82FAA8878a94788379973A843F314AB4b5F60471",
+    "paradigms": {
+      "foga:cell-source/v1": {
+        "paradigmId": "0xc5a7f453e921deadfc3c13e2db540a60487ce40946647e3fa83086e23ac55fbe",
+        "descriptorURI": "data:application/json;base64,eyJhaWZwIjoiMSIsImNhcmRpbmFsaXR5Ijp7ImNvbnRyaWJ1dG9ycyI6InNpbmdsZSIsInBhaXJ3aXNlIjpmYWxzZX0sImNhcnJpZXJzIjpbImRlbGl2ZXJ5Iiwic2hhcmVkLW9iamVjdCJdLCJkaW1lbnNpb25zIjp7ImFkbWlzc2lvbkJhc2lzIjpbIm9wZW4tZGlzY292ZXJ5Il0sImNvbnRyaWJ1dGlvbiI6eyJhY3F1aXNpdGlvbiI6Im1hbmFnZXIiLCJhY3Rpb25zIjpbInB1Ymxpc2giXSwiZXhwaXJ5Ijoibm9uZSIsInRyYW5zZmVyYWJsZSI6ZmFsc2V9LCJjb250cmlidXRvclZpc2liaWxpdHkiOiJpZGVudGlmaWVkIiwiZGlzY2xvc3VyZVRpbWluZyI6ImltbWVkaWF0ZSIsImRpc2NvdmVyeSI6InB1YmxpYy1kaXJlY3RvcnkiLCJoaXN0b3J5Ijp7ImxhdGVKb2luZXIiOiJhbGwiLCJtdXRhYmxlIjpmYWxzZSwicmV0ZW50aW9uIjoiaW5kZWZpbml0ZSJ9LCJtYW5hZ2VtZW50Ijp7ImFkbWlzc2lvbiI6WyJzb3VyY2UiXSwiZGlzY2xvc3VyZSI6WyJzb3VyY2UiXSwib3JkZXJpbmciOlsicHJvdG9jb2wiXSwicmVtb3ZhbCI6WyJzb3VyY2UiXSwicnVsZXMiOlsic291cmNlIl19LCJvYmplY3RSZWxhdGlvbnMiOlsicmVmZXJlbmNlcyIsInN1cGVyc2VkZXMiLCJyZXRyYWN0cyJdLCJvYnNlcnZhdGlvbiI6eyJtZXRhZGF0YVByb3RlY3Rpb24iOiJub25lIiwicGF5bG9hZFByb3RlY3Rpb24iOiJub25lIiwicmVhZFNjb3BlIjoib3BlbiIsInN1Ym1pc3Npb25WaXNpYmlsaXR5IjoiYWxsIn0sIm9yZGVyaW5nIjp7Im9ic2VydmFibGUiOnRydWUsIm9yZGVyIjoidG90YWwiLCJzZXF1ZW5jZXIiOiJwcm90b2NvbCJ9LCJyZWRpc3RyaWJ1dGlvbiI6eyJkZXJpdmUiOnRydWUsImZvcndhcmQiOnRydWUsInB1Ymxpc2hFbHNld2hlcmUiOnRydWUsInF1b3RlIjp0cnVlfSwicmVwcmVzZW50YXRpb24iOiJkaXNhbGxvd2VkIiwidGltZSI6eyJhYnNlbmNlIjoibm9uZSIsImJhdGNoaW5nIjoibm9uZSIsImNsb2NrIjoicmVnaXN0cnkiLCJjb3JyZWxhdGlvbiI6Im5vbmUiLCJkZWxpdmVyeSI6WyJwdWxsIl0sInJlYWx0aW1lIjpmYWxzZX19LCJmYW1pbHkiOiJmb2dhIiwibGFiZWxzIjpbImFpZnA6cGFyYWRpZ20vc291cmNlL3YxIiwiYWlmcDpwYXJhZGlnbS9hcmNoaXZlL3YxIl0sIm9wZXJhdG9ycyI6WyJmYW4tb3V0Il0sInByZWRpY2F0ZXMiOnsiZGlzY292ZXIiOnsib3BlbiI6dHJ1ZX0sIm9ic2VydmUiOnsib3BlbiI6dHJ1ZX0sInJlZGlzdHJpYnV0ZSI6eyJvcGVuIjp0cnVlfX0sInRpdGxlIjoiZm9nYTpjZWxsLXNvdXJjZS92MSAtIGEgRk9HQSBjZWxsJ3Mgc2VsZi1kZXNjcmlwdGlvbjogb25lIHB1Ymxpc2hlciwgb3BlbiBvYnNlcnZhdGlvbiwgYSBwdWxsZWQsIGltbXV0YWJsZSBhcmNoaXZlIiwidmVyc2lvbiI6IjEuMC4wIn0=",
+        "txHash": "0x842984a0dabd51800e204b68a88c68427b62dc03633e7cd769064324ac942627"
+      },
+      "foga:tender-market/v1": {
+        "paradigmId": "0xd26e0f09c20720712c9b774604106c76dc61377c55de7ce509a6969da6273dac",
+        "descriptorURI": "data:application/json;base64,eyJhaWZwIjoiMSIsImNhcmRpbmFsaXR5Ijp7ImNvbnRyaWJ1dG9ycyI6InF1YWxpZmllZCIsInBhaXJ3aXNlIjpmYWxzZX0sImNhcnJpZXJzIjpbImRlbGl2ZXJ5Il0sImRpbWVuc2lvbnMiOnsiYWRtaXNzaW9uQmFzaXMiOlsib3Blbi1kaXNjb3ZlcnkiXSwiY29udHJpYnV0aW9uIjp7ImFjcXVpc2l0aW9uIjoicHJlZGljYXRlIiwiYWN0aW9ucyI6WyJwdWJsaXNoIiwic3VibWl0IiwicmVzcG9uZCJdLCJleHBpcnkiOiJub25lIiwidHJhbnNmZXJhYmxlIjpmYWxzZX0sImNvbnRyaWJ1dG9yVmlzaWJpbGl0eSI6ImlkZW50aWZpZWQiLCJkaXNjbG9zdXJlVGltaW5nIjoiaW1tZWRpYXRlIiwiZGlzY292ZXJ5IjoicHVibGljLWRpcmVjdG9yeSIsImhpc3RvcnkiOnsibGF0ZUpvaW5lciI6ImFsbCIsIm11dGFibGUiOmZhbHNlLCJyZXRlbnRpb24iOiJpbmRlZmluaXRlIn0sIm1hbmFnZW1lbnQiOnsiYWRtaXNzaW9uIjpbInByb3RvY29sIl0sImRpc2Nsb3N1cmUiOlsibm9uZSJdLCJvcmRlcmluZyI6WyJwcm90b2NvbCJdLCJyZW1vdmFsIjpbIm5vbmUiXSwicnVsZXMiOlsic291cmNlIl19LCJvYmplY3RSZWxhdGlvbnMiOlsicmVwbHlUbyIsInJlZmVyZW5jZXMiLCJzdXBlcnNlZGVzIiwicmV0cmFjdHMiXSwib2JzZXJ2YXRpb24iOnsibWV0YWRhdGFQcm90ZWN0aW9uIjoibm9uZSIsInBheWxvYWRQcm90ZWN0aW9uIjoibm9uZSIsInJlYWRTY29wZSI6Im9wZW4iLCJzdWJtaXNzaW9uVmlzaWJpbGl0eSI6ImFsbCJ9LCJvcmRlcmluZyI6eyJvYnNlcnZhYmxlIjp0cnVlLCJvcmRlciI6InRvdGFsIiwic2VxdWVuY2VyIjoicHJvdG9jb2wifSwicmVkaXN0cmlidXRpb24iOnsiZGVyaXZlIjp0cnVlLCJmb3J3YXJkIjp0cnVlLCJwdWJsaXNoRWxzZXdoZXJlIjp0cnVlLCJxdW90ZSI6dHJ1ZX0sInJlcHJlc2VudGF0aW9uIjoiZGlzYWxsb3dlZCIsInRpbWUiOnsiYWJzZW5jZSI6Im5vbmUiLCJiYXRjaGluZyI6Im5vbmUiLCJjbG9jayI6InJlZ2lzdHJ5IiwiY29ycmVsYXRpb24iOiJyZXF1ZXN0LXJlc3BvbnNlIiwiZGVsaXZlcnkiOlsicHVzaCJdLCJyZWFsdGltZSI6ZmFsc2V9fSwiZmFtaWx5IjoiZm9nYSIsImxhYmVscyI6WyJhaWZwOmV4dC9maW5jaGlwLmFpL3RlbmRlci1tYXJrZXQvdjEiXSwib3BlcmF0b3JzIjpbImZhbi1pbiJdLCJwcmVkaWNhdGVzIjp7Im9ic2VydmUiOnsib3BlbiI6dHJ1ZX0sInJlc3BvbmQiOnsiaWRlbnRpdHkiOnsicmVnaXN0cnkiOiIweDM2M2U3MWM2YzMzZDRiNTk4MGIzMWI1NThkMWUxNmI1MmViM2M4ZTkiLCJyZXF1aXJlZFN0YXRlIjoiYWN0aXZlIiwidmVyaWZpZXIiOiIweGY2NTgyNzY4M2E2Y2I2MzFmYmQ3MDMzMDBkNmUwMGYyMTdjZGZkMjgifX0sInN1Ym1pdCI6eyJpZGVudGl0eSI6eyJyZWdpc3RyeSI6IjB4MzYzZTcxYzZjMzNkNGI1OTgwYjMxYjU1OGQxZTE2YjUyZWIzYzhlOSIsInJlcXVpcmVkU3RhdGUiOiJhY3RpdmUiLCJ2ZXJpZmllciI6IjB4ZjY1ODI3NjgzYTZjYjYzMWZiZDcwMzMwMGQ2ZTAwZjIxN2NkZmQyOCJ9fX0sInJlcXVpcmVkQmluZGluZ3MiOnsiY2FwYWJpbGl0aWVzIjpbImlkZW50aXR5IiwicHVzaCIsImhpc3RvcnktcmV0ZW50aW9uIiwibGF0ZS1qb2luLWhpc3RvcnkiLCJ0b3RhbC1vcmRlciJdfSwidGl0bGUiOiJmb2dhOnRlbmRlci1tYXJrZXQvdjEgLSB0aGUgcHVibGljIHRlbmRlciBtYXJrZXQgb2YgYSBGT0dBIHdvcmxkOiBFUkMtODQxNCB0ZW5kZXJzIG1pbnRlZCBieSBkZW1hbmRlcnMgYW5kIHRha2VuIGJ5IGNlbGxzLCBldmVyeSBzdWJtaXNzaW9uIHB1YmxpYyBvbiBjaGFpbiwgdGhlIGFjY2VwdGFuY2UgYXV0aG9yaXR5IHNldHRsZXMiLCJ2ZXJzaW9uIjoiMS4wLjAifQ==",
+        "txHash": "0xa3a2e0a224ff9411f3a20b8fbbd7eff61cd4dc9be03f4d67ca3170f1e7a1303a"
+      }
+    },
+    "market": {
+      "channelId": "0x81e81f419f3fe713d9cff10daf6ffe16a3ffbc6a98c694a53cbabddf33d1fb50",
+      "paradigm": "foga:tender-market/v1",
+      "paradigmId": "0xd26e0f09c20720712c9b774604106c76dc61377c55de7ce509a6969da6273dac",
+      "authority": "0x82FAA8878a94788379973A843F314AB4b5F60471",
+      "txHash": "0x8b3f7860cf930f920e03816041f89817817ab7c4cc603c106f113f78425e3012",
+      "bindingIds": [
+        "0x9f5acf1ba26afa5c5e78182273dc31ee5fb5e5b3ad76b2c775180b6f8050fc30"
+      ]
+    },
+    "note": "ERC-8489 flows of this world: FOGA's paradigms in the family foga and the default market channel; a cell's configuration may name another market"
+  }
+}
