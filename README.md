@@ -76,13 +76,14 @@ The full procedure, with expected outputs and acceptance checks, is in
 
 ## Status
 
-v0.2.0-alpha.3: M3 in progress. Finchain Sepolia (chain id 85422) is live: L1 contracts
+v0.2.0-alpha.6: M3 in progress. Finchain Sepolia (chain id 85422) is live: L1 contracts
 deployed 2026-11-11 at Sepolia block 12112920 (`chain/out/`), host A sequencing since the
 same day, host B verifying independently; M1 and M2 acceptance records are in
 `manifests/evidence/`; `versions.lock` is frozen (digests, 2026-11-12). The ERC-8004
 identity root is deployed and owned (2026-11-12, `chain/out/erc8004.json`). M3 is three
 acceptances (`docs/acceptance.md`, design in `docs/world.md`): Finchain on its own
-(`make evm-acceptance`, `make verify-evm`), FOGA on its own (`make foga-isolation`), and
+(`make evm-acceptance`, `make verify-evm`; passed 2026-11-12,
+`manifests/evidence/m3a-2026-11-12.json`), FOGA on its own (`make foga-isolation`), and
 FOGA on Finchain as an optional, explicit deployment with the released FOGA package and a
 world configuration kept here (`chain/world/`). Finchain is usable without FOGA; FOGA runs
 without Finchain; no Finchain milestone requires a FOGA release. The road to the chain went

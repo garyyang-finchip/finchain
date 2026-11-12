@@ -1,0 +1,77 @@
+{
+  "milestone": "M3-A",
+  "title": "Finchain on its own: usable with no application in the picture",
+  "environment": "public-testnet",
+  "recordedAt": "2026-11-12T14:20:00Z",
+  "source": "chain/out/evm-acceptance.json (operator key on host A's workstation through the public RPC), manifests/evidence/evm-acceptance-verify-37854.json (host B's own node at finalized), a MetaMask transaction read back through the public RPC, chain/out/erc8004.json; values read from the chain",
+  "boundary": "Nothing here belongs to a covenant or to an agent runtime: an ordinary key, cast, a browser wallet, the public endpoint. docs/world.md section 2, docs/acceptance.md M3-A.",
+  "evmAcceptance": {
+    "record": "chain/out/evm-acceptance.json",
+    "rpc": "https://rpc.finchain.one",
+    "mode": "the three transactions were sent by scripts/evm-acceptance.sh on 2026-11-12; the record was written from their receipts (mode from-receipts) after the first run failed on a formatting defect of the read-back check (cast's large-number suffix), fixed in 0.2.0-alpha.4; nothing was sent twice",
+    "transfer": {
+      "from": "0xA199250F15DCE1399288F967f8652A882B1947e9",
+      "to": "0xF8D8846e505E5478C60B57182D39f61b066cA8E2",
+      "amountEth": 0.05,
+      "tx": "0xfc1bcf63f647e87f5c945b5e3c5672f413c5c638d525968e4997f6fe084f7ea9",
+      "block": 37178
+    },
+    "contract": {
+      "name": "FinchainProbe",
+      "address": "0x4f82fbcb887aa4004942eecc770c70b23ec6e246",
+      "deploymentTx": "0x4a150729998f6ac94a5aa8d8246285d5a22049c50e4194e0dc86402a04f0f882",
+      "block": 37180,
+      "runtimeCodeKeccak": "0x1c479ca05cfb9f1ff7afb8f7267d147d6952296ff21b6a2d340d8ef4869ccf90",
+      "build": "chain/contracts/probe/build.json (solc 0.8.24, shanghai, optimizer 200)"
+    },
+    "write": {
+      "call": "set(37180)",
+      "tx": "0x01f2a8371cd5d2e4c659d86dc32d6f8228106aa493ecac23fba81276820ebfce",
+      "block": 37183,
+      "event": "Set(address,uint256,uint256) from the probe"
+    },
+    "completionBlock": {
+      "number": 37183,
+      "hash": "0x9ce840c0a6d449d704ec5703b841bc5b1cabe42b457739fdae2df666e6021160"
+    },
+    "checks": "12 of 12 pass",
+    "fees": {
+      "gasTotal": 248848,
+      "effectiveGasPriceWei": 252,
+      "l1FeeWei": [217, 812, 217],
+      "totalEth": "about 6.3e-11",
+      "note": "near-zero base fee on a quiet chain; the L1 data fee is read from the receipt field l1Fee"
+    }
+  },
+  "verificationOnHostB": {
+    "report": "manifests/evidence/evm-acceptance-verify-37854.json",
+    "rpc": "http://100.120.188.50:8545 (host B's own op-reth, not the public endpoint)",
+    "checkedAt": "finalized block 37854",
+    "method": "receipts by hash (status, block, block hash), code keccak at the checked block, storage slot 0, eth_call and the recipient balance at the completing block 37183, completing block canonical and at or below the finalized head",
+    "result": "MATCH (16 checks)"
+  },
+  "walletTransfer": {
+    "what": "an ordinary wallet user sends ETH by hand through the public RPC: MetaMask with the network added manually (RPC https://rpc.finchain.one, chain id 85422)",
+    "from": "0xF8D8846e505E5478C60B57182D39f61b066cA8E2",
+    "to": "0xA199250F15DCE1399288F967f8652A882B1947e9",
+    "amountEth": 0.01,
+    "tx": "0x8d0210aa48b6f8ac55d17da5801a019ce75cd4fa5debadb7975d176a4c3e7cba",
+    "block": 39776,
+    "blockHash": "0x5f487fb28b77663297726ea52ae975cdae349fe757ebe78f4c223cf715872493",
+    "type": "0x2 (EIP-1559), nonce 1, gas 21000, effective gas price 1000251 wei, l1Fee 226 wei",
+    "status": "0x1",
+    "readBackThrough": "https://rpc.finchain.one (eth_getTransactionByHash, eth_getTransactionReceipt)"
+  },
+  "identityRoot": {
+    "record": "chain/out/erc8004.json",
+    "identityRegistry": "0x363E71C6c33d4B5980B31B558D1E16B52EB3C8E9",
+    "reputationRegistry": "0xF0A3ba008486cCc0bf994d5c06cE095E0b1D08e2",
+    "owner": "0xF8D8846e505E5478C60B57182D39f61b066cA8E2",
+    "completionBlock": 26046,
+    "role": "application-level registry anyone on the chain may use; needed by no node and no wallet"
+  },
+  "result": "M3-A passed on public-testnet: all five items of docs/acceptance.md M3-A demonstrated",
+  "openItems": [
+    "the probe contract has no access control by design; its state is checked at the completing block, never at the head"
+  ]
+}
