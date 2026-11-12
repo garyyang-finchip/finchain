@@ -12,7 +12,8 @@ COMPOSE_B  := docker compose -f $(ROOT)/node-b/docker-compose.yml $(ENV_COMMON) 
 .PHONY: help init-env preflight-a preflight-b op-deployer keys secrets-a secrets-b bundle-b install-bundle-b \
         chain-id-check l1-probe intent funding-table deploy-l1 deploy-l1-calldata export verify-onchain lock fund-roles \
         up-a down-a restart-a logs-a up-b down-b restart-b logs-b status-a status-b peers-a peers-b \
-        compare rebuild-b deposit set-init-bond lint
+        compare rebuild-b deposit set-init-bond deploy-8004 build-8004 l2-send verify-world \
+        evm-acceptance verify-evm foga-isolation world-manifest lint
 
 help: ## List targets
 	@grep -E '^[a-zA-Z0-9_-]+:.*?## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  %-18s %s\n", $$1, $$2}'
@@ -105,14 +106,22 @@ deposit: ## Bridge ETH into L2 via OptimismPortal: AMOUNT=0.5 ROLE=deployer L2_R
 set-init-bond: ## DGF owner: set initial bond for a game type: TYPE=1 BOND=0
 	@bash $(ROOT)/scripts/set-init-bond.sh $(TYPE) $(BOND)
 
-deploy-8004: ## M3: deploy the ERC-8004 identity root on L2 from the deployer key (L2_RPC=https://rpc.finchain.one)
+evm-acceptance: ## M3-A: transfer, deploy, write, read through the public RPC (L2_RPC=https://rpc.finchain.one AMOUNT=0.05)
+	@bash $(ROOT)/scripts/evm-acceptance.sh "$(L2_RPC)" "$(AMOUNT)"
+verify-evm: ## M3-A on host B: re-read chain/out/evm-acceptance.json at a finalized block (RECORD=... L2_RPC=... AT=finalized)
+	@bash $(ROOT)/scripts/verify-evm.sh "$(RECORD)" "$(L2_RPC)" "$(AT)"
+foga-isolation: ## M3-B: run a FOGA package from the registry with finchain.one blocked (VERSION=1.0.7 FOGA_FOUNDRY_DIR=... SEPOLIA_RPC_URL=...)
+	@bash $(ROOT)/scripts/foga-isolation-check.sh "$(VERSION)"
+deploy-8004: ## Deploy the ERC-8004 identity root on L2 from the deployer key (L2_RPC=https://rpc.finchain.one)
 	@bash $(ROOT)/scripts/deploy-8004.sh $(L2_RPC)
 build-8004: ## Rebuild chain/contracts/erc8004 with solc 0.8.24 and compare the bytecode hashes
 	@bash $(ROOT)/scripts/build-8004.sh
 l2-send: ## Plain L2 transfer from a repository key: TO=0x... AMOUNT=0.3 ROLE=deployer L2_RPC=https://...
 	@bash $(ROOT)/scripts/l2-send.sh $(TO) $(AMOUNT) $(ROLE) $(L2_RPC)
-verify-world: ## M3: check a covenantWorld section against chain code at a block: SECTION=path L2_RPC=... AT=finalized
-	@bash $(ROOT)/scripts/verify-world.sh $(SECTION) $(L2_RPC) $(AT)
+world-manifest: ## M3-C: covenantWorld section from a FOGA address book: BOOK=chain/world/<name>.json L2_RPC=... BUNDLE=<pkg>/artifacts/bundle.json REPORT=<verify report>
+	@bash $(ROOT)/scripts/world-manifest.sh "$(BOOK)" "$(L2_RPC)" "$(BUNDLE)" "$(REPORT)"
+verify-world: ## M3-C: check a covenantWorld section against chain code at a block: SECTION=path L2_RPC=... AT=finalized
+	@bash $(ROOT)/scripts/verify-world.sh "$(SECTION)" "$(L2_RPC)" "$(AT)"
 
 lint: ## Static checks: shellcheck, compose config, JSON/YAML validity
 	@shellcheck -x $(ROOT)/scripts/*.sh

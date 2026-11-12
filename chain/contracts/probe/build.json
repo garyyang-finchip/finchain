@@ -1,0 +1,113 @@
+{
+ "abi": [
+  {
+   "inputs": [],
+   "stateMutability": "nonpayable",
+   "type": "constructor"
+  },
+  {
+   "anonymous": false,
+   "inputs": [
+    {
+     "indexed": true,
+     "internalType": "address",
+     "name": "by",
+     "type": "address"
+    },
+    {
+     "indexed": false,
+     "internalType": "uint256",
+     "name": "value",
+     "type": "uint256"
+    },
+    {
+     "indexed": false,
+     "internalType": "uint256",
+     "name": "writes",
+     "type": "uint256"
+    }
+   ],
+   "name": "Set",
+   "type": "event"
+  },
+  {
+   "inputs": [],
+   "name": "deployer",
+   "outputs": [
+    {
+     "internalType": "address",
+     "name": "",
+     "type": "address"
+    }
+   ],
+   "stateMutability": "view",
+   "type": "function"
+  },
+  {
+   "inputs": [
+    {
+     "internalType": "uint256",
+     "name": "newValue",
+     "type": "uint256"
+    }
+   ],
+   "name": "set",
+   "outputs": [],
+   "stateMutability": "nonpayable",
+   "type": "function"
+  },
+  {
+   "inputs": [],
+   "name": "value",
+   "outputs": [
+    {
+     "internalType": "uint256",
+     "name": "",
+     "type": "uint256"
+    }
+   ],
+   "stateMutability": "view",
+   "type": "function"
+  },
+  {
+   "inputs": [],
+   "name": "writes",
+   "outputs": [
+    {
+     "internalType": "uint256",
+     "name": "",
+     "type": "uint256"
+    }
+   ],
+   "stateMutability": "view",
+   "type": "function"
+  }
+ ],
+ "compiler": {
+  "evmVersion": "shanghai",
+  "metadata": {
+   "bytecodeHash": "ipfs"
+  },
+  "optimizer": {
+   "enabled": true,
+   "runs": 200
+  },
+  "solc": "0.8.24+commit.e11b9ed9",
+  "viaIR": false
+ },
+ "contract": "FinchainProbe",
+ "creationBytecode": "0x608060405234801561000f575f80fd5b50600280546001600160a01b031916331790556101878061002f5f395ff3fe608060405234801561000f575f80fd5b506004361061004a575f3560e01c80633fa4f2451461004e57806360fe47b114610069578063c4b5c1331461007e578063d5f3948814610087575b5f80fd5b6100565f5481565b6040519081526020015b60405180910390f35b61007c610077366004610115565b6100b2565b005b61005660015481565b60025461009a906001600160a01b031681565b6040516001600160a01b039091168152602001610060565b805f819055506001805f8282546100c9919061012c565b909155505060015460405133917f9eca8f7bcfb868d72b4ed95b71c627c194ab6bcb9b83adb2280e8a0320bb84769161010a91858252602082015260400190565b60405180910390a250565b5f60208284031215610125575f80fd5b5035919050565b8082018082111561014b57634e487b7160e01b5f52601160045260245ffd5b9291505056fea26469706673582212205137deb2b72fa676484f812a5e5542d4ee702a83dcdee2eb936a7687dce3792e64736f6c63430008180033",
+ "creationBytecodeKeccak": "0x61c11c86de42965774136aa4fc8b460bc61779b14d973dc553d0168f5a6a3974",
+ "immutableReferences": [],
+ "methodIdentifiers": {
+  "deployer()": "d5f39488",
+  "set(uint256)": "60fe47b1",
+  "value()": "3fa4f245",
+  "writes()": "c4b5c133"
+ },
+ "runtimeBytecode": "0x608060405234801561000f575f80fd5b506004361061004a575f3560e01c80633fa4f2451461004e57806360fe47b114610069578063c4b5c1331461007e578063d5f3948814610087575b5f80fd5b6100565f5481565b6040519081526020015b60405180910390f35b61007c610077366004610115565b6100b2565b005b61005660015481565b60025461009a906001600160a01b031681565b6040516001600160a01b039091168152602001610060565b805f819055506001805f8282546100c9919061012c565b909155505060015460405133917f9eca8f7bcfb868d72b4ed95b71c627c194ab6bcb9b83adb2280e8a0320bb84769161010a91858252602082015260400190565b60405180910390a250565b5f60208284031215610125575f80fd5b5035919050565b8082018082111561014b57634e487b7160e01b5f52601160045260245ffd5b9291505056fea26469706673582212205137deb2b72fa676484f812a5e5542d4ee702a83dcdee2eb936a7687dce3792e64736f6c63430008180033",
+ "runtimeBytecodeKeccak": "0x1c479ca05cfb9f1ff7afb8f7267d147d6952296ff21b6a2d340d8ef4869ccf90",
+ "schema": "finchain.probe-build/1",
+ "source": "FinchainProbe.sol",
+ "sourceSha256": "d46c2140773f5b8f8fff7b091d25d5693c982f483d78e67de298f102597a92e2"
+}

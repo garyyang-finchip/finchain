@@ -1,0 +1,30 @@
+{
+ "language": "Solidity",
+ "settings": {
+  "evmVersion": "shanghai",
+  "metadata": {
+   "bytecodeHash": "ipfs"
+  },
+  "optimizer": {
+   "enabled": true,
+   "runs": 200
+  },
+  "outputSelection": {
+   "*": {
+    "*": [
+     "abi",
+     "evm.bytecode.object",
+     "evm.deployedBytecode.object",
+     "evm.deployedBytecode.immutableReferences",
+     "metadata",
+     "evm.methodIdentifiers"
+    ]
+   }
+  }
+ },
+ "sources": {
+  "FinchainProbe.sol": {
+   "content": "// SPDX-License-Identifier: Apache-2.0\npragma solidity 0.8.24;\n\n/// @title FinchainProbe\n/// @notice A deliberately small contract for the chain's EVM acceptance: one storage word written and read back\n///         through the public RPC, one event. It belongs to no covenant and to no agent runtime; it exists so that\n///         \"an ordinary developer can deploy, write and read a contract on this chain\" is demonstrated on its own.\ncontract FinchainProbe {\n    uint256 public value;\n    uint256 public writes;\n    address public deployer;\n\n    event Set(address indexed by, uint256 value, uint256 writes);\n\n    constructor() {\n        deployer = msg.sender;\n    }\n\n    function set(uint256 newValue) external {\n        value = newValue;\n        writes += 1;\n        emit Set(msg.sender, newValue, writes);\n    }\n}\n"
+  }
+ }
+}

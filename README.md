@@ -65,7 +65,7 @@ The full procedure, with expected outputs and acceptance checks, is in
 | Path | Content |
 | --- | --- |
 | `versions.lock` | Candidate version set and image references; digests filled by `make lock` |
-| `chain/` | Chain parameters, op-deployer workdir (`chain/deployer/`), exported artifacts (`chain/out/`), pinned external contract builds (`chain/contracts/erc8004/`) |
+| `chain/` | Chain parameters, op-deployer workdir (`chain/deployer/`), exported artifacts and acceptance records (`chain/out/`), pinned contract builds (`chain/contracts/erc8004/`, `chain/contracts/probe/`), the FOGA world configuration and address book for Finchain (`chain/world/`) |
 | `keys/` | Key material (git-ignored) and the key policy |
 | `node-a/`, `node-b/` | Docker Compose stacks for the two hosts |
 | `profiles/` | Runtime profiles: `demo` (fast batches) and `lowcost` (low L1 spend) |
@@ -76,16 +76,19 @@ The full procedure, with expected outputs and acceptance checks, is in
 
 ## Status
 
-v0.2.0-alpha.1: M3 (covenant World and FOGA) opened. Finchain Sepolia (chain id 85422) is
-live: L1 contracts deployed 2026-11-11 at Sepolia block 12112920 (`chain/out/`), host A
-sequencing since the same day, host B verifying independently; M1 and M2 acceptance records
-are in `manifests/evidence/`; `versions.lock` is frozen (digests, 2026-11-12). M3 design and
-rules: `docs/world.md`; first step: `make deploy-8004` (the ERC-8004 identity root), then
-FOGA's World deployment from the locked bundle. The road to the chain went through Sepolia's
-Glamsterdam rules (EIP-8037 state gas, new L1 header fields, EIP-7976 calldata floor); the
-adaptations are recorded in `docs/versions.md`. Public RPC: `https://rpc.finchain.one`. See
-`docs/acceptance.md` for what "passed" means and where (local devnet or public testnet) each
-item has been demonstrated.
+v0.2.0-alpha.3: M3 in progress. Finchain Sepolia (chain id 85422) is live: L1 contracts
+deployed 2026-11-11 at Sepolia block 12112920 (`chain/out/`), host A sequencing since the
+same day, host B verifying independently; M1 and M2 acceptance records are in
+`manifests/evidence/`; `versions.lock` is frozen (digests, 2026-11-12). The ERC-8004
+identity root is deployed and owned (2026-11-12, `chain/out/erc8004.json`). M3 is three
+acceptances (`docs/acceptance.md`, design in `docs/world.md`): Finchain on its own
+(`make evm-acceptance`, `make verify-evm`), FOGA on its own (`make foga-isolation`), and
+FOGA on Finchain as an optional, explicit deployment with the released FOGA package and a
+world configuration kept here (`chain/world/`). Finchain is usable without FOGA; FOGA runs
+without Finchain; no Finchain milestone requires a FOGA release. The road to the chain went
+through Sepolia's Glamsterdam rules (EIP-8037 state gas, new L1 header fields, EIP-7976
+calldata floor); the adaptations are recorded in `docs/versions.md`. Public RPC:
+`https://rpc.finchain.one`.
 
 ## License
 

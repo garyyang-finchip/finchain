@@ -4,8 +4,8 @@ A manifest is the publicly checkable anchor of one Finchain reference version. I
 what the chain is (ids, genesis hash, rollup config hash, L1 contracts), what runs it
 (image digests, contracts release, fault-proof program and prestate), who controls what
 (Finchain roles and the authority Finchain does not hold), where the covenant World lives
-(transaction-level evidence and the completing block), which FOGA version applies, and
-which acceptance items passed, in which environment.
+(transaction-level evidence and the completing block), which released FOGA package
+deployed it, and which acceptance items passed, in which environment.
 
 Files:
 
@@ -14,7 +14,8 @@ Files:
 | `manifest.schema.json` | JSON Schema (draft 2020-12) every manifest must validate against |
 | `manifest.template.json` | Starting point with placeholders |
 | `onchain-<l1block>.json` | Live L1 configuration snapshots written by `make verify-onchain` |
-| `evidence/` | Acceptance records written by the scripts (rebuild-from-L1, comparisons, drills) |
+| `covenant-world-<name>.json` | The `covenantWorld` section derived from a FOGA address book by `make world-manifest` (raw code hashes at the completing block, modules, both blocks) |
+| `evidence/` | Acceptance records written by the scripts (rebuild-from-L1, comparisons, EVM acceptance, FOGA isolation, World verification, drills) |
 | `finchain-sepolia/<version>.json` | Published manifests (one per reference version) |
 
 Rules:

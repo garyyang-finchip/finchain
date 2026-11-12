@@ -1,10 +1,15 @@
 # FOGA confirmation and recovery policy on Finchain
 
-This document is the specification handed to the FOGA repository for its Finchain chain
-configuration. It defines which confirmation level a FOGA cell requires before each class
-of action, how it handles rollbacks, and how it keeps business operations idempotent.
-Wallet and contract logic are unchanged; the kernel/doctor confirmation, rollback and
-idempotency handling is real implementation work.
+This document is a specification handed to the FOGA repository: what a FOGA cell should do
+on an OP Stack chain such as Finchain. It defines which confirmation level a cell requires
+before each class of action, how it handles rollbacks, and how it keeps business operations
+idempotent. Wallet and contract logic are unchanged; the kernel/doctor confirmation,
+rollback and idempotency handling is implementation work on FOGA's side, reviewed and
+released on FOGA's own terms, chain-neutral (any chain with `safe` and `finalized` tags)
+and gated by the isolation check of `docs/world.md`, section 3. It is not a condition of
+Finchain's M3 (`docs/acceptance.md`): the released FOGA waits for receipts, and until FOGA
+implements this policy an operator who needs `safe` or `finalized` before an irreversible
+step waits by procedure.
 
 ## Confirmation levels
 
@@ -55,7 +60,7 @@ that interval; UI and acceptance records state the active profile and the expect
 `finalized` additionally waits for L1 finality (about 15-20 minutes after inclusion). The
 proposal interval affects only withdrawals.
 
-## Acceptance (M3)
+## Acceptance (on FOGA's side)
 
 Three judgements are made separately for every chain write: the receipt exists; the block
 holding it is still on the canonical chain; that block has reached the required level.

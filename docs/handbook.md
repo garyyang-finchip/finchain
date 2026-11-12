@@ -9,10 +9,13 @@ chain or from the committed records in `chain/out/` and `manifests/`, not from i
 ## 1. What Finchain is
 
 Finchain is an EVM Layer 2 on the upstream OP Stack, settled on Ethereum. It exists for one
-purpose: to be the reference chain for the twelve Finch covenant ERCs and the native runtime
-environment of FOGA (Finch OG Agent). The reference implementation of each covenant lives
-here as a versioned, verifiable deployment; other EVM chains can deploy, verify and adopt the
-same rules, and Finchain is where each reference version is demonstrated first.
+purpose: to be the reference chain for the twelve Finch covenant ERCs, and the preferred
+reference deployment for FOGA (Finch OG Agent), which otherwise runs on any compatible EVM
+chain. The reference implementation of each covenant lives here as a versioned, verifiable
+deployment; other EVM chains can deploy, verify and adopt the same rules, and Finchain is
+where each reference version is demonstrated first. Finchain is an ordinary chain first: a
+wallet, a contract developer or a node operator uses it with no knowledge of FOGA or of the
+covenants.
 
 The twelve covenants:
 
@@ -164,14 +167,23 @@ Sepolia ETH as test ETH that takes about a week to leave.
 ### 3.6 FOGA on Finchain
 
 FOGA (`https://github.com/garyyang-finchip/foga`, npm `@finchip.ai/foga`) deploys the
-twelve covenant reference implementations as a "world" and runs agent cells against it.
-The Finchain world (the covenant World of the manifest, deployed by ordinary transactions
-after chain start) and FOGA's Finchain chain configuration are the M3 deliverables. When
-they land, the address book is published in both repositories and a cell joins with
-`foga join --chain finchain-sepolia`; the confirmation policy above is enforced by the cell.
-Until then, FOGA cells run on Ethereum Sepolia. The World binds to an ERC-8004 identity root
-deployed on Finchain from the upstream reference contracts (`chain/out/erc8004.json` once
-deployed); design, roles and verification rules are in `docs/world.md`.
+twelve covenant reference implementations as a "world" on a chain of the user's choice and
+runs agent cells against it. FOGA is a separate product with its own release line: it runs
+with no Finchain in the picture (its default chain is Ethereum Sepolia, and its local
+quickstart needs no public chain at all), and nothing in it reaches for Finchain unless a
+world file names a Finchain address. Finchain, in turn, is complete without FOGA.
+
+"FOGA on Finchain" is therefore a deployment the user chooses explicitly, with the released
+FOGA package as it is: `foga world deploy --world chain/world/finchain-sepolia.world.json
+--rpc https://rpc.finchain.one` deploys the World (that configuration file lives in this
+repository, not in FOGA's package), the address book FOGA writes is copied to
+`chain/world/finchain-sepolia.json`, and a cell joins with `foga join --world <that address
+book> --rpc https://rpc.finchain.one`. The World binds to the ERC-8004 identity root
+deployed on Finchain (section 2, `chain/out/erc8004.json`). The confirmation policy above is
+a specification handed to FOGA; until FOGA implements it, an operator who needs `safe` or
+`finalized` before an irreversible step waits by procedure. Design, roles and verification
+rules are in `docs/world.md`; the three M3 acceptances (Finchain on its own, FOGA on its own,
+FOGA on Finchain) are in `docs/acceptance.md`.
 
 ## 4. Running a verifier node
 
@@ -288,7 +300,9 @@ op-challenger to the patch levels in `versions.lock`. The whole account is in
 | --- | --- | --- |
 | M1 chain is up: genesis published, 2 s blocks, batches on L1, first output proposal of the respected type | done 2026-11-12 | `manifests/evidence/m1-2026-11-12.json` |
 | M2 independently verifiable: host B matches host A at `finalized` (height 19836), deposits credited, rebuild from L1 only (MATCH), public RPC over TLS, versions frozen | done 2026-11-12 | `manifests/evidence/m2-2026-11-12.json`, `manifests/evidence/rebuild-from-l1-20261112T044816Z.json` |
-| M3 covenant World and FOGA: twelve reference implementations deployed by transactions, address book, FOGA chain configuration, two-cell business loop, rollback and resend tests | next | `docs/acceptance.md` |
+| M3-A Finchain on its own: plain transfer, ordinary contract deployed, written and read through the public RPC, verified by host B at `finalized`; ERC-8004 identity root deployed and owned (done 2026-11-12) | in progress | `chain/out/erc8004.json`, `chain/out/evm-acceptance.json`, `manifests/evidence/evm-acceptance-verify-<block>.json` |
+| M3-B FOGA on its own: the released package run with `finchain.one` refused, every leg passing, zero Finchain names | in progress | `manifests/evidence/foga-isolation-<version>-<date>.json` |
+| M3-C FOGA on Finchain (optional, explicit): twelve reference implementations deployed by the released FOGA from this repository's world configuration, address book verified at `finalized`, genesis T0-T9, two-cell business loop | next | `docs/acceptance.md`, `chain/world/` |
 | M4 proofs and assets: resident challenger exercised, full VM dispute drill on an isolated devnet, deposit -> proof -> withdrawal end to end | planned | `docs/proof-plan.md` |
 | M5 mainnet readiness: permissionless proofs, sequencer HA, Safe for the owner roles, chain id 8454 | planned | `docs/execution-brief.md` |
 

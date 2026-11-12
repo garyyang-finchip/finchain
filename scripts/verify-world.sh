@@ -14,7 +14,8 @@ require_cmd jq curl
 load_env "$FINCHAIN_ROOT/versions.lock"
 [ -n "${CAST_BIN:-}" ] || require_cmd docker
 
-SECTION="${1:?covenant-world.json (a manifest covenantWorld section)}"
+SECTION="${1:-}"
+[ -n "$SECTION" ] || die "usage: scripts/verify-world.sh <covenant-world.json> [l2-rpc] [block] (make verify-world SECTION=manifests/covenant-world-<name>.json ...)"
 L2_RPC="${2:-https://rpc.finchain.one}"
 AT="${3:-finalized}"
 [ -f "$SECTION" ] || die "not found: $SECTION"
@@ -60,21 +61,24 @@ if [ -n "$completion_n" ] && [ "$completion_n" != "0" ]; then
 else
   echo "  missing    completionBlock"; blocks_ok=0
 fi
+finalized_n=$(( $(rpc "$L2_RPC" eth_getBlockByNumber '["finalized",false]' | jq -r .result.number) ))
+block_hash="$(rpc "$L2_RPC" eth_getBlockByNumber "[\"$block_hex\",false]" | jq -r '.result.hash // empty')"
 verified_n="$(jq -r '.verifiedAt.number // empty' "$SECTION")"; verified_h="$(jq -r '.verifiedAt.hash // empty' "$SECTION")"
 if [ -n "$verified_n" ] && [ "$verified_n" != "0" ]; then
   onchain="$(rpc "$L2_RPC" eth_getBlockByNumber "[\"$(printf '0x%x' "$verified_n")\",false]" | jq -r '.result.hash // empty')"
-  finalized_n=$(( $(rpc "$L2_RPC" eth_getBlockByNumber '["finalized",false]' | jq -r .result.number) ))
   if [ "$onchain" = "$verified_h" ] && [ "$verified_n" -le "$finalized_n" ]; then echo "  match      verifiedAt $verified_n $verified_h (finalized head $finalized_n)"; else echo "  MISMATCH   verifiedAt $verified_n recorded $verified_h, chain $onchain, finalized head $finalized_n"; blocks_ok=0; fi
+elif [ "$block" -le "$finalized_n" ]; then
+  echo "  candidate  verifiedAt not set yet; this check at block $block $block_hash (finalized head $finalized_n) is the candidate: pass this report to scripts/world-manifest.sh"
 else
-  echo "  missing    verifiedAt (the address book has not been checked at a finalized block yet)"; blocks_ok=0
+  echo "  NOT YET    verifiedAt not set and the checked block $block is above the finalized head $finalized_n; check again at finalized"; blocks_ok=0
 fi
 
 result="MATCH"; [ "$failed" = "0" ] && [ "$blocks_ok" = "1" ] || result="MISMATCH"
 mkdir -p "$FINCHAIN_ROOT/manifests/evidence"
 out="$FINCHAIN_ROOT/manifests/evidence/world-verify-$block.json"
-jq -n --arg section "$SECTION" --arg rpc "$L2_RPC" --argjson chainId "$((chain_hex))" --argjson block "$block" --arg tag "$AT" --arg at "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
-  --argjson rows "[${rows%,}]" --arg result "$result" --argjson blocksOk "$blocks_ok" '
-  { acceptance: "M3 address book vs chain code", section: $section, rpc: $rpc, chainId: $chainId, checkedAt: $at, block: $block, tag: $tag,
+jq -n --arg section "$SECTION" --arg rpc "$L2_RPC" --argjson chainId "$((chain_hex))" --argjson block "$block" --arg blockHash "$block_hash" --arg tag "$AT" --arg at "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+  --argjson finalized "$finalized_n" --argjson rows "[${rows%,}]" --arg result "$result" --argjson blocksOk "$blocks_ok" '
+  { acceptance: "M3-C address book vs chain code", section: $section, rpc: $rpc, chainId: $chainId, checkedAt: $at, block: $block, blockHash: $blockHash, tag: $tag, finalizedHead: $finalized,
     contracts: $rows, blocksCanonical: ($blocksOk == 1), result: $result,
     method: "eth_getCode at the fixed block, keccak256 compared with the recorded codeHash; completion and verification blocks compared with the canonical chain" }' > "$out"
 echo "RESULT: $result ($total contracts); report $out"

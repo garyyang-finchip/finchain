@@ -1,0 +1,50 @@
+{
+  "schema": "foga.world-config/1",
+  "name": "finchain-sepolia",
+  "network": "finchain-sepolia",
+  "chainId": 85422,
+  "rpc": "${FINCHAIN_SEPOLIA_RPC_URL}",
+  "mode": "deploy",
+  "deployer": {
+    "privateKeyEnv": "FOGA_DEPLOYER_PK",
+    "note": "W, the World deployer and genesis treasury of Finchain Sepolia: a phrase of its own on the FOGA host (foga keys new --out), funded on L2 by the chain operations deployer (make l2-send). Unset, FOGA takes account 0 of FOGA_MNEMONIC / FOGA_MNEMONIC_FILE, which the genesis binds as W; the chain operations deployer key is never W."
+  },
+  "identity8004": {
+    "mode": "address",
+    "address": "0x363E71C6c33d4B5980B31B558D1E16B52EB3C8E9",
+    "note": "Finchain-deployed ERC-8004 reference instance: IdentityRegistry proxy (ReputationRegistry proxy 0xF0A3ba008486cCc0bf994d5c06cE095E0b1D08e2), upstream contracts at commit b9e466c, owned by the Finchain owner address; deployment record chain/out/erc8004.json. Not a stub, not part of the World W deploys."
+  },
+  "params": {
+    "skillToken": {
+      "name": "FOGA Skill",
+      "symbol": "FSKL"
+    },
+    "taskToken": {
+      "name": "FOGA Task",
+      "symbol": "FTSK"
+    },
+    "aid": {
+      "defaultLivenessWindow": 7776000,
+      "maxLivenessWindow": 31536000
+    },
+    "kya": {
+      "issuerSetRoot": "0x1de029c3b70d5efa4af25f0d1ffb02831eb7c0d9f5a02f3c781d216e2c54b5e8",
+      "epochLength": 2592000,
+      "epochGrace": 1
+    },
+    "ard": {
+      "kindURIs": {
+        "skill": "kind:skill",
+        "task": "kind:task",
+        "agent": "kind:agent",
+        "registry": "kind:registry"
+      }
+    }
+  },
+  "notes": [
+    "Finchain Sepolia (OP Stack L2 on Ethereum Sepolia, chain id 85422, public RPC https://rpc.finchain.one) as a world for the released FOGA package: `foga world deploy --world chain/world/finchain-sepolia.world.json --rpc https://rpc.finchain.one --out deployments/finchain-sepolia.json` deploys the full stack (mode deploy, every contract from the locked bundle) with the key in FOGA_DEPLOYER_PK or W from the phrase; the address book it writes is copied into this repository as chain/world/finchain-sepolia.json and is what `foga join --world <that file> --rpc https://rpc.finchain.one` takes. This file lives in the Finchain repository, not in FOGA's package: FOGA's default chain stays Sepolia, and a cell reaches Finchain only when its operator names this world.",
+    "AID liveness windows (90 d / 365 d), the KYA Groth16 adapter parameters (issuer set root of the upstream kya_public_v1 prover, 30 d epochs, 1 epoch grace) and the ARD kind URIs mirror FOGA's other world templates so the upstream provers and resolvers work unchanged.",
+    "Fees: a Finchain transaction pays the L2 execution fee (the base fee is near zero on a quiet chain, plus the priority fee) and an L1 data fee for its calldata on Sepolia (receipt field l1Fee). FOGA budgets execution gas at its fee floor (FOGA_FEE_FLOOR_GWEI); the evidence reports the three fee components from the receipts (docs/world.md, section 5.3).",
+    "Confirmation: the chain has unsafe, safe and finalized heads (safe a few minutes after the block, finalized about 20 minutes, following Sepolia finality). The released FOGA waits for receipts; docs/foga-confirmation-policy.md is the specification handed to FOGA for safe- and finalized-aware steps."
+  ]
+}

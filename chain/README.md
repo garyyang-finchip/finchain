@@ -9,6 +9,10 @@
 | `out/l1-addresses.json` | L1 contract addresses of this chain | yes |
 | `out/chain-record.json` | genesis hash, L1 anchor, rollup config hash, key addresses | yes |
 | `out/deployment.json` | deployer, L1 block range, measured cost | yes |
+| `out/erc8004.json` | the ERC-8004 identity root on L2: addresses, transactions, code hashes, checks, completing block (`make deploy-8004`) | yes |
+| `out/evm-acceptance.json` | M3-A record: plain transfer, `FinchainProbe` deployment, write and read-back through the public RPC (`make evm-acceptance`) | yes |
+| `contracts/erc8004/`, `contracts/probe/` | pinned contract builds: standard JSON inputs and bytecode hashes, reproducible with the stated solc | yes |
+| `world/` | FOGA on Finchain: the world configuration for the released FOGA package and, once deployed, the address book (`world/README.md`) | yes |
 
 Both hosts mount `chain/out/` read-only at `/chain`. Host B receives a copy of this
 directory after `make export` on host A (it is part of the repository, so `git pull`
