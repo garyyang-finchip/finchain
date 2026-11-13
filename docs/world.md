@@ -218,6 +218,22 @@ covenants Pass on layer 5 (278 Pass, 0 Fail, 2 Unknown, 25 NotApplicable). The f
 about agent id 0 is an upstream item for the ERC-8447 reference module; neither the chain
 nor FOGA was changed for it.
 
+The three files the released package wrote for the reference World are kept as it wrote
+them: the address book is `chain/world/finchain-sepolia.json`; the genesis evidence
+(`foga.genesis-evidence/1`: 197 checks over T0-T9, 213 operations confirmed in blocks
+61597-63560 between 02:44 and 03:49 UTC on 2026-11-13, journal, facts and per-step
+evidence) is `manifests/evidence/foga-genesis-finchain-sepolia.json`; the doctor report
+(`foga.doctor-report/1`, read live through the public RPC at block 64557) is
+`manifests/evidence/foga-doctor-finchain-sepolia.json`. The doctor's two Unknown items are
+the `supportsInterface` answers of `ADRFServiceEscrow` for `IADRFExecutor` and
+`ISettlementLedger`: the contract is built from those interfaces but does not declare
+their ids, and upstream publishes none, so the report calls it a design choice rather than
+a defect; the answer is a property of the locked bundle, so every World deployed from it
+gives the same two, Sepolia included. The execution fees of the
+213 genesis operations sum to 128,323,691 gas at an effective price of about 1.00025 gwei
+(0.000128 ETH); the L1 data fees come from the receipts and are reported in the M3-C
+evidence file.
+
 ### 5.5 Scenarios and the second cell
 
 The genesis T0-T9 run with `--world chain/world/finchain-sepolia.json` gives the four
