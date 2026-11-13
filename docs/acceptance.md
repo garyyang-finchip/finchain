@@ -81,7 +81,7 @@ package does about confirmation levels and does not wait for it.
 
 | Item | Evidence |
 | --- | --- |
-| Resident challenger running on host B against the public chain; games resolved and bonds claimed | `manifests/evidence/games-<date>.json` (`make games`, `scripts/games.sh`: every game of the respected type with its status, the resolving transaction and its sender, the credit each party holds) and the challenger's own log excerpt from host B (`manifests/evidence/challenger-log-<date>.jsonl`) |
+| Resident challenger running on host B against the public chain; games resolved and bonds claimed | `manifests/evidence/games-<date>.json` (`make games`, `scripts/games.sh`: every game of the respected type with its status, the resolving transaction and its sender, the credit each party holds) and the challenger's own log excerpt from host B (`manifests/evidence/challenger-log-<date>.jsonl`). The initial bond is 0 on this deployment (owner's `setInitBond(1, 0)`, 2026-11-11), so the credit columns read zero and the item rests on the resolutions and their sender. Snapshot before any clock expired: `manifests/evidence/games-20261113T181336Z.json` (48 games in progress, one claim each) |
 | Trace self-check (`run-trace`) passes for a recent game | command output (not a substitute for the previous item) |
 | Full VM dispute drill with adversarial driver: real `step()` executed, invalid root rejected | `docs/proof-plan.md` evidence list, `environment: local-devnet` |
 | Prestate embeds Finchain configuration (hash recorded; embedding verified) | prestate hash, build log |

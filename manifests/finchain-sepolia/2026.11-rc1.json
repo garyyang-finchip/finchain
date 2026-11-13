@@ -80,7 +80,8 @@
     "onchainSnapshot": "manifests/onchain-12112920.json",
     "proofMaturityDelaySeconds": 604800,
     "disputeGameFinalityDelaySeconds": 302400,
-    "initBondWei": "80000000000000000",
+    "initBondWei": "0",
+    "initBondNote": "set by the owner with DisputeGameFactory.setInitBond(1, 0) on 2026-11-11 (manifests/evidence/m1-2026-11-12.json, observed from L1 block 12113326); the snapshot manifests/onchain-12112920.json predates that transaction and still shows 80000000000000000",
     "rolesDocument": "docs/governance.md"
   },
   "covenantWorld": {

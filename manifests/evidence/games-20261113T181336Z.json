@@ -1,0 +1,990 @@
+{
+  "schema": "finchain.games/1",
+  "acceptance": "M4: resident challenger on host B against the public chain - games resolved and bonds claimed (docs/acceptance.md M4; docs/proof-plan.md level L1)",
+  "environment": "public-testnet",
+  "recordedAt": "2026-11-13T18:13:36Z",
+  "l1Rpc": "https://ethereum-sepolia-rpc.publicnode.com",
+  "disputeGameFactory": "0xc752f10ab0696860b11b789a2ab9f4f93331329c",
+  "optimismPortal": "0xeb8fbc0732fc7719838cf73d5377320a6c086b14",
+  "respectedGameType": 1,
+  "initBondWei": "0",
+  "roles": {
+    "proposer": "0xde49748ec95ac4eab9a12f3bc7124a469b4073b6",
+    "challenger": "0xd0236e0d768cc4456eed2a5373feb35413192e58",
+    "maxClockDurationSeconds": 302400
+  },
+  "gameCount": 48,
+  "gamesRead": {
+    "from": 0,
+    "to": 47
+  },
+  "summary": {
+    "resolved": 0,
+    "resolvedByChallenger": 0,
+    "inProgress": 48,
+    "notRespectedType": 0,
+    "note": "a game of the permissioned type with one claim and no moves resolves in favour of the root after maxClockDuration; the sender of the resolving transaction says who runs the resolver. Credit is what a party may claim after resolution (the proposer bond returns to the proposer; the challenger holds credit only where it moved); claimCredit calls come from the challenger service and show in its log."
+  },
+  "games": [
+    {
+      "index": 0,
+      "type": 1,
+      "proxy": "0xc5defa0d17554e231ebc5bba3304fdbd32846075",
+      "createdAt": 1794422640,
+      "created": "2026-11-11T18:44:00Z",
+      "l2Block": 3492,
+      "rootClaim": "0x449f80942870b4bceb6d55569c8ec31fa9dda575f1585f0f78567ff3083f4b5d",
+      "status": 0,
+      "statusName": "IN_PROGRESS",
+      "resolvedAt": 0,
+      "claims": 1,
+      "moves": 0,
+      "clockEndsAt": 1794725040,
+      "resolution": null,
+      "creditWei": {
+        "proposer": "0",
+        "challenger": "0"
+      }
+    },
+    {
+      "index": 1,
+      "type": 1,
+      "proxy": "0x7d723de47139bc6faea8e7578d8aca7544bd00cb",
+      "createdAt": 1794426264,
+      "created": "2026-11-11T19:44:24Z",
+      "l2Block": 5239,
+      "rootClaim": "0x48ba9860795164acb522f74d0371ed6bb55cf245bae8387cfeffb12591f8fa83",
+      "status": 0,
+      "statusName": "IN_PROGRESS",
+      "resolvedAt": 0,
+      "claims": 1,
+      "moves": 0,
+      "clockEndsAt": 1794728664,
+      "resolution": null,
+      "creditWei": {
+        "proposer": "0",
+        "challenger": "0"
+      }
+    },
+    {
+      "index": 2,
+      "type": 1,
+      "proxy": "0xb55c342bddf6d4ae3967b3287cb6d0d37d7a915d",
+      "createdAt": 1794429888,
+      "created": "2026-11-11T20:44:48Z",
+      "l2Block": 6943,
+      "rootClaim": "0x363b1737112144d00c64aae4ecbdf39c50f14b53f3778329ea5668faacb90a62",
+      "status": 0,
+      "statusName": "IN_PROGRESS",
+      "resolvedAt": 0,
+      "claims": 1,
+      "moves": 0,
+      "clockEndsAt": 1794732288,
+      "resolution": null,
+      "creditWei": {
+        "proposer": "0",
+        "challenger": "0"
+      }
+    },
+    {
+      "index": 3,
+      "type": 1,
+      "proxy": "0xe242466b4b7d8fb419a82fb8f05ecaf4e5af0fd9",
+      "createdAt": 1794433500,
+      "created": "2026-11-11T21:45:00Z",
+      "l2Block": 8874,
+      "rootClaim": "0x26f0b14c271f9db4b4d270313d91cf3f1b52331ddb489fee4fcd8b3eee616a74",
+      "status": 0,
+      "statusName": "IN_PROGRESS",
+      "resolvedAt": 0,
+      "claims": 1,
+      "moves": 0,
+      "clockEndsAt": 1794735900,
+      "resolution": null,
+      "creditWei": {
+        "proposer": "0",
+        "challenger": "0"
+      }
+    },
+    {
+      "index": 4,
+      "type": 1,
+      "proxy": "0xd4f241415b21ca6856148900ef602dfba5b2169f",
+      "createdAt": 1794437124,
+      "created": "2026-11-11T22:45:24Z",
+      "l2Block": 10597,
+      "rootClaim": "0x61bb14f0e955e89a3bd4431fe4ee6812e27f92669e373c0de8f22073646cdaca",
+      "status": 0,
+      "statusName": "IN_PROGRESS",
+      "resolvedAt": 0,
+      "claims": 1,
+      "moves": 0,
+      "clockEndsAt": 1794739524,
+      "resolution": null,
+      "creditWei": {
+        "proposer": "0",
+        "challenger": "0"
+      }
+    },
+    {
+      "index": 5,
+      "type": 1,
+      "proxy": "0x316b24abb299379bdfb44d70da63d3467d54dafb",
+      "createdAt": 1794440748,
+      "created": "2026-11-11T23:45:48Z",
+      "l2Block": 12498,
+      "rootClaim": "0xbdc52f6451e1072351c18e2d8f1a72924940534b265f0c7d4bbb09e6cf296490",
+      "status": 0,
+      "statusName": "IN_PROGRESS",
+      "resolvedAt": 0,
+      "claims": 1,
+      "moves": 0,
+      "clockEndsAt": 1794743148,
+      "resolution": null,
+      "creditWei": {
+        "proposer": "0",
+        "challenger": "0"
+      }
+    },
+    {
+      "index": 6,
+      "type": 1,
+      "proxy": "0xb79c8969fbb3da1201dc779b9a7f250f48bbba89",
+      "createdAt": 1794444360,
+      "created": "2026-11-12T00:46:00Z",
+      "l2Block": 14263,
+      "rootClaim": "0xb29d2b5b63f880403f153e68de43377289b315f7820ac3c0a49dc2ba4fa02d9c",
+      "status": 0,
+      "statusName": "IN_PROGRESS",
+      "resolvedAt": 0,
+      "claims": 1,
+      "moves": 0,
+      "clockEndsAt": 1794746760,
+      "resolution": null,
+      "creditWei": {
+        "proposer": "0",
+        "challenger": "0"
+      }
+    },
+    {
+      "index": 7,
+      "type": 1,
+      "proxy": "0x7b5473bc41c06a424b042490b45e9a53a019566d",
+      "createdAt": 1794447984,
+      "created": "2026-11-12T01:46:24Z",
+      "l2Block": 15990,
+      "rootClaim": "0x96a82809ff63c34502c080f151fbdcf5f3d6f0cf4c26baab168b662ba6c388b1",
+      "status": 0,
+      "statusName": "IN_PROGRESS",
+      "resolvedAt": 0,
+      "claims": 1,
+      "moves": 0,
+      "clockEndsAt": 1794750384,
+      "resolution": null,
+      "creditWei": {
+        "proposer": "0",
+        "challenger": "0"
+      }
+    },
+    {
+      "index": 8,
+      "type": 1,
+      "proxy": "0x41416e649075bfad499c67870ad87b80d44b80ca",
+      "createdAt": 1794451608,
+      "created": "2026-11-12T02:46:48Z",
+      "l2Block": 17887,
+      "rootClaim": "0x635e6408dffa9969b5b4185fa2f9bd3f14302ec908863f730ba426502c6d6cdb",
+      "status": 0,
+      "statusName": "IN_PROGRESS",
+      "resolvedAt": 0,
+      "claims": 1,
+      "moves": 0,
+      "clockEndsAt": 1794754008,
+      "resolution": null,
+      "creditWei": {
+        "proposer": "0",
+        "challenger": "0"
+      }
+    },
+    {
+      "index": 9,
+      "type": 1,
+      "proxy": "0x72fd11e30c9c8d2f73399974d77aa5dfbf76fdfc",
+      "createdAt": 1794455220,
+      "created": "2026-11-12T03:47:00Z",
+      "l2Block": 19602,
+      "rootClaim": "0xe17eacedca265ec3ea98bbd47f620f7eaba214343586e5bdf13b21a5410afce3",
+      "status": 0,
+      "statusName": "IN_PROGRESS",
+      "resolvedAt": 0,
+      "claims": 1,
+      "moves": 0,
+      "clockEndsAt": 1794757620,
+      "resolution": null,
+      "creditWei": {
+        "proposer": "0",
+        "challenger": "0"
+      }
+    },
+    {
+      "index": 10,
+      "type": 1,
+      "proxy": "0x592f9666491703aacb5b57c3186ab5e193b1913a",
+      "createdAt": 1794458844,
+      "created": "2026-11-12T04:47:24Z",
+      "l2Block": 21552,
+      "rootClaim": "0xf1baa7ebbd6a7cf693131d86f73b6ba5e60f6351061f44fe5aefb21d0459b4e4",
+      "status": 0,
+      "statusName": "IN_PROGRESS",
+      "resolvedAt": 0,
+      "claims": 1,
+      "moves": 0,
+      "clockEndsAt": 1794761244,
+      "resolution": null,
+      "creditWei": {
+        "proposer": "0",
+        "challenger": "0"
+      }
+    },
+    {
+      "index": 11,
+      "type": 1,
+      "proxy": "0xbee531031c145815c6b5b5c65a386c34187cdfe6",
+      "createdAt": 1794462468,
+      "created": "2026-11-12T05:47:48Z",
+      "l2Block": 23250,
+      "rootClaim": "0xfcd28d2b8bebb94db43091be854b1b0bd33f46ecb7a22eddbf13b676b865e2b0",
+      "status": 0,
+      "statusName": "IN_PROGRESS",
+      "resolvedAt": 0,
+      "claims": 1,
+      "moves": 0,
+      "clockEndsAt": 1794764868,
+      "resolution": null,
+      "creditWei": {
+        "proposer": "0",
+        "challenger": "0"
+      }
+    },
+    {
+      "index": 12,
+      "type": 1,
+      "proxy": "0x1149733ba7e7a2a00cf29222d5af36e79d9c0bfc",
+      "createdAt": 1794466092,
+      "created": "2026-11-12T06:48:12Z",
+      "l2Block": 25014,
+      "rootClaim": "0xfb125b029f41459bb8361bc0a69ebe40418df9513d59963ff65a20a714443033",
+      "status": 0,
+      "statusName": "IN_PROGRESS",
+      "resolvedAt": 0,
+      "claims": 1,
+      "moves": 0,
+      "clockEndsAt": 1794768492,
+      "resolution": null,
+      "creditWei": {
+        "proposer": "0",
+        "challenger": "0"
+      }
+    },
+    {
+      "index": 13,
+      "type": 1,
+      "proxy": "0x89f9cb48bd5061d1dbcf8dd44dc5dd28c2f8549c",
+      "createdAt": 1794469716,
+      "created": "2026-11-12T07:48:36Z",
+      "l2Block": 26904,
+      "rootClaim": "0x5622a1bed267a6477e36c94b6b2e2e6c92778cf958cda4f5c47d9664e8b84f59",
+      "status": 0,
+      "statusName": "IN_PROGRESS",
+      "resolvedAt": 0,
+      "claims": 1,
+      "moves": 0,
+      "clockEndsAt": 1794772116,
+      "resolution": null,
+      "creditWei": {
+        "proposer": "0",
+        "challenger": "0"
+      }
+    },
+    {
+      "index": 14,
+      "type": 1,
+      "proxy": "0x8631bfe9b844594e1d77647b41a3d72b2c920ecd",
+      "createdAt": 1794473328,
+      "created": "2026-11-12T08:48:48Z",
+      "l2Block": 28668,
+      "rootClaim": "0x5bcb178bd257710f8d8ace5b008540fd08bc4765afc38793c11cf1487ab8d61c",
+      "status": 0,
+      "statusName": "IN_PROGRESS",
+      "resolvedAt": 0,
+      "claims": 1,
+      "moves": 0,
+      "clockEndsAt": 1794775728,
+      "resolution": null,
+      "creditWei": {
+        "proposer": "0",
+        "challenger": "0"
+      }
+    },
+    {
+      "index": 15,
+      "type": 1,
+      "proxy": "0xa6c40eec995b778340af20c28227f48284cada28",
+      "createdAt": 1794476952,
+      "created": "2026-11-12T09:49:12Z",
+      "l2Block": 30552,
+      "rootClaim": "0x005212575773d319c328d3b71f8d5ee3abed4a3c1d1d24263ab2498577a96ac6",
+      "status": 0,
+      "statusName": "IN_PROGRESS",
+      "resolvedAt": 0,
+      "claims": 1,
+      "moves": 0,
+      "clockEndsAt": 1794779352,
+      "resolution": null,
+      "creditWei": {
+        "proposer": "0",
+        "challenger": "0"
+      }
+    },
+    {
+      "index": 16,
+      "type": 1,
+      "proxy": "0x219839e516eb5d2c78a86a8bb4c820bbd1221f9b",
+      "createdAt": 1794480576,
+      "created": "2026-11-12T10:49:36Z",
+      "l2Block": 32287,
+      "rootClaim": "0x5ad1a8bd6c37657d4f267b2849bc99e2f72e3c8ecdeacef5aa43edf7de7ba78d",
+      "status": 0,
+      "statusName": "IN_PROGRESS",
+      "resolvedAt": 0,
+      "claims": 1,
+      "moves": 0,
+      "clockEndsAt": 1794782976,
+      "resolution": null,
+      "creditWei": {
+        "proposer": "0",
+        "challenger": "0"
+      }
+    },
+    {
+      "index": 17,
+      "type": 1,
+      "proxy": "0x69ea32fb2de5a07d6d96652156eeaedf46a91991",
+      "createdAt": 1794484188,
+      "created": "2026-11-12T11:49:48Z",
+      "l2Block": 34224,
+      "rootClaim": "0xc7b1eddb7100294ea1bc13ff8b4623b6d724c2e0450327747ad3f6597a0a1fc5",
+      "status": 0,
+      "statusName": "IN_PROGRESS",
+      "resolvedAt": 0,
+      "claims": 1,
+      "moves": 0,
+      "clockEndsAt": 1794786588,
+      "resolution": null,
+      "creditWei": {
+        "proposer": "0",
+        "challenger": "0"
+      }
+    },
+    {
+      "index": 18,
+      "type": 1,
+      "proxy": "0x0bd10667f1476a83c94ee1b36f353ac2585c1b0d",
+      "createdAt": 1794487812,
+      "created": "2026-11-12T12:50:12Z",
+      "l2Block": 35916,
+      "rootClaim": "0x2ce11a85f37651bacf9e01412c0cba99d0729d6f7cf25f04e9f390623db90eb9",
+      "status": 0,
+      "statusName": "IN_PROGRESS",
+      "resolvedAt": 0,
+      "claims": 1,
+      "moves": 0,
+      "clockEndsAt": 1794790212,
+      "resolution": null,
+      "creditWei": {
+        "proposer": "0",
+        "challenger": "0"
+      }
+    },
+    {
+      "index": 19,
+      "type": 1,
+      "proxy": "0x32013485fe95cb2e3c58420a0c02177d15f2399c",
+      "createdAt": 1794491424,
+      "created": "2026-11-12T13:50:24Z",
+      "l2Block": 37686,
+      "rootClaim": "0xb3c072f379d5f1feccf220587e168df310a6a1d4b29ab4587ab4cd297440cf03",
+      "status": 0,
+      "statusName": "IN_PROGRESS",
+      "resolvedAt": 0,
+      "claims": 1,
+      "moves": 0,
+      "clockEndsAt": 1794793824,
+      "resolution": null,
+      "creditWei": {
+        "proposer": "0",
+        "challenger": "0"
+      }
+    },
+    {
+      "index": 20,
+      "type": 1,
+      "proxy": "0x36168d70a1ad7cb9536df02bdacb13fd799c71e9",
+      "createdAt": 1794495048,
+      "created": "2026-11-12T14:50:48Z",
+      "l2Block": 39589,
+      "rootClaim": "0x6dce8e428c731ea5be83c99f50d83e5b75208e1fb89ca44ed49c08b04a6a5932",
+      "status": 0,
+      "statusName": "IN_PROGRESS",
+      "resolvedAt": 0,
+      "claims": 1,
+      "moves": 0,
+      "clockEndsAt": 1794797448,
+      "resolution": null,
+      "creditWei": {
+        "proposer": "0",
+        "challenger": "0"
+      }
+    },
+    {
+      "index": 21,
+      "type": 1,
+      "proxy": "0xc9b7227dfe8f7fe6471d1e6a88d741c59c4cefc1",
+      "createdAt": 1794498672,
+      "created": "2026-11-12T15:51:12Z",
+      "l2Block": 41304,
+      "rootClaim": "0xd5abae6a3aa68e79bfe91372ee1b4dace98e49d75c5e4c55a980fe4b7b77ce11",
+      "status": 0,
+      "statusName": "IN_PROGRESS",
+      "resolvedAt": 0,
+      "claims": 1,
+      "moves": 0,
+      "clockEndsAt": 1794801072,
+      "resolution": null,
+      "creditWei": {
+        "proposer": "0",
+        "challenger": "0"
+      }
+    },
+    {
+      "index": 22,
+      "type": 1,
+      "proxy": "0x444f51d08c5cfa051a60942e6b559db54c69af92",
+      "createdAt": 1794502284,
+      "created": "2026-11-12T16:51:24Z",
+      "l2Block": 43230,
+      "rootClaim": "0x368a822ac449ef3d43aef2df103339b7c255beca0aeac0582f4d0c2d16b6a5cc",
+      "status": 0,
+      "statusName": "IN_PROGRESS",
+      "resolvedAt": 0,
+      "claims": 1,
+      "moves": 0,
+      "clockEndsAt": 1794804684,
+      "resolution": null,
+      "creditWei": {
+        "proposer": "0",
+        "challenger": "0"
+      }
+    },
+    {
+      "index": 23,
+      "type": 1,
+      "proxy": "0x9b6a46d99c004d03d33a47ca87bdc702be02e0a8",
+      "createdAt": 1794505908,
+      "created": "2026-11-12T17:51:48Z",
+      "l2Block": 44940,
+      "rootClaim": "0x1bff5b8c1b2697c426e5ac82ff82836ac29ada3ebf9b2fa952d76816118434bb",
+      "status": 0,
+      "statusName": "IN_PROGRESS",
+      "resolvedAt": 0,
+      "claims": 1,
+      "moves": 0,
+      "clockEndsAt": 1794808308,
+      "resolution": null,
+      "creditWei": {
+        "proposer": "0",
+        "challenger": "0"
+      }
+    },
+    {
+      "index": 24,
+      "type": 1,
+      "proxy": "0x8b536b39fda245ee791c10bfc02203324ff8e94f",
+      "createdAt": 1794509532,
+      "created": "2026-11-12T18:52:12Z",
+      "l2Block": 46854,
+      "rootClaim": "0x63c9f179905057d26fad6da134ef0724c695753c51554bfe1211b7d5e23ed93f",
+      "status": 0,
+      "statusName": "IN_PROGRESS",
+      "resolvedAt": 0,
+      "claims": 1,
+      "moves": 0,
+      "clockEndsAt": 1794811932,
+      "resolution": null,
+      "creditWei": {
+        "proposer": "0",
+        "challenger": "0"
+      }
+    },
+    {
+      "index": 25,
+      "type": 1,
+      "proxy": "0x9e20ddbc28d0926b834cc6e6cc73d6250bd6eb25",
+      "createdAt": 1794513144,
+      "created": "2026-11-12T19:52:24Z",
+      "l2Block": 48625,
+      "rootClaim": "0xcb415baf5e0b17df33f24682cc6cf0cdc73980243cfd139ab6b92816fc4011aa",
+      "status": 0,
+      "statusName": "IN_PROGRESS",
+      "resolvedAt": 0,
+      "claims": 1,
+      "moves": 0,
+      "clockEndsAt": 1794815544,
+      "resolution": null,
+      "creditWei": {
+        "proposer": "0",
+        "challenger": "0"
+      }
+    },
+    {
+      "index": 26,
+      "type": 1,
+      "proxy": "0xf5927141a19316d2fb39e82eaf92f9c10726e7ba",
+      "createdAt": 1794516768,
+      "created": "2026-11-12T20:52:48Z",
+      "l2Block": 50334,
+      "rootClaim": "0x83d2ae937c22628dd9454159e1c65e1047adcbff109acd628cfd14b67447ccf5",
+      "status": 0,
+      "statusName": "IN_PROGRESS",
+      "resolvedAt": 0,
+      "claims": 1,
+      "moves": 0,
+      "clockEndsAt": 1794819168,
+      "resolution": null,
+      "creditWei": {
+        "proposer": "0",
+        "challenger": "0"
+      }
+    },
+    {
+      "index": 27,
+      "type": 1,
+      "proxy": "0xbeb6a8279518d4a66292821044a9f0e7b093e282",
+      "createdAt": 1794520392,
+      "created": "2026-11-12T21:53:12Z",
+      "l2Block": 52236,
+      "rootClaim": "0x4772b54e00f5b2aaa51db982b1d2c9aa2974a0af4a1d60b137c1e5f720c71b93",
+      "status": 0,
+      "statusName": "IN_PROGRESS",
+      "resolvedAt": 0,
+      "claims": 1,
+      "moves": 0,
+      "clockEndsAt": 1794822792,
+      "resolution": null,
+      "creditWei": {
+        "proposer": "0",
+        "challenger": "0"
+      }
+    },
+    {
+      "index": 28,
+      "type": 1,
+      "proxy": "0x3e7594ae6168377a3118739168b1afc15ea0e34d",
+      "createdAt": 1794524004,
+      "created": "2026-11-12T22:53:24Z",
+      "l2Block": 53994,
+      "rootClaim": "0x9c764f804f53f8c48fc27433f534ac14080341128517043df0a3574a35799a98",
+      "status": 0,
+      "statusName": "IN_PROGRESS",
+      "resolvedAt": 0,
+      "claims": 1,
+      "moves": 0,
+      "clockEndsAt": 1794826404,
+      "resolution": null,
+      "creditWei": {
+        "proposer": "0",
+        "challenger": "0"
+      }
+    },
+    {
+      "index": 29,
+      "type": 1,
+      "proxy": "0x38ff8d8455826e0d6372aed4197de1fbcdc2731b",
+      "createdAt": 1794527628,
+      "created": "2026-11-12T23:53:48Z",
+      "l2Block": 55884,
+      "rootClaim": "0x993e16874d4bbbdc611a979d621e991e2091bb2417d2a1b02ede41c077155dcf",
+      "status": 0,
+      "statusName": "IN_PROGRESS",
+      "resolvedAt": 0,
+      "claims": 1,
+      "moves": 0,
+      "clockEndsAt": 1794830028,
+      "resolution": null,
+      "creditWei": {
+        "proposer": "0",
+        "challenger": "0"
+      }
+    },
+    {
+      "index": 30,
+      "type": 1,
+      "proxy": "0x1d8795482f1ba24f3b945c5b74f2fa32c52587d1",
+      "createdAt": 1794531252,
+      "created": "2026-11-13T00:54:12Z",
+      "l2Block": 57649,
+      "rootClaim": "0xe0bcef3fd7b5db58ad221ee6fc325449c242ac93a6063e5e206459d46b9fbe2e",
+      "status": 0,
+      "statusName": "IN_PROGRESS",
+      "resolvedAt": 0,
+      "claims": 1,
+      "moves": 0,
+      "clockEndsAt": 1794833652,
+      "resolution": null,
+      "creditWei": {
+        "proposer": "0",
+        "challenger": "0"
+      }
+    },
+    {
+      "index": 31,
+      "type": 1,
+      "proxy": "0xbaa6081d1585741b6413759657338c3e4aa3e93f",
+      "createdAt": 1794534864,
+      "created": "2026-11-13T01:54:24Z",
+      "l2Block": 59551,
+      "rootClaim": "0xaf5ae22103781657d5a5fcf8ce411f771c57d4a18826995b1bb3bed084125e31",
+      "status": 0,
+      "statusName": "IN_PROGRESS",
+      "resolvedAt": 0,
+      "claims": 1,
+      "moves": 0,
+      "clockEndsAt": 1794837264,
+      "resolution": null,
+      "creditWei": {
+        "proposer": "0",
+        "challenger": "0"
+      }
+    },
+    {
+      "index": 32,
+      "type": 1,
+      "proxy": "0x66b0215b7f2ee55b9e2521930ca873310237444c",
+      "createdAt": 1794538488,
+      "created": "2026-11-13T02:54:48Z",
+      "l2Block": 61266,
+      "rootClaim": "0x4cfa91a8701b46890af2edf7d8ad4dba6e52fd31e4d3f1b4aa9253509573e0b3",
+      "status": 0,
+      "statusName": "IN_PROGRESS",
+      "resolvedAt": 0,
+      "claims": 1,
+      "moves": 0,
+      "clockEndsAt": 1794840888,
+      "resolution": null,
+      "creditWei": {
+        "proposer": "0",
+        "challenger": "0"
+      }
+    },
+    {
+      "index": 33,
+      "type": 1,
+      "proxy": "0x28116b599b474136ea2df725492c7a32f3dd25b0",
+      "createdAt": 1794542112,
+      "created": "2026-11-13T03:55:12Z",
+      "l2Block": 62982,
+      "rootClaim": "0xfba56b13b1591ef15c908211c5688833a53c18d5f5b15813358d0e5caa67dd20",
+      "status": 0,
+      "statusName": "IN_PROGRESS",
+      "resolvedAt": 0,
+      "claims": 1,
+      "moves": 0,
+      "clockEndsAt": 1794844512,
+      "resolution": null,
+      "creditWei": {
+        "proposer": "0",
+        "challenger": "0"
+      }
+    },
+    {
+      "index": 34,
+      "type": 1,
+      "proxy": "0xb943809a153aa7ff84291743b816c3175a5fc85f",
+      "createdAt": 1794545724,
+      "created": "2026-11-13T04:55:24Z",
+      "l2Block": 64926,
+      "rootClaim": "0x503ee801bd23c32a829d0a58c218a2f5cd9d5983d9d61173cc506fa8cf4b43bb",
+      "status": 0,
+      "statusName": "IN_PROGRESS",
+      "resolvedAt": 0,
+      "claims": 1,
+      "moves": 0,
+      "clockEndsAt": 1794848124,
+      "resolution": null,
+      "creditWei": {
+        "proposer": "0",
+        "challenger": "0"
+      }
+    },
+    {
+      "index": 35,
+      "type": 1,
+      "proxy": "0x2fa882301e72dcb3afe1947e88347ddd79dffe16",
+      "createdAt": 1794549348,
+      "created": "2026-11-13T05:55:48Z",
+      "l2Block": 66636,
+      "rootClaim": "0xdd79a49bc3abb796a25ebc4941a7586dbf334d96ebd9426f8df321926836708b",
+      "status": 0,
+      "statusName": "IN_PROGRESS",
+      "resolvedAt": 0,
+      "claims": 1,
+      "moves": 0,
+      "clockEndsAt": 1794851748,
+      "resolution": null,
+      "creditWei": {
+        "proposer": "0",
+        "challenger": "0"
+      }
+    },
+    {
+      "index": 36,
+      "type": 1,
+      "proxy": "0xaba567ee860741dd8acd8a9224fa7ee91addb109",
+      "createdAt": 1794552972,
+      "created": "2026-11-13T06:56:12Z",
+      "l2Block": 68604,
+      "rootClaim": "0x4197467e512f4aeb005d34a2e9a91f5e0c5f6fa83c0924b2bd4600ac5e907f92",
+      "status": 0,
+      "statusName": "IN_PROGRESS",
+      "resolvedAt": 0,
+      "claims": 1,
+      "moves": 0,
+      "clockEndsAt": 1794855372,
+      "resolution": null,
+      "creditWei": {
+        "proposer": "0",
+        "challenger": "0"
+      }
+    },
+    {
+      "index": 37,
+      "type": 1,
+      "proxy": "0x064e00280b35c5a10d09b7f409126e9eecd3bff1",
+      "createdAt": 1794556596,
+      "created": "2026-11-13T07:56:36Z",
+      "l2Block": 70314,
+      "rootClaim": "0xdc3e5e1672fdd0c5f612467383b686253cee7a891549b7b92d2a6d7c1f32d04a",
+      "status": 0,
+      "statusName": "IN_PROGRESS",
+      "resolvedAt": 0,
+      "claims": 1,
+      "moves": 0,
+      "clockEndsAt": 1794858996,
+      "resolution": null,
+      "creditWei": {
+        "proposer": "0",
+        "challenger": "0"
+      }
+    },
+    {
+      "index": 38,
+      "type": 1,
+      "proxy": "0x9a34d6911a7ec77688ba2a7368a2fc14e35a0a30",
+      "createdAt": 1794560208,
+      "created": "2026-11-13T08:56:48Z",
+      "l2Block": 72217,
+      "rootClaim": "0x839fa204cea263d8bd9498b2298cc08836d6c4479bd05abca995657a8bdeb9f0",
+      "status": 0,
+      "statusName": "IN_PROGRESS",
+      "resolvedAt": 0,
+      "claims": 1,
+      "moves": 0,
+      "clockEndsAt": 1794862608,
+      "resolution": null,
+      "creditWei": {
+        "proposer": "0",
+        "challenger": "0"
+      }
+    },
+    {
+      "index": 39,
+      "type": 1,
+      "proxy": "0x954d441ab5f7ad3c5641187446d8e6af21cecac4",
+      "createdAt": 1794563832,
+      "created": "2026-11-13T09:57:12Z",
+      "l2Block": 73968,
+      "rootClaim": "0xebd02b918238e728ade7667c3d03ffc4f3f23c75680f2a831fde42a550f43969",
+      "status": 0,
+      "statusName": "IN_PROGRESS",
+      "resolvedAt": 0,
+      "claims": 1,
+      "moves": 0,
+      "clockEndsAt": 1794866232,
+      "resolution": null,
+      "creditWei": {
+        "proposer": "0",
+        "challenger": "0"
+      }
+    },
+    {
+      "index": 40,
+      "type": 1,
+      "proxy": "0xefaeafee9fa20a05c00300466867b64461454406",
+      "createdAt": 1794567444,
+      "created": "2026-11-13T10:57:24Z",
+      "l2Block": 75691,
+      "rootClaim": "0x6d220f086e0809b047a43638b0ca48e5b787cfe1b71876eb44b5b07f58946924",
+      "status": 0,
+      "statusName": "IN_PROGRESS",
+      "resolvedAt": 0,
+      "claims": 1,
+      "moves": 0,
+      "clockEndsAt": 1794869844,
+      "resolution": null,
+      "creditWei": {
+        "proposer": "0",
+        "challenger": "0"
+      }
+    },
+    {
+      "index": 41,
+      "type": 1,
+      "proxy": "0xe64b3cb5f4de4583194d2c64309e2b352b84fd37",
+      "createdAt": 1794571068,
+      "created": "2026-11-13T11:57:48Z",
+      "l2Block": 77580,
+      "rootClaim": "0xd8b9f2029362f64cceb07a81339b76c6321ad17c9d460fc36d0c33cec27a15fe",
+      "status": 0,
+      "statusName": "IN_PROGRESS",
+      "resolvedAt": 0,
+      "claims": 1,
+      "moves": 0,
+      "clockEndsAt": 1794873468,
+      "resolution": null,
+      "creditWei": {
+        "proposer": "0",
+        "challenger": "0"
+      }
+    },
+    {
+      "index": 42,
+      "type": 1,
+      "proxy": "0x7b472ce587a359380810b9baab07b0d3387b7e28",
+      "createdAt": 1794574692,
+      "created": "2026-11-13T12:58:12Z",
+      "l2Block": 79320,
+      "rootClaim": "0xf983460893876f20b688bd7492b291c5c2115d5e92545f093296b3805f476be6",
+      "status": 0,
+      "statusName": "IN_PROGRESS",
+      "resolvedAt": 0,
+      "claims": 1,
+      "moves": 0,
+      "clockEndsAt": 1794877092,
+      "resolution": null,
+      "creditWei": {
+        "proposer": "0",
+        "challenger": "0"
+      }
+    },
+    {
+      "index": 43,
+      "type": 1,
+      "proxy": "0xedb536934c2df6d355dc975128022398986ebe62",
+      "createdAt": 1794578304,
+      "created": "2026-11-13T13:58:24Z",
+      "l2Block": 81252,
+      "rootClaim": "0xd38abc9a9d99066ebfffaac49ecd5108531212f78446923b31ce55fc397824e6",
+      "status": 0,
+      "statusName": "IN_PROGRESS",
+      "resolvedAt": 0,
+      "claims": 1,
+      "moves": 0,
+      "clockEndsAt": 1794880704,
+      "resolution": null,
+      "creditWei": {
+        "proposer": "0",
+        "challenger": "0"
+      }
+    },
+    {
+      "index": 44,
+      "type": 1,
+      "proxy": "0xac49fe1338e5297a01c84b981db809a5370e868c",
+      "createdAt": 1794581928,
+      "created": "2026-11-13T14:58:48Z",
+      "l2Block": 82962,
+      "rootClaim": "0x5edd7f6af423bcf4e01f3a4fc2d184cc98b92c346ae899dfbba827cbe608ab94",
+      "status": 0,
+      "statusName": "IN_PROGRESS",
+      "resolvedAt": 0,
+      "claims": 1,
+      "moves": 0,
+      "clockEndsAt": 1794884328,
+      "resolution": null,
+      "creditWei": {
+        "proposer": "0",
+        "challenger": "0"
+      }
+    },
+    {
+      "index": 45,
+      "type": 1,
+      "proxy": "0x1300463e3e53ba35938fc62b31e8bc3f587f3513",
+      "createdAt": 1794585552,
+      "created": "2026-11-13T15:59:12Z",
+      "l2Block": 84888,
+      "rootClaim": "0x9503cd863aae7a5e783abe40a70f6834449bf7994f12373d72ee6e8bc2ee2d74",
+      "status": 0,
+      "statusName": "IN_PROGRESS",
+      "resolvedAt": 0,
+      "claims": 1,
+      "moves": 0,
+      "clockEndsAt": 1794887952,
+      "resolution": null,
+      "creditWei": {
+        "proposer": "0",
+        "challenger": "0"
+      }
+    },
+    {
+      "index": 46,
+      "type": 1,
+      "proxy": "0xeec0682a88170ecf82ddcc1fad206ac4ffd7ffa7",
+      "createdAt": 1794589176,
+      "created": "2026-11-13T16:59:36Z",
+      "l2Block": 86628,
+      "rootClaim": "0xbbf751430eadf8f1a1f55202592f70d3ccbc38179cb7be65ad7f75e220653a3d",
+      "status": 0,
+      "statusName": "IN_PROGRESS",
+      "resolvedAt": 0,
+      "claims": 1,
+      "moves": 0,
+      "clockEndsAt": 1794891576,
+      "resolution": null,
+      "creditWei": {
+        "proposer": "0",
+        "challenger": "0"
+      }
+    },
+    {
+      "index": 47,
+      "type": 1,
+      "proxy": "0x9e616eec779595bb25a62b36c8ba73a738544959",
+      "createdAt": 1794592788,
+      "created": "2026-11-13T17:59:48Z",
+      "l2Block": 88344,
+      "rootClaim": "0xd3545fb4b86402f67057cfd36f840d312836135e4ae208ddaf5dc21a996660f8",
+      "status": 0,
+      "statusName": "IN_PROGRESS",
+      "resolvedAt": 0,
+      "claims": 1,
+      "moves": 0,
+      "clockEndsAt": 1794895188,
+      "resolution": null,
+      "creditWei": {
+        "proposer": "0",
+        "challenger": "0"
+      }
+    }
+  ]
+}

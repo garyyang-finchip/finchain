@@ -44,7 +44,7 @@ SEL_MAX_CLOCK=0xdabd396d       # maxClockDuration()
 TOPIC_RESOLVED=0x5e186f09b9c93491f14e277eea7faa5de6a2d4bda75a79af7a3684fbfb42da60   # Resolved(GameStatus indexed)
 
 # ecall <to> <data> -> the raw hex result. A public endpoint drops or rate-limits a burst of requests, so an error or an
-# empty answer is asked again (five times, with a growing pause) before the script gives up on the call.
+# empty answer is asked again (six attempts in all, with a growing pause) before the script gives up on the call.
 ecall() {
   local attempt raw r
   for attempt in 1 2 3 4 5 6; do

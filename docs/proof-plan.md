@@ -77,4 +77,10 @@ What it did is read back from the chain by `make games` (`scripts/games.sh`): ev
 the respected type with its L2 block, status, the transaction that resolved it and that
 transaction's sender (the challenger key, when the resident service resolved it), the moves
 and the credit each party holds afterwards; the report is the M4 evidence for this level,
-beside an excerpt of the service's own log.
+beside an excerpt of the service's own log. On Finchain Sepolia the initial bond of the
+respected game type is 0 (set by the owner on 2026-11-11, `docs/funding-model.md`), so the
+credit columns stay at zero and the evidence is the resolution itself: the status, the
+resolving transaction and its sender. The first report
+(`manifests/evidence/games-20261113T181336Z.json`, taken before any clock had expired) shows
+48 hourly games, one claim each and no moves, with clocks ending from 2026-11-15T06:44Z; the
+report after the first resolutions is the one that closes the item.

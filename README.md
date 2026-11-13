@@ -76,8 +76,10 @@ The full procedure, with expected outputs and acceptance checks, is in
 
 ## Status
 
-v0.3.0-alpha.5: M4 in progress (`make withdraw` drives the deposit -> proof -> withdrawal
-cycle step by step, with its record). v0.2.0 (2026-11-13) closed M3: the reference-version
+v0.3.0-alpha.6: M4 in progress (`make withdraw` drives the deposit -> proof -> withdrawal
+cycle step by step, with its record; `make games` reads the dispute games back from L1 - the
+first report, 2026-11-13, shows 48 hourly games in progress before any clock expired). v0.2.0
+(2026-11-13) closed M3: the reference-version
 manifest `manifests/finchain-sepolia/2026.11-rc1.json` is published with status `candidate`
 (M1, M2 and the three M3 acceptances passed on public-testnet, M4 and M5 not run).
 Finchain Sepolia (chain id 85422) is live: L1 contracts
