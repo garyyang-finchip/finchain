@@ -36,6 +36,29 @@ identity root address in the configuration is the IdentityRegistry proxy of
 `scripts/world-manifest.sh` records that registry's code hash and marks its provenance
 unknown, which blocks the manifest candidate until it is explained.
 
+## The OG on Finchain
+
+The Finch OG Agent lives on Finchain as a cell of its own since 2026-11-13, reached at
+`https://og.finchain.one` (`manifests/evidence/og-finchain-2026-11-13.json`). It was born by
+the path above, from the FOGA host's checkout at v1.0.8 and this repository's address book,
+with the identity wallet the Sepolia OG already has (one key, the same address on every EVM
+chain) and nothing else shared with the Sepolia service:
+
+```sh
+# once, to write the configuration without sending anything (it stops at the funding gate and prints the identity)
+foga join --world <finchain repo>/chain/world/finchain-sepolia.json --rpc https://rpc.finchain.one \
+  --name OG --dir <cell dir> --wallet <the OG wallet> --listen 127.0.0.1:8788 --public-url https://og.finchain.one --no-wait --exit
+# the public host and the loopback in runtime.http.allowedHosts, the presence block; then 0.05 ETH to the identity (make l2-send)
+# the same command without --no-wait: the birth, the two skills, the documents, the channel and the market; --exit instead of serving
+# a second systemd unit (node serve --config <cell dir>/cell.config.json --wallet <the OG wallet> --listen 127.0.0.1:8788) and a
+# Caddy site for og.finchain.one in front of it; the Sepolia OG keeps its own unit, store, port and name
+```
+
+On Finchain the OG is a resident, not the authority: W deployed the World and bootstrapped
+the ERC-8489 flows, so W is the controller of the family `foga` and the authority of the
+market the OG is admitted to; the OG registers itself (ERC-8004 agent 6), holds and offers
+its two skills, publishes its documents and keeps its own channel and maintenance record.
+
 ## The first World and ERC-8004 agent id 0
 
 The first World, `finchain-sepolia-85422-20261112T154525Z`, was deployed on 2026-11-12 and

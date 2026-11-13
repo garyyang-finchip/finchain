@@ -64,10 +64,15 @@ and, with `SEPOLIA_RPC_URL` set, a read of the packaged Sepolia World by the doc
 result is a record under `manifests/evidence/`: every leg passing, zero names under
 `finchain.one`, the host names actually used listed.
 
-The baseline is the released 1.0.7, which has no Finchain code at all; the check exists so
-that every later candidate shows the same record before it is published, whatever it adds.
-The store-resume leg (an old cell store continued by a new version) is run from a FOGA
-checkout by its own test suite; it is not part of this script.
+The baseline is the released 1.0.7, which has no Finchain code at all. The rule that follows
+is Finchain's, not FOGA's: FOGA decides when it releases and runs its own release check;
+Finchain runs this check on every FOGA version it adopts for a run on the chain, before
+that run, and files the record beside the baseline. So far: 1.0.7 (2026-11-12, the World
+deployment and the genesis) and 1.0.8 (2026-11-13, `foga-isolation-1.0.8-20261113T073041Z.json`:
+five legs, 50 host-name entries, zero under `finchain.one`, the Sepolia World read through a
+public endpoint), the version the OG on Finchain runs. The store-resume leg (an old cell store
+continued by a new version) is run from a FOGA checkout by its own test suite; it is not
+part of this script.
 
 ## 4. Identity root: ERC-8004 on Finchain
 
@@ -163,7 +168,7 @@ recorded so that each remains usable on its own.
 | Chain operations deployer (`keys/deployer.json`, host A) | host A | deployed the L1 contracts and the identity root; funds W on L2 with `make l2-send` |
 | W, the World deployer and genesis treasury | a new phrase on the FOGA host: `foga keys new --out ~/.foga/finchain.mnemonic` | deploys the World (the genesis requires `ADRFServiceEscrow.admin() == W`), bootstraps the ERC-8489 flows, funds the drill roles |
 | Drill roles (G, owners, operators, E, J1-J3) | the same phrase | the genesis T0-T9 only; T7 stops a drill cell, T9 moves a drill identity; neither touches the OG or the second cell |
-| The OG's wallet | E06 (`/opt/foga/wallet`) | the same address on Sepolia and Finchain; on Finchain it registers a new cell account and a new ERC-8004 agent id - continuity is the address, not the ids |
+| The OG's wallet | E06 (the Sepolia OG's wallet directory) | the same address on Sepolia and Finchain (`0x5Fee42D697975f6154164b29371c1c447F56fb4E`); on Finchain it registered a new cell account (`0x9F7647013499C44B7E0432F5E9e22E4Afd447aD1`) and a new ERC-8004 agent id (6) on 2026-11-13 - continuity is the address, not the ids |
 | The second operator's wallet | that operator's machine | the second cell; never W, never a drill role, never the OG key |
 
 Separating "the same OG wallet on every chain" from "the same deployment phrase on every
@@ -230,9 +235,9 @@ the `supportsInterface` answers of `ADRFServiceEscrow` for `IADRFExecutor` and
 their ids, and upstream publishes none, so the report calls it a design choice rather than
 a defect; the answer is a property of the locked bundle, so every World deployed from it
 gives the same two, Sepolia included. The execution fees of the
-213 genesis operations sum to 128,323,691 gas at an effective price of about 1.00025 gwei
-(0.000128 ETH); the L1 data fees come from the receipts and are reported in the M3-C
-evidence file.
+213 genesis operations sum to 128,323,691 gas at an effective price of 1,000,251 wei
+(about 0.001 gwei: FOGA's priority fee over the 251 wei base fee), 0.000128 ETH in all; the
+L1 data fees come from the receipts and are reported in the M3-C evidence file.
 
 The manifest section of the reference World, `manifests/covenant-world-finchain-sepolia.json`,
 records the completing block 61548 (the last of the eight wiring and flows transactions)
@@ -245,6 +250,39 @@ finalized head stood at 58794, below the completing block, so every World addres
 no code yet. That report was discarded, B was moved to another provider, and the check was
 run again once its finalized head had passed the deployment. `make verify-world` now stops
 with `NOT YET` in that situation instead of writing a report.
+
+The OG lives on Finchain since 2026-11-13 (`manifests/evidence/og-finchain-2026-11-13.json`,
+`chain/world/README.md`). It was born by the public path, `foga join --world
+chain/world/finchain-sepolia.json --rpc https://rpc.finchain.one`, from the FOGA host's
+checkout at v1.0.8 (the version whose isolation record is in section 3), with the identity
+wallet the Sepolia OG already has: one agent, one identity (`0x5Fee42D697975f6154164b29371c1c447F56fb4E`),
+a cell account on each chain. On Finchain it is cell `OG`, account
+`0x9F7647013499C44B7E0432F5E9e22E4Afd447aD1`, ERC-8004 agent 6 of the identity root, under
+FOGA-Cell-v2 with all thirteen covenants; it holds and offers `foga-probe` (skill token 3)
+and `finch-extract-verify` (token 4), its four documents are committed on chain, its channel
+`0x5a8118c2…` is anchored and disclosed, it is admitted to the World's market as submitter
+and responder, and it is enrolled in the ERC-8490 registry with one cycle run. The birth,
+the skills and the documents cost 0.005 ETH of the 0.05 ETH the chain operations deployer
+sent it. It is served by a second systemd unit on the FOGA host (`foga-og-finchain`, host
+mode, `127.0.0.1:8788`) behind the same Caddy as the Sepolia OG, at `https://og.finchain.one`
+(`/healthz`, `/.well-known/foga-cell.json`, `/.well-known/agent-card.json`, `/mcp`, `/a2a`,
+`/documents/*`), with its own configuration, store, API key and logs; the Sepolia OG is
+untouched (account `0xD7155E48f83e1fEa9eAFED0200671638f290ED49`, agent 11261,
+`foga.finchip.ai`). The manifest and the agent card were read from outside the project's
+hosts. On Finchain the OG is a resident: W deployed the World and bootstrapped the flows, so
+W is the controller of the family `foga` and the authority of the market the OG joined. The
+two-cell business loop (D9, D10) is left for a later round by decision; it needs a second
+operator's cell and one tender completed and withdrawn. The readiness check of the served
+cell (`foga node preflight`) passed 35 items, warned on one (no KYA standing yet) and failed
+one, and that failure is a finding for FOGA, not for the chain: a cell without
+`identity.standing` gets a probe input with no `kya` block, the probe's ERC-8419 section
+dereferences it, and the resulting TypeError is retried as a transport failure until the
+check fails ("the RPC failed 7 times (Cannot read properties of undefined (reading
+'issuers'))"); the skill itself ran on this World in the genesis. The fix - a null-safe
+section or a default scheme in the preflight's input - is FOGA's, reviewed on FOGA's terms;
+it joins the two other FOGA-side items M3-C produced: `--world https://…` for `join`,
+`genesis` and `doctor`, and the ERC-8447 eligibility sentinel for agent id 0 (an upstream
+item, section 5.4 and `chain/world/README.md`).
 
 ### 5.5 Scenarios and the second cell
 
@@ -307,5 +345,7 @@ its operator's procedure until FOGA provides it.
 | C-1 W and funding | E06 (`foga keys new --out`), A (`make l2-send`) | W address, funding transaction |
 | C-2 World | E06, released FOGA, `--world chain/world/finchain-sepolia.world.json` | `chain/world/finchain-sepolia.json` with `completionBlock` |
 | C-3 verification | E06 (`make world-manifest` with the package's bundle), B (`make verify-world` at `finalized`), E06 again (`make world-manifest` with B's report) | `manifests/covenant-world-finchain-sepolia.json` with `completionBlock` and `verifiedAt`, `manifests/evidence/world-verify-<block>.json` |
-| C-4 genesis T0-T9 and the second cell | E06, the second operator's machine | two evidence files |
+| C-4a genesis T0-T9 | E06, released 1.0.7, `--world chain/world/finchain-sepolia.json` | `manifests/evidence/foga-genesis-finchain-sepolia.json`, `manifests/evidence/foga-doctor-finchain-sepolia.json` (done 2026-11-13) |
+| C-4b the OG on Finchain (D8) | E06, the checkout at v1.0.8, `foga join --world … --rpc …`, a second service at `og.finchain.one` | `manifests/evidence/og-finchain-2026-11-13.json` (done 2026-11-13) |
+| C-4c the second cell and the business loop (D9, D10) | the second operator's machine | one evidence file (left for a later round, decision of 2026-11-13) |
 | Close | - | finchain 0.2.0, manifest `finchain-sepolia/2026.11-rc1` (candidate) |

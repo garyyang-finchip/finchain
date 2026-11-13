@@ -17,21 +17,64 @@
     "installerExcluded": "the installer's own lookups are cleared from the log before the legs run"
   },
   "legs": [
-    { "leg": "help", "result": "pass", "what": "foga --help from the installed package" },
-    { "leg": "chain-table", "result": "pass", "what": "the package's chain table: no Finchain entry; sepolia carries a packaged world (the default of a bare foga join)" },
-    { "leg": "quickstart", "result": "pass", "what": "foga quickstart --exit: a local world and a live cell on anvil, no public chain" },
-    { "leg": "genesis-T9", "result": "pass", "what": "foga demo --genesis T9 --port 8599: the local genesis T0-T9 on anvil" },
-    { "leg": "sepolia-world-read", "result": "pass", "what": "foga doctor --world deployments/sepolia.example.json --rpc <SEPOLIA_RPC_URL>: the packaged Sepolia World read through the operator's Sepolia provider; the doctor exits 3 on the Sepolia fixture's known failing layer (the upstream ARD fixture registry's older source), and the leg is the read: a report was written" }
+    {
+      "leg": "help",
+      "result": "pass",
+      "what": "foga --help from the installed package"
+    },
+    {
+      "leg": "chain-table",
+      "result": "pass",
+      "what": "the package's chain table: no Finchain entry; sepolia carries a packaged world (the default of a bare foga join)"
+    },
+    {
+      "leg": "quickstart",
+      "result": "pass",
+      "what": "foga quickstart --exit: a local world and a live cell on anvil, no public chain"
+    },
+    {
+      "leg": "genesis-T9",
+      "result": "pass",
+      "what": "foga demo --genesis T9 --port 8599: the local genesis T0-T9 on anvil"
+    },
+    {
+      "leg": "sepolia-world-read",
+      "result": "pass",
+      "what": "foga doctor --world deployments/sepolia.example.json --rpc <SEPOLIA_RPC_URL>: the packaged Sepolia World read through the operator's Sepolia provider; the doctor exits 3 on the Sepolia fixture's known failing layer (the upstream ARD fixture registry's older source), and the leg is the read: a report was written"
+    }
   ],
   "hostNames": {
     "entries": 63,
-    "seen": { "eth-sepolia.g.alchemy.com": 32, "127.0.0.1": 31 },
+    "seen": {
+      "eth-sepolia.g.alchemy.com": 32,
+      "127.0.0.1": 31
+    },
     "underFinchainOne": 0,
     "note": "the Sepolia provider's host name is the operator's choice (SEPOLIA_RPC_URL); the URL itself is redacted from the evidence"
   },
   "result": "PASS: every leg passing, zero names under finchain.one",
   "storeResume": "an old cell store continued by the package under test is covered by FOGA's own test suite and release check, not by this script (docs/acceptance.md M3-B, third item): recorded there, not here",
   "openItems": [
-    "repeat this check, same command, for every later FOGA candidate before it is published; the record of each goes beside this one"
+    "repeat this check, same command, for every FOGA version Finchain adopts for a run on the chain, before that run; the record of each goes beside this one (FOGA decides its own releases and runs its own release check)"
+  ],
+  "laterVersions": [
+    {
+      "version": "1.0.8",
+      "record": "manifests/evidence/foga-isolation-1.0.8-20261113T073041Z.json",
+      "recordedAt": "2026-11-13T07:30:41Z",
+      "host": "the same EC2 host (Node v22.22.0, anvil 1.7.1-dev)",
+      "sepoliaProvider": "a public endpoint (ethereum-sepolia-rpc.publicnode.com) instead of the operator's provider account, whose monthly quota was exhausted that day",
+      "legs": "help, chain-table (no Finchain entry; sepolia with a packaged world), quickstart, genesis-T9 (doctor 278 Pass), sepolia-world-read (doctor 281 Pass / 2 Fail / 3 Unknown on the Sepolia fixture's known layer, exit 3, report written)",
+      "hostNames": {
+        "entries": 50,
+        "seen": {
+          "127.0.0.1": 32,
+          "ethereum-sepolia-rpc.publicnode.com": 18
+        },
+        "underFinchainOne": 0
+      },
+      "result": "PASS",
+      "adoptedFor": "the OG on Finchain (docs/world.md section 5, D8); the World deployment and the genesis of 2026-11-13 ran on 1.0.7"
+    }
   ]
 }

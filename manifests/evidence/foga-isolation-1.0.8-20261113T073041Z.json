@@ -1,0 +1,63 @@
+{
+  "acceptance": "M3-B FOGA on its own (isolation check)",
+  "package": "@finchip.ai/foga",
+  "version": "1.0.8",
+  "node": "v22.22.0",
+  "platform": "Linux 6.1.159-182.297.amzn2023.x86_64 x86_64",
+  "startedAt": "2026-11-13T07:29:06Z",
+  "finishedAt": "2026-11-13T07:30:41Z",
+  "anvil": "/home/ec2-user/.foga/foundry/anvil",
+  "sepoliaRpc": "set",
+  "method": "clean directory and home; every Node process preloaded with scripts/foga-isolation-preload.mjs (host names logged, finchain.one refused); legs run as a user runs them",
+  "instrumentationControls": "pass",
+  "legs": [
+    {
+      "leg": "help",
+      "result": "pass",
+      "exit": 0,
+      "expected": 0,
+      "tail": "                                                 running cell onto it\n\nenvironment:\n  FOGA_SOLC_DIR   directory with solc-<version> static binaries (offline builds; otherwise forge downloads solc)\n  FOGA_FOUNDRY_DIR  directory holding anvil (scripts/install-foundry.sh: the static Foundry build for older Linux)\n  FOGA_RPC_URL    default RPC for doctor and genesis (world configs may name their own variable, e.g. SEPOLIA_RPC_URL)\n  FOGA_MNEMONIC   the 12-word phrase the twelve genesis roles are derived from on non-anvil chains (role i at m/44'/60'/0'/0/i;\n                  W = account 0 is also the world deployer); FOGA_MNEMONIC_FILE names a file holding it instead\n  FOGA_KEY_<ROLE>   overrides one role's key (W, G, OWNER_A, OPERATOR_A, ..., E, J1, J2, J3); anvil derives all of them\n  FOGA_DEPLOYER_PK  deployer key for world deploy when it is not W of the phrase (worlds/local.json falls back to anvil account #0)\n  FOGA_OPERATOR_KEY_FILE  a node's one key (its cell's operator), written by 'foga keys export'; FOGA_OPERATOR_KEY holds the key itself.\n                  A node refuses to start when its environment also carries FOGA_MNEMONIC[_FILE], FOGA_DEPLOYER_PK or any FOGA_KEY_<ROLE>"
+    },
+    {
+      "leg": "chain-table",
+      "result": "pass",
+      "exit": 0,
+      "expected": 0,
+      "tail": "{\"chains\":[\"sepolia\",\"base-sepolia\",\"optimism-sepolia\",\"arbitrum-sepolia\",\"anvil\"],\"finchainEntries\":[],\"sepoliaWorld\":\"deployments/sepolia.example.json\"}"
+    },
+    {
+      "leg": "quickstart",
+      "result": "pass",
+      "exit": 0,
+      "expected": 0,
+      "tail": "           curl -s http://127.0.0.1:8787/api/cell_status\n           curl -s -X POST http://127.0.0.1:8787/api/tender_precheck -H \"content-type: application/json\" -H \"authorization: Bearer foga.agent.QFhdDCW2uSGkmyueSE941YIbJdYrm9ml\" -d \"{\\\"tokenId\\\":\\\"1\\\"}\"\n\nWhat a connected agent does with a tender: tender_list, tender_inspect, tender_precheck (eligible: false is the cell's verdict), skill_run with the\ntask's skill and input, tender_submit with the run's resultHash and runReceipt; the node settles and withdraws. More tenders for the cell:\n  FOGA_DEMANDER_KEY=<a funded key, anvil's first account by default> npx -y @finchip.ai/foga demo demander --world /tmp/foga-isolation-tTW3Ud/home/.foga/quickstart/world.json --rpc http://127.0.0.1:8545 --store /tmp/foga-isolation-tTW3Ud/home/.foga/quickstart/demander.sqlite --cell 0xB46c6428986ee56e781E2018E441632C02585b3f --scheme 0x66cc8795ae859f2b3cc28ce037e3fc5d5be79847658cae941e4ac9d50aa92e9b --issuer 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 --probe-hash 0x2a83fc5966f151dcadb87bf5c22c1962f76d2baa95fceb644ce46814c6fc67ac --extract-hash 0x80d8d17c484586521c2ea09d2ea565978d48fb97e301aa7066c159c9a1a3a976 --cases a,b --seed <n>\n\nNext (advice, nothing required):\n  - One key fills owner, operator and guardian; separate them before this cell holds value or runs unattended.\n  foga cell advise --config /tmp/foga-isolation-tTW3Ud/home/.foga/quickstart/cell.config.json explains each and lists the rest.\n\nStarted with --exit: stopping the node and the chain."
+    },
+    {
+      "leg": "genesis-T9",
+      "result": "pass",
+      "exit": 0,
+      "expected": 0,
+      "tail": "  ERC-8436   Pass       20/20 checks pass over T0, T5, T6\n  ERC-8444   Pass       10/10 checks pass over T1, T2, T3, T9\n  ERC-8447   Pass       15/15 checks pass over T4, T5, T8, T9\n  ERC-8454   Pass       12/12 checks pass over T1, T4, T8, T9\n  ERC-8468   Pass       22/22 checks pass over T0, T1, T7, T9\n  ERC-8471   Pass       18/18 checks pass over T0, T6\n  ERC-8489   Pass       19/19 checks pass over T0, T1, T2, T3, T7, T9\n  ERC-8490   Pass       12/12 checks pass over T0, T1, T2, T7, T9\n\nsummary: Pass 278, Fail 0, Unknown 2, NotTested 0, NotApplicable 24\n\nfoga: report written to deployments/local.doctor.json"
+    },
+    {
+      "leg": "sepolia-world-read",
+      "result": "pass",
+      "exit": 3,
+      "doctorSummary": {
+        "Pass": 281,
+        "Fail": 2,
+        "Unknown": 3,
+        "NotTested": 13,
+        "NotApplicable": 26
+      },
+      "tail": "  8419/KYABridge8004.owner = 0x0690119CF9C484cf1700122e6b2075Ba6b7A1492\n  8447/AllowlistEligibility.owner = 0x91E946F5633306f173D6E5d93aD3a040c4211da1\n  8471/ADRFServiceEscrow.admin = 0x3D177ecaa56402335fC7C6449d35bC1Fa68Bc1b8\n  8471/ADRFServiceEscrow.bindingId = 0x0eab5b7a3a86c560595600b8aae98b2191eea6c1278981559944a6b00b951b86\n  8454/AUFUnitRegistry.unitCount = 31\n  8490/AgentMeditationRegistry.CLOCK_MODE = mode=timestamp\n  8489/AIFPChannelRegistry.CLOCK_MODE = mode=timestamp\n  8489/AIFPCompositeVerifier.LEAF_GAS_LIMIT = (call failed: execution reverted (no data present; likely require(false) occurred)\n\nsummary: Pass 281, Fail 2, Unknown 3, NotTested 13, NotApplicable 26; layer 5 (semantic) needs the genesis evidence: foga genesis run, then foga doctor --genesis <evidence.json>\n\nfoga: report written to ../../../../sepolia.doctor.json"
+    }
+  ],
+  "hostNameEntries": 50,
+  "hostNames": [
+    "127.0.0.1 (32)",
+    "ethereum-sepolia-rpc.publicnode.com (18)"
+  ],
+  "finchainNames": 0,
+  "result": "PASS"
+}

@@ -1,0 +1,189 @@
+{
+  "milestone": "M3-C",
+  "item": "The OG on Finchain (docs/world.md section 5, decision D8): the Finch OG Agent lives on Finchain Sepolia as a cell of its own, served at https://og.finchain.one",
+  "environment": "public-testnet",
+  "recordedAt": "2026-11-13T10:45:00Z",
+  "source": "operator command outputs on the FOGA host (foga join, systemd, Caddy, curl), the cell's join.json, and reads of the public endpoints from outside the project's hosts; values below were read from the chain or from the running services",
+  "package": {
+    "name": "@finchip.ai/foga",
+    "version": "1.0.8",
+    "runFrom": "the FOGA host's checkout at tag v1.0.8 (435c0f4), built on the host; the same checkout serves the Sepolia OG",
+    "isolationRecord": "manifests/evidence/foga-isolation-1.0.8-20261113T073041Z.json",
+    "bundleHash": "0xc01f2099206e968ac207672b375b6bc30f205fe3fdc668dd1e163a659b0d89e8 (the 1.0.8 bundle matches the World's)"
+  },
+  "world": {
+    "worldId": "finchain-sepolia-85422-20261113T023727Z",
+    "chainId": 85422,
+    "addressBook": "chain/world/finchain-sepolia.json",
+    "rpc": "https://rpc.finchain.one",
+    "identityRoot": "0x363E71C6c33d4B5980B31B558D1E16B52EB3C8E9"
+  },
+  "path": {
+    "command": "foga join --world chain/world/finchain-sepolia.json --rpc https://rpc.finchain.one --name OG --dir <cell dir> --wallet <the OG wallet> --listen 127.0.0.1:8788 --public-url https://og.finchain.one",
+    "steps": [
+      "the command with --no-wait --exit: the configuration written, the identity printed, nothing sent (the funding gate: 0.03 ETH)",
+      "runtime.http.allowedHosts set to the public host and the loopback names; the presence block (name, description, homepage, provider) set",
+      "0.05 ETH to the identity from the chain operations deployer (make l2-send): tx 0x7c0c82f4b2980c7e40f7d80a5c0b007d5e009e3551d61a82112366ea990f1868, block 70957",
+      "the command without --no-wait: the birth, the two skills minted and offered, the documents committed, the channel published and disclosed, the market admission; --exit instead of serving",
+      "a second systemd unit, foga-og-finchain, running node serve on 127.0.0.1:8788 with the shared identity wallet; a Caddy site og.finchain.one in front of it (DNS A record 3.128.236.78)"
+    ],
+    "sameAsAnyOperator": "the path is the public one: the released package, this repository's address book and the public RPC; nothing on the host is specific to the project except the identity wallet it chose to reuse"
+  },
+  "identity": {
+    "wallet": "0x5Fee42D697975f6154164b29371c1c447F56fb4E",
+    "walletNote": "one key, every role; the same address as the Sepolia OG's identity, so one agent lives on two chains with one identity and two cell accounts",
+    "fundedWei": "50000000000000000",
+    "heldAfterBirthEth": "0.044971869086795796",
+    "spentOnBirthSkillsDocumentsEth": "0.005028130913204204"
+  },
+  "cell": {
+    "name": "OG",
+    "account": "0x9F7647013499C44B7E0432F5E9e22E4Afd447aD1",
+    "erc8004AgentId": 6,
+    "erc8004Registry": "0x363E71C6c33d4B5980B31B558D1E16B52EB3C8E9",
+    "agentIdNote": "the genesis cells of the reference World are agents 3, 4 and 5; agent 0 is held by the first World's cell A (chain/world/README.md)",
+    "specification": "FOGA-Cell-v2 (operatesUnder 2, account 2, program 2)",
+    "covenants": [
+      "ERC-8004",
+      "ERC-8338",
+      "ERC-8414",
+      "ERC-8419",
+      "ERC-8434",
+      "ERC-8436",
+      "ERC-8444",
+      "ERC-8447",
+      "ERC-8454",
+      "ERC-8468",
+      "ERC-8471",
+      "ERC-8489",
+      "ERC-8490"
+    ],
+    "skills": {
+      "foga-probe": {
+        "token": 3,
+        "package": "foga-probe@2.0.0"
+      },
+      "finch-extract-verify": {
+        "token": 4,
+        "package": "finch-extract-verify@1.0.0"
+      }
+    },
+    "skillToken": "0x0FCE5e1DfdDdE86bDCb34C0622459cBEa963A6e5",
+    "taskToken": "0xfA4ED44c3A06f9087D98BEfb99f69ff43b381908",
+    "tenderTerms": "an ERC-8414 tender on the TaskToken for an offered skill, reward >= 100000000000000 wei, acceptance by hashlock",
+    "documents": {
+      "version": 1,
+      "committed": [
+        "identity-uri",
+        "aid-document",
+        "ard-descriptor",
+        "unit-version"
+      ],
+      "servedAt": "https://og.finchain.one/documents/"
+    },
+    "flows": {
+      "channel": "0x5a8118c23516e76b79b12a431ba4e87342ccfb3ea078834392ca90149ba5ee98",
+      "paradigm": "foga:cell-source/v1",
+      "publicationsAnchored": 1,
+      "publication": "0x0eafe50b... (disclosed to the public)",
+      "market": "0x5b9df4e412589a27498c98a744b155194bf1dc05eef0342d0a3f766d01e73bff",
+      "marketRoles": [
+        "submit",
+        "respond"
+      ],
+      "authority": "W, the World deployer, controls the family foga and the market on Finchain; the OG is a participant"
+    },
+    "maintenance": {
+      "registry": "0x13f800cC49BD58eb39c222068d07e98391740a46",
+      "stateVersion": 2,
+      "policy": "v1",
+      "lastCycle": "meditate:e6b12fbf7313e02f"
+    }
+  },
+  "service": {
+    "unit": "foga-og-finchain.service (the Sepolia OG keeps foga-og.service)",
+    "mode": "host mode (node serve): every entrance and the watchers, no model",
+    "listen": "127.0.0.1:8788",
+    "publicUrl": "https://og.finchain.one",
+    "allowedHosts": [
+      "og.finchain.one",
+      "127.0.0.1",
+      "localhost"
+    ],
+    "proxy": "Caddy on the same host, TLS by ACME; the Sepolia OG's site foga.finchip.ai is a separate block",
+    "dns": "og.finchain.one A 3.128.236.78",
+    "shared": "only the identity wallet; configuration, store, API key, port, public name and logs are the service's own"
+  },
+  "checks": {
+    "localHealthz": {
+      "ok": true,
+      "cell": "OG",
+      "account": "0x9F7647013499C44B7E0432F5E9e22E4Afd447aD1",
+      "worldId": "finchain-sepolia-85422-20261113T023727Z",
+      "chainId": 85422,
+      "block": 75559,
+      "version": "1.0.8"
+    },
+    "publicHealthz": {
+      "ok": true,
+      "chainId": 85422,
+      "block": 75600,
+      "version": "1.0.8",
+      "readFrom": "the host (after the Caddy reload) and, at block 75646, from outside the project's hosts"
+    },
+    "publicManifest": "https://og.finchain.one/.well-known/foga-cell.json read from outside: cell OG, agent 6, chain 85422, thirteen covenants, specification v2, program 1.0.8, the flows registries of the Finchain World, channel and market ids as above, maintenance registry as above",
+    "publicAgentCard": "https://og.finchain.one/.well-known/agent-card.json read from outside: Finch OG Agent, provider FinChip.ai, A2A 1.0 at https://og.finchain.one/a2a, skills foga-probe@2.0.0 and finch-extract-verify@1.0.0, version 1.0.8",
+    "sepoliaOgUnchanged": {
+      "before": {
+        "url": "https://foga.finchip.ai/healthz",
+        "cell": "OG",
+        "account": "0xD7155E48f83e1fEa9eAFED0200671638f290ED49",
+        "worldId": "sepolia-11155111-20261101T043153Z",
+        "chainId": 11155111,
+        "block": 12125411,
+        "version": "1.0.7"
+      },
+      "afterRestart": {
+        "block": 12125412,
+        "version": "1.0.8",
+        "note": "the Sepolia service was restarted once, by the operator's choice, so that both OGs run the checkout's 1.0.8; account, world and chain unchanged"
+      }
+    },
+    "restart": {
+      "unit": "foga-og-finchain",
+      "result": "restarted alone; /healthz answered again within six seconds with the same cell, account 0x9F7647013499C44B7E0432F5E9e22E4Afd447aD1, worldId finchain-sepolia-85422-20261113T023727Z, chainId 85422, block 75786, version 1.0.8",
+      "twoServicesTwoChains": "the two services answer for their own chains: 11155111 on 8787 (foga.finchip.ai), 85422 on 8788 (og.finchain.one); separate stores (the preflight confirms the store belongs to this world and this account)"
+    },
+    "preflight": {
+      "command": "foga node preflight --config <cell dir>/cell.config.json --wallet <the OG wallet>",
+      "at": "2026-11-13T10:38:06Z",
+      "summary": "35 pass, 1 warn, 1 fail, 0 not tested",
+      "pass": [
+        "world: the RPC serves the world's chain; the store belongs to this world and this account",
+        "account: revision 3 with the operator allow-list (40 pairs), owner and operator as configured, anchor ACTIVE, binding Satisfied, FOGA-Cell-v2",
+        "world: 13 covenants",
+        "budget: caps consistent, 0.005 ETH working capital on the account",
+        "maintenance: enrolled (state version 2, policy v1), documents match the chain (root 0x405ade8f...), no layer overdue, the watcher runs",
+        "flows: cell-source paradigm registered, own channel 0x5a8118c2... Active with SUBMIT, publication anchored, admitted to the market (submit, respond), the watcher runs",
+        "keys: the operator key alone, 0.0449 ETH of gas",
+        "skills: both packages match their on-chain commitments, both offered; finch-extract-verify runs in the worker",
+        "documents: built v1 (6 files); ERC-8004 agentURI served at https://og.finchain.one/.well-known/agent-registration.json hashes to the AID identity digest; ERC-8434 documentURI and content; ERC-8444 descriptor on record 0xf3eba52c...; ERC-8454 unit version 2",
+        "public: https://og.finchain.one/healthz HTTP 200 for this account; og.finchain.one among the allowed hosts",
+        "model: stub (host mode serves without one)"
+      ],
+      "warn": [
+        "standing: no identity.standing in the configuration (no KYA attestation of the cell yet; the same advice the Sepolia OG received at birth)"
+      ],
+      "fail": [
+        "skills: 'foga-probe runs in the worker' - the worker exited with 'probe: the RPC failed 7 times (Cannot read properties of undefined (reading issuers))'. Not a Finchain or RPC fault: the preflight builds the probe's input with kya undefined when the cell has no identity.standing (FOGA src/node/preflight.ts), and the probe's ERC-8419 section reads input.kya.issuers, so the TypeError is retried as if it were a transport failure and the check fails for every cell without standing. The skill itself ran on this World in the genesis (fact T2.skill.foga-probe, released 1.0.7) with a complete input. Handed to FOGA as a finding (docs/world.md section 5.4)."
+      ]
+    }
+  },
+  "notes": [
+    "The join's own health probe failed once: allowedHosts had been set to the public host alone, so the node refused the join's loopback request (gate host); the loopback names were added and the same command finished. Everything on chain had already been done by then; the join resumed without repeating anything.",
+    "The first run of the final join was interrupted on the operator's side (terminal refreshed) after the birth, the skills and the documents; the command is resumable and the second run found the cell born before.",
+    "The Sepolia OG stays as it was (its own unit, configuration, store, port 8787 and name); both cells share the identity wallet 0x5Fee42D697975f6154164b29371c1c447F56fb4E.",
+    "FOGA finding from the preflight: a cell without identity.standing fails the 'foga-probe runs in the worker' check because the probe input's kya block is undefined (preflight.ts passes it only when standing exists; probe.ts dereferences it). The fix belongs to FOGA (a null-safe ERC-8419 section, or a default scheme with an empty issuer list in the preflight's input); recorded here, not worked around on the Finchain side."
+  ],
+  "notDone": "the two-cell business loop (a second operator's cell completing one of the OG's tenders on Finchain and withdrawing the reward) is left for a later round by the decision of 2026-11-13; docs/acceptance.md M3-C keeps that row open"
+}
