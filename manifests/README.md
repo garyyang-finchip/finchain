@@ -15,7 +15,8 @@ Files:
 | `manifest.template.json` | Starting point with placeholders |
 | `onchain-<l1block>.json` | Live L1 configuration snapshots written by `make verify-onchain` |
 | `covenant-world-<name>.json` | The `covenantWorld` section derived from a FOGA address book by `make world-manifest` (raw code hashes at the completing block, modules, both blocks) |
-| `evidence/` | Acceptance records written by the scripts (rebuild-from-L1, comparisons, EVM acceptance, FOGA isolation, World verification, drills) |
+| `superseded/` | Sections of Worlds replaced by a later deployment, kept with the reason and the successor's world id |
+| `evidence/` | Acceptance records written by the scripts (rebuild-from-L1, comparisons, EVM acceptance, FOGA isolation, World verification, drills) and the FOGA genesis evidence and doctor report of the reference World |
 | `finchain-sepolia/<version>.json` | Published manifests (one per reference version) |
 
 Rules:

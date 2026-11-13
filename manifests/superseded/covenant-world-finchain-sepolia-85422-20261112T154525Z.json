@@ -1,0 +1,1236 @@
+{
+  "worldId": "finchain-sepolia-85422-20261112T154525Z",
+  "deployer": "0x82FAA8878a94788379973A843F314AB4b5F60471",
+  "bundleHash": "0xc01f2099206e968ac207672b375b6bc30f205fe3fdc668dd1e163a659b0d89e8",
+  "addressBook": {
+    "uri": "chain/world/finchain-sepolia.json",
+    "worldId": "finchain-sepolia-85422-20261112T154525Z"
+  },
+  "identityRoot": {
+    "erc": 8004,
+    "repository": "https://github.com/erc-8004/erc-8004-contracts",
+    "commit": "b9e466c250744a7e06b13dff9d3c2844ed64f825",
+    "record": "chain/out/erc8004.json",
+    "owner": "0xF8D8846e505E5478C60B57182D39f61b066cA8E2",
+    "contracts": [
+      {
+        "name": "IdentityRegistry",
+        "address": "0x363e71c6c33d4b5980b31b558d1e16b52eb3c8e9",
+        "implementation": "0x5acfaf6c0fdabf9f83a8a0d0a8f25bf6e98ffa8e",
+        "codeHash": "0xe65b40a84f34ef23cb6537663429e382c822c510fdd205e5aa7629ad3cde5fce",
+        "deploymentTx": "0x7f9064639fd8447e1744a37f5305790bd25c72631e355380456c83ffd47091e6",
+        "initializationTxs": [
+          "0x0264f5ac95f1854756072e603fc353019b50a111679a4e5d117c51a8e7094037",
+          "0x7bcf75639be34decadc1d8598092cba8e9999f7ce5ae8115e4169782656af2bc"
+        ]
+      },
+      {
+        "name": "IdentityRegistry.implementation",
+        "address": "0x5acfaf6c0fdabf9f83a8a0d0a8f25bf6e98ffa8e",
+        "codeHash": "0x792e6190076b9c82799a81964ef7a12e117cbffea5548e1b5d5608a788a31eb3",
+        "deploymentTx": "0x49ff022a6463334e5d817eef4c970e851107f8c3ff4607581a398b081f03afed"
+      },
+      {
+        "name": "ReputationRegistry",
+        "address": "0xf0a3ba008486ccc0bf994d5c06ce095e0b1d08e2",
+        "implementation": "0x6964d60ccc11f9800e5bee77d9f3f51f8cfd9250",
+        "codeHash": "0xe65b40a84f34ef23cb6537663429e382c822c510fdd205e5aa7629ad3cde5fce",
+        "deploymentTx": "0xd1acb50bba7b87fcd62403ca6c3ece94dd187d643abf995d1ed9890c35566451",
+        "initializationTxs": [
+          "0x44fe79a1d4bec38a75b85f533abccd0b104e5da6202dc54b667a83c3354254e1",
+          "0x706f470520ee2439b65f51ef0019e8c3e6b7f1c464ee43df2a2a494953e5d22e"
+        ]
+      },
+      {
+        "name": "ReputationRegistry.implementation",
+        "address": "0x6964d60ccc11f9800e5bee77d9f3f51f8cfd9250",
+        "codeHash": "0xea8984159cf639b04f5eb3c7c34bcebfc4f3196e39b6fee8324f5992f21c74d9",
+        "deploymentTx": "0x227aeb0fa8901617fbf7a7c25c384f7497b1a6794c676469ff62d173b281ad3b"
+      }
+    ]
+  },
+  "ercs": [
+    {
+      "erc": 8338,
+      "name": "skill-token-standard",
+      "repository": "https://github.com/garyyang-finchip/skill-token-standard.git",
+      "commit": "359ad64aa698c7c206bee9329a9a5ec05f12a685"
+    },
+    {
+      "erc": 8414,
+      "name": "task-token-standard",
+      "repository": "https://github.com/garyyang-finchip/task-token-standard.git",
+      "commit": "b3da62e761b00ef0921860f353d7eed24c6c85ae"
+    },
+    {
+      "erc": 8419,
+      "name": "kya-standard",
+      "repository": "https://github.com/garyyang-finchip/kya-standard.git",
+      "commit": "f204f2ec2115bd8d1a96de60e0e844dee31cfe1b"
+    },
+    {
+      "erc": 8434,
+      "name": "aid-standard",
+      "repository": "https://github.com/garyyang-finchip/aid-standard.git",
+      "commit": "1ff7215505af0f4699d437744402bd1e1b4dd043"
+    },
+    {
+      "erc": 8436,
+      "name": "acd-framework",
+      "repository": "https://github.com/garyyang-finchip/acd-framework.git",
+      "commit": "f8204fb9c38d47d619b9d8bc81441dfe9e8e7f91"
+    },
+    {
+      "erc": 8444,
+      "name": "ard-onchain-framework",
+      "repository": "https://github.com/garyyang-finchip/ard-onchain-framework.git",
+      "commit": "26416854e489564fc32c4a69cf9c176b703dc089"
+    },
+    {
+      "erc": 8447,
+      "name": "swarm-ai-framework",
+      "repository": "https://github.com/garyyang-finchip/swarm-ai-framework.git",
+      "commit": "de5bc291ab93bca0163bec47caa66136d1cf3f6a"
+    },
+    {
+      "erc": 8454,
+      "name": "aifi-unit-framework",
+      "repository": "https://github.com/garyyang-finchip/aifi-unit-framework.git",
+      "commit": "1be1da69811875bae0a6fd7b10152b4831e5538f"
+    },
+    {
+      "erc": 8468,
+      "name": "agent-safety-framework",
+      "repository": "https://github.com/garyyang-finchip/agent-safety-framework.git",
+      "commit": "a76071c0e0ab76c296a0eb878dee1365ce5a78bc"
+    },
+    {
+      "erc": 8471,
+      "name": "ai-dispute-resolution",
+      "repository": "https://github.com/garyyang-finchip/ai-dispute-resolution.git",
+      "commit": "cd5a3e076d648ff5c29d87ab023b22398e0ab17a"
+    },
+    {
+      "erc": 8490,
+      "name": "agent-meditation-mechanism",
+      "repository": "https://github.com/garyyang-finchip/agent-meditation-mechanism.git",
+      "commit": "58499030e92a65e2a427c0faca98123b9947f7a7"
+    },
+    {
+      "erc": 8489,
+      "name": "aif-paradigm",
+      "repository": "https://github.com/garyyang-finchip/aif-paradigm.git",
+      "commit": "594c7eec637e554b8b584d48cd34440677bee9dd"
+    }
+  ],
+  "modules": [
+    {
+      "erc": 8338,
+      "name": "skill-token-standard",
+      "repository": "https://github.com/garyyang-finchip/skill-token-standard.git",
+      "commit": "359ad64aa698c7c206bee9329a9a5ec05f12a685",
+      "contracts": [
+        "8338/SkillToken"
+      ],
+      "dependsOn": [],
+      "standalone": true
+    },
+    {
+      "erc": 8414,
+      "name": "task-token-standard",
+      "repository": "https://github.com/garyyang-finchip/task-token-standard.git",
+      "commit": "b3da62e761b00ef0921860f353d7eed24c6c85ae",
+      "contracts": [
+        "8414/TaskToken",
+        "8414/HashlockVerifier"
+      ],
+      "dependsOn": [],
+      "standalone": true
+    },
+    {
+      "erc": 8419,
+      "name": "kya-standard",
+      "repository": "https://github.com/garyyang-finchip/kya-standard.git",
+      "commit": "f204f2ec2115bd8d1a96de60e0e844dee31cfe1b",
+      "contracts": [
+        "8419/KYASchemeRegistry",
+        "8419/KYARegistry",
+        "8419/KYAPolicyRegistry",
+        "8419/ValidationRegistry8004",
+        "8419/KYABridge8004",
+        "8419/Groth16Verifier",
+        "8419/Groth16KYAVerifierAdapter"
+      ],
+      "dependsOn": [
+        8004
+      ],
+      "standalone": false
+    },
+    {
+      "erc": 8434,
+      "name": "aid-standard",
+      "repository": "https://github.com/garyyang-finchip/aid-standard.git",
+      "commit": "1ff7215505af0f4699d437744402bd1e1b4dd043",
+      "contracts": [
+        "8434/AIDRegistry"
+      ],
+      "dependsOn": [],
+      "standalone": true
+    },
+    {
+      "erc": 8436,
+      "name": "acd-framework",
+      "repository": "https://github.com/garyyang-finchip/acd-framework.git",
+      "commit": "f8204fb9c38d47d619b9d8bc81441dfe9e8e7f91",
+      "contracts": [
+        "8436/ACDFPolicyRegistry",
+        "8436/ACDFRegistry"
+      ],
+      "dependsOn": [],
+      "standalone": true
+    },
+    {
+      "erc": 8444,
+      "name": "ard-onchain-framework",
+      "repository": "https://github.com/garyyang-finchip/ard-onchain-framework.git",
+      "commit": "26416854e489564fc32c4a69cf9c176b703dc089",
+      "contracts": [
+        "8444/ARDOnchainRegistry",
+        "8444/SkillAdapter",
+        "8444/TaskAdapter",
+        "8444/AgentAdapter",
+        "8444/RegistryAdapter"
+      ],
+      "dependsOn": [
+        8434
+      ],
+      "standalone": false
+    },
+    {
+      "erc": 8447,
+      "name": "swarm-ai-framework",
+      "repository": "https://github.com/garyyang-finchip/swarm-ai-framework.git",
+      "commit": "de5bc291ab93bca0163bec47caa66136d1cf3f6a",
+      "contracts": [
+        "8447/SpecValidator",
+        "8447/LifecycleLib",
+        "8447/MembershipLib",
+        "8447/ResourceLib",
+        "8447/SwarmRegistry",
+        "8447/AllowlistEligibility",
+        "8447/ERC8004Eligibility",
+        "8447/IdentityStateEligibility",
+        "8447/SwarmTenderAdapter"
+      ],
+      "dependsOn": [
+        8004,
+        8414,
+        8434
+      ],
+      "standalone": false
+    },
+    {
+      "erc": 8454,
+      "name": "aifi-unit-framework",
+      "repository": "https://github.com/garyyang-finchip/aifi-unit-framework.git",
+      "commit": "1be1da69811875bae0a6fd7b10152b4831e5538f",
+      "contracts": [
+        "8454/AUFUnitRegistry",
+        "8454/AUFAssertionRegistry"
+      ],
+      "dependsOn": [],
+      "standalone": true
+    },
+    {
+      "erc": 8468,
+      "name": "agent-safety-framework",
+      "repository": "https://github.com/garyyang-finchip/agent-safety-framework.git",
+      "commit": "a76071c0e0ab76c296a0eb878dee1365ce5a78bc",
+      "contracts": [
+        "8468/ASFEvaluation",
+        "8468/ASFLifecycle",
+        "8468/ASFSpecificationRegistry",
+        "8468/ASFBindingRegistry"
+      ],
+      "dependsOn": [],
+      "standalone": true
+    },
+    {
+      "erc": 8471,
+      "name": "ai-dispute-resolution",
+      "repository": "https://github.com/garyyang-finchip/ai-dispute-resolution.git",
+      "commit": "cd5a3e076d648ff5c29d87ab023b22398e0ab17a",
+      "contracts": [
+        "8471/ADRFPolicyRegistry",
+        "8471/ADRFBindingModule",
+        "8471/ADRFFilingModule",
+        "8471/ADRFResolutionModule",
+        "8471/ADRFDecisionModule",
+        "8471/ADRFRecordModule",
+        "8471/ADRFOutcomeModule",
+        "8471/ADRFDisputeRegistry",
+        "8471/DuplicateSettlementVerifier",
+        "8471/DeclaredVersionVerifier",
+        "8471/AttestorQuorumRule",
+        "8471/ADRFACDFBridge",
+        "8471/ADRFServiceEscrow"
+      ],
+      "dependsOn": [
+        8436
+      ],
+      "standalone": false
+    },
+    {
+      "erc": 8489,
+      "name": "aif-paradigm",
+      "repository": "https://github.com/garyyang-finchip/aif-paradigm.git",
+      "commit": "594c7eec637e554b8b584d48cd34440677bee9dd",
+      "contracts": [
+        "8489/AIFPParadigmRegistry",
+        "8489/AIFPCompositeVerifier",
+        "8489/AIFPChannelRegistry",
+        "8489/AIFPParticipationRegistry",
+        "8489/AIFPEventAnchor",
+        "8489/AIFPObjectionWindow",
+        "8489/AIFPSubjectSet",
+        "8489/FogaIdentityVerifier"
+      ],
+      "dependsOn": [
+        8004,
+        8434,
+        "foga"
+      ],
+      "standalone": false
+    },
+    {
+      "erc": 8490,
+      "name": "agent-meditation-mechanism",
+      "repository": "https://github.com/garyyang-finchip/agent-meditation-mechanism.git",
+      "commit": "58499030e92a65e2a427c0faca98123b9947f7a7",
+      "contracts": [
+        "8490/AgentMeditationRegistry"
+      ],
+      "dependsOn": [],
+      "standalone": true
+    }
+  ],
+  "completionBlock": {
+    "number": 41964,
+    "hash": "0xaf977b184906ee8557f4a3b94c855c6d8e0ff1c704676cd34e132d71dd603974"
+  },
+  "contracts": [
+    {
+      "name": "8338/SkillToken",
+      "erc": 8338,
+      "module": 8338,
+      "address": "0xF7b6b89fE7c11B333FD63658EacE6Cc7b5c48419",
+      "codeHash": "0x4335fdf9df099ad2dec83e9ed3d401cc90cbf4eb6298b56fa8d657c5818106ba",
+      "deploymentTx": "0x1c399385fe7f4b5453260a238c7feef38cab65e7f05be21e2a3eb827c6fbb03d",
+      "initializationTxs": [],
+      "dependsOn": [],
+      "runtimeIdentity": "0x862b1157d5fa0f75afad7571b82006a64d4067b2cbf79b76623c6f0918b817c8",
+      "role": "kernel",
+      "bundleKey": "skill-token-standard:SkillToken",
+      "deploymentBlock": 41827,
+      "status": "deployed"
+    },
+    {
+      "name": "8414/TaskToken",
+      "erc": 8414,
+      "module": 8414,
+      "address": "0xF7570dFCf72E54dF627ee80E0579867cCB2c75dc",
+      "codeHash": "0xc574b6609c02562149e4d847c7e7eeb2941358543e3a1f3f7ba1e34af097a2aa",
+      "deploymentTx": "0xb449d789553cbce73576a44b8db523647e2fc0a15a776eea0f17cea50feb6bf9",
+      "initializationTxs": [],
+      "dependsOn": [],
+      "runtimeIdentity": "0x099cc776ce0a068bc7ae80def23c49a1ae3665ec1aeb4552c9fc13f8ff8da3c0",
+      "role": "kernel",
+      "bundleKey": "task-token-standard:TaskToken",
+      "deploymentBlock": 41830,
+      "status": "deployed"
+    },
+    {
+      "name": "8414/HashlockVerifier",
+      "erc": 8414,
+      "module": 8414,
+      "address": "0x07ff2a8A6e212b98bd75B7CF61235afD54B4a7F6",
+      "codeHash": "0xc29528e6717bf47a3ebf3a59fab82deb60d582757b18a65cdef1706f7e465765",
+      "deploymentTx": "0x49f21900f5188f1dacadf96d2e389b468200d87ee026590381efe12b24670027",
+      "initializationTxs": [],
+      "dependsOn": [],
+      "runtimeIdentity": "0x58da61420be46f1c99aa990bf08ab062c8d318b3b33b1c9c9a6a177a34ffb1c3",
+      "role": "verifier",
+      "bundleKey": "task-token-standard:HashlockVerifier",
+      "deploymentBlock": 41832,
+      "status": "deployed"
+    },
+    {
+      "name": "8419/KYASchemeRegistry",
+      "erc": 8419,
+      "module": 8419,
+      "address": "0x9A4d9072Ecbd3197821739Ada2c6d2d772582DA6",
+      "codeHash": "0x780f4bf79b686a1c9dc9f30025621fb761d944f361e64c22a444a081fe14cc65",
+      "deploymentTx": "0x4f3fb1465996777360548fada37972c90d82efc9b30a6732446fefc3ca016e89",
+      "initializationTxs": [],
+      "dependsOn": [],
+      "runtimeIdentity": "0xe99427d8d6d464017c8d176b5b62f355c0e7e5e398eff234665eb3bce70b4305",
+      "role": "registry",
+      "bundleKey": "kya-standard:KYASchemeRegistry",
+      "deploymentBlock": 41834,
+      "status": "deployed"
+    },
+    {
+      "name": "8419/KYARegistry",
+      "erc": 8419,
+      "module": 8419,
+      "address": "0x528d7018402C14F5c25AA997627Ffa31D5fc5264",
+      "codeHash": "0x2f7f3804e077e72833ab665c5ab04ffa7ce8a0a7f244f7fd1d187664c62c5c47",
+      "deploymentTx": "0xcd252256f67d2ee81a32d54b41ea435d92efef198cc29ae9cc3323e2fd1c0e7b",
+      "initializationTxs": [],
+      "dependsOn": [
+        "8419/KYASchemeRegistry"
+      ],
+      "runtimeIdentity": "0x160c8a39399ad422745226bcb5d5f89e95acd748f11efc7f0448051a38b7a71d",
+      "role": "registry",
+      "bundleKey": "kya-standard:KYARegistry",
+      "deploymentBlock": 41837,
+      "status": "deployed"
+    },
+    {
+      "name": "8419/KYAPolicyRegistry",
+      "erc": 8419,
+      "module": 8419,
+      "address": "0x09381E0828101615b7cD445c2362d051B09dff0B",
+      "codeHash": "0x7aad74a3fa0e810253a720e3f01de2db3bd1325a159f80e1c6ae3197f1f77314",
+      "deploymentTx": "0x4b4b53ff603c4a0c3b462b9da07f3a71c9d7efeb4a85bedecc852471353b7635",
+      "initializationTxs": [],
+      "dependsOn": [
+        "8419/KYARegistry"
+      ],
+      "runtimeIdentity": "0x3036f43cf634b407a668d260c721165ca9b5b7c878c1343b7167f26dd6c9a3f7",
+      "role": "registry",
+      "bundleKey": "kya-standard:KYAPolicyRegistry",
+      "deploymentBlock": 41839,
+      "status": "deployed"
+    },
+    {
+      "name": "8419/ValidationRegistry8004",
+      "erc": 8419,
+      "module": 8419,
+      "address": "0x90e9d3aC23B31bd9BF87fB8B21EAad7dF4Df883D",
+      "codeHash": "0x961ba58acf24e46584df3bf2d99b5c9f104b8ad0dc001211649d9f5fd9842bb3",
+      "deploymentTx": "0x04621e62fb42f4416852408f28fd2d284257615d652f8555ff3461bd82958b93",
+      "initializationTxs": [],
+      "dependsOn": [
+        "identity8004"
+      ],
+      "runtimeIdentity": "0x14521f9923fd71e6f9214c6c568a53c36d6ac0efaf169da9f2a52758adc4de83",
+      "role": "companion",
+      "bundleKey": "kya-standard:ValidationRegistry8004",
+      "deploymentBlock": 41841,
+      "status": "deployed"
+    },
+    {
+      "name": "8419/KYABridge8004",
+      "erc": 8419,
+      "module": 8419,
+      "address": "0x3362466B3A0578f9C8F135669CB4Db7Bf5c6C5b4",
+      "codeHash": "0x10e0f8b8a40d3e199ef7b6668ef8a3e4746922e5b261280ef076ec50a67b47c5",
+      "deploymentTx": "0x5d70356150f29f1223b3d3c2673be251ad8898aaedf5fcb9fd8ca13624748d72",
+      "initializationTxs": [],
+      "dependsOn": [
+        "8419/KYARegistry",
+        "8419/ValidationRegistry8004"
+      ],
+      "runtimeIdentity": "0xae4892981c0b9420179777ba642c27b7add2a5c02761dc1881e9be45a75ed0f1",
+      "role": "contract",
+      "bundleKey": "kya-standard:KYABridge8004",
+      "deploymentBlock": 41843,
+      "status": "deployed"
+    },
+    {
+      "name": "8419/Groth16Verifier",
+      "erc": 8419,
+      "module": 8419,
+      "address": "0x41f188a432a1CBE672a0fF48D5BcF73fD569D1C9",
+      "codeHash": "0x8f16b740d4495d64c4c174ac75cf6e8898205288f14199214a3c5ef0853d81f3",
+      "deploymentTx": "0x8358103541e957f5600b1b5a2657f60460ad6a6b5ffc539887b822709a7a6d4e",
+      "initializationTxs": [],
+      "dependsOn": [],
+      "runtimeIdentity": "0xb9fb2de120429e15e0b73f1978feb87224065c9b955fbc76543372cdf9343020",
+      "role": "companion",
+      "bundleKey": "kya-standard:Groth16Verifier",
+      "deploymentBlock": 41845,
+      "status": "deployed"
+    },
+    {
+      "name": "8419/Groth16KYAVerifierAdapter",
+      "erc": 8419,
+      "module": 8419,
+      "address": "0x91198DbFD8D6e1A9c78f21b0EF3CA103B73352FB",
+      "codeHash": "0x1ce3ce3c237916a49ac1f46389db25b07e0ce39f44bbf2d76012bf586b0f6448",
+      "deploymentTx": "0x2f2ae0b3f42212c2660dbd30c2eb877b1be5e2f67415eaa1f09919d2f99b5e46",
+      "initializationTxs": [],
+      "dependsOn": [
+        "8419/Groth16Verifier"
+      ],
+      "runtimeIdentity": "0x80cf6e63cf472eb50bcb40938940529ddb2820ab5ce47b82b4ca47886cb41b57",
+      "role": "verifier",
+      "bundleKey": "kya-standard:Groth16KYAVerifierAdapter",
+      "deploymentBlock": 41846,
+      "status": "deployed"
+    },
+    {
+      "name": "8434/AIDRegistry",
+      "erc": 8434,
+      "module": 8434,
+      "address": "0x769FDF07b59115916e156A35ef745E38dD26bc9f",
+      "codeHash": "0xeaa6fb7b70150276f015d2af9b3d9a5857d672df975fd693c9fb5b2182126c53",
+      "deploymentTx": "0x417b256702803df6f388f5d9ab67d552521c6ab9011b306cef73541dee2c0bd1",
+      "initializationTxs": [],
+      "dependsOn": [],
+      "runtimeIdentity": "0x6fda5d5f2fda9073cc96b53ca570375cc26ab2de5e511b86e8fc1e2ce9894c42",
+      "role": "registry",
+      "bundleKey": "aid-standard:AIDRegistry",
+      "deploymentBlock": 41848,
+      "status": "deployed"
+    },
+    {
+      "name": "8436/ACDFPolicyRegistry",
+      "erc": 8436,
+      "module": 8436,
+      "address": "0x3Fb449fe822253c2Cb50F612e71e58DC1eB4E0C5",
+      "codeHash": "0x4e82105cd321154d5060e588c19f4ddfd21fcdcc793aac31f561f022ecb97fdb",
+      "deploymentTx": "0xb3d8950bfff613e4b54afde83c501de0077d896fe43346bdf0cec7b2ecc9774f",
+      "initializationTxs": [],
+      "dependsOn": [],
+      "runtimeIdentity": "0xb13eba4236545f5cd0522f45bcfae031d52512416227f6bb15408a84cedd98dc",
+      "role": "registry",
+      "bundleKey": "acd-framework:ACDFPolicyRegistry",
+      "deploymentBlock": 41850,
+      "status": "deployed"
+    },
+    {
+      "name": "8436/ACDFRegistry",
+      "erc": 8436,
+      "module": 8436,
+      "address": "0x6d859a89338a7eE6d3624cB5cDf2caA4D183E434",
+      "codeHash": "0x3e692913bab39bbc33a6fd27ecb0f8b071ed37150cfafc055457d3701b9bf8f1",
+      "deploymentTx": "0xbc273ca2d89c007d5dd61d18054b576f66ffb3543006e53fa6a9c6558f62c060",
+      "initializationTxs": [],
+      "dependsOn": [
+        "8436/ACDFPolicyRegistry"
+      ],
+      "runtimeIdentity": "0xa7a5ff6d62ac65edfd92e2bc0de0ac7583e54f9ab4a3172f8a74946159c38b7d",
+      "role": "registry",
+      "bundleKey": "acd-framework:ACDFRegistry",
+      "deploymentBlock": 41853,
+      "status": "deployed"
+    },
+    {
+      "name": "8444/ARDOnchainRegistry",
+      "erc": 8444,
+      "module": 8444,
+      "address": "0x5f3E2f25aFd55Cf5fC86b9F2B951b22AD49F6C67",
+      "codeHash": "0x0ec536280e7994e1b62b50de8d6b69fbb298d83547bc602b3037f55c3851ca9a",
+      "deploymentTx": "0xc54cd152174710f8ee715393655c4e7e5a9d219bf8c247347d1dfb83f56b5fc6",
+      "initializationTxs": [
+        "0x2b2654fefe9a2ee3a0c136966591e6296336652f9e48e7e157b4b454615046a0",
+        "0x40790938775834b9f719a9f6a0e2140261a240ae939567cf5ea258573a4df397",
+        "0x4fe37f207e6924f284673daaac13e28fb67381a9b5a44733cd7ae05caaaa3ab9",
+        "0x7246e46becc9def3d1e2ff3adbcdd9d969576824876e328bc21fdc5de6cf4e19"
+      ],
+      "dependsOn": [],
+      "runtimeIdentity": "0xf54128573d2203d259c845b1dea004fd1deae65f14f11f50fa94a2bd900000f8",
+      "role": "registry",
+      "bundleKey": "ard-onchain-framework:ARDOnchainRegistry",
+      "deploymentBlock": 41855,
+      "status": "deployed"
+    },
+    {
+      "name": "8444/SkillAdapter",
+      "erc": 8444,
+      "module": 8444,
+      "address": "0x02bE12E84b3B06F75CA4aFA8D1139783c3672503",
+      "codeHash": "0x278f43e17635613b992265bc41e2e79abeb4fa9d3301617d196f1748e024fc98",
+      "deploymentTx": "0xe431a707cd74936346700cb11e076bfb6d8b1a83e2ce023d50f6d2b7421e7e6a",
+      "initializationTxs": [],
+      "dependsOn": [],
+      "runtimeIdentity": "0x719b7c78c1f3d8eeb36cb9f8cb507e28b21038764f5d58aeb01195cbfa04db4e",
+      "role": "adapter",
+      "bundleKey": "ard-onchain-framework:SkillAdapter",
+      "deploymentBlock": 41857,
+      "status": "deployed"
+    },
+    {
+      "name": "8444/TaskAdapter",
+      "erc": 8444,
+      "module": 8444,
+      "address": "0x0DD3093a6346172cB7530BBC7Bc18d19C6a77489",
+      "codeHash": "0x0185c47d4dd1bfcd2eb5d54b36f21a8c1d8ff7f7a34fd78e92f379e8ac7ecbeb",
+      "deploymentTx": "0x395e2deb4be88af4f6b9f9e50f0c068c944e52b1023f95ad120ed6b505e45912",
+      "initializationTxs": [],
+      "dependsOn": [],
+      "runtimeIdentity": "0x3915e61694e81341db6e52d4c5be2bc696acc81cbbe8ebb9cb97651ca411781d",
+      "role": "adapter",
+      "bundleKey": "ard-onchain-framework:TaskAdapter",
+      "deploymentBlock": 41859,
+      "status": "deployed"
+    },
+    {
+      "name": "8444/AgentAdapter",
+      "erc": 8444,
+      "module": 8444,
+      "address": "0x15e77C9526B444b8CFC26D965338Dd4A6f8815d6",
+      "codeHash": "0xc9ea4779a587e33497f0739ab0032764740502118f14c0cc5ccf425a60442914",
+      "deploymentTx": "0x0f1f2bda053c7f1871f9eecbab4df82ddea64254eb31ce093fec69fbfb55bbbc",
+      "initializationTxs": [],
+      "dependsOn": [
+        "8434/AIDRegistry"
+      ],
+      "runtimeIdentity": "0xb2a7a88e4a986ba44b9b714d8c1f6eb57369731107613ec712ae1db77398e0cb",
+      "role": "adapter",
+      "bundleKey": "ard-onchain-framework:AgentAdapter",
+      "deploymentBlock": 41862,
+      "status": "deployed"
+    },
+    {
+      "name": "8444/RegistryAdapter",
+      "erc": 8444,
+      "module": 8444,
+      "address": "0x3F33642cCd437EEF6883C21B1FEd753c1Fd059c8",
+      "codeHash": "0x4d1fc6ca9a62952ea8b652ce72b79aeba7d56fa5734e6a6bb861ec822c46f861",
+      "deploymentTx": "0x8023ea206f37dbc93aaa8ee2d847e9cd098dcaf67259ef2709ad57cb980c7560",
+      "initializationTxs": [],
+      "dependsOn": [],
+      "runtimeIdentity": "0x5cd8910037d6ec4fa2536bbf03b768f099a6780ca668409041fbd1d67c18b0bf",
+      "role": "adapter",
+      "bundleKey": "ard-onchain-framework:RegistryAdapter",
+      "deploymentBlock": 41864,
+      "status": "deployed"
+    },
+    {
+      "name": "8447/SpecValidator",
+      "erc": 8447,
+      "module": 8447,
+      "address": "0x22868E30B754D7d572A010D102d482C0A9c16330",
+      "codeHash": "0x326d95e779ec58049eb96bc544a2be8706f45685fd60d409841deb1939984c51",
+      "deploymentTx": "0x947d4194ec356f47df27107a85fabc4703fe38bcece0dc1eda11fb3a5a5c7d7f",
+      "initializationTxs": [],
+      "dependsOn": [],
+      "runtimeIdentity": "0xdb8c46584aeb5e96b9560e9cc1b453d7e3b898c30f6c40b0dd04c41730ccf75b",
+      "role": "library",
+      "bundleKey": "swarm-ai-framework:SpecValidator",
+      "deploymentBlock": 41866,
+      "status": "deployed"
+    },
+    {
+      "name": "8447/LifecycleLib",
+      "erc": 8447,
+      "module": 8447,
+      "address": "0x2A1F9554bbb0E7a8FA2E84784314aA444EeEE06f",
+      "codeHash": "0xf559b7445e8b8595c142d2721ea46fb1b630ba95209f211cc4f28f1c3273c8b2",
+      "deploymentTx": "0xe2946aca826351958fd85687ca5a5a06b618c8127ba20e040397275937dbc77e",
+      "initializationTxs": [],
+      "dependsOn": [],
+      "runtimeIdentity": "0x9c10ca868e419d4003ebc944fd39e52d02c3677f4b20a185e410c42066149bb6",
+      "role": "library",
+      "bundleKey": "swarm-ai-framework:LifecycleLib",
+      "deploymentBlock": 41868,
+      "status": "deployed"
+    },
+    {
+      "name": "8447/MembershipLib",
+      "erc": 8447,
+      "module": 8447,
+      "address": "0x76ECBed1FCeB4Cd6BE66d3B553cbf6AD989c788a",
+      "codeHash": "0x27ac74abbd36978a25cfb13e1ce8ab30d98829a63bc51ce61b49b7dba5084087",
+      "deploymentTx": "0xf6af9d7cc6b83765b5cada5a455a77048eacf47f22a04a2f1082c5a383b8180e",
+      "initializationTxs": [],
+      "dependsOn": [],
+      "runtimeIdentity": "0x0bb4a559e5e741ffc1d7754a428ab31c17b314133f17a4d3beaa0a26c90e879b",
+      "role": "library",
+      "bundleKey": "swarm-ai-framework:MembershipLib",
+      "deploymentBlock": 41871,
+      "status": "deployed"
+    },
+    {
+      "name": "8447/ResourceLib",
+      "erc": 8447,
+      "module": 8447,
+      "address": "0x3Fa49fcA97628c77d430B768Ad94069d3924aD2c",
+      "codeHash": "0xfd7bf536ad49109d59206d0435adf72d9f16db4c246bd3520989925bed5ba2fe",
+      "deploymentTx": "0xe2758264946e2d01fbe6d704251d2ff524fc654fd8f3f9c8f1d79b9c33cddc63",
+      "initializationTxs": [],
+      "dependsOn": [],
+      "runtimeIdentity": "0x623a512103d087f237c4e14c1f7a300c1361a845dce4db48dd62996685ab1fc7",
+      "role": "library",
+      "bundleKey": "swarm-ai-framework:ResourceLib",
+      "deploymentBlock": 41873,
+      "status": "deployed"
+    },
+    {
+      "name": "8447/SwarmRegistry",
+      "erc": 8447,
+      "module": 8447,
+      "address": "0x3ACF584577a88F7518EE6214ca556a62A13d3D1b",
+      "codeHash": "0x79dcf7b5ff2a54549c1a3289a8553d58847a9a3d57c3b55522b0e4b5bf431257",
+      "deploymentTx": "0xea0468a3229146d1f6d98ac9d14ef3d50fafb79bf2ce50a8c646617e3867a26c",
+      "initializationTxs": [],
+      "dependsOn": [],
+      "runtimeIdentity": "0x2978641080d653de1778e905a3d66b4686d47859b093668ad9403a0525a2af1d",
+      "role": "registry",
+      "bundleKey": "swarm-ai-framework:SwarmRegistry",
+      "deploymentBlock": 41875,
+      "status": "deployed"
+    },
+    {
+      "name": "8447/AllowlistEligibility",
+      "erc": 8447,
+      "module": 8447,
+      "address": "0x76CE1494A223B772E65b6a60Cbd7133817462FB5",
+      "codeHash": "0xcf1be7da7877858fb8a7e339421f61cd5c1cf587085c34a43f7f9f9e560303b2",
+      "deploymentTx": "0xc0470dc776af872b0fbc7c40bc49be2b45be0e6fd71cc0248ce1004a73c6588e",
+      "initializationTxs": [],
+      "dependsOn": [],
+      "runtimeIdentity": "0x7ca9189390fd79d48d218707704791e583d5192684e201ef4fd5c0f5eb8f5543",
+      "role": "module",
+      "bundleKey": "swarm-ai-framework:AllowlistEligibility",
+      "deploymentBlock": 41877,
+      "status": "deployed"
+    },
+    {
+      "name": "8447/ERC8004Eligibility",
+      "erc": 8447,
+      "module": 8447,
+      "address": "0xff2956875C0F3A9e22a41d27d1F1e0125d814CC2",
+      "codeHash": "0x16a5933d6adb86703bfc1f3f08037d3103e4ef1525cdc0ffa30462050d59a20c",
+      "deploymentTx": "0x619719d18f14cdd43eddada1beb69a35053233b94a98f416aaac2b6741e2f55e",
+      "initializationTxs": [],
+      "dependsOn": [
+        "identity8004"
+      ],
+      "runtimeIdentity": "0xf5375e011856aee7ff0f1506a44e7d8979d3c33177b44de0b45a3c375af81dbe",
+      "role": "module",
+      "bundleKey": "swarm-ai-framework:ERC8004Eligibility",
+      "deploymentBlock": 41880,
+      "status": "deployed"
+    },
+    {
+      "name": "8447/IdentityStateEligibility",
+      "erc": 8447,
+      "module": 8447,
+      "address": "0xf12f0514F3e55Eaabf0dafA99aec2f4434b25A7a",
+      "codeHash": "0xa0b0ca0c4e50253e7fdca19f7ca61784b36bccda09541ce3b42d7afd79d6fecb",
+      "deploymentTx": "0xa901c45b16908afa52bb00d6471c680cc82ccc002e9eb04305688ea7b35eaf36",
+      "initializationTxs": [],
+      "dependsOn": [
+        "8434/AIDRegistry"
+      ],
+      "runtimeIdentity": "0xf64d6894c553cc0299781c52eca809bbf8d9c57bfd2d3b6f2e699e8a7887c541",
+      "role": "module",
+      "bundleKey": "swarm-ai-framework:IdentityStateEligibility",
+      "deploymentBlock": 41882,
+      "status": "deployed"
+    },
+    {
+      "name": "8447/SwarmTenderAdapter",
+      "erc": 8447,
+      "module": 8447,
+      "address": "0x6db70832E6E0Fa2F9E6B1488A3009D02DECd9A68",
+      "codeHash": "0x77a301daf1e9463d4caa9009ba238a3f190cf49cbca1deccd03b94268dead18a",
+      "deploymentTx": "0x0131420ee071855dad12742324447924266b0e16a01f2d781487d0a4a2e7b14f",
+      "initializationTxs": [],
+      "dependsOn": [
+        "8414/TaskToken",
+        "8447/SwarmRegistry"
+      ],
+      "runtimeIdentity": "0x1dd9f024e6c9ebcafdecff351d3eef64979d713ba5a234f5e2614ca1af97d475",
+      "role": "adapter",
+      "bundleKey": "swarm-ai-framework:SwarmTenderAdapter",
+      "deploymentBlock": 41884,
+      "status": "deployed"
+    },
+    {
+      "name": "8454/AUFUnitRegistry",
+      "erc": 8454,
+      "module": 8454,
+      "address": "0x020678F204454a908d97a0112470B01403995027",
+      "codeHash": "0x9304046995bd34447bac744145f04c60d3e491759d76616c38d52c8540a1df1e",
+      "deploymentTx": "0x77f60dee43050e257999cede88569a098c8a07174aba76ae4a54c893e1815d27",
+      "initializationTxs": [],
+      "dependsOn": [],
+      "runtimeIdentity": "0x66f78dcc39bdf9a9360bf7b31e52640e79ecf147a0da621c9af165eb2905d67c",
+      "role": "registry",
+      "bundleKey": "aifi-unit-framework:AUFUnitRegistry",
+      "deploymentBlock": 41886,
+      "status": "deployed"
+    },
+    {
+      "name": "8454/AUFAssertionRegistry",
+      "erc": 8454,
+      "module": 8454,
+      "address": "0xF1c40078BD35aD7A0Bce6b9dA6B41002f4D14FDA",
+      "codeHash": "0xfe926c5b820b157aeb7878f68961baef38b824c8eeebc1e336ddccf453e38830",
+      "deploymentTx": "0x016ffa8fb7ad644852215068f0e6e13ee529c7bb52be7a631a3ba0995dcc4181",
+      "initializationTxs": [],
+      "dependsOn": [
+        "8454/AUFUnitRegistry"
+      ],
+      "runtimeIdentity": "0xaa6e0b83a39161fd851c1ded01ca41b625f03898839c8198ab89b548ec9da986",
+      "role": "registry",
+      "bundleKey": "aifi-unit-framework:AUFAssertionRegistry",
+      "deploymentBlock": 41888,
+      "status": "deployed"
+    },
+    {
+      "name": "8468/ASFEvaluation",
+      "erc": 8468,
+      "module": 8468,
+      "address": "0xeE26395b9566af7226C0e09ACe1c3bEcF31ebfC9",
+      "codeHash": "0x5abe84c230cbfe76086841d9bccc4df65842077262e7ec38e7a6c26dfccbb90d",
+      "deploymentTx": "0x6f49edb5d381db3980781532e6d0bfd33067258c80cd780f3f59e57f55aa0ff6",
+      "initializationTxs": [],
+      "dependsOn": [],
+      "runtimeIdentity": "0x61a224caf19476eca5be784104f6c2b7ec19c9f9113b151af6b63f5b8aa0c978",
+      "role": "library",
+      "bundleKey": "agent-safety-framework:ASFEvaluation",
+      "deploymentBlock": 41891,
+      "status": "deployed"
+    },
+    {
+      "name": "8468/ASFLifecycle",
+      "erc": 8468,
+      "module": 8468,
+      "address": "0x3B19c5469eE0946c28A429ec012b25bf8Fad49a6",
+      "codeHash": "0xad4b4ffb5df5fcd842dd6ee588f4c4a279e4890a5ff4d17ed83f9990b39137b5",
+      "deploymentTx": "0x045d57505bae5f741d1cc328cbf874d1cd37065b1ea9ad97043074a148beb4fc",
+      "initializationTxs": [],
+      "dependsOn": [],
+      "runtimeIdentity": "0xfe777fe0d29abd283d34fc1820ea1971ae590349ad9a8c392dc6cc21d5ff331e",
+      "role": "library",
+      "bundleKey": "agent-safety-framework:ASFLifecycle",
+      "deploymentBlock": 41893,
+      "status": "deployed"
+    },
+    {
+      "name": "8468/ASFSpecificationRegistry",
+      "erc": 8468,
+      "module": 8468,
+      "address": "0x3309B66383A9B77e8963C8f6A07534E38dcd1a40",
+      "codeHash": "0xcb590d3a4ebce346a6ea535bdbfbe822a51a9d812a1a31c5bcb015d91b01802d",
+      "deploymentTx": "0x9b2a65e6cb86e2f142eb02440b2c3a4616917b3e10d3efde98ad296a9facc1e2",
+      "initializationTxs": [],
+      "dependsOn": [],
+      "runtimeIdentity": "0xbad924f451c276549582c6835016020186109b8b170d3abdb1216350e4cb0444",
+      "role": "registry",
+      "bundleKey": "agent-safety-framework:ASFSpecificationRegistry",
+      "deploymentBlock": 41895,
+      "status": "deployed"
+    },
+    {
+      "name": "8468/ASFBindingRegistry",
+      "erc": 8468,
+      "module": 8468,
+      "address": "0xc7B878007D0057688A2470a5Db25AA6E09b4d0a2",
+      "codeHash": "0xe5d7f2875b383e33e9465d87bb41de1c75623cfd54782a422666ce0706ff9668",
+      "deploymentTx": "0x30fe4c9a3c1b2352a4e3012f29a5bc5fa71a8f8d618c5800c2c6cd5aff196982",
+      "initializationTxs": [],
+      "dependsOn": [],
+      "runtimeIdentity": "0xa9e651c9215de65491b1aebe135545e0b08ade8f187b4582de2d41a83a408a5e",
+      "role": "registry",
+      "bundleKey": "agent-safety-framework:ASFBindingRegistry",
+      "deploymentBlock": 41897,
+      "status": "deployed"
+    },
+    {
+      "name": "8471/ADRFPolicyRegistry",
+      "erc": 8471,
+      "module": 8471,
+      "address": "0x76a58BFc0C84579Ae76690326Bc12E720f35FF58",
+      "codeHash": "0x9581a9bd8bcb745a7d1e552288137ddaecf8ec49abedea7fe6742abd7cd43646",
+      "deploymentTx": "0x5857a82e76c4efdfa7814196c7e4fa14092f9e14274655a7708d457fdf06109a",
+      "initializationTxs": [],
+      "dependsOn": [],
+      "runtimeIdentity": "0x8a9c841ba7c342f73694e0ef1190399cf1678a82aecada8adcffa6a99cf91904",
+      "role": "registry",
+      "bundleKey": "ai-dispute-resolution:ADRFPolicyRegistry",
+      "deploymentBlock": 41900,
+      "status": "deployed"
+    },
+    {
+      "name": "8471/ADRFBindingModule",
+      "erc": 8471,
+      "module": 8471,
+      "address": "0xB9f007049cAfC337A5cBe456B700ABef11582b2b",
+      "codeHash": "0x4a8099b193925cd29e996410944a653b6e04683db901edb760d359ce1fd97c5f",
+      "deploymentTx": "0xcaff1974405a1653f855b4d3d7ed68ec4b9eb34d7324b412e335ec1c78e02968",
+      "initializationTxs": [],
+      "dependsOn": [
+        "8471/ADRFPolicyRegistry"
+      ],
+      "runtimeIdentity": "0x23ab54cf9032057dbce4f27223c11552f8d1a59b0a9e08139641f148711b27c1",
+      "role": "module",
+      "bundleKey": "ai-dispute-resolution:ADRFBindingModule",
+      "deploymentBlock": 41902,
+      "status": "deployed"
+    },
+    {
+      "name": "8471/ADRFFilingModule",
+      "erc": 8471,
+      "module": 8471,
+      "address": "0x05dab593fA291aA8287B60c0a44E093F83Aa9722",
+      "codeHash": "0x1403f653b8955c4862b7d4767bba7e74d9d822b11236958905e697bf8a2a7202",
+      "deploymentTx": "0xc53647f1fe8333c2b587ae23029cd816f41a0790074b6c7df3faf2b5864e5577",
+      "initializationTxs": [],
+      "dependsOn": [
+        "8471/ADRFPolicyRegistry"
+      ],
+      "runtimeIdentity": "0x248a0be50ac46db2db7cafe95a42c836bd8c70e4225d4b0bb833e4d4fe16ef9b",
+      "role": "module",
+      "bundleKey": "ai-dispute-resolution:ADRFFilingModule",
+      "deploymentBlock": 41904,
+      "status": "deployed"
+    },
+    {
+      "name": "8471/ADRFResolutionModule",
+      "erc": 8471,
+      "module": 8471,
+      "address": "0xe9ABb31cD16F510f883fbb9Bdf8E66C5AEBc8C76",
+      "codeHash": "0x78a2d15596de4feee5ce0df274b885509fd07c40366b0b6ffb33e96ac390a901",
+      "deploymentTx": "0xb70f925683caadf20cdf34afb0a1e8cb6eadecffb8f1777f9ab5b968e5e1165d",
+      "initializationTxs": [],
+      "dependsOn": [
+        "8471/ADRFPolicyRegistry"
+      ],
+      "runtimeIdentity": "0xaae4cb838d86ba9e118ddea19e3472704f8d90575b1efa63add6d148229be06d",
+      "role": "module",
+      "bundleKey": "ai-dispute-resolution:ADRFResolutionModule",
+      "deploymentBlock": 41907,
+      "status": "deployed"
+    },
+    {
+      "name": "8471/ADRFDecisionModule",
+      "erc": 8471,
+      "module": 8471,
+      "address": "0xb77C42c24efFa17deCeE42E29A16eBAd6541AFa2",
+      "codeHash": "0x4cdede73865238785c98c52ac567dc56b7562dcb039c31de2826492503aaf64b",
+      "deploymentTx": "0x5b731cf2eeacb9ad677211b5aa340b52a748c3dfb5058acec17e48a1cfdd4e00",
+      "initializationTxs": [],
+      "dependsOn": [
+        "8471/ADRFPolicyRegistry"
+      ],
+      "runtimeIdentity": "0x370139390ca3ccb7a44934b569b70f91e5d43e87c7277d32a758c550a39433b3",
+      "role": "module",
+      "bundleKey": "ai-dispute-resolution:ADRFDecisionModule",
+      "deploymentBlock": 41909,
+      "status": "deployed"
+    },
+    {
+      "name": "8471/ADRFRecordModule",
+      "erc": 8471,
+      "module": 8471,
+      "address": "0xE18ea94a926E2C867226e8eD84a721010be78f15",
+      "codeHash": "0x5c554319b4b6232013c7f9951e966da54a8f689c592c46b8aabc5f55f3ee2fa3",
+      "deploymentTx": "0x307352ac0879ea5d2cddaab3be5234000197190850945ade3fb9d2fa02df3c99",
+      "initializationTxs": [],
+      "dependsOn": [
+        "8471/ADRFPolicyRegistry"
+      ],
+      "runtimeIdentity": "0xbe89761ac4cbb84f22cff26158e0f83b1f9ebb8ab4fb75087fd4a8831f018207",
+      "role": "module",
+      "bundleKey": "ai-dispute-resolution:ADRFRecordModule",
+      "deploymentBlock": 41911,
+      "status": "deployed"
+    },
+    {
+      "name": "8471/ADRFOutcomeModule",
+      "erc": 8471,
+      "module": 8471,
+      "address": "0x3ccD2270654B586b7907Ce1B63ff726D2E24E15A",
+      "codeHash": "0x0732bf132179750524693106aa2ed17daa1642925c62758b9b42adb4ff592bc4",
+      "deploymentTx": "0x833fa7ffeec12eea8fcc03f5fed553ebb49bdcd97d1838683ae2dbf42034a693",
+      "initializationTxs": [],
+      "dependsOn": [
+        "8471/ADRFPolicyRegistry"
+      ],
+      "runtimeIdentity": "0xb0bc89f046cab33d06da9e6c908a2f66283660f8dc32244bbd965e3d19e5934b",
+      "role": "module",
+      "bundleKey": "ai-dispute-resolution:ADRFOutcomeModule",
+      "deploymentBlock": 41913,
+      "status": "deployed"
+    },
+    {
+      "name": "8471/ADRFDisputeRegistry",
+      "erc": 8471,
+      "module": 8471,
+      "address": "0x68ECBE600EB73E97C41aDbC64D954c43b8b724E1",
+      "codeHash": "0xfebd91ac4938e15194c568d2e07a31b04b3d3c4d5f6cf351baadd7a776c421d6",
+      "deploymentTx": "0xd295fb54a84b1ca615045b3811826f9b87986bbd7da84b5a86ffe250fd243b1a",
+      "initializationTxs": [],
+      "dependsOn": [
+        "8471/ADRFBindingModule",
+        "8471/ADRFDecisionModule",
+        "8471/ADRFFilingModule",
+        "8471/ADRFOutcomeModule",
+        "8471/ADRFPolicyRegistry",
+        "8471/ADRFRecordModule",
+        "8471/ADRFResolutionModule"
+      ],
+      "runtimeIdentity": "0x3388c11716822257523b9870d641464069be28d60e867f0d27624480a50f15a6",
+      "role": "registry",
+      "bundleKey": "ai-dispute-resolution:ADRFDisputeRegistry",
+      "deploymentBlock": 41915,
+      "status": "deployed"
+    },
+    {
+      "name": "8471/DuplicateSettlementVerifier",
+      "erc": 8471,
+      "module": 8471,
+      "address": "0xd757343919BfC5Ab4b9Bdd433D8625A075C2E268",
+      "codeHash": "0x4e4f207938c1d38acc66a0e07a1f47005bc702329fb466f5c49177a307731399",
+      "deploymentTx": "0xb2ba03ef7fc394f194379dc8cc2d50a78dba1e56be802c4405cb31c439c59459",
+      "initializationTxs": [],
+      "dependsOn": [],
+      "runtimeIdentity": "0xc04fb8f86bdafb0ea37643ee58c628f7e9c4d31c0fc3329dfaff0f22feec1bf5",
+      "role": "example",
+      "bundleKey": "ai-dispute-resolution:DuplicateSettlementVerifier",
+      "deploymentBlock": 41918,
+      "status": "deployed"
+    },
+    {
+      "name": "8471/DeclaredVersionVerifier",
+      "erc": 8471,
+      "module": 8471,
+      "address": "0x7Fac7887770074241C75ff64a793486FAc5c0392",
+      "codeHash": "0x2046fdd2e0af814b5baa293175c2aee65cff5776fb09dbd6ccd84d5760e38eb7",
+      "deploymentTx": "0x887fae7e52a0d68bf0015d56f6a3e23dca2f56cd4efe7ed6f6a5d5836cc89194",
+      "initializationTxs": [],
+      "dependsOn": [],
+      "runtimeIdentity": "0xfe89e8e6a169ba9b79479c7faa66aa94b074dd9c1613dcc6965fd55d1adcea1b",
+      "role": "example",
+      "bundleKey": "ai-dispute-resolution:DeclaredVersionVerifier",
+      "deploymentBlock": 41920,
+      "status": "deployed"
+    },
+    {
+      "name": "8471/AttestorQuorumRule",
+      "erc": 8471,
+      "module": 8471,
+      "address": "0x6f6564ff5fe0D7342b6510Eeb9E2F063591250c3",
+      "codeHash": "0x3155c68028b6b547c6ca183b6582f9b6e4a70e87acd056e69839c0a37b42b500",
+      "deploymentTx": "0x9c810d7afc6b7951d2c52fe8a6ce5bb041981091c9d1b6e6b132953e8f03a964",
+      "initializationTxs": [],
+      "dependsOn": [],
+      "runtimeIdentity": "0xfe1f209642854de3cf0436632a83c333b3315ec02fe1e4f6d7beefb93d6d6972",
+      "role": "example",
+      "bundleKey": "ai-dispute-resolution:AttestorQuorumRule",
+      "deploymentBlock": 41922,
+      "status": "deployed"
+    },
+    {
+      "name": "8471/ADRFACDFBridge",
+      "erc": 8471,
+      "module": 8471,
+      "address": "0xe4F775F550bf983d90E0D950A01B04280F4Dc4F1",
+      "codeHash": "0xed2084a646a524392bb620195bfa90d3018e1a95cd9859d62a81439101ed9fbd",
+      "deploymentTx": "0x3c526be054200ec06303c4cd9fb3023d7d2fec06d837292673aa75f517df2b30",
+      "initializationTxs": [],
+      "dependsOn": [
+        "8436/ACDFRegistry",
+        "8471/ADRFDisputeRegistry"
+      ],
+      "runtimeIdentity": "0x128023a79d659b5363f907e3af4fba457cd4ff1a4bc2ee2edbe9bbb09a1ec568",
+      "role": "bridge",
+      "bundleKey": "ai-dispute-resolution:ADRFACDFBridge",
+      "deploymentBlock": 41924,
+      "status": "deployed"
+    },
+    {
+      "name": "8471/ADRFServiceEscrow",
+      "erc": 8471,
+      "module": 8471,
+      "address": "0x2DFa1651a22d7E133d148eC14B2247688918F33f",
+      "codeHash": "0xb965494a321ecd8d8877b0dc99d2b3fd38c5e9793f47743633232c5a869c8a7a",
+      "deploymentTx": "0xbca678b7f7c603a0b14e9c78d051fa66c8857d78d8ab0fbf23cd02f25c5ec04f",
+      "initializationTxs": [],
+      "dependsOn": [
+        "8471/ADRFDisputeRegistry"
+      ],
+      "runtimeIdentity": "0x85876e20753ad93ea5877e3066b6c5d703cb23f0af66f59bfbf134242543827a",
+      "role": "example",
+      "bundleKey": "ai-dispute-resolution:ADRFServiceEscrow",
+      "deploymentBlock": 41926,
+      "status": "deployed"
+    },
+    {
+      "name": "8490/AgentMeditationRegistry",
+      "erc": 8490,
+      "module": 8490,
+      "address": "0x62026ADC48177Efb8fCE1c2Fd959483c5Ab90479",
+      "codeHash": "0x4f6c0439630fe26928ccb8f68331899181719d76cec2e2145cb676e02c9c90f6",
+      "deploymentTx": "0xbf148ac83e7e1ce86c79a9d547f1f69128d14935cb0ec7d89adaefc69c225eaa",
+      "initializationTxs": [],
+      "dependsOn": [],
+      "runtimeIdentity": "0x4f6c0439630fe26928ccb8f68331899181719d76cec2e2145cb676e02c9c90f6",
+      "role": "registry",
+      "bundleKey": "agent-meditation-mechanism:AgentMeditationRegistry",
+      "deploymentBlock": 41929,
+      "status": "deployed"
+    },
+    {
+      "name": "8489/AIFPParadigmRegistry",
+      "erc": 8489,
+      "module": 8489,
+      "address": "0xC5893833663d6b6716a4F3363583201686613FAd",
+      "codeHash": "0x43e97ba30651be8fda327d2eedee3c3bd275dcb623b63428f12e5ac7b3e876ce",
+      "deploymentTx": "0xd9ee37bea53ba5f61f218bf03b98ec78d2e515468a09a19398c493de43dc65c6",
+      "initializationTxs": [
+        "0x842984a0dabd51800e204b68a88c68427b62dc03633e7cd769064324ac942627",
+        "0xa3a2e0a224ff9411f3a20b8fbbd7eff61cd4dc9be03f4d67ca3170f1e7a1303a"
+      ],
+      "dependsOn": [],
+      "runtimeIdentity": "0x39c90b16e0c8d687ae23171ce53657ce7ab6d264d001bde36d2effcf2fffa11c",
+      "role": "registry",
+      "bundleKey": "aif-paradigm:AIFPParadigmRegistry",
+      "deploymentBlock": 41931,
+      "status": "deployed"
+    },
+    {
+      "name": "8489/AIFPCompositeVerifier",
+      "erc": 8489,
+      "module": 8489,
+      "address": "0x31a166F05F962052B0d7C84ACaFEB9379D31c6F1",
+      "codeHash": "0x9feba8ac5a2d9a9beca1d058cfdf04e4799f3eb102ca5e4625c2d7dfcee61328",
+      "deploymentTx": "0x61902e0775c5bbaf225cab04af959c881ad5954125fe1455886fe91f5bd3c58b",
+      "initializationTxs": [],
+      "dependsOn": [],
+      "runtimeIdentity": "0x4855b34f605901e382a8be8bf240289a99eafae10ec4ba90acd881423f5d9634",
+      "role": "contract",
+      "bundleKey": "aif-paradigm:AIFPCompositeVerifier",
+      "deploymentBlock": 41933,
+      "status": "deployed"
+    },
+    {
+      "name": "8489/AIFPChannelRegistry",
+      "erc": 8489,
+      "module": 8489,
+      "address": "0xa6541739D9F06b67FBE319BC2A4E82a0b18151CA",
+      "codeHash": "0xd1d224390c8b268cc0b70e0fe0cefc5f58ce1b6bb710c896d8f7b3b407280f42",
+      "deploymentTx": "0xb45986b29b63fb31c3dd50d5ee5d5884a9d8823c0a8045e5bd67eab55d8113d5",
+      "initializationTxs": [
+        "0x2864b4aa89960fd7af2032f120b7d76dfab4c0aeb37562dd0a6aa5cbdbd7840f",
+        "0x8b3f7860cf930f920e03816041f89817817ab7c4cc603c106f113f78425e3012"
+      ],
+      "dependsOn": [
+        "8489/AIFPParadigmRegistry"
+      ],
+      "runtimeIdentity": "0x4dd6a0c6291a3112840ddc4065b0c9ff4bab2493c114fa346557199c5c4f12aa",
+      "role": "registry",
+      "bundleKey": "aif-paradigm:AIFPChannelRegistry",
+      "deploymentBlock": 41935,
+      "status": "deployed"
+    },
+    {
+      "name": "8489/AIFPParticipationRegistry",
+      "erc": 8489,
+      "module": 8489,
+      "address": "0x72A6F05d28c9A9da07EaD80d196922Fe3bbDb2A9",
+      "codeHash": "0x1a8e7f35e08ef00f479a40fe060d71f0bda0128aedd2781258f3d97d1444481a",
+      "deploymentTx": "0x8dffd04643e5fdca444b5f1e881bb647dd565ab693d6e8514f35b200808524c0",
+      "initializationTxs": [],
+      "dependsOn": [
+        "8489/AIFPChannelRegistry",
+        "8489/AIFPCompositeVerifier",
+        "8489/AIFPParadigmRegistry"
+      ],
+      "runtimeIdentity": "0x7124ee023a1f5489ec2c5f246d99e835ac79cb70266bb57c2540c62a39b8de95",
+      "role": "registry",
+      "bundleKey": "aif-paradigm:AIFPParticipationRegistry",
+      "deploymentBlock": 41938,
+      "status": "deployed"
+    },
+    {
+      "name": "8489/AIFPEventAnchor",
+      "erc": 8489,
+      "module": 8489,
+      "address": "0xd432ac02e8caddA41010ab1F57D11B4a07d8DBdA",
+      "codeHash": "0x7ff10bb2f3b4b2ff835349910115740cbd1702db2b8dab266fb4f250355d1997",
+      "deploymentTx": "0x15b5051462cfbd5f69e10a784d32d28e3dda371734a4ccd4b2e91738c2f97152",
+      "initializationTxs": [],
+      "dependsOn": [
+        "8489/AIFPChannelRegistry",
+        "8489/AIFPParticipationRegistry"
+      ],
+      "runtimeIdentity": "0x6f414885caf63884f69a25b0b018ab488ff61bdcecc21538d046b891f97bc7d7",
+      "role": "contract",
+      "bundleKey": "aif-paradigm:AIFPEventAnchor",
+      "deploymentBlock": 41940,
+      "status": "deployed"
+    },
+    {
+      "name": "8489/AIFPObjectionWindow",
+      "erc": 8489,
+      "module": 8489,
+      "address": "0x9F2459Ad4323e30AF0022AF957D8C43DdF1ccf69",
+      "codeHash": "0xb87bd7e46184612708c4fa15ca817825a2baf206e023a55a1ce7c569c33e5807",
+      "deploymentTx": "0xaf4474168b81d8d48a6c1bfe45eae99fafce8c9fe31233f56b61a19e30a72f81",
+      "initializationTxs": [],
+      "dependsOn": [
+        "8489/AIFPChannelRegistry",
+        "8489/AIFPParticipationRegistry"
+      ],
+      "runtimeIdentity": "0x32f3d617bb96c7145493d3d1f600d2d988626667c0bd1997efc2661aeca72998",
+      "role": "companion",
+      "bundleKey": "aif-paradigm:AIFPObjectionWindow",
+      "deploymentBlock": 41942,
+      "status": "deployed"
+    },
+    {
+      "name": "8489/AIFPSubjectSet",
+      "erc": 8489,
+      "module": 8489,
+      "address": "0x601cB2D6fD95E8e4253B50bCc10E834007EE02A1",
+      "codeHash": "0xb3933fe7336cdd9f4f617cbb4ae118fb00817e2a7961c24b721e8361a01a5373",
+      "deploymentTx": "0x95397a248e071c7f6caf982035a180082ca52785abf0f20b57f392d54f02a8ed",
+      "initializationTxs": [],
+      "dependsOn": [],
+      "runtimeIdentity": "0xb5990bbb7315358ab331dfb97ee2aad2e545239748efb66f31a7d0b40a211d42",
+      "role": "contract",
+      "bundleKey": "aif-paradigm:AIFPSubjectSet",
+      "deploymentBlock": 41944,
+      "status": "deployed"
+    },
+    {
+      "name": "8489/FogaIdentityVerifier",
+      "erc": 8489,
+      "module": 8489,
+      "address": "0xF65827683A6cB631fBd703300d6E00f217cDFd28",
+      "codeHash": "0x78d8ab2adbd34e942b504d60173c740ddfa6430eff24c78a484e45938db8c2b6",
+      "deploymentTx": "0xaab41383c3664b5a407cffd0beda8d63a71012fcc7e8ef1033638aedac201e95",
+      "initializationTxs": [],
+      "dependsOn": [
+        "8434/AIDRegistry",
+        "identity8004"
+      ],
+      "runtimeIdentity": "0xdb6be868f4cc8ff1c6c593cbccd9010575dd0229753b113a732b9e11b29ca72b",
+      "role": "local-stub",
+      "bundleKey": "foga:FogaIdentityVerifier",
+      "deploymentBlock": 41946,
+      "status": "deployed"
+    }
+  ],
+  "verifiedAt": {
+    "number": 42684,
+    "hash": "0xba8623f02882557972dfa15c8abf4ee681cfc57857a70e58a6c60be95922bed1",
+    "at": "2026-11-12T16:32:50Z",
+    "report": "manifests/evidence/world-verify-42684.json"
+  },
+  "generatedAt": "2026-11-12T16:33:08Z",
+  "rpc": "http://100.120.188.50:8545",
+  "note": "Generated by scripts/world-manifest.sh from the FOGA address book; codeHash is keccak256 of the raw runtime code read at completionBlock; runtimeIdentity (when present) is the bundle build identity; dependsOn lists the World contracts (and the identity root) whose addresses appear in the recorded constructor arguments, initializationTxs the wiring transactions sent to the contract; verifiedAt is filled from a MATCH report of scripts/verify-world.sh at a finalized block",
+  "status": "superseded",
+  "supersededBy": "finchain-sepolia-85422-20261113T023727Z",
+  "supersededOn": "2026-11-13",
+  "verification": "manifests/evidence/world-verify-42684.json (MATCH, 59 contracts, finalized 42684)"
+}

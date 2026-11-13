@@ -205,7 +205,20 @@ chain" is deliberate: W is a treasury and a deployer, the OG wallet is an identi
   FOGA 1.0.7 budgets execution gas only; the L1 data fee and the operator fee of an OP
   Stack transaction are read from the receipts and reported beside it.
 
-### 5.4 Scenarios and the second cell
+### 5.4 The deployments so far
+
+Two Worlds were deployed by the released FOGA 1.0.7 from `chain/world/finchain-sepolia.world.json`.
+The first (`finchain-sepolia-85422-20261112T154525Z`, 2026-11-12) is superseded: its genesis
+stopped at T4 because cell A held ERC-8004 agent id 0, the value the ERC-8447 eligibility
+module treats as "no agent" (the account of the record is in `chain/world/README.md`). The
+second (`finchain-sepolia-85422-20261113T023727Z`, 2026-11-13) is the reference World: the
+genesis T0-T9 ran on it from a fresh store with both ZK paths on (197 of 197 checks, 213
+operations, cells registered as agents 3, 4 and 5), and the doctor judged all twelve
+covenants Pass on layer 5 (278 Pass, 0 Fail, 2 Unknown, 25 NotApplicable). The finding
+about agent id 0 is an upstream item for the ERC-8447 reference module; neither the chain
+nor FOGA was changed for it.
+
+### 5.5 Scenarios and the second cell
 
 The genesis T0-T9 run with `--world chain/world/finchain-sepolia.json` gives the four
 scenario classes (organisation T4, collective decision T5, dispute T6, safety T7) plus
