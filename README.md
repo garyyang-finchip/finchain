@@ -76,7 +76,7 @@ The full procedure, with expected outputs and acceptance checks, is in
 
 ## Status
 
-v0.2.0-alpha.14: M3 in progress. Finchain Sepolia (chain id 85422) is live: L1 contracts
+v0.2.0-alpha.15: M3 in progress. Finchain Sepolia (chain id 85422) is live: L1 contracts
 deployed 2026-11-11 at Sepolia block 12112920 (`chain/out/`), host A sequencing since the
 same day, host B verifying independently; M1 and M2 acceptance records are in
 `manifests/evidence/`; `versions.lock` is frozen (digests, 2026-11-12). The ERC-8004
@@ -92,8 +92,10 @@ ZK paths and the doctor; the Finch OG Agent lives on the chain since the same da
 of its own at `https://og.finchain.one`, `docs/world.md` section 5.4; the two-cell business
 loop ran at its integration stage on 2026-11-13 - the OG minting a tender, a second cell
 joined from the registry's 1.0.9 by this repository's address book at its URL taking it,
-accepted and paid, `manifests/evidence/business-loop-2026-11-13.json`; the run by another
-operator stays open). Finchain is usable without FOGA; FOGA runs
+accepted and paid, `manifests/evidence/business-loop-2026-11-13.json`; the four funding
+lines read from the receipts, `make fee-lines`; the M3-C summary is
+`manifests/evidence/m3c-2026-11-13.json`; the run by another operator stays open). Finchain
+is usable without FOGA; FOGA runs
 without Finchain; no Finchain milestone requires a FOGA release. The road to the chain went
 through Sepolia's Glamsterdam rules (EIP-8037 state gas, new L1 header fields, EIP-7976
 calldata floor); the adaptations are recorded in `docs/versions.md`. Public RPC:

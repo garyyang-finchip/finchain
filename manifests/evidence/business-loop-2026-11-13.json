@@ -25,7 +25,11 @@
     "how": "the operator, holding the cell's act-level HTTP key, called the node's own capabilities on https://og.finchain.one/api: skill_run (the OG ran foga-probe itself for the task's input and got the answer hash) and tender_mint (one job: mint, fund, commit the answer hash in the hashlock verifier, register an ERC-8444 task record)",
     "decisionId": 12,
     "jobId": "tender-mint:3d4386be0a4025dd",
-    "accountBalanceEth": { "before": "0.005", "after": "0.0045", "note": "the reward left the account at fundTask; the operator paid the gas" }
+    "accountBalanceEth": {
+      "before": "0.005",
+      "after": "0.0045",
+      "note": "the reward left the account at fundTask; the operator paid the gas"
+    }
   },
   "fulfiller": {
     "cell": "cell-b",
@@ -35,17 +39,31 @@
     "host": "host B's machine (E05), as an ordinary user of the public RPC; nothing of node-b is involved",
     "package": "@finchip.ai/foga@1.0.9 installed from the npm registry by npx (Node v22.22.0)",
     "how": "foga join --world https://raw.githubusercontent.com/garyyang-finchip/finchain/main/chain/world/finchain-sepolia.json --rpc https://rpc.finchain.one --dir <dir> --wallet <dir>/wallet --name cell-b --run stub: the address book fetched from the URL (sha256 fc26a8f23848d022..., kept as 85422-finchain-sepolia-85422-20261113T023727Z-fc26a8f23848.json), the identity funded, the cell born, its skills minted and offered, its channel opened and publication anchored, the market joined (admitted as submit, respond), the node served with the stub model (it takes the tenders it is eligible for, no person at the entrance)",
-    "funding": { "tx": "0x8fc0e3af8319e24cdadbaab417e025457622a63f275567ed1587e0b1ac749148", "block": 82422, "from": "0xA199250F15DCE1399288F967f8652A882B1947e9 (the chain operations deployer)", "amountEth": "0.05" },
+    "funding": {
+      "tx": "0x8fc0e3af8319e24cdadbaab417e025457622a63f275567ed1587e0b1ac749148",
+      "block": 82422,
+      "from": "0xA199250F15DCE1399288F967f8652A882B1947e9 (the chain operations deployer)",
+      "amountEth": "0.05"
+    },
     "birth": "resumed from the configuration written by a first run with --no-wait; account, registration, FOGA-Cell-v1 and v2 specification, skills (tokens 5 and 6), documents (data: URIs, no public URL), channel 0x4f320d7f1e9f2a7c10c80f795af4c8e3368a532074c3107321ff906c07ceb9d1, market 0x5b9df4e412589a27498c98a744b155194bf1dc05eef0342d0a3f766d01e73bff, maintenance enrolled; the operator's nonces 0-39 on this chain",
     "joinRecord": "join.json: schema foga.join/1, package @finchip.ai/foga 1.0.9, world {worldId, chainId 85422, sha256 fc26a8f2...}, worldSource the URL above, agentId 7, run stub",
-    "accountBalanceEth": { "before": "0.005", "after": "0.0055", "note": "the reward arrived at settlement; no credit was left in the TaskToken to withdraw" }
+    "accountBalanceEth": {
+      "before": "0.005",
+      "after": "0.0055",
+      "note": "the reward arrived at settlement; no credit was left in the TaskToken to withdraw"
+    }
   },
   "tender": {
     "tokenId": "5",
     "skill": "foga-probe",
     "packageHash": "0x2a83fc5966f151dcadb87bf5c22c1962f76d2baa95fceb644ce46814c6fc67ac",
     "packageNote": "the same package hash on both sides: the OG's held token 3 and cell-b's held token 5 commit to the 1.0.9 foga-probe package",
-    "input": { "subject": "0x2Dd0c30383EcD6414e0b9DD6F10bf27BFe8715BB", "block": 82807, "lookback": 9000, "note": "the OG asks cell-b to probe its own account at a pinned block; no KYA scheme in the input (1.0.9: the ERC-8419 section records null, the same for both runs)" },
+    "input": {
+      "subject": "0x2Dd0c30383EcD6414e0b9DD6F10bf27BFe8715BB",
+      "block": 82807,
+      "lookback": 9000,
+      "note": "the OG asks cell-b to probe its own account at a pinned block; no KYA scheme in the input (1.0.9: the ERC-8419 section records null, the same for both runs)"
+    },
     "taskHash": "0x8ef9479dc607a0e9b57a8765263f83b9da10907a70a78a89bed112372470acad",
     "answerHash": "0xe0f79c4b9022ec8828f14fd0df8ebb2a7cf457b679fef40e4bf4d3dbfe7e2a08",
     "rewardWei": "500000000000000",
@@ -57,28 +75,143 @@
     "erc8444TaskRecord": "0x7a375c956f4a3c31141c3ff3c25bb6bafe3ae00b51f45d14c1ea708ffff26963"
   },
   "steps": [
-    { "step": "mint", "side": "demander", "what": "TaskToken.mintTask through the OG's account", "tx": "0x28b065a642dcc1a04081bb50e643ec0c926331ba74c9c1dd8a48b74234e0a738", "block": 82883, "status": 1, "gasUsed": 1199979, "effectiveGasPriceWei": 1000251, "executionFeeWei": 1200280194729, "l1FeeWei": 14715, "l1GasUsed": 12542 },
-    { "step": "fund", "side": "demander", "what": "TaskToken.fundTask: 0.0005 ETH into the escrow", "tx": "0x5b5db001f3296f24c965515eae538ad3446214041897c346868431eccdeff668", "block": 82886, "status": 1, "gasUsed": 236630, "effectiveGasPriceWei": 1000251, "executionFeeWei": 236689394130, "l1FeeWei": 2278, "l1GasUsed": 1941 },
-    { "step": "commit", "side": "demander", "what": "HashlockVerifier.commitAnswer", "tx": "0x56826123f8b84086d798fae5874ccdda289be638740b271c1686a78182749a77", "block": 82889, "status": 1, "gasUsed": 169844, "effectiveGasPriceWei": 1000251, "executionFeeWei": 169886630844, "l1FeeWei": 2812, "l1GasUsed": 2396 },
-    { "step": "record", "side": "demander", "what": "ERC-8444 register(task 5) for discovery", "tx": "0x65c24f67ae2d6f16512ca9fda842bb0d9f943eb887eb856fa53b8bf5fffa6be5", "block": 82891, "status": 1, "gasUsed": 2731240, "effectiveGasPriceWei": 1000251, "executionFeeWei": 2731925541240, "l1FeeWei": 39402, "l1GasUsed": 33581 },
-    { "step": "discovery", "side": "fulfiller", "what": "cell-b's watcher at block 82887: '1 new tender(s)' (tender_list over the discovery lookback)", "tx": null, "block": 82887 },
-    { "step": "eligibility, first look", "side": "fulfiller", "what": "runner tick 52 at block 82887, decision 7: tender_precheck refused at the verifier gate - the answer hash was not yet committed (the commit landed at 82889); a tender that cannot be machine-accepted is not taken", "tx": null, "block": 82887 },
-    { "step": "eligibility, execution, submission", "side": "fulfiller", "what": "runner tick 57 at block 82918, decisions 8, 9, 10: tender_precheck eligible, skill_run (foga-probe at block 82807 in the isolated worker, reproducing the demander's answer), tender_submit through cell-b's account; resultHash 0x8e5615c1696e18bef9513010b49a4e611865ea91fbede6097007cd5d91d1af61", "tx": "0xc03bfc1cbbb5e12f614b8820cb2939a3cd3f58a828f73a9fca21cb833cfa16cc", "block": 82920, "status": 1, "gasUsed": 329826, "effectiveGasPriceWei": 1000251, "executionFeeWei": 329908786326, "l1FeeWei": 13183, "l1GasUsed": 10775 },
-    { "step": "acceptance", "side": "chain", "what": "the hashlock verifier accepted the submission: tender_inspect shows submission 1, fulfiller cell-b's account, status 1, machineSettled true", "tx": null, "block": 82920 },
-    { "step": "settle", "side": "fulfiller", "what": "tender_settle by cell-b's watcher: the escrow paid to the fulfiller account (escrow 0 afterwards)", "tx": "0xe6a6a66c6b49ee5dbe48cf84841a16e5b440c792f5e27024d61a10d82a444b5b", "block": 82929, "status": 1, "gasUsed": 297261, "effectiveGasPriceWei": 1000251, "executionFeeWei": 297335612511, "l1FeeWei": 53742, "l1GasUsed": 43927 },
-    { "step": "payment", "side": "chain", "what": "cell-b's account 0.005 -> 0.0055 ETH (eth_getBalance at latest after the settlement); the OG's account 0.005 -> 0.0045 ETH; nothing left to withdraw ('1 settled, 0 withdrawn' in the watcher's line at block 82928 is the whole story)", "tx": null, "block": 82929 }
+    {
+      "step": "mint",
+      "side": "demander",
+      "what": "TaskToken.mintTask through the OG's account",
+      "tx": "0x28b065a642dcc1a04081bb50e643ec0c926331ba74c9c1dd8a48b74234e0a738",
+      "block": 82883,
+      "status": 1,
+      "gasUsed": 1199979,
+      "effectiveGasPriceWei": 1000251,
+      "executionFeeWei": 1200280194729,
+      "l1FeeWei": 14715,
+      "l1GasUsed": 12542
+    },
+    {
+      "step": "fund",
+      "side": "demander",
+      "what": "TaskToken.fundTask: 0.0005 ETH into the escrow",
+      "tx": "0x5b5db001f3296f24c965515eae538ad3446214041897c346868431eccdeff668",
+      "block": 82886,
+      "status": 1,
+      "gasUsed": 236630,
+      "effectiveGasPriceWei": 1000251,
+      "executionFeeWei": 236689394130,
+      "l1FeeWei": 2278,
+      "l1GasUsed": 1941
+    },
+    {
+      "step": "commit",
+      "side": "demander",
+      "what": "HashlockVerifier.commitAnswer",
+      "tx": "0x56826123f8b84086d798fae5874ccdda289be638740b271c1686a78182749a77",
+      "block": 82889,
+      "status": 1,
+      "gasUsed": 169844,
+      "effectiveGasPriceWei": 1000251,
+      "executionFeeWei": 169886630844,
+      "l1FeeWei": 2812,
+      "l1GasUsed": 2396
+    },
+    {
+      "step": "record",
+      "side": "demander",
+      "what": "ERC-8444 register(task 5) for discovery",
+      "tx": "0x65c24f67ae2d6f16512ca9fda842bb0d9f943eb887eb856fa53b8bf5fffa6be5",
+      "block": 82891,
+      "status": 1,
+      "gasUsed": 2731240,
+      "effectiveGasPriceWei": 1000251,
+      "executionFeeWei": 2731925541240,
+      "l1FeeWei": 39402,
+      "l1GasUsed": 33581
+    },
+    {
+      "step": "discovery",
+      "side": "fulfiller",
+      "what": "cell-b's watcher at block 82887: '1 new tender(s)' (tender_list over the discovery lookback)",
+      "tx": null,
+      "block": 82887
+    },
+    {
+      "step": "eligibility, first look",
+      "side": "fulfiller",
+      "what": "runner tick 52 at block 82887, decision 7: tender_precheck refused at the verifier gate - the answer hash was not yet committed (the commit landed at 82889); a tender that cannot be machine-accepted is not taken",
+      "tx": null,
+      "block": 82887
+    },
+    {
+      "step": "eligibility, execution, submission",
+      "side": "fulfiller",
+      "what": "runner tick 57 at block 82918, decisions 8, 9, 10: tender_precheck eligible, skill_run (foga-probe at block 82807 in the isolated worker, reproducing the demander's answer), tender_submit through cell-b's account; resultHash 0x8e5615c1696e18bef9513010b49a4e611865ea91fbede6097007cd5d91d1af61",
+      "tx": "0xc03bfc1cbbb5e12f614b8820cb2939a3cd3f58a828f73a9fca21cb833cfa16cc",
+      "block": 82920,
+      "status": 1,
+      "gasUsed": 329826,
+      "effectiveGasPriceWei": 1000251,
+      "executionFeeWei": 329908786326,
+      "l1FeeWei": 13183,
+      "l1GasUsed": 10775
+    },
+    {
+      "step": "acceptance",
+      "side": "chain",
+      "what": "the hashlock verifier accepted the submission: tender_inspect shows submission 1, fulfiller cell-b's account, status 1, machineSettled true",
+      "tx": null,
+      "block": 82920
+    },
+    {
+      "step": "settle",
+      "side": "fulfiller",
+      "what": "tender_settle by cell-b's watcher: the escrow paid to the fulfiller account (escrow 0 afterwards)",
+      "tx": "0xe6a6a66c6b49ee5dbe48cf84841a16e5b440c792f5e27024d61a10d82a444b5b",
+      "block": 82929,
+      "status": 1,
+      "gasUsed": 297261,
+      "effectiveGasPriceWei": 1000251,
+      "executionFeeWei": 297335612511,
+      "l1FeeWei": 53742,
+      "l1GasUsed": 43927
+    },
+    {
+      "step": "payment",
+      "side": "chain",
+      "what": "cell-b's account 0.005 -> 0.0055 ETH (eth_getBalance at latest after the settlement); the OG's account 0.005 -> 0.0045 ETH; nothing left to withdraw ('1 settled, 0 withdrawn' in the watcher's line at block 82928 is the whole story)",
+      "tx": null,
+      "block": 82929
+    }
   ],
   "fees": {
     "method": "read from the receipts through the public RPC: executionFeeWei = gasUsed x effectiveGasPrice (what FOGA's gasCostWei reports, to the wei), l1FeeWei = the receipt's l1Fee (the L1 data fee), both at the chain's demo profile; the operator fee is read by scripts/fee-lines.sh for the four funding lines of the M3 evidence file",
-    "demander": { "transactions": 4, "gasUsed": 4337693, "executionFeeWei": 4338781760943, "l1FeeWei": 59207, "payer": "0x5Fee42D697975f6154164b29371c1c447F56fb4E" },
-    "fulfiller": { "transactions": 2, "gasUsed": 627087, "executionFeeWei": 627244398837, "l1FeeWei": 66925, "payer": "0x7dCE041276791F2371EA2e77F99119f22D32cd81" },
+    "demander": {
+      "transactions": 4,
+      "gasUsed": 4337693,
+      "executionFeeWei": 4338781760943,
+      "l1FeeWei": 59207,
+      "payer": "0x5Fee42D697975f6154164b29371c1c447F56fb4E"
+    },
+    "fulfiller": {
+      "transactions": 2,
+      "gasUsed": 627087,
+      "executionFeeWei": 627244398837,
+      "l1FeeWei": 66925,
+      "payer": "0x7dCE041276791F2371EA2e77F99119f22D32cd81"
+    },
     "loopTotalEth": "about 4.97e-6 (both sides, execution plus L1 data; the reward of 0.0005 ETH moved from the OG's account to cell-b's and is not a fee)",
-    "secondCellFunding": { "tx": "0x8fc0e3af8319e24cdadbaab417e025457622a63f275567ed1587e0b1ac749148", "gasUsed": 21000, "effectiveGasPriceWei": 252, "executionFeeWei": 5292000, "l1FeeWei": 3882 }
+    "secondCellFunding": {
+      "tx": "0x8fc0e3af8319e24cdadbaab417e025457622a63f275567ed1587e0b1ac749148",
+      "gasUsed": 21000,
+      "effectiveGasPriceWei": 252,
+      "executionFeeWei": 5292000,
+      "l1FeeWei": 3882
+    }
   },
   "confirmation": {
     "perStep": "each transaction confirmed by its receipt at `latest` by the package (FOGA 1.0.9 waits for inclusion and reads the receipt; docs/foga-confirmation-policy.md is the proposal for deeper levels, handed to FOGA)",
     "finalizedAtRecord": 82614,
-    "note": "the finalized head at the time of this record was below the loop's blocks (82883-82929): finality pending, as expected within the first twenty minutes; scripts/fee-lines.sh re-reads every receipt of the loop and checks its block against the canonical chain at or below `finalized`, and its report is the finalized confirmation of this record"
+    "note": "the finalized head at the time of this record was below the loop's blocks (82883-82929): finality pending, as expected within the first twenty minutes; scripts/fee-lines.sh re-reads every receipt of the loop and checks its block against the canonical chain at or below `finalized`, and its report is the finalized confirmation of this record",
+    "finalizedConfirmation": "manifests/evidence/fee-lines-20261113T151307Z.json (2026-11-13T15:13:07Z): finalized 83370; the six receipts and the funding transfer re-read, each block at or below the finalized head and its block hash canonical - all seven FINAL"
   },
   "sources": {
     "transcripts": "the operator's terminals on E05 and E06 (the OG's skill_run and tender_mint responses, operation_status of the four operations; cell-b's join log, tender_inspect of tender 5, receipts and balances through https://rpc.finchain.one)",
@@ -86,7 +219,6 @@
     "credentials": "this record carries none"
   },
   "openItems": [
-    "the acceptance stage of D9: the same loop with the second cell run by another operator from the released package and this repository's address book",
-    "the finalized re-read of the six receipts (scripts/fee-lines.sh, make fee-lines) once `finalized` has passed 82929"
+    "the acceptance stage of D9: the same loop with the second cell run by another operator from the released package and this repository's address book"
   ]
 }

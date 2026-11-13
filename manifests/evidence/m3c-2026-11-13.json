@@ -1,0 +1,79 @@
+{
+  "milestone": "M3-C",
+  "title": "FOGA on Finchain, an optional explicit integration: the reference World, its verification, the genesis, the OG and the two-cell business loop",
+  "environment": "public-testnet",
+  "recordedAt": "2026-11-13T15:30:00Z",
+  "source": "the evidence files named per item below, all under manifests/ and chain/world/; this record is the index and the summary, the files are the evidence",
+  "boundary": "docs/world.md sections 1 and 5, docs/acceptance.md M3-C: FOGA is reached only by --world and --rpc; the chain's own acceptance (M3-A) and FOGA's own (M3-B) do not depend on anything in this record. No FOGA release was an M3 condition; the versions used are the released ones, each with an isolation record of its own (m3b-2026-11-12.json, laterVersions).",
+  "world": {
+    "worldId": "finchain-sepolia-85422-20261113T023727Z",
+    "chainId": 85422,
+    "configuration": "chain/world/finchain-sepolia.world.json (this repository; the Finchain ERC-8004 identity root of chain/out/erc8004.json)",
+    "addressBook": "chain/world/finchain-sepolia.json, as foga world deploy --out wrote it; published at https://raw.githubusercontent.com/garyyang-finchip/finchain/main/chain/world/finchain-sepolia.json (sha256 fc26a8f23848d02228fe0bb46e3a5b8e748bad3ed3f2e81c96215a02cbf17748)",
+    "deployedBy": "the released @finchip.ai/foga 1.0.7 (bundle 0xc01f2099206e968ac207672b375b6bc30f205fe3fdc668dd1e163a659b0d89e8), W = 0x82FAA8878a94788379973A843F314AB4b5F60471, 55 contracts in 12 modules, blocks 61389-61548",
+    "completionBlock": { "number": 61548, "hash": "0x631f0b8b5981d46cdb39f1f81743fc60212f0dc70b977328944ad023c52cb544" },
+    "verifiedAt": { "number": 61794, "hash": "0xef425b56b8153dad6d93f933f70c35e6ba2cea164cae543cdfc7659b39ac6cb2", "by": "host B's own op-reth at its finalized head, 2026-11-13T07:03:06Z", "report": "manifests/evidence/world-verify-61794.json", "result": "MATCH: the identity root's 4 and the World's 55 contracts, completion block canonical" },
+    "manifestSection": "manifests/covenant-world-finchain-sepolia.json (build identity against the 1.0.7 bundle, dependsOn and initialization transactions per contract, completionBlock, verifiedAt)",
+    "superseded": "the first World finchain-sepolia-85422-20261112T154525Z (2026-11-12; chain/world/superseded/, world-verify-42684.json): genesis stopped at T4 on the ERC-8447 eligibility module's agent-id-0 sentinel, an upstream item"
+  },
+  "items": [
+    {
+      "item": "twelve covenant reference implementations deployed by the released FOGA from a configuration kept here, completionBlock and verifiedAt recorded",
+      "status": "done 2026-11-13",
+      "evidence": ["chain/world/finchain-sepolia.json", "manifests/covenant-world-finchain-sepolia.json"]
+    },
+    {
+      "item": "address book consistent with on-chain code at one fixed finalized block (host B), build identity, links and permissions",
+      "status": "done 2026-11-13 (59 contracts MATCH at finalized 61794; repeated after host B's L1 tracking stalled and was moved to another provider, docs/world.md section 5.4)",
+      "evidence": ["manifests/evidence/world-verify-61794.json", "manifests/covenant-world-finchain-sepolia.json"]
+    },
+    {
+      "item": "bare foga join of the released package still defaults to Sepolia; Finchain reached only by --world and --rpc",
+      "status": "shown by the chain-table leg of every isolation record (1.0.7, 1.0.8, 1.0.9: no Finchain entry, sepolia with a packaged world) and by every command line of this integration",
+      "evidence": ["manifests/evidence/m3b-2026-11-12.json", "manifests/evidence/foga-isolation-1.0.9-20261113T141222Z.json"]
+    },
+    {
+      "item": "the OG lives on Finchain as a cell of its own (D8)",
+      "status": "done 2026-11-13: born on 1.0.8 by foga join --world --rpc with the Sepolia OG's identity wallet; account 0x9F7647013499C44B7E0432F5E9e22E4Afd447aD1, ERC-8004 agent 6, skill tokens 3 and 4, channel and market, served at https://og.finchain.one by its own unit beside the unchanged Sepolia OG; both services on 1.0.9 since the same day, the Finchain OG's readiness check 36 pass, 1 warn, 0 fail",
+      "evidence": ["manifests/evidence/og-finchain-2026-11-13.json"]
+    },
+    {
+      "item": "two independent cells complete discovery -> eligibility -> task -> execution -> submission -> acceptance -> payment through the public RPC",
+      "status": "done 2026-11-13 at the integration stage of D9: the OG as the demander (tender 5, 0.0005 ETH, hashlock, ERC-8444 record), cell-b as the fulfiller (born from the registry's 1.0.9 by the address book's URL, account 0x2Dd0c30383EcD6414e0b9DD6F10bf27BFe8715BB, agent 7), six transactions in blocks 82883-82929, the reward in cell-b's account; one refusal at the verifier gate before the answer hash was committed, then taken. Both cells are the project owner's: the acceptance stage - another operator - stays open",
+      "evidence": ["manifests/evidence/business-loop-2026-11-13.json", "manifests/evidence/fee-lines-20261113T151307Z.json"]
+    },
+    {
+      "item": "organisation, collective decision, safety and dispute scenarios exercised (genesis T0-T9 on Finchain)",
+      "status": "done 2026-11-13: 197 of 197 checks, 213 operations confirmed in blocks 61597-63560 (02:44-03:49 UTC), cells as agents 3, 4 and 5, both ZK paths; doctor 278 Pass, 0 Fail, 2 Unknown (the escrow's undeclared interface ids, a property of the locked bundle), 25 NotApplicable",
+      "evidence": ["manifests/evidence/foga-genesis-finchain-sepolia.json", "manifests/evidence/foga-doctor-finchain-sepolia.json"]
+    },
+    {
+      "item": "funding in four lines with the three fee components of each receipt",
+      "status": "done 2026-11-13 (make fee-lines, scripts/fee-lines.sh): 292 receipts read through the public RPC, none missing, none failed; the business-loop receipts re-read at finalized 83370, all seven FINAL",
+      "evidence": ["manifests/evidence/fee-lines-20261113T151307Z.json"]
+    }
+  ],
+  "funding": {
+    "method": "manifests/evidence/fee-lines-20261113T151307Z.json: executionFeeWei = gasUsed x effectiveGasPrice, l1FeeWei = the receipt's l1Fee (the L1 data fee), operatorFeeWei from the receipt's operator fee fields (the chain sets none: zero everywhere); payers are the receipts' from addresses",
+    "lines": [
+      { "line": "identity root", "transactions": 9, "gasUsed": 6704653, "executionFeeWei": 1689572556, "l1FeeWei": 35902, "operatorFeeWei": 0, "totalFeeEth": "0.00000000169", "payer": "the chain operations deployer 0xA199250F15DCE1399288F967f8652A882B1947e9 at 252 wei a gas", "blocks": "26019-26046" },
+      { "line": "World deployment", "transactions": 63, "gasUsed": 84895585, "executionFeeWei": 84916893791835, "l1FeeWei": 960458, "operatorFeeWei": 0, "totalFeeEth": "0.0000849", "payer": "W 0x82FAA8878a94788379973A843F314AB4b5F60471 at 1000251 wei a gas (FOGA's priority fee over the 251 wei base fee)", "blocks": "61389-61548" },
+      { "line": "genesis T0-T9", "transactions": 213, "gasUsed": 128323691, "executionFeeWei": 128355900246441, "l1FeeWei": 483679, "operatorFeeWei": 0, "totalFeeEth": "0.000128", "payer": "W and the ten drill roles (11 payers) at 1000251 wei a gas", "blocks": "61597-63560" },
+      { "line": "business loop", "transactions": 7, "gasUsed": 4985780, "executionFeeWei": 4966031451780, "l1FeeWei": 130014, "operatorFeeWei": 0, "totalFeeEth": "0.00000497", "payer": "the OG's operator 0x5Fee42D697975f6154164b29371c1c447F56fb4E (4), cell-b's operator 0x7dCE041276791F2371EA2e77F99119f22D32cd81 (2), the deployer's funding transfer (1)", "blocks": "82422-82929" }
+    ],
+    "totalFeeEth": "about 0.000218 across the four lines; the reserve of 0.2-0.3 ETH on L2 for W (docs/world.md section 5) was two orders of magnitude above the cost at the demo profile's gas price, as FOGA's own preflight budget (execution gas only) suggested",
+    "note": "the reward of the business loop (0.0005 ETH) moved from the OG's account to cell-b's and is not a fee; the working capital of each cell (0.005 ETH at birth) and the 0.05 ETH funding of each identity are not fees either"
+  },
+  "confirmation": {
+    "worldAndGenesis": "the World's completion block 61548 verified canonical at host B's finalized 61794; the genesis evidence records each operation's receipt; the doctor read the World live at block 64557",
+    "businessLoop": "each step confirmed by its receipt at `latest` by the package; the seven receipts re-read at finalized 83370 with their block hashes canonical (fee-lines report, businessLoopAtFinalized)",
+    "profile": "demo (the batcher about every two minutes) throughout"
+  },
+  "fogaFindings": "three items went to FOGA on its own terms and came back in released versions, each with an isolation record before use here: --world by https URL (1.0.9; the address book is joined from this repository's URL), the probe without a KYA scheme (1.0.9; the Finchain OG's readiness check passes), and the ERC-8447 eligibility sentinel for agent id 0 (an upstream reference-module item, chain/world/README.md)",
+  "openItems": [
+    "the acceptance stage of D9: the same business loop with the second cell run by another operator from the released package and this repository's address book at its URL",
+    "the manifest candidate finchain-sepolia/2026.11-rc1 at the M3 close (docs/world.md section 8)",
+    "a read-only web page for the address book (D11, recommended, does not block)"
+  ],
+  "result": "M3-C passed on public-testnet at the integration stage: every item of docs/acceptance.md M3-C has its evidence; the one row that names another operator is met by the project owner's second cell and stays open for that operator"
+}

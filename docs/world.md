@@ -244,7 +244,12 @@ L1 data fees and the operator fee come from the receipts: `make fee-lines`
 (`scripts/fee-lines.sh`) reads every transaction of the four funding lines (identity root,
 World deployment, genesis, business loop) through the public RPC and writes the three fee
 components of each line to `manifests/evidence/fee-lines-<date>.json`, the M3-C evidence
-file's funding section.
+file's funding section. Run on 2026-11-13 (`fee-lines-20261113T151307Z.json`): the identity
+root's 9 transactions cost 1.69 nano-ETH (the deployer's 252 wei a gas), the World's 63
+cost 0.0000849 ETH, the genesis's 213 cost 0.000128 ETH, the business loop's 7 cost
+0.00000497 ETH; the L1 data fees are tens to hundreds of thousands of wei per line, the
+operator fee is zero (the chain sets none), and the whole of M3-C cost about 0.000218 ETH
+in fees at the demo profile - two orders of magnitude below the provisional reserve.
 
 The manifest section of the reference World, `manifests/covenant-world-finchain-sepolia.json`,
 records the completing block 61548 (the last of the eight wiring and flows transactions)
@@ -338,9 +343,13 @@ worker, reproduced the answer and submitted (block 82920); the verifier accepted
 reward arrived in cell-b's account (0.005 to 0.0055 ETH; the OG's account 0.005 to 0.0045),
 with nothing left to withdraw. Six transactions, every receipt status 1; both sides on
 1.0.9 (the OG from the tagged checkout built on its host, cell-b from the registry); the
-fees of each in the evidence file, and the finalized re-read of the six by `make fee-lines`.
-What the integration stage does not show is the other operator: both cells are the project
-owner's (two keys, two accounts, two hosts), and the acceptance stage of D9 stays open.
+fees of each in the evidence file, and the finalized re-read of the six by `make fee-lines`
+(`manifests/evidence/fee-lines-20261113T151307Z.json`: all seven receipts, the funding
+transfer included, canonical at or below the finalized head 83370). What the integration
+stage does not show is the other operator: both cells are the project owner's (two keys, two
+accounts, two hosts), and the acceptance stage of D9 stays open. The M3-C summary, one index
+over every evidence file of this section with the four funding lines, is
+`manifests/evidence/m3c-2026-11-13.json`.
 
 ## 6. Confirmation and recovery on an OP Stack chain: a FOGA proposal, not an M3 condition
 
@@ -390,5 +399,5 @@ its operator's procedure until FOGA provides it.
 | C-4a genesis T0-T9 | E06, released 1.0.7, `--world chain/world/finchain-sepolia.json` | `manifests/evidence/foga-genesis-finchain-sepolia.json`, `manifests/evidence/foga-doctor-finchain-sepolia.json` (done 2026-11-13) |
 | C-4b the OG on Finchain (D8) | E06, the checkout at v1.0.8, `foga join --world … --rpc …`, a second service at `og.finchain.one` | `manifests/evidence/og-finchain-2026-11-13.json` (done 2026-11-13) |
 | C-4c the second cell and the business loop (D9, D10) | integration stage: host B's machine as an RPC user (`cell-b`, the registry's 1.0.9, the address book by URL), the OG as the demander (E06) | `manifests/evidence/business-loop-2026-11-13.json` (done 2026-11-13, integration stage; the acceptance stage - another operator - open) |
-| C-5 funding lines and the loop at finalized | B or any host with the public RPC (`make fee-lines`) | `manifests/evidence/fee-lines-<date>.json`: the four lines with three fee components each, the six loop receipts canonical at or below `finalized` |
+| C-5 funding lines and the loop at finalized | B (`make fee-lines`) | `manifests/evidence/fee-lines-20261113T151307Z.json` (done 2026-11-13: 292 receipts, the four lines with three fee components each, the seven loop receipts FINAL at 83370); the M3-C summary `manifests/evidence/m3c-2026-11-13.json` |
 | Close | - | finchain 0.2.0, manifest `finchain-sepolia/2026.11-rc1` (candidate) |
