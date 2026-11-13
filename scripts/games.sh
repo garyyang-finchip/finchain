@@ -42,28 +42,29 @@ SEL_PROPOSER=0xa8e4fb90        # proposer() (permissioned game)
 SEL_CHALLENGER=0x534db0e2      # challenger() (permissioned game)
 SEL_MAX_CLOCK=0xdabd396d       # maxClockDuration()
 TOPIC_RESOLVED=0x5e186f09b9c93491f14e277eea7faa5de6a2d4bda75a79af7a3684fbfb42da60   # Resolved(GameStatus indexed)
-TOPIC_MOVE=0x9b3245740ec3b155098a55be84957a4da13eaf7f14a8bc6f53126c0b9350f2be       # Move(uint256 indexed, bytes32 indexed, address indexed)
 
 # ecall <to> <data> -> the raw hex result. A public endpoint drops or rate-limits a burst of requests, so an error or an
 # empty answer is asked again (five times, with a growing pause) before the script gives up on the call.
 ecall() {
-  local attempt r
-  for attempt in 1 2 3 4 5; do
-    r="$(rpc "$L1" eth_call "[{\"to\":\"$1\",\"data\":\"$2\"},\"latest\"]" 2>/dev/null | jq -r '.result // empty' 2>/dev/null || true)"
+  local attempt raw r
+  for attempt in 1 2 3 4 5 6; do
+    raw="$(rpc "$L1" eth_call "[{\"to\":\"$1\",\"data\":\"$2\"},\"latest\"]" 2>/dev/null || true)"
+    r="$(jq -r '.result // empty' <<<"$raw" 2>/dev/null || true)"
     if [ -n "$r" ] && [ "$r" != "0x" ]; then echo "$r"; return 0; fi
-    sleep "$attempt"
+    sleep $((attempt * 2))
   done
-  die "eth_call to $1 (${2:0:10}) answered nothing five times (a revert, or the endpoint $L1 is refusing the burst; try again, or pass another L1 RPC)"
+  die "eth_call to $1 (${2:0:10}) answered nothing six times (a revert, or the endpoint $L1 is refusing the burst; last answer: $(printf '%s' "$raw" | cut -c1-200))"
 }
 # rpcq <method> <params> -> the result as JSON, asked again on an error or an empty answer like ecall
 rpcq() {
-  local attempt r
-  for attempt in 1 2 3 4 5; do
-    r="$(rpc "$L1" "$1" "$2" 2>/dev/null | jq -c 'if .error then empty else .result end' 2>/dev/null || true)"
+  local attempt raw r
+  for attempt in 1 2 3 4 5 6; do
+    raw="$(rpc "$L1" "$1" "$2" 2>/dev/null || true)"
+    r="$(jq -c 'if .error then empty else .result end' <<<"$raw" 2>/dev/null || true)"
     if [ -n "$r" ] && [ "$r" != "null" ]; then echo "$r"; return 0; fi
-    sleep "$attempt"
+    sleep $((attempt * 2))
   done
-  die "$1 answered nothing five times on $L1"
+  die "$1 answered nothing six times on $L1 (last answer: $(printf '%s' "$raw" | cut -c1-200))"
 }
 word_n() { printf '%d' "0x$(printf '%s' "$1" | cut -c$((3 + 64 * $2))-$((2 + 64 * ($2 + 1))))"; }   # word_n <hex> <i> -> integer (fits 64 bits)
 word_addr() { echo "0x$(printf '%s' "$1" | cut -c$((27 + 64 * $2))-$((2 + 64 * ($2 + 1))))"; }
@@ -125,7 +126,7 @@ while [ "$i" -lt "$count" ]; do
   else
     in_progress=$((in_progress + 1))
   fi
-  moves="$(rpcq eth_getLogs "[{\"address\":\"$proxy\",\"topics\":[\"$TOPIC_MOVE\"],\"fromBlock\":\"$(printf '0x%x' "$DEPLOY_BLOCK")\",\"toBlock\":\"latest\"}]" | jq -r 'length')"
+  moves=$((claims - 1))   # every move appends a claim; the root claim is claim 0 (no log query: a public endpoint rations eth_getLogs)
   clock_ends=$((created + max_clock))
   printf '  #%-3s %s  L2 %-7s created %s  %-15s claims %s moves %s%s  credit P %s C %s\n' "$i" "$proxy" "$l2b" "$(iso_of "$created")" "$(status_name "$status")" "$claims" "$moves" \
     "$([ "$status" != "0" ] && echo "  resolved $(iso_of "$resolved_at") by $(jq -r '.sender // "?"' <<<"$resolution")" || echo "  clock ends $(iso_of "$clock_ends")$([ "$now" -gt "$clock_ends" ] && echo ' (resolvable)')")" \
@@ -134,7 +135,7 @@ while [ "$i" -lt "$count" ]; do
     --argjson st "$status" --arg stn "$(status_name "$status")" --argjson ra "$resolved_at" --argjson claims "$claims" --argjson moves "$moves" --argjson res "$resolution" \
     --arg cp "$credit_p" --arg cc "$credit_c" --argjson ce "$clock_ends" \
     '$g + [{index: $i, type: $t, proxy: $p, createdAt: $c, created: $cs, l2Block: $l2, rootClaim: $root, status: $st, statusName: $stn, resolvedAt: $ra, claims: $claims, moves: $moves, clockEndsAt: $ce, resolution: $res, creditWei: {proposer: $cp, challenger: $cc}}]')"
-  i=$((i + 1))
+  i=$((i + 1)); sleep 0.3
 done
 
 out="$FINCHAIN_ROOT/manifests/evidence/games-$(date -u +%Y%m%dT%H%M%SZ).json"
