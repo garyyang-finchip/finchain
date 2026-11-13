@@ -85,7 +85,7 @@ package does about confirmation levels and does not wait for it.
 | Trace self-check (`run-trace`) passes for a recent game | command output (not a substitute for the previous item) |
 | Full VM dispute drill with adversarial driver: real `step()` executed, invalid root rejected | `docs/proof-plan.md` evidence list, `environment: local-devnet` |
 | Prestate embeds Finchain configuration (hash recorded; embedding verified) | prestate hash, build log |
-| Deposit -> proof -> withdrawal end to end with the actual waiting periods recorded | tx list and timestamps |
+| Deposit -> proof -> withdrawal end to end with the actual waiting periods recorded | `manifests/evidence/withdrawal-<date>.json` (`make withdraw`, `scripts/withdraw.sh`: the deposit that funded the cycle, the L2 initiation, the covering game, the proof with its output root recomputed against the game's root claim, the finalization; the timeline in hours) |
 | Game implementation on the public chain carries a Finchain-embedding prestate (if done) | on-chain snapshot |
 
 ## M5 - mainnet readiness (planning items, not v0.1 deliverables)

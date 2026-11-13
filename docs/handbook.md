@@ -164,6 +164,21 @@ The full deposit -> proof -> withdrawal cycle, with the actual waiting times, is
 acceptance item (`docs/acceptance.md`) and is recorded there when done. Treat Finchain
 Sepolia ETH as test ETH that takes about a week to leave.
 
+The repository drives the whole path from a key it holds (`scripts/withdraw.sh`, `make
+withdraw`): `initiate` sends `L2ToL1MessagePasser.initiateWithdrawal` and records the
+withdrawal and its hash (recomputed from the event's fields); `status` finds the earliest
+game of the respected type whose L2 block covers it and reports both clocks; `prove` builds
+the output root proof from the public L2 RPC alone (the block's state root and hash, the
+message passer's storage root and the `eth_getProof` of `sentMessages[hash]` at the game's
+block), checks that it hashes to the game's root claim, and sends
+`OptimismPortal2.proveWithdrawalTransaction`; `finalize` asks the portal's `checkWithdrawal`
+and then sends `finalizeWithdrawalTransaction`. Every step appends to one record under
+`manifests/evidence/withdrawal-<date>.json`, which ends with the timeline (initiated, game
+created, proven, game resolved, finalized) in hours. A wallet user without the repository
+follows the same four steps with any OP Stack bridge tool that takes a custom chain; the
+node serving `eth_getProof` for a past block must allow it (`--rpc.eth-proof-window` on
+op-reth, set on host B).
+
 ### 3.6 FOGA on Finchain
 
 FOGA (`https://github.com/garyyang-finchip/foga`, npm `@finchip.ai/foga`) deploys the

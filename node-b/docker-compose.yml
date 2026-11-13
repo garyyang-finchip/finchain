@@ -48,6 +48,9 @@ services:
       - --ws.port=8546
       - --ws.origins=*
       - --ws.api=eth,net,web3
+      # eth_getProof at a past block (a withdrawal is proven against the output proposal's L2 block, scripts/withdraw.sh):
+      # reth answers only for the head unless a window is set; 100000 blocks is about 2.3 days of Finchain blocks
+      - --rpc.eth-proof-window=100000
       - --authrpc.addr=0.0.0.0
       - --authrpc.port=8551
       - --authrpc.jwtsecret=/secrets/jwt.txt

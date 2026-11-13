@@ -76,9 +76,10 @@ The full procedure, with expected outputs and acceptance checks, is in
 
 ## Status
 
-v0.2.0: M3 closed on 2026-11-13; the reference-version manifest
-`manifests/finchain-sepolia/2026.11-rc1.json` is published with status `candidate` (M1, M2
-and the three M3 acceptances passed on public-testnet, M4 and M5 not run); M4 is next.
+v0.3.0-alpha.1: M4 in progress (`make withdraw` drives the deposit -> proof -> withdrawal
+cycle step by step, with its record). v0.2.0 (2026-11-13) closed M3: the reference-version
+manifest `manifests/finchain-sepolia/2026.11-rc1.json` is published with status `candidate`
+(M1, M2 and the three M3 acceptances passed on public-testnet, M4 and M5 not run).
 Finchain Sepolia (chain id 85422) is live: L1 contracts
 deployed 2026-11-11 at Sepolia block 12112920 (`chain/out/`), host A sequencing since the
 same day, host B verifying independently; M1 and M2 acceptance records are in

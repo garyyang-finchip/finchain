@@ -13,7 +13,7 @@ COMPOSE_B  := docker compose -f $(ROOT)/node-b/docker-compose.yml $(ENV_COMMON) 
         chain-id-check l1-probe intent funding-table deploy-l1 deploy-l1-calldata export verify-onchain lock fund-roles \
         up-a down-a restart-a logs-a up-b down-b restart-b logs-b status-a status-b peers-a peers-b \
         compare rebuild-b deposit set-init-bond deploy-8004 build-8004 l2-send verify-world \
-        evm-acceptance verify-evm foga-isolation world-manifest fee-lines lint
+        evm-acceptance verify-evm foga-isolation world-manifest fee-lines withdraw lint
 
 help: ## List targets
 	@grep -E '^[a-zA-Z0-9_-]+:.*?## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  %-18s %s\n", $$1, $$2}'
@@ -124,6 +124,8 @@ verify-world: ## M3-C: check a covenantWorld section against chain code at a blo
 	@bash $(ROOT)/scripts/verify-world.sh "$(SECTION)" "$(L2_RPC)" "$(AT)"
 fee-lines: ## M3: the four funding lines from receipts (three fee components) and the business loop re-read at finalized: L2_RPC=... LOOP=manifests/evidence/business-loop-<date>.json
 	@bash $(ROOT)/scripts/fee-lines.sh "$(L2_RPC)" "$(LOOP)"
+withdraw: ## M4: ETH withdrawal through the fault-proof path, step by step: ARGS="initiate 0.01" | "status <record>" | "prove <record>" | "finalize <record>" (L2_RPC, YES=1, DEPOSIT_TX=0x... in the environment)
+	@bash $(ROOT)/scripts/withdraw.sh $(ARGS)
 
 lint: ## Static checks: shellcheck, compose config, JSON/YAML validity
 	@shellcheck -x $(ROOT)/scripts/*.sh
