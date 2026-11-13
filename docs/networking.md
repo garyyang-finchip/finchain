@@ -27,6 +27,17 @@ trusted; the derivation itself is still re-executed locally. For host B as an in
 verifier, the stronger setting is `L1_TRUST_RPC=false` with a provider account that serves
 `eth_getProof` at the head; record the setting in the manifest either way.
 
+`L1_RPC_KIND` names the provider's receipt method (`alchemy`, `standard` for
+`eth_getBlockReceipts`, `basic` for one `eth_getTransactionReceipt` per transaction). It must
+match the endpoint in `L1_RPC_URL`; the per-transaction fallback multiplies the call count by
+the number of transactions in an L1 block and eats a provider quota in days. A provider's
+quota is the finality dependency of its host: when the endpoint stops answering (on
+2026-11-13 host B's provider returned `429 Monthly capacity limit exceeded` for five hours),
+that host keeps receiving unsafe blocks over p2p while its `safe` and `finalized` heads and
+its L1 head stop. `make status-*` prints the L1 head age and the unsafe-safe gap and warns;
+the recovery is in `docs/runbook.md`, section 8. The two hosts keep different providers so
+that one quota never stops both.
+
 ## Private network between A and B
 
 Use Tailscale (or WireGuard) on both hosts. In the env files:

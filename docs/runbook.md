@@ -169,3 +169,20 @@ expected `safe` delay in the public documentation and in acceptance records.
   op-conductor HA is out of scope for v0.1.
 - Balances: `make status-a` prints the hot-role balances; top up before they reach the
   daily consumption shown by the funding table.
+- L1 endpoint failure on a host (seen on B on 2026-11-13: the provider's monthly quota ran
+  out and every L1 call answered `429 Monthly capacity limit exceeded`): `make status-*`
+  shows the unsafe head current (blocks keep arriving over p2p) while `safe`, `finalized`
+  and the L1 head stop, and now prints the L1 head age and the unsafe-safe gap with a
+  warning. The chain itself is unaffected as long as the sequencer's host is fine (check
+  the batch inbox on an L1 explorer: a new batch every couple of minutes). Fix: put a
+  different provider in `L1_RPC_URL` of that host's `.env` (`make l1-probe` lists public
+  endpoints that answer from the host; with `L1_RPC_KIND=standard` the endpoint must serve
+  `eth_getBlockReceipts`), then recreate only the containers that read L1 there, so the
+  execution client and the public RPC stay up:
+  `docker compose -f node-b/docker-compose.yml --env-file versions.lock --env-file profiles/<profile>.env --env-file node-b/.env up -d --force-recreate --no-deps op-node op-challenger`.
+  op-node resumes derivation from its last safe head and catches up on the backlog in
+  minutes; `finalized` follows once the corresponding L1 blocks are final. A verification
+  that must run at `finalized` (`make verify-world`, `make verify-evm`) waits for that:
+  both scripts stop with `NOT YET` when the checked block is below the completing block
+  (`verify-world` exits 2 and writes no report) instead of reporting code that is not
+  there yet as a mismatch.

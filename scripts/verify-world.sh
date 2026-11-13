@@ -6,7 +6,8 @@
 #
 # Usage: scripts/verify-world.sh <covenant-world.json> [l2-rpc=https://rpc.finchain.one] [block=finalized]
 # Reads the chain only (curl + cast keccak); needs no FOGA checkout, no bundle and no key. The report
-# lands in manifests/evidence/world-verify-<block>.json. Exit 3 on any mismatch.
+# lands in manifests/evidence/world-verify-<block>.json. Exit 3 on any mismatch; exit 2 (no report) when the
+# checked block is below the completing block.
 
 # shellcheck source=scripts/common.sh
 . "$(dirname "${BASH_SOURCE[0]}")/common.sh"
@@ -29,6 +30,16 @@ esac
 block=$(( block_hex ))
 chain_hex="$(rpc "$L2_RPC" eth_chainId | jq -r .result)"
 echo "chain $((chain_hex)) via $L2_RPC; checking at block $block ($AT)"
+
+# A check below the completing block cannot pass and would report "no code" for every contract that is not
+# there yet. Stop before the loop and write no report: on a `finalized` tag this means the node's finality has
+# not reached the deployment (normal for the first ~20 minutes; if it lasts, the node's L1 tracking has
+# stalled: `make status-b` prints the L1 head age, docs/runbook.md section 8).
+completion_n="$(jq -r '.completionBlock.number // empty' "$SECTION")"
+if [ -n "$completion_n" ] && [ "$completion_n" != "0" ] && [ "$completion_n" -gt "$block" ]; then
+  echo "NOT YET: completion block $completion_n is above the checked block $block ($AT); no report written. Check again when $AT has passed $completion_n."
+  exit 2
+fi
 
 rows=""; failed=0; total=0
 check_contract() { # <name> <address> <expected keccak>

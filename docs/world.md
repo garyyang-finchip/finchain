@@ -234,6 +234,18 @@ gives the same two, Sepolia included. The execution fees of the
 (0.000128 ETH); the L1 data fees come from the receipts and are reported in the M3-C
 evidence file.
 
+The manifest section of the reference World, `manifests/covenant-world-finchain-sepolia.json`,
+records the completing block 61548 (the last of the eight wiring and flows transactions)
+and the raw code hash of every contract at that block; host B verified it at its finalized
+block 61794 (`manifests/evidence/world-verify-61794.json`: the identity root's four and the
+World's 55 contracts MATCH, completion block canonical), and the check repeated after
+`verifiedAt` was filled. The first attempt that day ran while host B's L1 provider had cut
+the host off (monthly quota; `docs/runbook.md`, section 8, and `docs/networking.md`): B's
+finalized head stood at 58794, below the completing block, so every World address showed
+no code yet. That report was discarded, B was moved to another provider, and the check was
+run again once its finalized head had passed the deployment. `make verify-world` now stops
+with `NOT YET` in that situation instead of writing a report.
+
 ### 5.5 Scenarios and the second cell
 
 The genesis T0-T9 run with `--world chain/world/finchain-sepolia.json` gives the four

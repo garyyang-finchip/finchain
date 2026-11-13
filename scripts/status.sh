@@ -20,6 +20,16 @@ docker compose -f "$FINCHAIN_ROOT/node-$host/docker-compose.yml" \
 echo "== L2 heads (op-node optimism_syncStatus)"
 if s="$(rpc "$NODE" optimism_syncStatus 2>/dev/null)"; then
   echo "$s" | jq -r '.result | "unsafe     #\(.unsafe_l2.number)  \(.unsafe_l2.hash)\nsafe       #\(.safe_l2.number)  \(.safe_l2.hash)\nfinalized  #\(.finalized_l2.number)  \(.finalized_l2.hash)\nL1 head    #\(.head_l1.number)   L1 finalized #\(.finalized_l1.number)"'
+  # The two numbers that say whether this node still follows L1: the age of the L1 head it holds, and the
+  # distance between unsafe (p2p) and safe (derived from L1). Both grow without bound when the L1 endpoint
+  # fails (quota, outage) while unsafe blocks keep arriving over p2p: the chain looks alive, finality stalls.
+  l1_age=$(( $(date +%s) - $(echo "$s" | jq -r '.result.head_l1.timestamp // 0') ))
+  gap=$(( $(echo "$s" | jq -r '.result.unsafe_l2.number // 0') - $(echo "$s" | jq -r '.result.safe_l2.number // 0') ))
+  echo "L1 head age $((l1_age / 60)) min; unsafe-safe gap $gap blocks"
+  if [ "$l1_age" -gt 600 ] || [ "$gap" -gt 1800 ]; then
+    echo "WARNING: L1 tracking looks stalled (L1 head older than 10 min or safe more than an hour behind unsafe)."
+    echo "         Check the op-node log for L1 RPC errors (quota, 429, timeouts) and see docs/runbook.md, section 8."
+  fi
 else
   echo "op-node RPC not reachable at $NODE"
 fi

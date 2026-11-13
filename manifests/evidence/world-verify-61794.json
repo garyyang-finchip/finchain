@@ -1,0 +1,429 @@
+{
+  "acceptance": "M3-C address book vs chain code",
+  "section": "manifests/covenant-world-finchain-sepolia.json",
+  "rpc": "http://100.120.188.50:8545",
+  "chainId": 85422,
+  "checkedAt": "2026-11-13T07:03:06Z",
+  "block": 61794,
+  "blockHash": "0xef425b56b8153dad6d93f933f70c35e6ba2cea164cae543cdfc7659b39ac6cb2",
+  "tag": "finalized",
+  "finalizedHead": 61794,
+  "contracts": [
+    {
+      "name": "IdentityRegistry",
+      "address": "0x363e71c6c33d4b5980b31b558d1e16b52eb3c8e9",
+      "expected": "0xe65b40a84f34ef23cb6537663429e382c822c510fdd205e5aa7629ad3cde5fce",
+      "actual": "0xe65b40a84f34ef23cb6537663429e382c822c510fdd205e5aa7629ad3cde5fce",
+      "result": "match"
+    },
+    {
+      "name": "IdentityRegistry.implementation",
+      "address": "0x5acfaf6c0fdabf9f83a8a0d0a8f25bf6e98ffa8e",
+      "expected": "0x792e6190076b9c82799a81964ef7a12e117cbffea5548e1b5d5608a788a31eb3",
+      "actual": "0x792e6190076b9c82799a81964ef7a12e117cbffea5548e1b5d5608a788a31eb3",
+      "result": "match"
+    },
+    {
+      "name": "ReputationRegistry",
+      "address": "0xf0a3ba008486ccc0bf994d5c06ce095e0b1d08e2",
+      "expected": "0xe65b40a84f34ef23cb6537663429e382c822c510fdd205e5aa7629ad3cde5fce",
+      "actual": "0xe65b40a84f34ef23cb6537663429e382c822c510fdd205e5aa7629ad3cde5fce",
+      "result": "match"
+    },
+    {
+      "name": "ReputationRegistry.implementation",
+      "address": "0x6964d60ccc11f9800e5bee77d9f3f51f8cfd9250",
+      "expected": "0xea8984159cf639b04f5eb3c7c34bcebfc4f3196e39b6fee8324f5992f21c74d9",
+      "actual": "0xea8984159cf639b04f5eb3c7c34bcebfc4f3196e39b6fee8324f5992f21c74d9",
+      "result": "match"
+    },
+    {
+      "name": "8338/SkillToken",
+      "address": "0x0FCE5e1DfdDdE86bDCb34C0622459cBEa963A6e5",
+      "expected": "0x4335fdf9df099ad2dec83e9ed3d401cc90cbf4eb6298b56fa8d657c5818106ba",
+      "actual": "0x4335fdf9df099ad2dec83e9ed3d401cc90cbf4eb6298b56fa8d657c5818106ba",
+      "result": "match"
+    },
+    {
+      "name": "8414/TaskToken",
+      "address": "0xfA4ED44c3A06f9087D98BEfb99f69ff43b381908",
+      "expected": "0xc574b6609c02562149e4d847c7e7eeb2941358543e3a1f3f7ba1e34af097a2aa",
+      "actual": "0xc574b6609c02562149e4d847c7e7eeb2941358543e3a1f3f7ba1e34af097a2aa",
+      "result": "match"
+    },
+    {
+      "name": "8414/HashlockVerifier",
+      "address": "0xb90d0a7Bb619255C0f8fa796DbBA2421abbd96De",
+      "expected": "0xc29528e6717bf47a3ebf3a59fab82deb60d582757b18a65cdef1706f7e465765",
+      "actual": "0xc29528e6717bf47a3ebf3a59fab82deb60d582757b18a65cdef1706f7e465765",
+      "result": "match"
+    },
+    {
+      "name": "8419/KYASchemeRegistry",
+      "address": "0x391C96ca3613d2D32e881e2d3549c30FEE816E75",
+      "expected": "0x780f4bf79b686a1c9dc9f30025621fb761d944f361e64c22a444a081fe14cc65",
+      "actual": "0x780f4bf79b686a1c9dc9f30025621fb761d944f361e64c22a444a081fe14cc65",
+      "result": "match"
+    },
+    {
+      "name": "8419/KYARegistry",
+      "address": "0x4860CA10C36c3dc728423f484BD19722fAAc19B0",
+      "expected": "0x4ddfc2aa795120ffb9876ea8556efbe1737a4102ce86e466c391c6ea9e2c3b06",
+      "actual": "0x4ddfc2aa795120ffb9876ea8556efbe1737a4102ce86e466c391c6ea9e2c3b06",
+      "result": "match"
+    },
+    {
+      "name": "8419/KYAPolicyRegistry",
+      "address": "0x09a4578A8a6f8a14A79F0E8237DA70fC04f4c717",
+      "expected": "0x335f5b465d686774ade1da8537f0f3e57f9210e7b538edb415cdfba798547d0e",
+      "actual": "0x335f5b465d686774ade1da8537f0f3e57f9210e7b538edb415cdfba798547d0e",
+      "result": "match"
+    },
+    {
+      "name": "8419/ValidationRegistry8004",
+      "address": "0xE41e1ebC25D9baBDDfA15833C38d1E4d2b47c911",
+      "expected": "0x961ba58acf24e46584df3bf2d99b5c9f104b8ad0dc001211649d9f5fd9842bb3",
+      "actual": "0x961ba58acf24e46584df3bf2d99b5c9f104b8ad0dc001211649d9f5fd9842bb3",
+      "result": "match"
+    },
+    {
+      "name": "8419/KYABridge8004",
+      "address": "0x4dF9E3eE2CE0D26A4AE8Ae42C1f6cb8978243066",
+      "expected": "0xcd9f7dae1ab06599fc742db1ea6d797615cd9240cdc9e73aad0dfaa7ce811a62",
+      "actual": "0xcd9f7dae1ab06599fc742db1ea6d797615cd9240cdc9e73aad0dfaa7ce811a62",
+      "result": "match"
+    },
+    {
+      "name": "8419/Groth16Verifier",
+      "address": "0x7183f95771e1Cbef0C79F14f1Ed6560cE5115F5B",
+      "expected": "0x8f16b740d4495d64c4c174ac75cf6e8898205288f14199214a3c5ef0853d81f3",
+      "actual": "0x8f16b740d4495d64c4c174ac75cf6e8898205288f14199214a3c5ef0853d81f3",
+      "result": "match"
+    },
+    {
+      "name": "8419/Groth16KYAVerifierAdapter",
+      "address": "0xb1F078AF70f35634820F1b5a5626959CEe05FC79",
+      "expected": "0xda6fbf157005bcaac3b71977e4bd5bf101e5f0be1cb4990373c25947a42d8572",
+      "actual": "0xda6fbf157005bcaac3b71977e4bd5bf101e5f0be1cb4990373c25947a42d8572",
+      "result": "match"
+    },
+    {
+      "name": "8434/AIDRegistry",
+      "address": "0x2Bb91282D6E8B2Fd1a6f82d76fD0226086E39e42",
+      "expected": "0xeaa6fb7b70150276f015d2af9b3d9a5857d672df975fd693c9fb5b2182126c53",
+      "actual": "0xeaa6fb7b70150276f015d2af9b3d9a5857d672df975fd693c9fb5b2182126c53",
+      "result": "match"
+    },
+    {
+      "name": "8436/ACDFPolicyRegistry",
+      "address": "0xD08D9821C9c6930862a64894b3B0C1895d6133A2",
+      "expected": "0x4e82105cd321154d5060e588c19f4ddfd21fcdcc793aac31f561f022ecb97fdb",
+      "actual": "0x4e82105cd321154d5060e588c19f4ddfd21fcdcc793aac31f561f022ecb97fdb",
+      "result": "match"
+    },
+    {
+      "name": "8436/ACDFRegistry",
+      "address": "0x43562dD8C7eDCE7afbdd0b73533C0e21Fc7fA72A",
+      "expected": "0xa1fad2c97ba6a62e0ac8ddda24289f8565d1cb4e5b6c9bd2d61fc1c371f1b7e9",
+      "actual": "0xa1fad2c97ba6a62e0ac8ddda24289f8565d1cb4e5b6c9bd2d61fc1c371f1b7e9",
+      "result": "match"
+    },
+    {
+      "name": "8444/ARDOnchainRegistry",
+      "address": "0x1313Bf7087B5cC18099CA1E6FC882Bac68E5317B",
+      "expected": "0x0ec536280e7994e1b62b50de8d6b69fbb298d83547bc602b3037f55c3851ca9a",
+      "actual": "0x0ec536280e7994e1b62b50de8d6b69fbb298d83547bc602b3037f55c3851ca9a",
+      "result": "match"
+    },
+    {
+      "name": "8444/SkillAdapter",
+      "address": "0x586e11943394E54a83F8500fFA93d7FC677E5D4A",
+      "expected": "0x278f43e17635613b992265bc41e2e79abeb4fa9d3301617d196f1748e024fc98",
+      "actual": "0x278f43e17635613b992265bc41e2e79abeb4fa9d3301617d196f1748e024fc98",
+      "result": "match"
+    },
+    {
+      "name": "8444/TaskAdapter",
+      "address": "0x391B67d920501576600D0E32FDeaF79Fe2Fc7Fe1",
+      "expected": "0x0185c47d4dd1bfcd2eb5d54b36f21a8c1d8ff7f7a34fd78e92f379e8ac7ecbeb",
+      "actual": "0x0185c47d4dd1bfcd2eb5d54b36f21a8c1d8ff7f7a34fd78e92f379e8ac7ecbeb",
+      "result": "match"
+    },
+    {
+      "name": "8444/AgentAdapter",
+      "address": "0x1eC22022a8a8096803Aab16B8f283633146632d9",
+      "expected": "0xb144984a208a66f55c2d2a6b361813043ecfa92fd1df2299d3896eea8448e2ec",
+      "actual": "0xb144984a208a66f55c2d2a6b361813043ecfa92fd1df2299d3896eea8448e2ec",
+      "result": "match"
+    },
+    {
+      "name": "8444/RegistryAdapter",
+      "address": "0x619261CcD61A24a9B22B847AB0132473DC21558b",
+      "expected": "0x4d1fc6ca9a62952ea8b652ce72b79aeba7d56fa5734e6a6bb861ec822c46f861",
+      "actual": "0x4d1fc6ca9a62952ea8b652ce72b79aeba7d56fa5734e6a6bb861ec822c46f861",
+      "result": "match"
+    },
+    {
+      "name": "8447/SpecValidator",
+      "address": "0x0D53d6d3772DA75Cf295FDeA8A2Eb41ee8aab05f",
+      "expected": "0x326d95e779ec58049eb96bc544a2be8706f45685fd60d409841deb1939984c51",
+      "actual": "0x326d95e779ec58049eb96bc544a2be8706f45685fd60d409841deb1939984c51",
+      "result": "match"
+    },
+    {
+      "name": "8447/LifecycleLib",
+      "address": "0xEdeb51a8bDdcB15f08A0E2BDeA81693C72480953",
+      "expected": "0x23bd3665718dbcf7a500f2c51c5c4a6808411f90866a93528f98787b453e49e4",
+      "actual": "0x23bd3665718dbcf7a500f2c51c5c4a6808411f90866a93528f98787b453e49e4",
+      "result": "match"
+    },
+    {
+      "name": "8447/MembershipLib",
+      "address": "0x778FFa076cDd5639E37Cb8e3047D7b40D32BFEc6",
+      "expected": "0x357aac61cf1d26306de7e7180d8ef80fa370b9b0c9ec711e729675136000c2ff",
+      "actual": "0x357aac61cf1d26306de7e7180d8ef80fa370b9b0c9ec711e729675136000c2ff",
+      "result": "match"
+    },
+    {
+      "name": "8447/ResourceLib",
+      "address": "0xF2ED5759f3ACBA64A2bD82C046651E40AfEa6595",
+      "expected": "0x44d8dce56f7af5bf6a6f7851f8baae4620efed8a157e056fcf0bb06484f40662",
+      "actual": "0x44d8dce56f7af5bf6a6f7851f8baae4620efed8a157e056fcf0bb06484f40662",
+      "result": "match"
+    },
+    {
+      "name": "8447/SwarmRegistry",
+      "address": "0x0c2a06fB8D27A61499af6d6C15E7a635F28197DD",
+      "expected": "0xeb360f91b445e196d7da61f6a8c002752d0de797ac0058de0342997c492b77cb",
+      "actual": "0xeb360f91b445e196d7da61f6a8c002752d0de797ac0058de0342997c492b77cb",
+      "result": "match"
+    },
+    {
+      "name": "8447/AllowlistEligibility",
+      "address": "0xFc5bA5661CdE28415dA6dD9D63152DeD8c14CC0F",
+      "expected": "0xcf1be7da7877858fb8a7e339421f61cd5c1cf587085c34a43f7f9f9e560303b2",
+      "actual": "0xcf1be7da7877858fb8a7e339421f61cd5c1cf587085c34a43f7f9f9e560303b2",
+      "result": "match"
+    },
+    {
+      "name": "8447/ERC8004Eligibility",
+      "address": "0xB5D5bFd7c35EdDab2675bD3e99334AB229f6d701",
+      "expected": "0x16a5933d6adb86703bfc1f3f08037d3103e4ef1525cdc0ffa30462050d59a20c",
+      "actual": "0x16a5933d6adb86703bfc1f3f08037d3103e4ef1525cdc0ffa30462050d59a20c",
+      "result": "match"
+    },
+    {
+      "name": "8447/IdentityStateEligibility",
+      "address": "0xF40574E4e8cEac7cca0aAacb18BC1821966D6A3f",
+      "expected": "0xf5e6ceeffdc1077fc330f665cb4a628aa19830b2199848da0dd6e67eef21a6cf",
+      "actual": "0xf5e6ceeffdc1077fc330f665cb4a628aa19830b2199848da0dd6e67eef21a6cf",
+      "result": "match"
+    },
+    {
+      "name": "8447/SwarmTenderAdapter",
+      "address": "0x5340ac9dB7B65BBc0b631dB58d94ceB8384c9DA9",
+      "expected": "0xa1912d11664466acadeba959473d80267f3407c304399879eff75d63448744b1",
+      "actual": "0xa1912d11664466acadeba959473d80267f3407c304399879eff75d63448744b1",
+      "result": "match"
+    },
+    {
+      "name": "8454/AUFUnitRegistry",
+      "address": "0x24DaA72aF7C91271391b8DD49f935c0CeD03F2b8",
+      "expected": "0x9304046995bd34447bac744145f04c60d3e491759d76616c38d52c8540a1df1e",
+      "actual": "0x9304046995bd34447bac744145f04c60d3e491759d76616c38d52c8540a1df1e",
+      "result": "match"
+    },
+    {
+      "name": "8454/AUFAssertionRegistry",
+      "address": "0x69594C3fAdD543B92A2c0596113Ad75A0c80B033",
+      "expected": "0x427e8c9b850f193a0ba2dbde4472f9f755b503d592d840a2547c92ef678cb7a7",
+      "actual": "0x427e8c9b850f193a0ba2dbde4472f9f755b503d592d840a2547c92ef678cb7a7",
+      "result": "match"
+    },
+    {
+      "name": "8468/ASFEvaluation",
+      "address": "0x03Eb0978b8276E77415Df659Eae017eeeF68155d",
+      "expected": "0x5abe84c230cbfe76086841d9bccc4df65842077262e7ec38e7a6c26dfccbb90d",
+      "actual": "0x5abe84c230cbfe76086841d9bccc4df65842077262e7ec38e7a6c26dfccbb90d",
+      "result": "match"
+    },
+    {
+      "name": "8468/ASFLifecycle",
+      "address": "0x47249b40ecCdC625b8ba26FF3cD1eed9Bf7a6585",
+      "expected": "0xc7bde3c5a49aaf2596b8c9570a423f16d5f50f9ab4ab4de88d900a6ec2adb132",
+      "actual": "0xc7bde3c5a49aaf2596b8c9570a423f16d5f50f9ab4ab4de88d900a6ec2adb132",
+      "result": "match"
+    },
+    {
+      "name": "8468/ASFSpecificationRegistry",
+      "address": "0x75DfB42Af33Ef07c55969B5EA7A9E82AFCC2BF0D",
+      "expected": "0xcb590d3a4ebce346a6ea535bdbfbe822a51a9d812a1a31c5bcb015d91b01802d",
+      "actual": "0xcb590d3a4ebce346a6ea535bdbfbe822a51a9d812a1a31c5bcb015d91b01802d",
+      "result": "match"
+    },
+    {
+      "name": "8468/ASFBindingRegistry",
+      "address": "0x6F944cc819F98334895da6697Fdc9f249d986a3E",
+      "expected": "0x83c344e6384d924fb519be16fa2b34eb9790e796974e70861e7f0dc356ca4199",
+      "actual": "0x83c344e6384d924fb519be16fa2b34eb9790e796974e70861e7f0dc356ca4199",
+      "result": "match"
+    },
+    {
+      "name": "8471/ADRFPolicyRegistry",
+      "address": "0x49cB5a840a4d4af2451d987f88E088126a5824c9",
+      "expected": "0x9581a9bd8bcb745a7d1e552288137ddaecf8ec49abedea7fe6742abd7cd43646",
+      "actual": "0x9581a9bd8bcb745a7d1e552288137ddaecf8ec49abedea7fe6742abd7cd43646",
+      "result": "match"
+    },
+    {
+      "name": "8471/ADRFBindingModule",
+      "address": "0x9d5d937A411CEaE971f94f1671270acb49999e3E",
+      "expected": "0x1a6a307707628dc5433cfbca174cfab34b852edf2177a234db4efe399586e81d",
+      "actual": "0x1a6a307707628dc5433cfbca174cfab34b852edf2177a234db4efe399586e81d",
+      "result": "match"
+    },
+    {
+      "name": "8471/ADRFFilingModule",
+      "address": "0x2E96c56551D128B3ae009Dd6574dC7d3C4556018",
+      "expected": "0xb1feb749f0ade8e4391278871811983b57bd0ef4b7d76f495d0b3bc0d1f03c46",
+      "actual": "0xb1feb749f0ade8e4391278871811983b57bd0ef4b7d76f495d0b3bc0d1f03c46",
+      "result": "match"
+    },
+    {
+      "name": "8471/ADRFResolutionModule",
+      "address": "0x1d331504F6945Cffa4ac27D1F1B782FE3373A72a",
+      "expected": "0x6b7b014c4c0c40cb68f1ee4a0e9dbd99e29bd9462b271b0e52c260b0339f91f6",
+      "actual": "0x6b7b014c4c0c40cb68f1ee4a0e9dbd99e29bd9462b271b0e52c260b0339f91f6",
+      "result": "match"
+    },
+    {
+      "name": "8471/ADRFDecisionModule",
+      "address": "0xF0FBBBf95334ABA19E7c5F3FA877a2FbCBdC6b7C",
+      "expected": "0x4ed35536575035d5de2b6f96a123ea0ae458d7a2f5cbb7f38c3f4af14107832a",
+      "actual": "0x4ed35536575035d5de2b6f96a123ea0ae458d7a2f5cbb7f38c3f4af14107832a",
+      "result": "match"
+    },
+    {
+      "name": "8471/ADRFRecordModule",
+      "address": "0x0255698e4cb445B601f0d8B2D54A3e0d62B4E3A9",
+      "expected": "0x7bf25564270aa8021591aa03352f3b3015f45fdeadf8ce94c3b64388ef916e2f",
+      "actual": "0x7bf25564270aa8021591aa03352f3b3015f45fdeadf8ce94c3b64388ef916e2f",
+      "result": "match"
+    },
+    {
+      "name": "8471/ADRFOutcomeModule",
+      "address": "0x27E8b08c19801598A1352C6251E9b6f09f8e5b0F",
+      "expected": "0x9127fb93a94cbde2cd0428d41a00bc2fa654d775bcf92381d342ce5b6b433c4a",
+      "actual": "0x9127fb93a94cbde2cd0428d41a00bc2fa654d775bcf92381d342ce5b6b433c4a",
+      "result": "match"
+    },
+    {
+      "name": "8471/ADRFDisputeRegistry",
+      "address": "0xBc71f8B8bE21843AeA233F6FBF706D94761Ed5Bb",
+      "expected": "0x4b298de1714fef2b3d887ed5cd481d7063202083af567daf1d1a0d068b871813",
+      "actual": "0x4b298de1714fef2b3d887ed5cd481d7063202083af567daf1d1a0d068b871813",
+      "result": "match"
+    },
+    {
+      "name": "8471/DuplicateSettlementVerifier",
+      "address": "0x1AC52BeE5119188fF8460F5A93fe87E2e3FD88Df",
+      "expected": "0x4e4f207938c1d38acc66a0e07a1f47005bc702329fb466f5c49177a307731399",
+      "actual": "0x4e4f207938c1d38acc66a0e07a1f47005bc702329fb466f5c49177a307731399",
+      "result": "match"
+    },
+    {
+      "name": "8471/DeclaredVersionVerifier",
+      "address": "0xdA5F4183037f63d3B0151C2b55254C399Fb5C0dE",
+      "expected": "0x2046fdd2e0af814b5baa293175c2aee65cff5776fb09dbd6ccd84d5760e38eb7",
+      "actual": "0x2046fdd2e0af814b5baa293175c2aee65cff5776fb09dbd6ccd84d5760e38eb7",
+      "result": "match"
+    },
+    {
+      "name": "8471/AttestorQuorumRule",
+      "address": "0x49569AC77eE24a709EDCb0B54B90C732b62d841A",
+      "expected": "0x3155c68028b6b547c6ca183b6582f9b6e4a70e87acd056e69839c0a37b42b500",
+      "actual": "0x3155c68028b6b547c6ca183b6582f9b6e4a70e87acd056e69839c0a37b42b500",
+      "result": "match"
+    },
+    {
+      "name": "8471/ADRFACDFBridge",
+      "address": "0x2ca22Bd2c9c640Cb3747162bf76e158CB465bBb1",
+      "expected": "0x079b4876b9ad8eb872671cfe15197023ca68634ef120c339823ec71baa5b2d52",
+      "actual": "0x079b4876b9ad8eb872671cfe15197023ca68634ef120c339823ec71baa5b2d52",
+      "result": "match"
+    },
+    {
+      "name": "8471/ADRFServiceEscrow",
+      "address": "0xcF7795C5Dbd6443a519da511E9798DF3B41409Fd",
+      "expected": "0xbb9a9c1a81b6178a890ee42094c09463eebf4c8ba67b423182b1968a97f462a1",
+      "actual": "0xbb9a9c1a81b6178a890ee42094c09463eebf4c8ba67b423182b1968a97f462a1",
+      "result": "match"
+    },
+    {
+      "name": "8490/AgentMeditationRegistry",
+      "address": "0x13f800cC49BD58eb39c222068d07e98391740a46",
+      "expected": "0x4f6c0439630fe26928ccb8f68331899181719d76cec2e2145cb676e02c9c90f6",
+      "actual": "0x4f6c0439630fe26928ccb8f68331899181719d76cec2e2145cb676e02c9c90f6",
+      "result": "match"
+    },
+    {
+      "name": "8489/AIFPParadigmRegistry",
+      "address": "0xf29DE0c390C4e5829De5180E3f853Ee80Ac126C6",
+      "expected": "0x43e97ba30651be8fda327d2eedee3c3bd275dcb623b63428f12e5ac7b3e876ce",
+      "actual": "0x43e97ba30651be8fda327d2eedee3c3bd275dcb623b63428f12e5ac7b3e876ce",
+      "result": "match"
+    },
+    {
+      "name": "8489/AIFPCompositeVerifier",
+      "address": "0xC8D64Bf19C2721fC0e928C753dEc01DFA10205Af",
+      "expected": "0x9feba8ac5a2d9a9beca1d058cfdf04e4799f3eb102ca5e4625c2d7dfcee61328",
+      "actual": "0x9feba8ac5a2d9a9beca1d058cfdf04e4799f3eb102ca5e4625c2d7dfcee61328",
+      "result": "match"
+    },
+    {
+      "name": "8489/AIFPChannelRegistry",
+      "address": "0xae59c9CB2F19a04D40aC0a9e1eD43f861E317A5a",
+      "expected": "0x4786f04b3aef45daaaf3db7c919f930835a27bea96953347457f5d766fb542ad",
+      "actual": "0x4786f04b3aef45daaaf3db7c919f930835a27bea96953347457f5d766fb542ad",
+      "result": "match"
+    },
+    {
+      "name": "8489/AIFPParticipationRegistry",
+      "address": "0xfe8Aa3074D5938A7530e7203C7C1939522acA323",
+      "expected": "0xaa01ba132f1562ec4f9075c4eb1754f30ba9815032def7965413a2a281e8f778",
+      "actual": "0xaa01ba132f1562ec4f9075c4eb1754f30ba9815032def7965413a2a281e8f778",
+      "result": "match"
+    },
+    {
+      "name": "8489/AIFPEventAnchor",
+      "address": "0x0f29DC4e21A2BeeBAa846976b3345eeEB2C7eD81",
+      "expected": "0xe8cfdb5e66a798d0dc76f96dec2d6631c87f4280e1814c74729308ba320acef7",
+      "actual": "0xe8cfdb5e66a798d0dc76f96dec2d6631c87f4280e1814c74729308ba320acef7",
+      "result": "match"
+    },
+    {
+      "name": "8489/AIFPObjectionWindow",
+      "address": "0x0eC5b3b04bD6497e6582949DEB4a1EFA94b9771d",
+      "expected": "0xdc4b6ca79ffb395f3599128591ed6053e2680a6d72d69a615486faa02fd6de29",
+      "actual": "0xdc4b6ca79ffb395f3599128591ed6053e2680a6d72d69a615486faa02fd6de29",
+      "result": "match"
+    },
+    {
+      "name": "8489/AIFPSubjectSet",
+      "address": "0x7C0c35498b512De81dcaadcA348D06d9546F6e83",
+      "expected": "0xb3933fe7336cdd9f4f617cbb4ae118fb00817e2a7961c24b721e8361a01a5373",
+      "actual": "0xb3933fe7336cdd9f4f617cbb4ae118fb00817e2a7961c24b721e8361a01a5373",
+      "result": "match"
+    },
+    {
+      "name": "8489/FogaIdentityVerifier",
+      "address": "0xa84b0D235bdB76307bb9a27542eF3c13d1fd29Ea",
+      "expected": "0xbb64dba5f49842169f71326849849c0bcbefccdceb765d142845c5b0a7015991",
+      "actual": "0xbb64dba5f49842169f71326849849c0bcbefccdceb765d142845c5b0a7015991",
+      "result": "match"
+    }
+  ],
+  "blocksCanonical": true,
+  "result": "MATCH",
+  "method": "eth_getCode at the fixed block, keccak256 compared with the recorded codeHash; completion and verification blocks compared with the canonical chain"
+}
