@@ -102,7 +102,7 @@ compare: ## Compare A and B at a height/tag: RPC_A=... RPC_B=... AT=finalized
 rebuild-b: ## On host B: wipe and rebuild from L1 only, then compare (TARGET=height REF=rpc)
 	@bash $(ROOT)/scripts/rebuild-from-l1.sh $(TARGET) $(REF) $(PROFILE)
 deposit: ## Bridge ETH into L2 via OptimismPortal: AMOUNT=0.5 ROLE=deployer L2_RPC=http://...
-	@bash $(ROOT)/scripts/deposit.sh $(AMOUNT) $(ROLE) $(L2_RPC)
+	@bash $(ROOT)/scripts/deposit.sh "$(AMOUNT)" "$(ROLE)" "$(L2_RPC)"
 set-init-bond: ## DGF owner: set initial bond for a game type: TYPE=1 BOND=0
 	@bash $(ROOT)/scripts/set-init-bond.sh $(TYPE) $(BOND)
 
@@ -117,7 +117,7 @@ deploy-8004: ## Deploy the ERC-8004 identity root on L2 from the deployer key (L
 build-8004: ## Rebuild chain/contracts/erc8004 with solc 0.8.24 and compare the bytecode hashes
 	@bash $(ROOT)/scripts/build-8004.sh
 l2-send: ## Plain L2 transfer from a repository key: TO=0x... AMOUNT=0.3 ROLE=deployer L2_RPC=https://...
-	@bash $(ROOT)/scripts/l2-send.sh $(TO) $(AMOUNT) $(ROLE) $(L2_RPC)
+	@bash $(ROOT)/scripts/l2-send.sh "$(TO)" "$(AMOUNT)" "$(ROLE)" "$(L2_RPC)"
 world-manifest: ## M3-C: covenantWorld section from a FOGA address book: BOOK=chain/world/<name>.json L2_RPC=... BUNDLE=<pkg>/artifacts/bundle.json REPORT=<verify report>
 	@bash $(ROOT)/scripts/world-manifest.sh "$(BOOK)" "$(L2_RPC)" "$(BUNDLE)" "$(REPORT)"
 verify-world: ## M3-C: check a covenantWorld section against chain code at a block: SECTION=path L2_RPC=... AT=finalized

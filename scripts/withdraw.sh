@@ -152,7 +152,8 @@ status|prove|finalize)
   finality="$(l1call "$PORTAL" "disputeGameFinalityDelaySeconds()(uint256)" | first_word)"
   echo "withdrawal $whash: $(hex_to_eth "$(printf '0x%x' "$value")") ETH from $sender (L2 block $wblock) to $target; portal $PORTAL"
   echo "portal: respected game type $respected, proof maturity $maturity s ($((maturity / 3600)) h), game finality delay $finality s ($((finality / 3600)) h)"
-  ;;&
+  # the step itself (a nested case: bash 3.2 on macOS has no ;;& fall-through)
+  case "$CMD" in
 status)
   found="$(covering_game "$wblock" "$respected" || true)"
   if [ -z "$found" ]; then echo "no game of type $respected covers block $wblock yet (the proposer's interval decides; try again later)"; else
@@ -262,6 +263,8 @@ finalize)
          hours: {initiateToGame: (($g - $i) / 3600 * 100 | round / 100), gameToProven: (($p - $g) / 3600 * 100 | round / 100), provenToFinalized: (($f - $p) / 3600 * 100 | round / 100), gameCreatedToResolved: (($r - $g) / 3600 * 100 | round / 100), resolvedToFinalized: (($f - $r) / 3600 * 100 | round / 100), endToEnd: (($f - $i) / 3600 * 100 | round / 100)}}')"
   echo "finalized: L1 tx $tx in block $l1b at $(iso_of "$fts"); target $target now holds $(hex_to_eth "$after") ETH (was $(hex_to_eth "$before"))"
   echo "end to end: $(jq -r .timeline.hours.endToEnd "$RECORD") h from the L2 initiation; record $RECORD"
+  ;;
+  esac
   ;;
 *) usage ;;
 esac
