@@ -44,8 +44,26 @@ SEL_MAX_CLOCK=0xdabd396d       # maxClockDuration()
 TOPIC_RESOLVED=0x5e186f09b9c93491f14e277eea7faa5de6a2d4bda75a79af7a3684fbfb42da60   # Resolved(GameStatus indexed)
 TOPIC_MOVE=0x9b3245740ec3b155098a55be84957a4da13eaf7f14a8bc6f53126c0b9350f2be       # Move(uint256 indexed, bytes32 indexed, address indexed)
 
-ecall() { # ecall <to> <data> -> the raw hex result (or "0x" on a revert)
-  rpc "$L1" eth_call "[{\"to\":\"$1\",\"data\":\"$2\"},\"latest\"]" | jq -r '.result // "0x"'
+# ecall <to> <data> -> the raw hex result. A public endpoint drops or rate-limits a burst of requests, so an error or an
+# empty answer is asked again (five times, with a growing pause) before the script gives up on the call.
+ecall() {
+  local attempt r
+  for attempt in 1 2 3 4 5; do
+    r="$(rpc "$L1" eth_call "[{\"to\":\"$1\",\"data\":\"$2\"},\"latest\"]" 2>/dev/null | jq -r '.result // empty' 2>/dev/null || true)"
+    if [ -n "$r" ] && [ "$r" != "0x" ]; then echo "$r"; return 0; fi
+    sleep "$attempt"
+  done
+  die "eth_call to $1 (${2:0:10}) answered nothing five times (a revert, or the endpoint $L1 is refusing the burst; try again, or pass another L1 RPC)"
+}
+# rpcq <method> <params> -> the result as JSON, asked again on an error or an empty answer like ecall
+rpcq() {
+  local attempt r
+  for attempt in 1 2 3 4 5; do
+    r="$(rpc "$L1" "$1" "$2" 2>/dev/null | jq -c 'if .error then empty else .result end' 2>/dev/null || true)"
+    if [ -n "$r" ] && [ "$r" != "null" ]; then echo "$r"; return 0; fi
+    sleep "$attempt"
+  done
+  die "$1 answered nothing five times on $L1"
 }
 word_n() { printf '%d' "0x$(printf '%s' "$1" | cut -c$((3 + 64 * $2))-$((2 + 64 * ($2 + 1))))"; }   # word_n <hex> <i> -> integer (fits 64 bits)
 word_addr() { echo "0x$(printf '%s' "$1" | cut -c$((27 + 64 * $2))-$((2 + 64 * ($2 + 1))))"; }
@@ -61,7 +79,7 @@ sender_role() { # which role an L1 sender is: challenger, proposer or other
   elif [ "$a" = "$(printf '%s' "$proposer_addr" | lower)" ]; then echo proposer
   else echo other; fi
 }
-block_ts() { rpc "$L1" eth_getBlockByNumber "[\"$(printf '0x%x' "$1")\",false]" | jq -r '.result.timestamp' | xargs printf '%d'; }
+block_ts() { rpcq eth_getBlockByNumber "[\"$(printf '0x%x' "$1")\",false]" | jq -r '.timestamp' | xargs printf '%d'; }
 
 count="$(word_n "$(ecall "$DGF" "$SEL_GAME_COUNT")" 0)"
 respected="$(word_n "$(ecall "$PORTAL" "$SEL_RESPECTED")" 0)"
@@ -97,17 +115,17 @@ while [ "$i" -lt "$count" ]; do
   resolution=null
   if [ "$status" != "0" ]; then
     resolved=$((resolved + 1))
-    lg="$(rpc "$L1" eth_getLogs "[{\"address\":\"$proxy\",\"topics\":[\"$TOPIC_RESOLVED\"],\"fromBlock\":\"$(printf '0x%x' "$DEPLOY_BLOCK")\",\"toBlock\":\"latest\"}]" | jq -c '.result[0] // empty')"
+    lg="$(rpcq eth_getLogs "[{\"address\":\"$proxy\",\"topics\":[\"$TOPIC_RESOLVED\"],\"fromBlock\":\"$(printf '0x%x' "$DEPLOY_BLOCK")\",\"toBlock\":\"latest\"}]" | jq -c '.[0] // empty')"
     if [ -n "$lg" ]; then
       rtx="$(jq -r .transactionHash <<<"$lg")"; rblock=$(( $(jq -r .blockNumber <<<"$lg") ))
-      rfrom="$(rpc "$L1" eth_getTransactionByHash "[\"$rtx\"]" | jq -r '.result.from // ""')"
+      rfrom="$(rpcq eth_getTransactionByHash "[\"$rtx\"]" | jq -r '.from // ""')"
       [ "$(sender_role "$rfrom")" = "challenger" ] && by_challenger=$((by_challenger + 1))
       resolution="$(jq -cn --arg tx "$rtx" --argjson b "$rblock" --arg from "$rfrom" --arg at "$(iso_of "$(block_ts "$rblock")")" --arg who "$(sender_role "$rfrom")" '{tx: $tx, l1Block: $b, from: $from, sender: $who, at: $at}')"
     fi
   else
     in_progress=$((in_progress + 1))
   fi
-  moves="$(rpc "$L1" eth_getLogs "[{\"address\":\"$proxy\",\"topics\":[\"$TOPIC_MOVE\"],\"fromBlock\":\"$(printf '0x%x' "$DEPLOY_BLOCK")\",\"toBlock\":\"latest\"}]" | jq -r '.result | length')"
+  moves="$(rpcq eth_getLogs "[{\"address\":\"$proxy\",\"topics\":[\"$TOPIC_MOVE\"],\"fromBlock\":\"$(printf '0x%x' "$DEPLOY_BLOCK")\",\"toBlock\":\"latest\"}]" | jq -r 'length')"
   clock_ends=$((created + max_clock))
   printf '  #%-3s %s  L2 %-7s created %s  %-15s claims %s moves %s%s  credit P %s C %s\n' "$i" "$proxy" "$l2b" "$(iso_of "$created")" "$(status_name "$status")" "$claims" "$moves" \
     "$([ "$status" != "0" ] && echo "  resolved $(iso_of "$resolved_at") by $(jq -r '.sender // "?"' <<<"$resolution")" || echo "  clock ends $(iso_of "$clock_ends")$([ "$now" -gt "$clock_ends" ] && echo ' (resolvable)')")" \
