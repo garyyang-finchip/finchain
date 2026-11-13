@@ -185,5 +185,17 @@
     "The Sepolia OG stays as it was (its own unit, configuration, store, port 8787 and name); both cells share the identity wallet 0x5Fee42D697975f6154164b29371c1c447F56fb4E.",
     "FOGA finding from the preflight: a cell without identity.standing fails the 'foga-probe runs in the worker' check because the probe input's kya block is undefined (preflight.ts passes it only when standing exists; probe.ts dereferences it). The fix belongs to FOGA (a null-safe ERC-8419 section, or a default scheme with an empty issuer list in the preflight's input); recorded here, not worked around on the Finchain side."
   ],
-  "notDone": "the two-cell business loop (a second operator's cell completing one of the OG's tenders on Finchain and withdrawing the reward) is left for a later round by the decision of 2026-11-13; docs/acceptance.md M3-C keeps that row open"
+  "notDone": "the two-cell business loop (a second operator's cell completing one of the OG's tenders on Finchain and withdrawing the reward) is left for a later round by the decision of 2026-11-13; docs/acceptance.md M3-C keeps that row open",
+  "updates": [
+    {
+      "at": "2026-11-13T14:09:15Z",
+      "what": "both OG services restarted on FOGA 1.0.9 (the checkout at tag v1.0.9, commit 09928ad, built on the host); /healthz of og.finchain.one and foga.finchip.ai answer version 1.0.9, each its own chain",
+      "preflight": "36 pass, 1 warn (no KYA standing), 0 fail: the 'foga-probe runs in the worker' check that failed under 1.0.8 (the FOGA finding in notes) passes - 'probed 0x9F7647013499C44B7E0432F5E9e22E4Afd447aD1 at block 82141 in 1012 ms'; the fix is FOGA's 1.0.9 (an optional kya block in the probe input, a probe defect raised at once instead of retried)",
+      "isolationRecord": "manifests/evidence/foga-isolation-1.0.9-20261113T141222Z.json"
+    },
+    {
+      "at": "2026-11-13T14:35:33Z",
+      "what": "the item in notDone ran at its integration stage: the OG minted tender 5 through its own node and a second cell of the project owner's completed it (manifests/evidence/business-loop-2026-11-13.json); the acceptance stage - a second operator's cell - stays open"
+    }
+  ]
 }

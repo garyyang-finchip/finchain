@@ -13,7 +13,7 @@ COMPOSE_B  := docker compose -f $(ROOT)/node-b/docker-compose.yml $(ENV_COMMON) 
         chain-id-check l1-probe intent funding-table deploy-l1 deploy-l1-calldata export verify-onchain lock fund-roles \
         up-a down-a restart-a logs-a up-b down-b restart-b logs-b status-a status-b peers-a peers-b \
         compare rebuild-b deposit set-init-bond deploy-8004 build-8004 l2-send verify-world \
-        evm-acceptance verify-evm foga-isolation world-manifest lint
+        evm-acceptance verify-evm foga-isolation world-manifest fee-lines lint
 
 help: ## List targets
 	@grep -E '^[a-zA-Z0-9_-]+:.*?## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  %-18s %s\n", $$1, $$2}'
@@ -122,6 +122,8 @@ world-manifest: ## M3-C: covenantWorld section from a FOGA address book: BOOK=ch
 	@bash $(ROOT)/scripts/world-manifest.sh "$(BOOK)" "$(L2_RPC)" "$(BUNDLE)" "$(REPORT)"
 verify-world: ## M3-C: check a covenantWorld section against chain code at a block: SECTION=path L2_RPC=... AT=finalized
 	@bash $(ROOT)/scripts/verify-world.sh "$(SECTION)" "$(L2_RPC)" "$(AT)"
+fee-lines: ## M3: the four funding lines from receipts (three fee components) and the business loop re-read at finalized: L2_RPC=... LOOP=manifests/evidence/business-loop-<date>.json
+	@bash $(ROOT)/scripts/fee-lines.sh "$(L2_RPC)" "$(LOOP)"
 
 lint: ## Static checks: shellcheck, compose config, JSON/YAML validity
 	@shellcheck -x $(ROOT)/scripts/*.sh

@@ -68,11 +68,14 @@ The baseline is the released 1.0.7, which has no Finchain code at all. The rule 
 is Finchain's, not FOGA's: FOGA decides when it releases and runs its own release check;
 Finchain runs this check on every FOGA version it adopts for a run on the chain, before
 that run, and files the record beside the baseline. So far: 1.0.7 (2026-11-12, the World
-deployment and the genesis) and 1.0.8 (2026-11-13, `foga-isolation-1.0.8-20261113T073041Z.json`:
+deployment and the genesis), 1.0.8 (2026-11-13, `foga-isolation-1.0.8-20261113T073041Z.json`:
 five legs, 50 host-name entries, zero under `finchain.one`, the Sepolia World read through a
-public endpoint), the version the OG on Finchain runs. The store-resume leg (an old cell store
-continued by a new version) is run from a FOGA checkout by its own test suite; it is not
-part of this script.
+public endpoint), the version the OG on Finchain was born with, and 1.0.9 (2026-11-13,
+`foga-isolation-1.0.9-20261113T141222Z.json`: the same five legs, 50 entries, zero under
+`finchain.one`), the version both OG services run since the same day and the version of the
+business loop's two cells (section 5.5). The store-resume leg (an old cell store continued by
+a new version) is run from a FOGA checkout by its own test suite; it is not part of this
+script.
 
 ## 4. Identity root: ERC-8004 on Finchain
 
@@ -237,7 +240,11 @@ a defect; the answer is a property of the locked bundle, so every World deployed
 gives the same two, Sepolia included. The execution fees of the
 213 genesis operations sum to 128,323,691 gas at an effective price of 1,000,251 wei
 (about 0.001 gwei: FOGA's priority fee over the 251 wei base fee), 0.000128 ETH in all; the
-L1 data fees come from the receipts and are reported in the M3-C evidence file.
+L1 data fees and the operator fee come from the receipts: `make fee-lines`
+(`scripts/fee-lines.sh`) reads every transaction of the four funding lines (identity root,
+World deployment, genesis, business loop) through the public RPC and writes the three fee
+components of each line to `manifests/evidence/fee-lines-<date>.json`, the M3-C evidence
+file's funding section.
 
 The manifest section of the reference World, `manifests/covenant-world-finchain-sepolia.json`,
 records the completing block 61548 (the last of the eight wiring and flows transactions)
@@ -271,18 +278,22 @@ untouched (account `0xD7155E48f83e1fEa9eAFED0200671638f290ED49`, agent 11261,
 `foga.finchip.ai`). The manifest and the agent card were read from outside the project's
 hosts. On Finchain the OG is a resident: W deployed the World and bootstrapped the flows, so
 W is the controller of the family `foga` and the authority of the market the OG joined. The
-two-cell business loop (D9, D10) is left for a later round by decision; it needs a second
-operator's cell and one tender completed and withdrawn. The readiness check of the served
-cell (`foga node preflight`) passed 35 items, warned on one (no KYA standing yet) and failed
-one, and that failure is a finding for FOGA, not for the chain: a cell without
-`identity.standing` gets a probe input with no `kya` block, the probe's ERC-8419 section
-dereferences it, and the resulting TypeError is retried as a transport failure until the
-check fails ("the RPC failed 7 times (Cannot read properties of undefined (reading
-'issuers'))"); the skill itself ran on this World in the genesis. The fix - a null-safe
-section or a default scheme in the preflight's input - is FOGA's, reviewed on FOGA's terms;
-it joins the two other FOGA-side items M3-C produced: `--world https://…` for `join`,
-`genesis` and `doctor`, and the ERC-8447 eligibility sentinel for agent id 0 (an upstream
-item, section 5.4 and `chain/world/README.md`).
+two-cell business loop (D9, D10) ran on 2026-11-13 at its integration stage, the OG as the
+demander (section 5.5). The readiness check of the served cell (`foga node preflight`) under
+1.0.8 passed 35 items, warned on one (no KYA standing yet) and failed one, and that failure
+was a finding for FOGA, not for the chain: a cell without `identity.standing` got a probe
+input with no `kya` block, the probe's ERC-8419 section dereferenced it, and the resulting
+TypeError was retried as a transport failure until the check failed ("the RPC failed 7
+times (Cannot read properties of undefined (reading 'issuers'))"); the skill itself ran on
+this World in the genesis. FOGA took the fix on its own terms in 1.0.9 (an optional `kya`
+block, a probe defect raised at once instead of retried); both OG services were restarted on
+1.0.9 the day it was released (`/healthz` version 1.0.9 on both names), and the same
+readiness check of the Finchain OG then passed 36 items with the one warning and no failure
+("probed 0x9F76…7aD1 at block 82141 in 1012 ms"). The two other FOGA-side items M3-C
+produced went the same way: `--world https://…` for `join`, `genesis` and `doctor` is in
+1.0.9 (this repository's address book is joined by its URL, section 5.5), and the ERC-8447
+eligibility sentinel for agent id 0 is an upstream item (section 5.4 and
+`chain/world/README.md`).
 
 ### 5.5 Scenarios and the second cell
 
@@ -299,6 +310,37 @@ both report the task id, both cell accounts, every transaction, the reward credi
 amount withdrawn, the confirmation level each step proceeded at and the active batcher
 profile. The first run on the project owner's own machine is integration; only the run by
 the second operator supports "another independent operator has joined".
+
+The integration stage ran on 2026-11-13 (`manifests/evidence/business-loop-2026-11-13.json`).
+The second cell, `cell-b`, was made on host B's machine as an ordinary user of the public
+RPC (nothing of node-b is involved) from the npm registry's 1.0.9 package, with a wallet
+made for it, by one command - the address book named by its URL in this repository:
+
+```
+npx -y @finchip.ai/foga join --world https://raw.githubusercontent.com/garyyang-finchip/finchain/main/chain/world/finchain-sepolia.json --rpc https://rpc.finchain.one --run stub
+```
+
+The package fetched the book (sha256 `fc26a8f23848…`, kept under `~/.foga/worlds/` by chain
+id, worldId and content hash), the chain operations deployer funded the identity with 0.05 ETH
+(block 82422), and the join did the rest: account `0x2Dd0c30383EcD6414e0b9DD6F10bf27BFe8715BB`,
+ERC-8004 agent 7, skill tokens 5 and 6 offered, documents committed, channel opened and
+anchored, market joined (submit, respond), maintenance enrolled, the node served with the
+stub model so that it takes the tenders it is eligible for with no person at the entrance.
+The OG then acted as the demander through its own node: `skill_run` (it ran `foga-probe`
+itself for the task's input - cell-b's account at block 82807 - and obtained the answer
+hash) and `tender_mint` (tender 5 on the World's TaskToken, 0.0005 ETH in escrow, the
+answer hash committed in the hashlock verifier, an ERC-8444 task record; blocks 82883-82891).
+cell-b's watcher found the tender at block 82887; its first pre-check was refused at the
+verifier gate because the commit had not landed yet (82889) - a tender that cannot be
+machine-accepted is not taken; at block 82918 it pre-checked again, ran the probe in its
+worker, reproduced the answer and submitted (block 82920); the verifier accepted
+(submission 1, status 1, `machineSettled`); the watcher settled (block 82929) and the
+reward arrived in cell-b's account (0.005 to 0.0055 ETH; the OG's account 0.005 to 0.0045),
+with nothing left to withdraw. Six transactions, every receipt status 1; both sides on
+1.0.9 (the OG from the tagged checkout built on its host, cell-b from the registry); the
+fees of each in the evidence file, and the finalized re-read of the six by `make fee-lines`.
+What the integration stage does not show is the other operator: both cells are the project
+owner's (two keys, two accounts, two hosts), and the acceptance stage of D9 stays open.
 
 ## 6. Confirmation and recovery on an OP Stack chain: a FOGA proposal, not an M3 condition
 
@@ -347,5 +389,6 @@ its operator's procedure until FOGA provides it.
 | C-3 verification | E06 (`make world-manifest` with the package's bundle), B (`make verify-world` at `finalized`), E06 again (`make world-manifest` with B's report) | `manifests/covenant-world-finchain-sepolia.json` with `completionBlock` and `verifiedAt`, `manifests/evidence/world-verify-<block>.json` |
 | C-4a genesis T0-T9 | E06, released 1.0.7, `--world chain/world/finchain-sepolia.json` | `manifests/evidence/foga-genesis-finchain-sepolia.json`, `manifests/evidence/foga-doctor-finchain-sepolia.json` (done 2026-11-13) |
 | C-4b the OG on Finchain (D8) | E06, the checkout at v1.0.8, `foga join --world … --rpc …`, a second service at `og.finchain.one` | `manifests/evidence/og-finchain-2026-11-13.json` (done 2026-11-13) |
-| C-4c the second cell and the business loop (D9, D10) | the second operator's machine | one evidence file (left for a later round, decision of 2026-11-13) |
+| C-4c the second cell and the business loop (D9, D10) | integration stage: host B's machine as an RPC user (`cell-b`, the registry's 1.0.9, the address book by URL), the OG as the demander (E06) | `manifests/evidence/business-loop-2026-11-13.json` (done 2026-11-13, integration stage; the acceptance stage - another operator - open) |
+| C-5 funding lines and the loop at finalized | B or any host with the public RPC (`make fee-lines`) | `manifests/evidence/fee-lines-<date>.json`: the four lines with three fee components each, the six loop receipts canonical at or below `finalized` |
 | Close | - | finchain 0.2.0, manifest `finchain-sepolia/2026.11-rc1` (candidate) |

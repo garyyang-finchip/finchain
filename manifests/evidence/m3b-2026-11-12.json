@@ -75,6 +75,24 @@
       },
       "result": "PASS",
       "adoptedFor": "the OG on Finchain (docs/world.md section 5, D8); the World deployment and the genesis of 2026-11-13 ran on 1.0.7"
+    },
+    {
+      "version": "1.0.9",
+      "record": "manifests/evidence/foga-isolation-1.0.9-20261113T141222Z.json",
+      "recordedAt": "2026-11-13T14:12:22Z",
+      "host": "the same EC2 host (Node v22.22.0, anvil 1.7.1-dev)",
+      "sepoliaProvider": "the public endpoint ethereum-sepolia-rpc.publicnode.com",
+      "legs": "help, chain-table (no Finchain entry; sepolia with a packaged world), quickstart, genesis-T9 (doctor 278 Pass), sepolia-world-read (doctor 281 Pass / 2 Fail / 3 Unknown on the Sepolia fixture's known layer, exit 3, report written)",
+      "hostNames": {
+        "entries": 50,
+        "seen": {
+          "127.0.0.1": 32,
+          "ethereum-sepolia-rpc.publicnode.com": 18
+        },
+        "underFinchainOne": 0
+      },
+      "result": "PASS",
+      "adoptedFor": "both OG services (restarted on 1.0.9 on 2026-11-13, docs/world.md section 5.4) and the two-cell business loop at its integration stage (manifests/evidence/business-loop-2026-11-13.json): the OG from the tagged checkout, the second cell from the registry, joined by the address book's URL - the `--world https://` form FOGA added in this release, with no Finchain entry in its chain table (the chain-table leg above)"
     }
   ]
 }

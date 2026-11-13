@@ -30,6 +30,20 @@ make world-manifest BOOK=chain/world/finchain-sepolia.json BUNDLE=... REPORT=man
 foga join --world <finchain repo>/chain/world/finchain-sepolia.json --rpc https://rpc.finchain.one
 ```
 
+Since FOGA 1.0.9 the address book can be named by its URL, so a cell anywhere joins this
+World without a checkout of this repository - one command, a wallet made on the spot, the
+chain's RPC still named explicitly:
+
+```sh
+npx -y @finchip.ai/foga join --world https://raw.githubusercontent.com/garyyang-finchip/finchain/main/chain/world/finchain-sepolia.json --rpc https://rpc.finchain.one
+```
+
+The package fetches the file once per command, checks it (`foga.world/1`, worldId, chainId,
+contracts), keeps it under `~/.foga/worlds/` by chain id, worldId and content hash, and the
+cell's own copy and `join.json` record the URL as `worldSource`. The address book stays here
+and the package stays what it is: the one-line command is this repository's to publish, not
+FOGA's (`docs/world.md`, sections 1 and 5.5).
+
 `foga genesis preflight` and `foga genesis run` take the same `--world` and `--rpc`. The
 identity root address in the configuration is the IdentityRegistry proxy of
 `chain/out/erc8004.json`; for an address book that names a different registry,
@@ -58,6 +72,24 @@ On Finchain the OG is a resident, not the authority: W deployed the World and bo
 the ERC-8489 flows, so W is the controller of the family `foga` and the authority of the
 market the OG is admitted to; the OG registers itself (ERC-8004 agent 6), holds and offers
 its two skills, publishes its documents and keeps its own channel and maintenance record.
+Both OG services run 1.0.9 since 2026-11-13 (restarted on the release; the Finchain OG's
+readiness check then passed 36 items, the one warning being the KYA standing it has none of).
+
+## The second cell and the business loop
+
+On 2026-11-13 a second cell, `cell-b`, joined the World by the one-line command above from
+host B's machine as an ordinary user of the public RPC (the registry's 1.0.9 package, a
+wallet made by the join, 0.05 ETH from the chain operations deployer): account
+`0x2Dd0c30383EcD6414e0b9DD6F10bf27BFe8715BB`, ERC-8004 agent 7, skill tokens 5 and 6, its
+own channel and market seat, served with the stub model so that it takes the tenders it is
+eligible for by itself. The OG, through its own node, ran `foga-probe` for a task (cell-b's
+account at block 82807), minted tender 5 on the World's TaskToken with 0.0005 ETH in escrow
+and the answer hash committed in the hashlock verifier, and registered an ERC-8444 task
+record; cell-b found the tender, refused it once while the answer was not yet committed,
+then pre-checked, ran the probe, submitted, was accepted by the verifier, settled and was
+paid (0.005 to 0.0055 ETH). `manifests/evidence/business-loop-2026-11-13.json` has every
+transaction with its fees; `docs/world.md` section 5.5 says what the integration stage
+shows and what the acceptance stage (another operator) still has to.
 
 ## The first World and ERC-8004 agent id 0
 
