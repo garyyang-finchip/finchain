@@ -72,3 +72,9 @@ a separate acceptance entry that stays `not-run` until done.
 challenger key. Its duties at L1: watch the factory, resolve games after the clock, claim
 bonds, and respond to claims that contradict B's independently derived state. `op-dispute-mon`
 is recommended for monitoring once more than one proposer or external participants exist.
+
+What it did is read back from the chain by `make games` (`scripts/games.sh`): every game of
+the respected type with its L2 block, status, the transaction that resolved it and that
+transaction's sender (the challenger key, when the resident service resolved it), the moves
+and the credit each party holds afterwards; the report is the M4 evidence for this level,
+beside an excerpt of the service's own log.
