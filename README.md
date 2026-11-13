@@ -70,13 +70,16 @@ The full procedure, with expected outputs and acceptance checks, is in
 | `node-a/`, `node-b/` | Docker Compose stacks for the two hosts |
 | `profiles/` | Runtime profiles: `demo` (fast batches) and `lowcost` (low L1 spend) |
 | `scripts/` | Preflight, key generation, intent rendering, deployment, export, verification, funding table |
-| `manifests/` | Reference-version manifest schema and template |
+| `manifests/` | Reference-version manifest schema and template, the published manifests (`finchain-sepolia/`), the on-chain snapshot, the covenant World section, the acceptance evidence |
 | `registry/` | Draft `ethereum-lists/chains` entry |
 | `docs/` | Handbook, execution brief, runbook, funding model, proof plan, FOGA confirmation policy, covenant World design (M3), acceptance, governance, networking, versions, chain id |
 
 ## Status
 
-v0.2.0-alpha.15: M3 in progress. Finchain Sepolia (chain id 85422) is live: L1 contracts
+v0.2.0: M3 closed on 2026-11-13; the reference-version manifest
+`manifests/finchain-sepolia/2026.11-rc1.json` is published with status `candidate` (M1, M2
+and the three M3 acceptances passed on public-testnet, M4 and M5 not run); M4 is next.
+Finchain Sepolia (chain id 85422) is live: L1 contracts
 deployed 2026-11-11 at Sepolia block 12112920 (`chain/out/`), host A sequencing since the
 same day, host B verifying independently; M1 and M2 acceptance records are in
 `manifests/evidence/`; `versions.lock` is frozen (digests, 2026-11-12). The ERC-8004

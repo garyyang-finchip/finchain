@@ -400,4 +400,4 @@ its operator's procedure until FOGA provides it.
 | C-4b the OG on Finchain (D8) | E06, the checkout at v1.0.8, `foga join --world … --rpc …`, a second service at `og.finchain.one` | `manifests/evidence/og-finchain-2026-11-13.json` (done 2026-11-13) |
 | C-4c the second cell and the business loop (D9, D10) | integration stage: host B's machine as an RPC user (`cell-b`, the registry's 1.0.9, the address book by URL), the OG as the demander (E06) | `manifests/evidence/business-loop-2026-11-13.json` (done 2026-11-13, integration stage; the acceptance stage - another operator - open) |
 | C-5 funding lines and the loop at finalized | B (`make fee-lines`) | `manifests/evidence/fee-lines-20261113T151307Z.json` (done 2026-11-13: 292 receipts, the four lines with three fee components each, the seven loop receipts FINAL at 83370); the M3-C summary `manifests/evidence/m3c-2026-11-13.json` |
-| Close | - | finchain 0.2.0, manifest `finchain-sepolia/2026.11-rc1` (candidate) |
+| Close | - | finchain 0.2.0, manifest `manifests/finchain-sepolia/2026.11-rc1.json` (status `candidate`, validated against `manifests/manifest.schema.json`; done 2026-11-13) |

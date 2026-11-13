@@ -34,6 +34,14 @@ independent of each other and come first; the third is an integration that a use
 and that neither of the first two depends on. No item in this milestone requires a release
 of FOGA.
 
+M3 closed on 2026-11-13 (finchain 0.2.0): the three acceptances have their records
+(`manifests/evidence/m3a-2026-11-12.json`, `m3b-2026-11-12.json`, `m3c-2026-11-13.json`)
+and the reference-version manifest `manifests/finchain-sepolia/2026.11-rc1.json` is
+published with status `candidate` (D14): M1, M2 and the three M3 acceptances `passed` on
+`public-testnet`, M4 and M5 `not-run`. One M3-C row is met at its integration stage only -
+the second cell was run by the project owner, not by another operator - and stays open
+without blocking the candidate; the candidate becomes `recommended` when M4's items run.
+
 ### M3-A Finchain on its own
 
 | Item | Evidence |
