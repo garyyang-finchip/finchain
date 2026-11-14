@@ -2,7 +2,9 @@
 
 Services: `op-reth` (archive execution client), `op-node` (verifier), `op-challenger`
 (`permissioned` trace type, resident), `caddy` (TLS termination for `rpc.finchain.one`
-and `ws.finchain.one`). Started with `make up-b PROFILE=demo|lowcost`.
+and `ws.finchain.one`). Started with `make up-b` (a profile sets batcher and proposer
+parameters and does not change this host). `CHALLENGER_L1_RPC_URL` in `.env` gives
+op-challenger an L1 endpoint of its own (see `.env.example`).
 
 Inputs:
 

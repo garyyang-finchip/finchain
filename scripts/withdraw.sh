@@ -124,7 +124,7 @@ initiate)
       deposit="$(jq -cn --arg tx "$DEPOSIT_TX" '{tx: $tx}')"
     fi
   fi
-  jq -n --argjson chainId "$CHAIN_ID" --argjson l1ChainId "$((l1_chain_hex))" --arg l2rpc "$L2_RPC" --arg portal "$PORTAL" --arg dgf "$DGF" --arg passer "$PASSER" \
+  jq -n --argjson chainId "$CHAIN_ID" --argjson l1ChainId "$((l1_chain_hex))" --arg l2rpc "$(rpc_label "$L2_RPC")" --arg portal "$PORTAL" --arg dgf "$DGF" --arg passer "$PASSER" \
     --arg nonce "$nonce" --arg sender "$sender" --arg target "$target" --arg value "$value" --arg gas "$gas_limit" --arg data "$data" --arg hash "$ev_hash" \
     --arg tx "$tx" --argjson block "$block" --arg at "$(iso_of "$ts")" --argjson tsn "$ts" --arg amount "$AMOUNT" --arg role "$ROLE" --argjson deposit "$deposit" --arg now "$(now_utc)" '
     {schema: "finchain.withdrawal/1",

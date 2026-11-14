@@ -58,7 +58,7 @@ Sepolia are reused, state is not.
 | L1 anchor | Sepolia block 12112920, `0x10fc1193802668896d6aadc3db867c47ec3f3660ba53d940a649fb6a8aa0594b` (2026-11-11 16:31:12 UTC) |
 | Rollup config sha256 | `530063a1f949afead2d96efb63cc99817656fe9c9f18d54c854699f1f59dccd9` |
 | Sequencer window | 3600 L1 blocks (about 12 hours); channel timeout 300 L1 blocks |
-| Active profile | `demo`: a batch about every 3 minutes, an output proposal every hour |
+| Active profile | `steady`: a batch about every 3 minutes, an output proposal every 6 hours (`demo`, with hourly proposals, ran from genesis until the first withdrawal proof; `docs/funding-model.md` section 5 says why) |
 | Contracts release | op-contracts/v7.0.0, deployed with op-deployer v0.7.1 (`standard-overrides`) |
 | Software | op-reth v2.4.2, op-node v1.19.11, op-batcher v1.17.2, op-proposer v1.16.7, op-challenger v1.9.6 (digests in `versions.lock`) |
 | ERC-8004 identity root (on Finchain) | IdentityRegistry `0x363E71C6c33d4B5980B31B558D1E16B52EB3C8E9`, ReputationRegistry `0xF0A3ba008486cCc0bf994d5c06cE095E0b1D08e2`; upstream reference contracts, owned by the owner address (`chain/out/erc8004.json`, `docs/world.md`) |
@@ -121,7 +121,7 @@ with a repository key; the two first deposits (2026-11-12) are recorded in
 Finchain blocks pass through three levels, exposed as the `latest`, `safe` and `finalized`
 block tags of the JSON-RPC:
 
-| Level | Meaning | Typical delay (demo profile) | Use it for |
+| Level | Meaning | Typical delay (steady and demo profiles) | Use it for |
 | --- | --- | --- | --- |
 | `latest` (unsafe) | executed by the sequencer; data not yet on Sepolia | 2 s | progress display, preparation of retryable work |
 | `safe` | batch data included on Sepolia; a verifier rebuilds the block from L1 alone | a few minutes | messages between parties, provisional ledger entries |
@@ -158,7 +158,8 @@ in the sense that it never produces blocks itself.
 
 Withdrawals follow the standard OP Stack fault-proof path: initiate on Finchain, prove the
 withdrawal against an output proposal (a dispute game of the respected type; proposals are
-created hourly under the `demo` profile), wait for the proof maturity delay (7 days) and for
+created every 6 hours under the `steady` profile, hourly under `demo`), wait for the proof
+maturity delay (7 days) and for
 the game to resolve and pass its finality delay (3.5 days each), then finalize on Sepolia.
 The full deposit -> proof -> withdrawal cycle, with the actual waiting times, is an M4
 acceptance item (`docs/acceptance.md`) and is recorded there when done. Treat Finchain
@@ -235,7 +236,7 @@ make preflight-b
 make keys && make secrets-b          # local JWT and p2p key for your own node; the role keys
                                      # it also writes hold no funds and no role on Finchain
 docker compose -f node-b/docker-compose.yml --env-file versions.lock \
-  --env-file profiles/demo.env --env-file node-b/.env up -d op-reth op-node
+  --env-file profiles/steady.env --env-file node-b/.env up -d op-reth op-node
 make status-b
 ```
 
@@ -326,9 +327,10 @@ op-challenger to the patch levels in `versions.lock`. The whole account is in
 
 Four separate needs are budgeted and reported separately: the L1 deployment (one-off,
 0.11 ETH as measured), daily operations (batcher about 480 transactions per day under
-`demo`, proposer 24 games per day, challenger a few transactions per game), bonds (initial
+`steady` and `demo`, proposer 4 games per day under `steady` and 24 under `demo`, challenger a
+few transactions per game), bonds (initial
 bond set to 0 on the testnet; the full dispute path is not budgeted on public Sepolia), and
-ETH deposited into L2. `make funding-table PROFILE=demo` prints the live table;
+ETH deposited into L2. `make funding-table PROFILE=steady` prints the live table;
 `docs/funding-model.md` explains the lines.
 
 ## 6. Governance, keys and trust
@@ -357,7 +359,7 @@ targets end in `-a` or `-b`.
 | Purpose | Command |
 | --- | --- |
 | Preflight (host, Docker, image architecture, flags, L1) | `make preflight-a` / `make preflight-b` |
-| Start, recreate, stop a host | `make up-a PROFILE=demo`, `make restart-a`, `make down-a` (same with `-b`) |
+| Start, recreate, stop a host | `make up-a` (profile `steady`; `PROFILE=demo` or `lowcost` to switch), `make restart-a`, `make down-a` (same with `-b`) |
 | One-screen status: containers, three heads, L1 heads, balances | `make status-a` / `make status-b` |
 | Logs of one service | `make logs-a SVC=op-batcher` |
 | Peers | `make peers-a` / `make peers-b` |
@@ -368,7 +370,7 @@ targets end in `-a` or `-b`.
 | Fund hot roles from the deployer key | `make fund-roles ROLES="batcher=0.3 proposer=0.2"` |
 | Lower or raise the initial bond (owner) | `make set-init-bond TYPE=1 BOND=0` (or the owner console page) |
 | Freeze image digests | `make lock` |
-| Funding table for a profile | `make funding-table PROFILE=demo` |
+| Funding table for a profile | `make funding-table PROFILE=steady` |
 
 The owner console (`owner-console.html`, served from the repository's GitHub Pages) lets
 the owner wallet read the DisputeGameFactory and send `setInitBond` without a command line.

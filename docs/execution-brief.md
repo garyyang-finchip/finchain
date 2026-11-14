@@ -66,9 +66,11 @@ is not.
    back by an L1 reorg. FOGA needs a rollback-capable event cursor, block-identity checks,
    idempotent business operations and on-chain state checks before resends
    (`docs/foga-confirmation-policy.md`).
-7. **Two runtime profiles.** `demo` (batches every few minutes) for integration and FOGA
-   demonstrations; `lowcost` (30-60 minutes) for quiet periods, with the wait stated in
-   UI and records. `max-channel-duration` is counted in L1 blocks (about 300 per hour).
+7. **Three runtime profiles.** `steady` (batches every few minutes, one proposal every 6
+   hours) is the standing configuration; `demo` adds hourly proposals for withdrawal
+   demonstrations; `lowcost` (30-60 minute batches) is for quiet periods, with the wait
+   stated in UI and records. `max-channel-duration` is counted in L1 blocks (about 300 per
+   hour).
 8. **Proposal interval** governs when output roots for withdrawal proofs appear; it is
    configured and accepted separately from batch frequency and from finalized progress.
 9. **Governance record.** Shared-layer guardian, pause and upgrade authority are not

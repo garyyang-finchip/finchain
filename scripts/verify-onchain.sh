@@ -94,7 +94,7 @@ mkdir -p "$FINCHAIN_ROOT/manifests"
 OUTFILE="$FINCHAIN_ROOT/manifests/onchain-${BLOCK}.json"
 
 jq -n \
-  --argjson block "$BLOCK" --arg rpc "$L1_RPC_URL" --arg at "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+  --argjson block "$BLOCK" --arg rpc "$(rpc_label "$L1_RPC_URL")" --arg at "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
   --arg chainId "$CHAIN_ID" \
   --arg syscfg "$SYSCFG" --arg portal "$PORTAL" --arg dgf "$DGF" --arg asr "$ASR" --arg superchain "$superchain" \
   --arg owner "$(call "$SYSCFG" 'owner()(address)')" \

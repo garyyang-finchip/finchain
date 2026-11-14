@@ -7,7 +7,9 @@
 # own log on host B (make logs-b SVC=op-challenger, or docker logs) for the service-side view.
 #
 # Usage: scripts/games.sh [l1-rpc] [last-n=all]
-#   The L1 RPC: the argument, else L1_RPC_URL in the environment, else node-b/.env, else .env.
+#   The L1 RPC: the argument, else L1_RPC_URL in the environment, else node-b/.env, else .env. This is op-node's
+#   endpoint on host B, not the challenger's own (CHALLENGER_L1_RPC_URL), so the reads here do not compete with the
+#   service; the report and the terminal name the endpoint by scheme and host only.
 # Reads the chain only (curl + jq; no key, no docker, no cast): plain eth_call with the selectors below.
 
 # shellcheck source=scripts/common.sh
@@ -21,6 +23,7 @@ if [ -z "$L1" ]; then
   done
 fi
 [ -n "$L1" ] || die "no L1 RPC: pass it as the first argument or set L1_RPC_URL"
+L1_LABEL="$(rpc_label "$L1")"   # what is printed and recorded: scheme and host, never a provider path or key
 LAST="${2:-all}"
 REC="$FINCHAIN_ROOT/chain/out/chain-record.json"
 DGF="$(jq -r '.l1.DisputeGameFactoryProxy // empty' "$REC")"; PORTAL="$(jq -r '.l1.OptimismPortalProxy // empty' "$REC")"
@@ -53,7 +56,7 @@ ecall() {
     if [ -n "$r" ] && [ "$r" != "0x" ]; then echo "$r"; return 0; fi
     sleep $((attempt * 2))
   done
-  die "eth_call to $1 (${2:0:10}) answered nothing six times (a revert, or the endpoint $L1 is refusing the burst; last answer: $(printf '%s' "$raw" | cut -c1-200))"
+  die "eth_call to $1 (${2:0:10}) answered nothing six times (a revert, or the endpoint $L1_LABEL is refusing the burst; last answer: $(printf '%s' "$raw" | cut -c1-200))"
 }
 # rpcq <method> <params> -> the result as JSON, asked again on an error or an empty answer like ecall
 rpcq() {
@@ -64,7 +67,7 @@ rpcq() {
     if [ -n "$r" ] && [ "$r" != "null" ]; then echo "$r"; return 0; fi
     sleep $((attempt * 2))
   done
-  die "$1 answered nothing six times on $L1 (last answer: $(printf '%s' "$raw" | cut -c1-200))"
+  die "$1 answered nothing six times on $L1_LABEL (last answer: $(printf '%s' "$raw" | cut -c1-200))"
 }
 word_n() { printf '%d' "0x$(printf '%s' "$1" | cut -c$((3 + 64 * $2))-$((2 + 64 * ($2 + 1))))"; }   # word_n <hex> <i> -> integer (fits 64 bits)
 word_addr() { echo "0x$(printf '%s' "$1" | cut -c$((27 + 64 * $2))-$((2 + 64 * ($2 + 1))))"; }
@@ -86,7 +89,7 @@ count="$(word_n "$(ecall "$DGF" "$SEL_GAME_COUNT")" 0)"
 respected="$(word_n "$(ecall "$PORTAL" "$SEL_RESPECTED")" 0)"
 init_bond="$(word_n "$(ecall "$DGF" "${SEL_INIT_BONDS}$(pad_u "$respected")")" 0)"
 now="$(date +%s)"
-echo "factory $DGF: $count games; respected game type $respected (portal $PORTAL); init bond $(hex_to_eth "$(printf '0x%x' "$init_bond")") ETH; L1 $L1"
+echo "factory $DGF: $count games; respected game type $respected (portal $PORTAL); init bond $(hex_to_eth "$(printf '0x%x' "$init_bond")") ETH; L1 $L1_LABEL"
 first=0
 if [ "$LAST" != "all" ]; then first=$((count - LAST)); [ "$first" -lt 0 ] && first=0; fi
 
@@ -140,7 +143,7 @@ done
 
 out="$FINCHAIN_ROOT/manifests/evidence/games-$(date -u +%Y%m%dT%H%M%SZ).json"
 mkdir -p "$(dirname "$out")"
-jq -n --arg l1 "$L1" --arg dgf "$DGF" --arg portal "$PORTAL" --argjson count "$count" --argjson first "$first" --argjson respected "$respected" --arg bond "$init_bond" \
+jq -n --arg l1 "$L1_LABEL" --arg dgf "$DGF" --arg portal "$PORTAL" --argjson count "$count" --argjson first "$first" --argjson respected "$respected" --arg bond "$init_bond" \
   --arg challenger "$challenger_addr" --arg proposer "$proposer_addr" --argjson maxClock "${max_clock:-0}" --argjson games "$games" \
   --argjson resolved "$resolved" --argjson byc "$by_challenger" --argjson inprog "$in_progress" --argjson other "$other_type" --arg at "$(date -u +%Y-%m-%dT%H:%M:%SZ)" '
   {schema: "finchain.games/1", acceptance: "M4: resident challenger on host B against the public chain - games resolved and bonds claimed (docs/acceptance.md M4; docs/proof-plan.md level L1)",

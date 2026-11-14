@@ -84,3 +84,14 @@ resolving transaction and its sender. The first report
 (`manifests/evidence/games-20261113T181336Z.json`, taken before any clock had expired) shows
 48 hourly games, one claim each and no moves, with clocks ending from 2026-11-15T06:44Z; the
 report after the first resolutions is the one that closes the item.
+
+Operational finding (2026-11-13): with 48 games in flight the challenger's reads exceeded the
+quota of the free public L1 endpoint on host B - a steady 1,400-1,600 `429 Too Many
+Requests` per hour through the whole day, hitting the claim and status reads, the bond
+claimer and the L1 head poll alike. Every failure is retried on the next L1 block and the
+service kept tracking all 48 games, but the volume grows with the games in flight. The
+response is the `steady` profile (one proposal every 6 hours) and an L1 endpoint of the
+challenger's own with a known quota (`CHALLENGER_L1_RPC_URL`, node-b/.env), separate from
+op-node's endpoint and from `make games`; the game window stays at the upstream default of
+28 days, which covers the longest possible dispute plus the bond withdrawal delay.
+`docs/funding-model.md` section 5 has the figures.

@@ -79,6 +79,12 @@ cast() {
     "${FOUNDRY_IMAGE:?FOUNDRY_IMAGE not set (load versions.lock)}" "$@"
 }
 
+# rpc_label <url>: the endpoint as it may be printed or recorded - scheme and host only. The path and query
+# of a provider URL carry the API key; terminal output and evidence files never get them.
+rpc_label() {
+  printf '%s' "$1" | sed -E 's#^([A-Za-z][A-Za-z0-9+.-]*://)([^/?@]*@)?([^/?]*).*$#\1\3#'
+}
+
 # JSON-RPC helper: rpc <url> <method> [params-json]
 rpc() {
   local url="$1" method="$2" params="${3:-[]}"

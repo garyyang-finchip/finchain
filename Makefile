@@ -2,7 +2,7 @@ SHELL := /bin/bash
 .DEFAULT_GOAL := help
 
 ROOT    := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
-PROFILE ?= demo
+PROFILE ?= steady
 DEPLOY_MODE ?= auto
 
 ENV_COMMON := --env-file $(ROOT)/versions.lock --env-file $(ROOT)/profiles/$(PROFILE).env
@@ -70,7 +70,7 @@ verify-onchain: ## Snapshot the live L1 configuration at a fixed block (BLOCK=..
 lock: ## Freeze versions.lock to image digests (after preflight on both hosts)
 	@bash $(ROOT)/scripts/lock-images.sh
 
-up-a: ## Start host A stack (PROFILE=demo|lowcost)
+up-a: ## Start host A stack (PROFILE=steady|demo|lowcost; recreates only the services whose parameters changed)
 	@$(COMPOSE_A) up -d
 down-a: ## Stop host A stack (data kept)
 	@$(COMPOSE_A) down

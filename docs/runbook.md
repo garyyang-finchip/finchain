@@ -155,9 +155,13 @@ comparison only.
 
 ## 7. Switching profiles
 
-`make up-a PROFILE=lowcost` / `make up-b PROFILE=lowcost` recreates the containers with the
-new batcher and proposer parameters; data is kept. State the active profile and its
-expected `safe` delay in the public documentation and in acceptance records.
+The standing profile is `steady` (the Makefile default): batches as in `demo`, one output
+proposal every 6 hours. `make up-a PROFILE=demo` / `make up-a PROFILE=lowcost` (and the same
+with `-b`) recreates only the containers whose parameters changed - between `steady` and
+`demo` that is op-proposer alone, since the batcher settings are identical; data is kept.
+op-proposer counts the interval from the latest game on the factory, so the first proposal
+after a switch comes when that interval has passed since the last one. State the active
+profile and its expected `safe` delay in the public documentation and in acceptance records.
 
 ## 8. Operations notes
 

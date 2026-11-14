@@ -2,8 +2,9 @@
 
 Four separate needs. They are budgeted, funded and reported separately; "2-3 ETH for a
 testnet" (the figure in the OP Stack tutorial) covers at most the first two and must not be
-read as covering bonds. `make funding-table PROFILE=<demo|lowcost>` prints the live table
-from the parameters below and the current gas price.
+read as covering bonds. `make funding-table PROFILE=<steady|demo|lowcost>` prints the live
+table from the parameters below and the current gas price. Section 5 is the one running cost
+that is not paid in ETH: L1 RPC capacity for the resident challenger.
 
 ## 1. L1 contract deployment (one-off)
 
@@ -22,8 +23,8 @@ midway, top the deployer up and re-run it: the tool resumes from `state.json`.
 
 | Role | Transactions | Notes |
 | --- | --- | --- |
-| batcher | one per channel on a quiet chain: 86400 / (12 s x `BATCHER_MAX_CHANNEL_DURATION`) per day | demo (15 blocks): ~480/day; lowcost (300 blocks): ~24/day. Busy periods add transactions. |
-| proposer | 24 h / `PROPOSER_INTERVAL` game creations per day | demo (1 h): 24/day; lowcost (6 h): 4/day |
+| batcher | one per channel on a quiet chain: 86400 / (12 s x `BATCHER_MAX_CHANNEL_DURATION`) per day | steady and demo (15 blocks): ~480/day; lowcost (300 blocks): ~24/day. Busy periods add transactions. |
+| proposer | 24 h / `PROPOSER_INTERVAL` game creations per day | steady and lowcost (6 h): 4/day; demo (1 h): 24/day |
 | challenger | resolve + claim per game, plus any counter-moves | permissioned games with no adversary: a few transactions per game |
 
 Gas per transaction is measured after M1 (`EST_*_GAS` placeholders in `.env`). Under
@@ -66,6 +67,23 @@ The public testnet mints nothing at genesis. ETH for the deployer of the covenan
 the treasury, the faucet and users enters through `OptimismPortal`
 (`make deposit AMOUNT=...`). This line is sized by what the World deployment, FOGA cells
 and the faucet need on L2 (`PLANNED_L2_DEPOSIT_ETH`).
+
+## 5. L1 RPC capacity (not ETH)
+
+The resident challenger on host B reads every game of the respected type on every L1 block:
+about ten `eth_call` per game in progress (claims, status, credit, the challenged-block flag)
+and, for the bond claimer, three per game inside its window (28 days by default,
+`--game-window`, kept at the upstream default). With 48 hourly games on 2026-11-13 that was
+roughly 50 requests per second against the free public endpoint host B shared with op-node;
+the endpoint answered a steady 1,400-1,600 `429 Too Many Requests` per hour through the day,
+and even the L1 head poll was hit. Every failure is retried on the next L1 block, so the
+service kept tracking all games, but the volume grows with the games in flight. Two measures
+follow. The `steady` profile creates four games a day instead of 24, which cuts the games in
+flight (and the proposer's gas) to a sixth. `CHALLENGER_L1_RPC_URL` (node-b/.env) gives the
+challenger an endpoint with a known quota, separate from op-node's endpoint and from the ad hoc
+reads of `make games`; a metered provider counts each call inside a batch, so size the plan
+from the figures above. An operator's own L1 node removes the quota question and is the
+planning assumption for mainnet (M5).
 
 ## Sources of Sepolia ETH
 

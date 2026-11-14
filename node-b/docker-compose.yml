@@ -8,6 +8,8 @@
 #   p2p-node-key.txt    op-node peer identity (hex, 32 bytes)
 #   op-challenger.env   OP_CHALLENGER_PRIVATE_KEY=<challenger private key>
 #
+# Optional in ./.env: CHALLENGER_L1_RPC_URL, a separate L1 endpoint for op-challenger (empty: L1_RPC_URL).
+#
 # Independence rules (docs/acceptance.md): this host uses its own L1 provider, its own
 # data volumes and derives from L1. The p2p link to host A only delivers unsafe blocks
 # early; it is not a trust relationship.
@@ -127,7 +129,9 @@ services:
     command:
       - op-challenger
       - --trace-type=permissioned
-      - --l1-eth-rpc=${L1_RPC_URL}
+      # The challenger reads every game of the respected type on every L1 block; give it its own
+      # endpoint (CHALLENGER_L1_RPC_URL in .env) when op-node's public endpoint rate-limits that volume.
+      - --l1-eth-rpc=${CHALLENGER_L1_RPC_URL:-${L1_RPC_URL}}
       - --l1-beacon=${L1_BEACON_URL}
       - --l2-eth-rpc=http://op-reth:8545
       - --rollup-rpc=http://op-node:8547

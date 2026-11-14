@@ -54,8 +54,8 @@ the confirmation level of the block that produced them before acting.
 
 ## Profiles and waiting time
 
-The batcher profile sets how fast `safe` advances: `demo` every few minutes, `lowcost`
-30-60 minutes. A cell that waits for `safe` before continuing a collaboration pauses for
+The batcher profile sets how fast `safe` advances: `steady` and `demo` every few minutes,
+`lowcost` 30-60 minutes. A cell that waits for `safe` before continuing a collaboration pauses for
 that interval; UI and acceptance records state the active profile and the expected wait.
 `finalized` additionally waits for L1 finality (about 15-20 minutes after inclusion). The
 proposal interval affects only withdrawals.

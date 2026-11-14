@@ -1,7 +1,7 @@
 # node-a: sequencing host
 
 Services: `op-reth` (archive execution client), `op-node` (sequencer), `op-batcher`,
-`op-proposer`. Started with `make up-a PROFILE=demo|lowcost` from the repository root,
+`op-proposer`. Started with `make up-a` (profile `steady`; `PROFILE=demo|lowcost` to switch) from the repository root,
 which passes `versions.lock`, the profile and `node-a/.env` as environment files.
 
 Inputs:

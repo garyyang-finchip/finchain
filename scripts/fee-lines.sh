@@ -106,7 +106,7 @@ done < <(jq -c '.items[] | select(.missing != true)' <<<"$line_loop")
 
 mkdir -p "$FINCHAIN_ROOT/manifests/evidence"
 out="$FINCHAIN_ROOT/manifests/evidence/fee-lines-$(date -u +%Y%m%dT%H%M%SZ).json"
-jq -n --arg rpc "$L2_RPC" --argjson chainId "$((chain_hex))" --argjson finalized "$final" --arg at "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+jq -n --arg rpc "$(rpc_label "$L2_RPC")" --argjson chainId "$((chain_hex))" --argjson finalized "$final" --arg at "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
   --argjson a "$line_identity" --argjson b "$line_world" --argjson c "$line_genesis" --argjson d "$line_loop" --argjson lf "$loop_final" \
   --arg result "$([ "$FAILED" = 0 ] && echo PASS || echo FAIL)" '
   {schema: "finchain.fee-lines/1", acceptance: "M3 funding in four lines, three fee components per receipt (docs/world.md section 5, D7)",
