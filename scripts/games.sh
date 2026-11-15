@@ -69,6 +69,17 @@ rpcq() {
   done
   die "$1 answered nothing six times on $L1_LABEL (last answer: $(printf '%s' "$raw" | cut -c1-200))"
 }
+# rpc_try <attempts> <method> <params> -> the result as JSON, or a non-zero status after <attempts> (never dies)
+rpc_try() {
+  local attempts="$1" method="$2" params="$3" attempt raw r
+  for attempt in $(seq 1 "$attempts"); do
+    raw="$(rpc "$L1" "$method" "$params" 2>/dev/null || true)"
+    r="$(jq -c 'if .error then empty else .result end' <<<"$raw" 2>/dev/null || true)"
+    if [ -n "$r" ] && [ "$r" != "null" ]; then echo "$r"; return 0; fi
+    sleep "$attempt"
+  done
+  return 1
+}
 word_n() { printf '%d' "0x$(printf '%s' "$1" | cut -c$((3 + 64 * $2))-$((2 + 64 * ($2 + 1))))"; }   # word_n <hex> <i> -> integer (fits 64 bits)
 word_addr() { echo "0x$(printf '%s' "$1" | cut -c$((27 + 64 * $2))-$((2 + 64 * ($2 + 1))))"; }
 word_hex() { echo "0x$(printf '%s' "$1" | cut -c$((3 + 64 * $2))-$((2 + 64 * ($2 + 1))))"; }
@@ -84,11 +95,27 @@ sender_role() { # which role an L1 sender is: challenger, proposer or other
   else echo other; fi
 }
 block_ts() { rpcq eth_getBlockByNumber "[\"$(printf '0x%x' "$1")\",false]" | jq -r '.timestamp' | xargs printf '%d'; }
+# resolved_log <proxy> <resolvedAt> -> the game's Resolved log, looked up in a window of L1 blocks around the resolution
+# time. A public endpoint refuses or prunes wide eth_getLogs ranges ("pruned history unavailable"), so the window is
+# estimated from the timestamp at 12 s per slot, padded for missed slots, and widened once; empty when not found.
+resolved_log() {
+  local proxy="$1" at="$2" est dist pad from to lg
+  est=$((latest - (latest_ts - at) / 12)); [ "$est" -lt "$DEPLOY_BLOCK" ] && est="$DEPLOY_BLOCK"
+  dist=$((latest - est))
+  for pad in $((300 + dist / 30)) $((1200 + dist / 8)); do
+    from=$((est - pad)); [ "$from" -lt "$DEPLOY_BLOCK" ] && from="$DEPLOY_BLOCK"
+    to=$((est + pad)); [ "$to" -gt "$latest" ] && to="$latest"
+    lg="$(rpc_try 3 eth_getLogs "[{\"address\":\"$proxy\",\"topics\":[\"$TOPIC_RESOLVED\"],\"fromBlock\":\"$(printf '0x%x' "$from")\",\"toBlock\":\"$(printf '0x%x' "$to")\"}]" | jq -c '.[0] // empty' || true)"
+    if [ -n "$lg" ]; then echo "$lg"; return 0; fi
+  done
+  return 1
+}
 
 count="$(word_n "$(ecall "$DGF" "$SEL_GAME_COUNT")" 0)"
 respected="$(word_n "$(ecall "$PORTAL" "$SEL_RESPECTED")" 0)"
 init_bond="$(word_n "$(ecall "$DGF" "${SEL_INIT_BONDS}$(pad_u "$respected")")" 0)"
 now="$(date +%s)"
+latest=$(( $(rpcq eth_blockNumber '[]' | jq -r .) )); latest_ts="$(block_ts "$latest")"
 echo "factory $DGF: $count games; respected game type $respected (portal $PORTAL); init bond $(hex_to_eth "$(printf '0x%x' "$init_bond")") ETH; L1 $L1_LABEL"
 first=0
 if [ "$LAST" != "all" ]; then first=$((count - LAST)); [ "$first" -lt 0 ] && first=0; fi
@@ -119,7 +146,8 @@ while [ "$i" -lt "$count" ]; do
   resolution=null
   if [ "$status" != "0" ]; then
     resolved=$((resolved + 1))
-    lg="$(rpcq eth_getLogs "[{\"address\":\"$proxy\",\"topics\":[\"$TOPIC_RESOLVED\"],\"fromBlock\":\"$(printf '0x%x' "$DEPLOY_BLOCK")\",\"toBlock\":\"latest\"}]" | jq -c '.[0] // empty')"
+    lg="$(resolved_log "$proxy" "$resolved_at" || true)"
+    [ -n "$lg" ] || warn "game #$i: Resolved log not found near $(iso_of "$resolved_at"); recorded without the resolving transaction"
     if [ -n "$lg" ]; then
       rtx="$(jq -r .transactionHash <<<"$lg")"; rblock=$(( $(jq -r .blockNumber <<<"$lg") ))
       rfrom="$(rpcq eth_getTransactionByHash "[\"$rtx\"]" | jq -r '.from // ""')"
