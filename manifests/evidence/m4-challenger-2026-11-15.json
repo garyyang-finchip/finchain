@@ -1,0 +1,290 @@
+{
+  "milestone": "M4",
+  "item": "Resident challenger running on host B against the public chain; games resolved and bonds claimed (docs/acceptance.md M4, first row; docs/proof-plan.md level L1)",
+  "environment": "public-testnet",
+  "recordedAt": "2026-11-15T16:30:00Z",
+  "source": "manifests/evidence/games-20261115T160409Z.json (the chain, read by make games on host B), manifests/evidence/challenger-log-20261115T162118Z.jsonl (the service's own log on host B, info level, resolve and transaction lines only) and manifests/evidence/games-20261113T181336Z.json (the chain before any clock had expired); this record is the index, the cross-check and the summary",
+  "service": {
+    "host": "B",
+    "image": "op-challenger v1.9.6 (versions.lock digest)",
+    "traceType": "permissioned",
+    "address": "0xd0236e0d768cc4456eed2a5373feb35413192e58",
+    "l1Endpoint": "the public endpoint of node-b/.env until CHALLENGER_L1_RPC_URL is set (docs/funding-model.md section 5)"
+  },
+  "games": {
+    "factory": "0xc752f10ab0696860b11b789a2ab9f4f93331329c",
+    "respectedGameType": 1,
+    "maxClockDurationSeconds": 302400,
+    "initBondWei": "0",
+    "before": {
+      "report": "manifests/evidence/games-20261113T181336Z.json",
+      "recordedAt": "2026-11-13T18:13:36Z",
+      "count": 48,
+      "resolved": 0,
+      "inProgress": 48
+    },
+    "after": {
+      "report": "manifests/evidence/games-20261115T160409Z.json",
+      "recordedAt": "2026-11-15T16:04:09Z",
+      "count": 62,
+      "resolved": 10,
+      "resolvedByChallenger": 10,
+      "inProgress": 52,
+      "notRespectedType": 0
+    }
+  },
+  "resolutions": [
+    {
+      "index": 0,
+      "game": "0xc5defa0d17554e231ebc5bba3304fdbd32846075",
+      "clockEndedAt": 1794725040,
+      "resolvedAt": 1794725136,
+      "secondsAfterClock": 96,
+      "resolveClaimTx": {
+        "tx": "0x889840b3384c7d7d60a74a488864616212bacddd33ad641bd0997cdb3bc64b5f",
+        "l1Block": 12138536
+      },
+      "resolveTx": {
+        "chain": {
+          "tx": "0x181cfd7a5d1e833ed1ff75a8f0ddc987b8c739c3dc9d7a426e6635c6b3333aaf",
+          "l1Block": 12138539,
+          "from": "0xd0236e0d768cc4456eed2a5373feb35413192e58"
+        },
+        "serviceLog": {
+          "tx": "0x181cfd7a5d1e833ed1ff75a8f0ddc987b8c739c3dc9d7a426e6635c6b3333aaf",
+          "l1Block": 12138539
+        },
+        "match": true
+      }
+    },
+    {
+      "index": 1,
+      "game": "0x7d723de47139bc6faea8e7578d8aca7544bd00cb",
+      "clockEndedAt": 1794728664,
+      "resolvedAt": 1794728808,
+      "secondsAfterClock": 144,
+      "resolveClaimTx": {
+        "tx": "0xc24a33a79fabe53f6a2c03d3c99b2a47ae36929ce431777f0069c40317644d0f",
+        "l1Block": 12138838
+      },
+      "resolveTx": {
+        "chain": {
+          "tx": "0xce2477b945c9175b4d1d1f1439aaf68046bfd028728dc1aa69fce96cf77bd378",
+          "l1Block": 12138841,
+          "from": "0xd0236e0d768cc4456eed2a5373feb35413192e58"
+        },
+        "serviceLog": {
+          "tx": "0xce2477b945c9175b4d1d1f1439aaf68046bfd028728dc1aa69fce96cf77bd378",
+          "l1Block": 12138841
+        },
+        "match": true
+      }
+    },
+    {
+      "index": 2,
+      "game": "0xb55c342bddf6d4ae3967b3287cb6d0d37d7a915d",
+      "clockEndedAt": 1794732288,
+      "resolvedAt": 1794732372,
+      "secondsAfterClock": 84,
+      "resolveClaimTx": {
+        "tx": "0x049b9308938b6cf4fcc6885115cc5d813e531d81f5113b9fb4bc227188f8d5db",
+        "l1Block": 12139127
+      },
+      "resolveTx": {
+        "chain": {
+          "tx": "0xce39a43af3b1c512da6d7aed6ee39f8b50bdb3688184eb9d1147265374d3b78d",
+          "l1Block": 12139130,
+          "from": "0xd0236e0d768cc4456eed2a5373feb35413192e58"
+        },
+        "serviceLog": {
+          "tx": "0xce39a43af3b1c512da6d7aed6ee39f8b50bdb3688184eb9d1147265374d3b78d",
+          "l1Block": 12139130
+        },
+        "match": true
+      }
+    },
+    {
+      "index": 3,
+      "game": "0xe242466b4b7d8fb419a82fb8f05ecaf4e5af0fd9",
+      "clockEndedAt": 1794735900,
+      "resolvedAt": 1794736068,
+      "secondsAfterClock": 168,
+      "resolveClaimTx": {
+        "tx": "0xa1d8c24310f57fc8b6fd77cd9963d2904b13876aa3ef4356ad96893c8c0b4b7d",
+        "l1Block": 12139426
+      },
+      "resolveTx": {
+        "chain": {
+          "tx": "0x81cd6a40d4dbb13b8d32760436eb57f64efb6c0846cffdb72a6c60437471279c",
+          "l1Block": 12139435,
+          "from": "0xd0236e0d768cc4456eed2a5373feb35413192e58"
+        },
+        "serviceLog": {
+          "tx": "0x81cd6a40d4dbb13b8d32760436eb57f64efb6c0846cffdb72a6c60437471279c",
+          "l1Block": 12139435
+        },
+        "match": true
+      }
+    },
+    {
+      "index": 4,
+      "game": "0xd4f241415b21ca6856148900ef602dfba5b2169f",
+      "clockEndedAt": 1794739524,
+      "resolvedAt": 1794739620,
+      "secondsAfterClock": 96,
+      "resolveClaimTx": {
+        "tx": "0x70290994912b69a98772b4dfbfb39482a8359f6ad55f3181128839d0744188cc",
+        "l1Block": 12139723
+      },
+      "resolveTx": {
+        "chain": {
+          "tx": "0x80bb64d019845c9d8f5c07f8e3d818a69c35947637582493c5ae96a36e3f4437",
+          "l1Block": 12139726,
+          "from": "0xd0236e0d768cc4456eed2a5373feb35413192e58"
+        },
+        "serviceLog": {
+          "tx": "0x80bb64d019845c9d8f5c07f8e3d818a69c35947637582493c5ae96a36e3f4437",
+          "l1Block": 12139726
+        },
+        "match": true
+      }
+    },
+    {
+      "index": 5,
+      "game": "0x316b24abb299379bdfb44d70da63d3467d54dafb",
+      "clockEndedAt": 1794743148,
+      "resolvedAt": 1794743268,
+      "secondsAfterClock": 120,
+      "resolveClaimTx": {
+        "tx": "0x1b679c26db144d386e037562ffe8611abe360e32845960756f4ddcc9b93228e4",
+        "l1Block": 12140024
+      },
+      "resolveTx": {
+        "chain": {
+          "tx": "0x0e4bdf81f5ccdfbc07dc2a87d3b3c71182cde0ec1825b4bcd3db369e3d8692f1",
+          "l1Block": 12140027,
+          "from": "0xd0236e0d768cc4456eed2a5373feb35413192e58"
+        },
+        "serviceLog": {
+          "tx": "0x0e4bdf81f5ccdfbc07dc2a87d3b3c71182cde0ec1825b4bcd3db369e3d8692f1",
+          "l1Block": 12140027
+        },
+        "match": true
+      }
+    },
+    {
+      "index": 6,
+      "game": "0xb79c8969fbb3da1201dc779b9a7f250f48bbba89",
+      "clockEndedAt": 1794746760,
+      "resolvedAt": 1794746832,
+      "secondsAfterClock": 72,
+      "resolveClaimTx": {
+        "tx": "0x9e7b9b4334b08d81954be41a86d075b68e9cc887dd9b0fcdb3216bbd7b7c0518",
+        "l1Block": 12140316
+      },
+      "resolveTx": {
+        "chain": {
+          "tx": "0x3ee61bc56bf4bd21e86c0b8e0793a8626009898dc3a78ae89f47d5404ba3ddeb",
+          "l1Block": 12140319,
+          "from": "0xd0236e0d768cc4456eed2a5373feb35413192e58"
+        },
+        "serviceLog": {
+          "tx": "0x3ee61bc56bf4bd21e86c0b8e0793a8626009898dc3a78ae89f47d5404ba3ddeb",
+          "l1Block": 12140319
+        },
+        "match": true
+      }
+    },
+    {
+      "index": 7,
+      "game": "0x7b5473bc41c06a424b042490b45e9a53a019566d",
+      "clockEndedAt": 1794750384,
+      "resolvedAt": 1794750468,
+      "secondsAfterClock": 84,
+      "resolveClaimTx": {
+        "tx": "0xd50a1c22df740894115caff58c5c471903e98cffacb5e428bc0f59f0d5a92c47",
+        "l1Block": 12140614
+      },
+      "resolveTx": {
+        "chain": {
+          "tx": "0x1c919cad2f9c8fc12583db2fa6086bd62df9704e56bd06bb4db4de68d93630b9",
+          "l1Block": 12140617,
+          "from": "0xd0236e0d768cc4456eed2a5373feb35413192e58"
+        },
+        "serviceLog": {
+          "tx": "0x1c919cad2f9c8fc12583db2fa6086bd62df9704e56bd06bb4db4de68d93630b9",
+          "l1Block": 12140617
+        },
+        "match": true
+      }
+    },
+    {
+      "index": 8,
+      "game": "0x41416e649075bfad499c67870ad87b80d44b80ca",
+      "clockEndedAt": 1794754008,
+      "resolvedAt": 1794754080,
+      "secondsAfterClock": 72,
+      "resolveClaimTx": {
+        "tx": "0x5772f6561b76d826ffaf26582fd993ab28b3827104478a951a2f9ce61946947a",
+        "l1Block": 12140912
+      },
+      "resolveTx": {
+        "chain": {
+          "tx": "0x3f6c3024e3c10406956bc9a9ae421cde38f2f1ade7066989d2148549406ca4b7",
+          "l1Block": 12140915,
+          "from": "0xd0236e0d768cc4456eed2a5373feb35413192e58"
+        },
+        "serviceLog": {
+          "tx": "0x3f6c3024e3c10406956bc9a9ae421cde38f2f1ade7066989d2148549406ca4b7",
+          "l1Block": 12140915
+        },
+        "match": true
+      }
+    },
+    {
+      "index": 9,
+      "game": "0x72fd11e30c9c8d2f73399974d77aa5dfbf76fdfc",
+      "clockEndedAt": 1794757620,
+      "resolvedAt": 1794757764,
+      "secondsAfterClock": 144,
+      "resolveClaimTx": {
+        "tx": "0x415b495a947dd1988f73a62d814ad4877fc71df192fbbc59511775c7b0ce0679",
+        "l1Block": 12141209
+      },
+      "resolveTx": {
+        "chain": {
+          "tx": "0x8938f8c54d222750240ee5335b6e394d887a0f37a122dfe5865c2e0aa5a5c3df",
+          "l1Block": 12141219,
+          "from": "0xd0236e0d768cc4456eed2a5373feb35413192e58"
+        },
+        "serviceLog": {
+          "tx": "0x8938f8c54d222750240ee5335b6e394d887a0f37a122dfe5865c2e0aa5a5c3df",
+          "l1Block": 12141219
+        },
+        "match": true
+      }
+    }
+  ],
+  "crossCheck": {
+    "method": "for every resolved game, the transaction that emitted Resolved on L1 (found by games.sh in a block window around resolvedAt) is compared with the transaction the service logged after 'Resolving game'; the sender of the on-chain transaction is compared with the challenger address",
+    "resolvingTransactionsMatched": 10,
+    "of": 10,
+    "sender": "all ten from the challenger address",
+    "status": "all ten DEFENDER_WINS (the root claim stands), one claim and no move each",
+    "secondsAfterClock": {
+      "min": 72,
+      "max": 168
+    }
+  },
+  "bonds": {
+    "initBondWei": "0",
+    "note": "the initial bond is 0 on this deployment (owner's setInitBond(1, 0), 2026-11-11, manifests/evidence/m1-2026-11-12.json), so no bond was paid at creation and none is claimable; the service's bond claimer finds no credit (credit 0 for proposer and challenger in the report). The 'bonds claimed' half of the item is therefore vacuous here and is exercised on the isolated devnet, where bonds of any size can be posted (docs/proof-plan.md M4b)."
+  },
+  "closeGame": "the anchor state is advanced by closeGame once a resolved game has passed its finality delay (302400 s); the first such call is due from 2026-11-18T18:45Z and is read back then",
+  "findings": [
+    "a free public L1 endpoint rate-limits the service's reads at 48 games in flight (429, a steady 1,400-1,600 per hour on 2026-11-13); every failure is retried on the next L1 block and no resolution was late because of it. Response: the steady profile (proposals every 6 h, in force since 2026-11-14T02:5xZ; visible in the report from game 56 on) and CHALLENGER_L1_RPC_URL for an endpoint with a known quota (docs/funding-model.md section 5)",
+    "the public endpoint also prunes wide eth_getLogs ranges (4444 'pruned history unavailable'); games.sh looks the Resolved log up in a window around the resolution time since 0.3.0-alpha.8",
+    "the game implementation's prestate is op-deployer's default (op-program 1.3.1, a 32-bit image) on a 64-bit VM; resolution by clock does not touch it, a step would (docs/proof-plan.md); the replacement is the M5 upgrade with the prestate of make prestate"
+  ],
+  "result": "passed on public-testnet: the resident challenger resolved every game whose clock expired, 72-168 s after expiry, with its own key, and the chain and the service log name the same ten transactions; the bond half is vacuous at initBond 0 and moves to the devnet drill"
+}

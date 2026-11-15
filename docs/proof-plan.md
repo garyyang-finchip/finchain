@@ -99,7 +99,12 @@ credit columns stay at zero and the evidence is the resolution itself: the statu
 resolving transaction and its sender. The first report
 (`manifests/evidence/games-20261113T181336Z.json`, taken before any clock had expired) shows
 48 hourly games, one claim each and no moves, with clocks ending from 2026-11-15T06:44Z; the
-report after the first resolutions is the one that closes the item.
+report after the first resolutions is the one that closes the item. That report exists:
+`manifests/evidence/games-20261115T160409Z.json` (2026-11-15, 62 games) shows the first ten
+games resolved DEFENDER_WINS by the challenger 72-168 s after their clocks expired, and the
+service's own log (`challenger-log-20261115T162118Z.jsonl`) names the same ten resolving
+transactions; `m4-challenger-2026-11-15.json` is the index and the cross-check. Level L1 is
+operational on the public chain.
 
 Operational finding (2026-11-13): with 48 games in flight the challenger's reads exceeded the
 quota of the free public L1 endpoint on host B - a steady 1,400-1,600 `429 Too Many

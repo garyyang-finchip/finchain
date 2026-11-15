@@ -1,0 +1,60 @@
+{"t":"2026-11-15T06:44:58.205131362Z","lvl":"info","msg":"Resolving claim","game":"0xC5deFA0D17554E231EbC5BBA3304Fdbd32846075","claimIdx":0}
+{"t":"2026-11-15T06:44:58.205159383Z","lvl":"info","msg":"Resolving claims","game":"0xC5deFA0D17554E231EbC5BBA3304Fdbd32846075","numClaims":1}
+{"t":"2026-11-15T06:45:34.477221157Z","lvl":"info","msg":"Transaction confirmed","service":"challenger","tx":"0x889840b3384c7d7d60a74a488864616212bacddd33ad641bd0997cdb3bc64b5f","block":"0x8958c9066f42551c0bee0cbec588edb28691f6d73393bb1f56c7f60c8c6e9fa0:12138536","effectiveGasPrice":"1000000015"}
+{"t":"2026-11-15T06:45:34.5997214Z","lvl":"info","msg":"Resolving game","game":"0xC5deFA0D17554E231EbC5BBA3304Fdbd32846075"}
+{"t":"2026-11-15T06:46:13.825176255Z","lvl":"info","msg":"Transaction confirmed","service":"challenger","tx":"0x181cfd7a5d1e833ed1ff75a8f0ddc987b8c739c3dc9d7a426e6635c6b3333aaf","block":"0x9fa586ca8d21b4970e1a0adb34e8a98f40c51cdf58f3f9b274db921960780140:12138539","effectiveGasPrice":"1000000015"}
+{"t":"2026-11-15T06:46:13.856571957Z","lvl":"info","msg":"Game resolved","game":"0xC5deFA0D17554E231EbC5BBA3304Fdbd32846075","status":"Defender Won"}
+{"t":"2026-11-15T07:46:05.505738966Z","lvl":"info","msg":"Resolving claim","game":"0x7D723de47139BC6FAEA8e7578D8aCA7544bd00Cb","claimIdx":0}
+{"t":"2026-11-15T07:46:05.505768301Z","lvl":"info","msg":"Resolving claims","game":"0x7D723de47139BC6FAEA8e7578D8aCA7544bd00Cb","numClaims":1}
+{"t":"2026-11-15T07:46:41.746676914Z","lvl":"info","msg":"Transaction confirmed","service":"challenger","tx":"0xc24a33a79fabe53f6a2c03d3c99b2a47ae36929ce431777f0069c40317644d0f","block":"0xfdaccda27d7f44fb08bb39d643d6f40163b51b995a01adc2cb7973ccacfac8ec:12138838","effectiveGasPrice":"1000000016"}
+{"t":"2026-11-15T07:46:41.8666043Z","lvl":"info","msg":"Resolving game","game":"0x7D723de47139BC6FAEA8e7578D8aCA7544bd00Cb"}
+{"t":"2026-11-15T07:47:30.105282943Z","lvl":"info","msg":"Transaction confirmed","service":"challenger","tx":"0xce2477b945c9175b4d1d1f1439aaf68046bfd028728dc1aa69fce96cf77bd378","block":"0x41d15e96c09382de7ee63ea607c9e3ccac77cf231f3e90c26bc15af6a8588be6:12138841","effectiveGasPrice":"1000000016"}
+{"t":"2026-11-15T07:47:30.133058478Z","lvl":"info","msg":"Game resolved","game":"0x7D723de47139BC6FAEA8e7578D8aCA7544bd00Cb","status":"Defender Won"}
+{"t":"2026-11-15T08:45:26.786320292Z","lvl":"info","msg":"Resolving claim","game":"0xb55C342bDdF6D4Ae3967B3287cB6d0D37d7A915D","claimIdx":0}
+{"t":"2026-11-15T08:45:26.786412369Z","lvl":"info","msg":"Resolving claims","game":"0xb55C342bDdF6D4Ae3967B3287cB6d0D37d7A915D","numClaims":1}
+{"t":"2026-11-15T08:46:03.038573273Z","lvl":"info","msg":"Transaction confirmed","service":"challenger","tx":"0x049b9308938b6cf4fcc6885115cc5d813e531d81f5113b9fb4bc227188f8d5db","block":"0x2fac7db5c2bcf8dc58ca598ef36e3e50ab527ce8a0fa4c60818e050003723906:12139127","effectiveGasPrice":"1000000016"}
+{"t":"2026-11-15T08:46:03.157095257Z","lvl":"info","msg":"Resolving game","game":"0xb55C342bDdF6D4Ae3967B3287cB6d0D37d7A915D"}
+{"t":"2026-11-15T08:46:44.421578562Z","lvl":"info","msg":"Transaction confirmed","service":"challenger","tx":"0xce39a43af3b1c512da6d7aed6ee39f8b50bdb3688184eb9d1147265374d3b78d","block":"0xbaed02f67de909cbd69bd9937153606f803a9362e2e5da3895d7ed18690425ea:12139130","effectiveGasPrice":"1000000016"}
+{"t":"2026-11-15T08:46:44.467214452Z","lvl":"info","msg":"Game resolved","game":"0xb55C342bDdF6D4Ae3967B3287cB6d0D37d7A915D","status":"Defender Won"}
+{"t":"2026-11-15T09:45:43.26990588Z","lvl":"info","msg":"Resolving claim","game":"0xE242466b4b7D8FB419A82Fb8f05ecaF4E5AF0FD9","claimIdx":0}
+{"t":"2026-11-15T09:45:43.269955589Z","lvl":"info","msg":"Resolving claims","game":"0xE242466b4b7D8FB419A82Fb8f05ecaF4E5AF0FD9","numClaims":1}
+{"t":"2026-11-15T09:46:36.573512237Z","lvl":"info","msg":"Transaction confirmed","service":"challenger","tx":"0xa1d8c24310f57fc8b6fd77cd9963d2904b13876aa3ef4356ad96893c8c0b4b7d","block":"0x9469ed661f17280718508d6b74c4c8e8be74e094fa62bb640ed70bcbdc3276e4:12139426","effectiveGasPrice":"1000000015"}
+{"t":"2026-11-15T09:47:40.235061764Z","lvl":"info","msg":"Resolving game","game":"0xE242466b4b7D8FB419A82Fb8f05ecaF4E5AF0FD9"}
+{"t":"2026-11-15T09:48:16.473582874Z","lvl":"info","msg":"Transaction confirmed","service":"challenger","tx":"0x81cd6a40d4dbb13b8d32760436eb57f64efb6c0846cffdb72a6c60437471279c","block":"0xddb8d1ae5582dad4446141cb796445f68babb6edfbe1fb04ea2b65d74a0cfa08:12139435","effectiveGasPrice":"1000000015"}
+{"t":"2026-11-15T09:48:56.88290682Z","lvl":"info","msg":"Game resolved","game":"0xE242466b4b7D8FB419A82Fb8f05ecaF4E5AF0FD9","status":"Defender Won"}
+{"t":"2026-11-15T10:46:05.335336854Z","lvl":"info","msg":"Resolving claim","game":"0xd4F241415B21CA6856148900EF602dfba5b2169f","claimIdx":0}
+{"t":"2026-11-15T10:46:05.335364599Z","lvl":"info","msg":"Resolving claims","game":"0xd4F241415B21CA6856148900EF602dfba5b2169f","numClaims":1}
+{"t":"2026-11-15T10:46:53.577394737Z","lvl":"info","msg":"Transaction confirmed","service":"challenger","tx":"0x70290994912b69a98772b4dfbfb39482a8359f6ad55f3181128839d0744188cc","block":"0x47415900997db714d8c04a0e657f7f1712d0acc91135523c07b45911e0cff997:12139723","effectiveGasPrice":"1000000014"}
+{"t":"2026-11-15T10:46:53.687295947Z","lvl":"info","msg":"Resolving game","game":"0xd4F241415B21CA6856148900EF602dfba5b2169f"}
+{"t":"2026-11-15T10:47:29.922801812Z","lvl":"info","msg":"Transaction confirmed","service":"challenger","tx":"0x80bb64d019845c9d8f5c07f8e3d818a69c35947637582493c5ae96a36e3f4437","block":"0xc453fd5bcfbde26c4f69d27cec9f1914202e99b482cc9da613fd7ba37579d2dc:12139726","effectiveGasPrice":"1000000014"}
+{"t":"2026-11-15T10:47:29.956053485Z","lvl":"info","msg":"Game resolved","game":"0xd4F241415B21CA6856148900EF602dfba5b2169f","status":"Defender Won"}
+{"t":"2026-11-15T11:47:09.558671553Z","lvl":"info","msg":"Resolving claim","game":"0x316B24aBb299379bdFb44D70dA63D3467d54DaFb","claimIdx":0}
+{"t":"2026-11-15T11:47:09.558701635Z","lvl":"info","msg":"Resolving claims","game":"0x316B24aBb299379bdFb44D70dA63D3467d54DaFb","numClaims":1}
+{"t":"2026-11-15T11:47:45.773841951Z","lvl":"info","msg":"Transaction confirmed","service":"challenger","tx":"0x1b679c26db144d386e037562ffe8611abe360e32845960756f4ddcc9b93228e4","block":"0xa93b8340d8a4b5dfb90fb9c9eb5f299c94616e8a81767b63fdecf7d628ba9eaf:12140024","effectiveGasPrice":"1000000015"}
+{"t":"2026-11-15T11:47:45.881770258Z","lvl":"info","msg":"Resolving game","game":"0x316B24aBb299379bdFb44D70dA63D3467d54DaFb"}
+{"t":"2026-11-15T11:48:22.091748847Z","lvl":"info","msg":"Transaction confirmed","service":"challenger","tx":"0x0e4bdf81f5ccdfbc07dc2a87d3b3c71182cde0ec1825b4bcd3db369e3d8692f1","block":"0xfbae7a8477b1adc23d729a9be6ed8c51580b90aa953e66afbcb77e9698a2a9d8:12140027","effectiveGasPrice":"1000000015"}
+{"t":"2026-11-15T11:48:22.158592712Z","lvl":"info","msg":"Game resolved","game":"0x316B24aBb299379bdFb44D70dA63D3467d54DaFb","status":"Defender Won"}
+{"t":"2026-11-15T12:46:25.607177621Z","lvl":"info","msg":"Resolving claim","game":"0xB79c8969fBb3DA1201dC779B9a7F250F48bbBa89","claimIdx":0}
+{"t":"2026-11-15T12:46:25.607213942Z","lvl":"info","msg":"Resolving claims","game":"0xB79c8969fBb3DA1201dC779B9a7F250F48bbBa89","numClaims":1}
+{"t":"2026-11-15T12:47:01.984395897Z","lvl":"info","msg":"Transaction confirmed","service":"challenger","tx":"0x9e7b9b4334b08d81954be41a86d075b68e9cc887dd9b0fcdb3216bbd7b7c0518","block":"0xe772c1058430b788667e8ac3bca43a2123950c5e31380bd0b337624cabc4499b:12140316","effectiveGasPrice":"1000000014"}
+{"t":"2026-11-15T12:47:02.128508533Z","lvl":"info","msg":"Resolving game","game":"0xB79c8969fBb3DA1201dC779B9a7F250F48bbBa89"}
+{"t":"2026-11-15T12:47:38.406715385Z","lvl":"info","msg":"Transaction confirmed","service":"challenger","tx":"0x3ee61bc56bf4bd21e86c0b8e0793a8626009898dc3a78ae89f47d5404ba3ddeb","block":"0xaa475569f5e85d20744ac0e0fc6203b05b7862470803e0949cf6bc639c3f3840:12140319","effectiveGasPrice":"1000000014"}
+{"t":"2026-11-15T12:47:38.479275134Z","lvl":"info","msg":"Game resolved","game":"0xB79c8969fBb3DA1201dC779B9a7F250F48bbBa89","status":"Defender Won"}
+{"t":"2026-11-15T13:46:55.976944127Z","lvl":"info","msg":"Resolving claim","game":"0x7B5473BC41C06A424b042490b45E9a53a019566D","claimIdx":0}
+{"t":"2026-11-15T13:46:55.976973967Z","lvl":"info","msg":"Resolving claims","game":"0x7B5473BC41C06A424b042490b45E9a53a019566D","numClaims":1}
+{"t":"2026-11-15T13:47:37.368045406Z","lvl":"info","msg":"Transaction confirmed","service":"challenger","tx":"0xd50a1c22df740894115caff58c5c471903e98cffacb5e428bc0f59f0d5a92c47","block":"0xd0788ced037a17d4b3f9e3708bbc06000e0a84ff1b3285eac3576a7d5b46eecf:12140614","effectiveGasPrice":"1000000015"}
+{"t":"2026-11-15T13:47:37.473643323Z","lvl":"info","msg":"Resolving game","game":"0x7B5473BC41C06A424b042490b45E9a53a019566D"}
+{"t":"2026-11-15T13:48:13.704207529Z","lvl":"info","msg":"Transaction confirmed","service":"challenger","tx":"0x1c919cad2f9c8fc12583db2fa6086bd62df9704e56bd06bb4db4de68d93630b9","block":"0x4dee635755a1ca3dd20da2c1cbead8417f7cd713cf905cd540ce7f8140e131d1:12140617","effectiveGasPrice":"1000000015"}
+{"t":"2026-11-15T13:48:13.731420341Z","lvl":"info","msg":"Game resolved","game":"0x7B5473BC41C06A424b042490b45E9a53a019566D","status":"Defender Won"}
+{"t":"2026-11-15T14:47:16.783165738Z","lvl":"info","msg":"Resolving claim","game":"0x41416e649075BFAD499c67870ad87b80d44B80cA","claimIdx":0}
+{"t":"2026-11-15T14:47:16.783196541Z","lvl":"info","msg":"Resolving claims","game":"0x41416e649075BFAD499c67870ad87b80d44B80cA","numClaims":1}
+{"t":"2026-11-15T14:47:53.000718334Z","lvl":"info","msg":"Transaction confirmed","service":"challenger","tx":"0x5772f6561b76d826ffaf26582fd993ab28b3827104478a951a2f9ce61946947a","block":"0xe98bda229c117f89b3433015f0ab353474c7d765a27134cde42d4a463641cad5:12140912","effectiveGasPrice":"1000000015"}
+{"t":"2026-11-15T14:47:53.109792878Z","lvl":"info","msg":"Resolving game","game":"0x41416e649075BFAD499c67870ad87b80d44B80cA"}
+{"t":"2026-11-15T14:48:29.474262193Z","lvl":"info","msg":"Transaction confirmed","service":"challenger","tx":"0x3f6c3024e3c10406956bc9a9ae421cde38f2f1ade7066989d2148549406ca4b7","block":"0xed86c51d24794e0d822d38a126dfd13ce0f41d86ca3f2df5182beb5300b53f4c:12140915","effectiveGasPrice":"1000000015"}
+{"t":"2026-11-15T14:48:29.502889359Z","lvl":"info","msg":"Game resolved","game":"0x41416e649075BFAD499c67870ad87b80d44B80cA","status":"Defender Won"}
+{"t":"2026-11-15T15:47:23.021371132Z","lvl":"info","msg":"Resolving claim","game":"0x72Fd11E30c9C8D2F73399974d77AA5dfbF76FDfC","claimIdx":0}
+{"t":"2026-11-15T15:47:23.021401659Z","lvl":"info","msg":"Resolving claims","game":"0x72Fd11E30c9C8D2F73399974d77AA5dfbF76FDfC","numClaims":1}
+{"t":"2026-11-15T15:47:59.232539299Z","lvl":"info","msg":"Transaction confirmed","service":"challenger","tx":"0x415b495a947dd1988f73a62d814ad4877fc71df192fbbc59511775c7b0ce0679","block":"0x03bb6e3242e82ba0d99efe112d9de6bf46f24dc800936a56c55a22f3166176d1:12141209","effectiveGasPrice":"1000000015"}
+{"t":"2026-11-15T15:49:11.881228314Z","lvl":"info","msg":"Resolving game","game":"0x72Fd11E30c9C8D2F73399974d77AA5dfbF76FDfC"}
+{"t":"2026-11-15T15:49:53.242944772Z","lvl":"info","msg":"Transaction confirmed","service":"challenger","tx":"0x8938f8c54d222750240ee5335b6e394d887a0f37a122dfe5865c2e0aa5a5c3df","block":"0xf5f490438cb2e2e5ed95a11d545b9140469ee121b2036c8b491d47c507d81e7e:12141219","effectiveGasPrice":"1000000015"}
+{"t":"2026-11-15T15:49:53.274640035Z","lvl":"info","msg":"Game resolved","game":"0x72Fd11E30c9C8D2F73399974d77AA5dfbF76FDfC","status":"Defender Won"}

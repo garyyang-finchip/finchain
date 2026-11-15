@@ -77,9 +77,10 @@ The full procedure, with expected outputs and acceptance checks, is in
 
 ## Status
 
-v0.3.0-alpha.9: M4 in progress (`make withdraw` drives the deposit -> proof -> withdrawal
+v0.3.0-alpha.10: M4 in progress (`make withdraw` drives the deposit -> proof -> withdrawal
 cycle step by step, with its record; `make games` reads the dispute games back from L1 - the
-first report, 2026-11-13, shows 48 hourly games in progress before any clock expired; the
+resident challenger resolved the first ten games on 2026-11-15, 72-168 s after their clocks,
+`manifests/evidence/m4-challenger-2026-11-15.json`; the
 `steady` profile and `CHALLENGER_L1_RPC_URL` answer the L1 rate limiting that report
 uncovered, `docs/funding-model.md` section 5). v0.2.0
 (2026-11-13) closed M3: the reference-version
