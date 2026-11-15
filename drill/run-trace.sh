@@ -53,7 +53,9 @@ stamp="$(date -u +%Y%m%dT%H%M%SZ)"
 mkdir -p "$FINCHAIN_ROOT/drill/out/logs" "$FINCHAIN_ROOT/manifests/evidence"
 logf="$FINCHAIN_ROOT/drill/out/logs/run-trace-$stamp.log"
 name="finchain-drill-run-trace-$stamp"
-# a throwaway signer: run-trace sends no transaction, the transaction manager only wants a key to exist
+# a throwaway signer: run-trace sends no transaction, the transaction manager only wants a key to exist.
+# --cannon-prestate names the same file as --run: the configuration check wants a prestate source before the runner
+# reads the run's own file.
 throwaway="$(openssl rand -hex 32)"
 
 log "run-trace on host $HOST: prestate $hash, network $network, rollup RPC $(rpc_label "$ROLLUP_RPC"), L2 debug RPC $(rpc_label "$L2_RPC_DEBUG")"
@@ -67,7 +69,7 @@ docker run -d --name "$name" --network "$network" \
   --game-factory-address "$DGF" --datadir /data --trace-type cannon \
   --cannon-bin /usr/local/bin/cannon --cannon-server /usr/local/bin/op-program \
   --cannon-rollup-config /chain/rollup.json --cannon-l2-genesis /chain/genesis.json \
-  --run "cannon/finchain/file:/prestates/$(basename "$PRESTATE")" --vm-timeout "$RUN_TIMEOUT" \
+  --cannon-prestate "/prestates/$(basename "$PRESTATE")" --run "cannon/finchain/file:/prestates/$(basename "$PRESTATE")" --vm-timeout "$RUN_TIMEOUT" \
   --private-key "$throwaway" --log.format json --log.level info >/dev/null
 unset throwaway
 
