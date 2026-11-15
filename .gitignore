@@ -12,10 +12,18 @@ node-b/secrets/*
 jwt.txt
 p2p-node-key.txt
 
-# Local environment files (copies of the .env.example files)
+# Local environment files (copies of the .env.example files); .env.<chain> for a second chain
 .env
+.env.*
+!.env.example
 node-a/.env
+node-a/.env.*
+!node-a/.env.example
 node-b/.env
+node-b/.env.*
+!node-b/.env.example
+node-a/secrets.*/
+node-b/secrets.*/
 
 # Downloaded binaries and scratch
 bin/
