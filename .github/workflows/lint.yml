@@ -13,7 +13,7 @@ jobs:
       - name: shellcheck
         run: |
           sudo apt-get update -qq && sudo apt-get install -y -qq shellcheck
-          shellcheck -x scripts/*.sh
+          shellcheck -x scripts/*.sh drill/*.sh
 
       - name: compose config (host A)
         working-directory: node-a
@@ -37,6 +37,6 @@ jobs:
 
       - name: no secrets committed
         run: |
-          if git ls-files | grep -E '^(keys/|node-[ab]/secrets/)' | grep -v -E '(\.gitkeep|README\.md)$'; then
+          if git ls-files | grep -E '^(keys/|node-[ab]/secrets(\.[a-z0-9-]+)?/|\.env(\.[a-z0-9-]+)?$|node-[ab]/\.env(\.[a-z0-9-]+)?$)' | grep -v -E '(\.gitkeep|README\.md|\.env\.example)$'; then
             echo "secret paths are tracked"; exit 1; fi
           echo "ok"
