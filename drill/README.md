@@ -111,7 +111,10 @@ ROLLUP_RPC=http://<host B private IP>:8547 L2_RPC_DEBUG=http://<host A private I
 
 The run is one `docker run` of the pinned op-challenger image, joined to the host's compose
 network or to the host network on a scratch machine; it ends at the first verdict and
-removes the container. Expect a few GB of memory for the VM and from minutes to an hour on
+removes the container. The image ships `cannon` and `kona-host` but not the op-program host
+that the `cannon` and `permissioned` paths use as their preimage server, so the first run
+builds that host once from the monorepo checkout of the prestate's tag, in the Go image the
+tag names (`drill/out/bin/op-program-<tag>`, a few minutes), and mounts it in. Expect a few GB of memory for the VM and from minutes to an hour on
 two cores; `RUN_TIMEOUT` (default 3h) bounds it. The scratch host is the better place when
 the production hosts have little memory to spare: it holds the prestate already, and the
 two RPCs it needs (an op-node with the safe-head database, an op-reth with `debug`) are

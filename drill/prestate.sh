@@ -20,7 +20,7 @@
 
 # shellcheck source=scripts/common.sh
 . "$(dirname "${BASH_SOURCE[0]}")/../scripts/common.sh"
-require_cmd docker git jq gzip sha256sum
+require_cmd docker git jq gzip
 
 TAG="${1:-${TAG:-op-program/v1.9.0}}"
 ROLLUP="${2:-${ROLLUP:-$CHAIN_DIR/out/rollup.json}}"
@@ -96,8 +96,8 @@ stamp="$(date -u +%Y%m%dT%H%M%SZ)"
 ev="$FINCHAIN_ROOT/manifests/evidence/prestate-$chain_id-$stamp.json"
 jq -n --arg at "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --argjson cid "$chain_id" --arg tag "$TAG" --arg commit "$commit" --arg go "$go_version" --arg hash "$hash" \
   --arg size "$(wc -c < "$OUT/$hash.bin.gz" | tr -d ' ')" --arg step "$(jq -r '.step // empty' "$OUT/$hash.json")" \
-  --arg rsha "$(sha256sum "$cfgdir/${chain_id}-rollup.json" | cut -d' ' -f1)" --arg gsha "$(sha256sum "$cfgdir/${chain_id}-genesis-l2.json" | cut -d' ' -f1)" \
-  --arg rsrc "$(sha256sum "$ROLLUP" | cut -d' ' -f1)" --arg gsrc "$(sha256sum "$GENESIS" | cut -d' ' -f1)" \
+  --arg rsha "$(sha256_of "$cfgdir/${chain_id}-rollup.json")" --arg gsha "$(sha256_of "$cfgdir/${chain_id}-genesis-l2.json")" \
+  --arg rsrc "$(sha256_of "$ROLLUP")" --arg gsrc "$(sha256_of "$GENESIS")" \
   --arg l2h "$l2_genesis_hash" --arg l1h "$l1_genesis_hash" --argjson n_l2 "$n_l2" --argjson n_l1 "$n_l1" --argjson n_cid "$n_cid" --arg emb "$embedded" \
   --argjson upstream "$upstream_result" --arg docker "$(docker version --format '{{.Server.Version}}' 2>/dev/null || echo unknown)" --arg arch "$(uname -m)" '
   {schema: "finchain.prestate/1",

@@ -108,6 +108,9 @@ rpc_label() {
   printf '%s' "$1" | sed -E 's#^([A-Za-z][A-Za-z0-9+.-]*://)([^/?@]*@)?([^/?]*).*$#\1\3#'
 }
 
+# sha256_of <file>: the hex digest, with GNU sha256sum or the BSD shasum of macOS
+sha256_of() { if command -v sha256sum >/dev/null 2>&1; then sha256sum "$1" | cut -d' ' -f1; else shasum -a 256 "$1" | cut -d' ' -f1; fi; }
+
 # JSON-RPC helper: rpc <url> <method> [params-json]
 rpc() {
   local url="$1" method="$2" params="${3:-[]}"
