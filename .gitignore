@@ -24,3 +24,7 @@ tmp/
 
 # Node data directories if ever mounted locally
 data/
+
+# Drill scratch (monorepo checkout, prestates, logs) - docs/proof-plan.md, drill/README.md
+drill/work/
+drill/out/
