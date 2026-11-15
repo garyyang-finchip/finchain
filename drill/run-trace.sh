@@ -16,8 +16,10 @@
 # Usage: drill/run-trace.sh [prestate.bin.gz] [a|b]
 #   prestate: default the file in drill/out/prestates/ (name it when there are several); host: default b.
 #   Environment: ROLLUP_RPC (default http://op-node:8547 in the stack network), L2_RPC_DEBUG (default: on host b the
-#   SEQUENCER_HTTP of its env, on host a http://op-reth:8545), RUN_TIMEOUT (default 3h, the VM timeout),
-#   L1_RPC_URL / L1_BEACON_URL (default the host env's).
+#   SEQUENCER_HTTP of its env, on host a http://op-reth:8545), DRILL_NETWORK (default the host stack's compose
+#   network; `host` on a scratch machine that reaches both RPCs over the private network and runs no stack),
+#   RUN_TIMEOUT (default 3h, the VM timeout), L1_RPC_URL / L1_BEACON_URL (default the env files').
+#   Scratch host example: ROLLUP_RPC=http://<host B>:8547 L2_RPC_DEBUG=http://<host A>:8545 DRILL_NETWORK=host
 # Outputs: drill/out/logs/run-trace-<date>.log (the service log), manifests/evidence/run-trace-<date>.json.
 
 # shellcheck source=scripts/common.sh
@@ -26,12 +28,12 @@ require_cmd docker jq openssl
 PRESTATE="${1:-}"; HOST="${2:-b}"
 case "$HOST" in a|b) ;; *) die "host must be a or b" ;; esac
 load_standard_env
-load_env "$(host_env "$HOST")"
+henv="$(host_env "$HOST")"; [ -f "$henv" ] && load_env "$henv"
 ROLLUP_RPC="${ROLLUP_RPC:-http://op-node:8547}"
 if [ -z "${L2_RPC_DEBUG:-}" ]; then
   if [ "$HOST" = b ]; then L2_RPC_DEBUG="${SEQUENCER_HTTP:?SEQUENCER_HTTP missing in $(host_env b): the L2 RPC with debug is the op-reth of host A}"; else L2_RPC_DEBUG="http://op-reth:8545"; fi
 fi
-L1_RPC_URL="${L1_RPC_URL:?L1_RPC_URL missing in $(host_env "$HOST")}"; L1_BEACON_URL="${L1_BEACON_URL:?L1_BEACON_URL missing}"
+L1_RPC_URL="${L1_RPC_URL:?L1_RPC_URL missing (.env or the host env file)}"; L1_BEACON_URL="${L1_BEACON_URL:?L1_BEACON_URL missing (.env or the host env file)}"
 if [ -z "$PRESTATE" ]; then
   PRESTATE="$(find "$FINCHAIN_ROOT/drill/out/prestates" -maxdepth 1 -name '0x*.bin.gz' -print 2>/dev/null | sort | tail -1 || true)"
   [ -n "$PRESTATE" ] || die "no prestate under drill/out/prestates/; run make prestate first or name the file"
@@ -42,8 +44,8 @@ PRESTATE="$(cd "$(dirname "$PRESTATE")" && pwd)/$(basename "$PRESTATE")"
 hash="$(basename "$PRESTATE" .bin.gz)"
 REC="$CHAIN_DIR/out/chain-record.json"; [ -f "$REC" ] || die "chain record not found: $REC"
 DGF="$(jq -r '.l1.DisputeGameFactoryProxy // empty' "$REC")"; [ -n "$DGF" ] || die "DisputeGameFactoryProxy missing in $REC"
-network="$STACK-$HOST"_default
-docker network inspect "$network" >/dev/null 2>&1 || die "compose network $network not found: is the host $HOST stack up on this machine?"
+network="${DRILL_NETWORK:-$STACK-${HOST}_default}"
+[ "$network" = host ] || docker network inspect "$network" >/dev/null 2>&1 || die "compose network $network not found: is the host $HOST stack up on this machine? (DRILL_NETWORK=host on a scratch machine)"
 IMAGE="${OP_CHALLENGER_IMAGE:?OP_CHALLENGER_IMAGE missing in versions.lock}"
 RUN_TIMEOUT="${RUN_TIMEOUT:-3h}"
 

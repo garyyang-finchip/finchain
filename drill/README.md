@@ -101,14 +101,21 @@ Inputs and where they come from:
   `genesis.json`; the prestate file under `drill/out/prestates/`.
 
 ```bash
-make prestate                        # on host B: the same hash as on the scratch host, or stop
+# on host B (its own op-node, host A's op-reth over the private network):
+make prestate                        # the same hash as on the scratch host, or stop
 make run-trace                       # HOST=b default; PRESTATE=<file> when there are several
-ROLLUP_RPC=... L2_RPC_DEBUG=... make run-trace HOST=a    # other topologies
+# on the scratch host that built the prestate, once it is on the private network:
+make init-env                        # .env from the example: the public L1 endpoints are enough for one run
+ROLLUP_RPC=http://<host B private IP>:8547 L2_RPC_DEBUG=http://<host A private IP>:8545 DRILL_NETWORK=host make run-trace
 ```
 
-The run is one `docker run` of the pinned op-challenger image joined to the host's compose
-network; it ends at the first verdict and removes the container. Expect a few GB of memory
-for the VM and from minutes to an hour on two cores; `RUN_TIMEOUT` (default 3h) bounds it.
+The run is one `docker run` of the pinned op-challenger image, joined to the host's compose
+network or to the host network on a scratch machine; it ends at the first verdict and
+removes the container. Expect a few GB of memory for the VM and from minutes to an hour on
+two cores; `RUN_TIMEOUT` (default 3h) bounds it. The scratch host is the better place when
+the production hosts have little memory to spare: it holds the prestate already, and the
+two RPCs it needs (an op-node with the safe-head database, an op-reth with `debug`) are
+read-only.
 Outputs: `drill/out/logs/run-trace-<date>.log` (the service log) and
 `manifests/evidence/run-trace-<date>.json` (prestate, image, the L1 head and L2 block used,
 the verdict). A first run with the prestate the public chain carries today
