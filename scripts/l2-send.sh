@@ -15,7 +15,7 @@ load_standard_env
 TO="${1:?to address}"
 AMOUNT="${2:?amount in ETH}"
 ROLE="${3:-deployer}"
-L2_RPC="${4:-https://rpc.finchain.one}"
+L2_RPC="${4:-$(public_rpc)}"
 case "$TO" in 0x[0-9a-fA-F]*) [ "${#TO}" = "42" ] || die "bad address: $TO" ;; *) die "bad address: $TO" ;; esac
 awk -v a="$AMOUNT" 'BEGIN { exit !(a > 0 && a < 100) }' || die "amount must be between 0 and 100 ETH: $AMOUNT"
 

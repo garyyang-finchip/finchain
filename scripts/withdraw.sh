@@ -29,8 +29,8 @@ load_standard_env
 [ -n "${CAST_BIN:-}" ] || require_cmd docker
 
 CMD="${1:-}"; shift || true
-L2_RPC="${L2_RPC:-https://rpc.finchain.one}"
-REC="$FINCHAIN_ROOT/chain/out/chain-record.json"
+L2_RPC="${L2_RPC:-$(public_rpc)}"
+REC="$CHAIN_DIR/out/chain-record.json"; [ -f "$REC" ] || die "chain record not found: $REC (CHAIN=$CHAIN; make export first)"
 PORTAL="$(jq -r '.l1.OptimismPortalProxy // empty' "$REC")"
 DGF="$(jq -r '.l1.DisputeGameFactoryProxy // empty' "$REC")"
 [ -n "$PORTAL" ] && [ -n "$DGF" ] || die "OptimismPortalProxy / DisputeGameFactoryProxy missing in $REC"

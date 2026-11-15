@@ -15,8 +15,8 @@ AMOUNT="${1:?amount in ETH}"
 ROLE="${2:-deployer}"
 L2_RPC="${3:-http://127.0.0.1:8545}"
 
-PORTAL="$(jq -r '.l1.OptimismPortalProxy // empty' "$FINCHAIN_ROOT/chain/out/chain-record.json")"
-[ -n "$PORTAL" ] || die "OptimismPortalProxy missing in chain/out/chain-record.json"
+PORTAL="$(jq -r '.l1.OptimismPortalProxy // empty' "$CHAIN_DIR/out/chain-record.json")"
+[ -n "$PORTAL" ] || die "OptimismPortalProxy missing in $CHAIN_REL/out/chain-record.json"
 
 from="$(key_field "$ROLE" address)"
 pk="$(key_field "$ROLE" private_key)"

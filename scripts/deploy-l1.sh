@@ -19,7 +19,7 @@
 require_cmd jq curl
 load_standard_env
 
-WORKDIR="$FINCHAIN_ROOT/chain/deployer"
+WORKDIR="$CHAIN_DIR/deployer"
 INTENT="$WORKDIR/intent.toml"
 BIN="$(op_deployer_bin)"
 [ -x "$BIN" ] || die "op-deployer binary missing; run: make op-deployer"
@@ -79,7 +79,7 @@ end_block=$(( $(rpc "$L1_RPC_URL" eth_blockNumber | jq -r .result) ))
 bal_after_eth="$(hex_to_eth "$(rpc "$L1_RPC_URL" eth_getBalance "[\"$deployer_addr\",\"latest\"]" | jq -r .result)")"
 spent_eth="$(awk -v a="$bal_eth" -v b="$bal_after_eth" 'BEGIN { printf "%.6f", a - b }')"
 
-mkdir -p "$FINCHAIN_ROOT/chain/out"
+mkdir -p "$CHAIN_DIR/out"
 jq -n \
   --arg chainId "$CHAIN_ID" --arg l1ChainId "$L1_CHAIN_ID" \
   --arg deployer "$deployer_addr" --arg contracts "$OP_CONTRACTS_TAG" \
@@ -89,8 +89,8 @@ jq -n \
   '{chainId: ($chainId|tonumber), l1ChainId: ($l1ChainId|tonumber), deployer: $deployer,
     contractsRelease: $contracts, opDeployerVersion: $opDeployer, mode: "live", startedAt: $startedAt,
     l1BlockRange: {from: $startBlock, to: $endBlock}, deployerSpentEth: ($spentEth|tonumber)}' \
-  > "$FINCHAIN_ROOT/chain/out/deployment.json"
+  > "$CHAIN_DIR/out/deployment.json"
 
 echo
 echo "apply finished. Deployer spent about $spent_eth ETH over L1 blocks $start_block..$end_block."
-echo "Record: chain/out/deployment.json. Next: make export"
+echo "Record: $CHAIN_REL/out/deployment.json. Next: make export CHAIN=$CHAIN"

@@ -18,15 +18,15 @@ load_env "$FINCHAIN_ROOT/versions.lock"
 TARGET="${1:?target L2 height}"
 REF="${2:?reference execution RPC for comparison}"
 PROFILE="${3:-demo}"
-load_env "$FINCHAIN_ROOT/.env" "$FINCHAIN_ROOT/profiles/${PROFILE}.env" "$FINCHAIN_ROOT/node-b/.env"
+load_env "$FINCHAIN_ROOT/.env$ENV_SUFFIX" "$FINCHAIN_ROOT/profiles/${PROFILE}.env" "$(host_env b)"
 
-COMPOSE=(docker compose -f "$FINCHAIN_ROOT/node-b/docker-compose.yml"
+COMPOSE=(docker compose -p "$STACK-b" -f "$FINCHAIN_ROOT/node-b/docker-compose.yml"
          --env-file "$FINCHAIN_ROOT/versions.lock"
          --env-file "$FINCHAIN_ROOT/profiles/${PROFILE}.env"
-         --env-file "$FINCHAIN_ROOT/node-b/.env")
+         --env-file "$(host_env b)")
 
-LOCAL_RPC="http://${B_BIND_IP}:8545"
-LOCAL_NODE="http://${B_BIND_IP}:8547"
+LOCAL_RPC="http://${B_BIND_IP}:${B_RPC_PORT:-8545}"
+LOCAL_NODE="http://${B_BIND_IP}:${B_NODE_RPC_PORT:-8547}"
 
 started="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 if [ "${RESUME:-0}" = "1" ]; then
@@ -34,7 +34,7 @@ if [ "${RESUME:-0}" = "1" ]; then
 else
   log "stopping host B stack and removing execution + rollup-node volumes"
   "${COMPOSE[@]}" down
-  docker volume rm -f finchain-b_reth-data finchain-b_op-node-data >/dev/null
+  docker volume rm -f "${STACK}-b_reth-data" "${STACK}-b_op-node-data" >/dev/null
 
   log "starting with P2P_STATIC_PEERS cleared (L1-only derivation)"
   P2P_STATIC_PEERS="" "${COMPOSE[@]}" up -d op-reth op-node

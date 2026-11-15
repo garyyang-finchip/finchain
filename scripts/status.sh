@@ -7,15 +7,16 @@
 require_cmd docker jq curl
 host="${1:?a|b}"; PROFILE="${2:-demo}"
 load_standard_env
-load_env "$FINCHAIN_ROOT/node-$host/.env"
+load_env "$(host_env "$host")"
 
-bind="$([ "$host" = a ] && echo "${A_BIND_IP}" || echo "${B_BIND_IP}")"
-L2="http://${bind}:8545"; NODE="http://${bind}:8547"
+if [ "$host" = a ]; then bind="${A_BIND_IP}"; rpc_port="${A_RPC_PORT:-8545}"; node_port="${A_NODE_RPC_PORT:-8547}"
+else bind="${B_BIND_IP}"; rpc_port="${B_RPC_PORT:-8545}"; node_port="${B_NODE_RPC_PORT:-8547}"; fi
+L2="http://${bind}:${rpc_port}"; NODE="http://${bind}:${node_port}"
 
-echo "== containers (finchain-$host)"
-docker compose -f "$FINCHAIN_ROOT/node-$host/docker-compose.yml" \
+echo "== containers ($STACK-$host)"
+docker compose -p "$STACK-$host" -f "$FINCHAIN_ROOT/node-$host/docker-compose.yml" \
   --env-file "$FINCHAIN_ROOT/versions.lock" --env-file "$FINCHAIN_ROOT/profiles/${PROFILE}.env" \
-  --env-file "$FINCHAIN_ROOT/node-$host/.env" ps --format 'table {{.Service}}\t{{.State}}\t{{.Status}}'
+  --env-file "$(host_env "$host")" ps --format 'table {{.Service}}\t{{.State}}\t{{.Status}}'
 
 echo "== L2 heads (op-node optimism_syncStatus)"
 if s="$(rpc "$NODE" optimism_syncStatus 2>/dev/null)"; then
@@ -42,9 +43,9 @@ fi
 echo "== peers"
 rpc "$NODE" opp2p_peers '[true]' 2>/dev/null | jq -r '"connected: \(.result.totalConnected)"' || true
 
-if [ -f "$FINCHAIN_ROOT/keys/addresses.env" ]; then
+if [ -f "$KEYS_DIR/addresses.env" ]; then
   echo "== Sepolia balances of hot roles"
-  load_env "$FINCHAIN_ROOT/keys/addresses.env"
+  load_env "$KEYS_DIR/addresses.env"
   for pair in "batcher:$BATCHER_ADDRESS" "proposer:$PROPOSER_ADDRESS" "challenger:$CHALLENGER_ADDRESS" "deployer:$DEPLOYER_ADDRESS"; do
     name="${pair%%:*}"; a="${pair##*:}"
     w="$(( $(rpc "$L1_RPC_URL" eth_getBalance "[\"$a\",\"latest\"]" | jq -r .result) ))"

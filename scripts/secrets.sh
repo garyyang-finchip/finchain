@@ -10,7 +10,7 @@
 require_cmd jq tar
 load_env "$FINCHAIN_ROOT/versions.lock"
 
-KEYS="$FINCHAIN_ROOT/keys"
+KEYS="$KEYS_DIR"
 mode="${1:-}"
 
 copy_secret() { # src dst
@@ -20,7 +20,7 @@ copy_secret() { # src dst
 }
 
 assemble_a() {
-  local d="$FINCHAIN_ROOT/node-a/secrets"
+  local d; d="$(secrets_dir a)"
   mkdir -p "$d"; chmod 700 "$d"
   copy_secret "$KEYS/node-a-jwt.txt" "$d/jwt.txt"
   copy_secret "$KEYS/node-a-p2p-node-key.txt" "$d/p2p-node-key.txt"
@@ -29,7 +29,7 @@ assemble_a() {
   printf 'OP_BATCHER_PRIVATE_KEY=%s\n' "$(key_field batcher private_key)" > "$d/op-batcher.env"
   printf 'OP_PROPOSER_PRIVATE_KEY=%s\n' "$(key_field proposer private_key)" > "$d/op-proposer.env"
   chmod 600 "$d"/*.env
-  log "host A secrets written to node-a/secrets"
+  log "host A secrets written to node-a/secrets$ENV_SUFFIX"
 }
 
 assemble_b_into() { # target dir
@@ -44,23 +44,23 @@ assemble_b_into() { # target dir
 
 case "$mode" in
   a) assemble_a ;;
-  b) assemble_b_into "$FINCHAIN_ROOT/node-b/secrets"; log "host B secrets written to node-b/secrets" ;;
+  b) assemble_b_into "$(secrets_dir b)"; log "host B secrets written to node-b/secrets$ENV_SUFFIX" ;;
   bundle-b)
     tmp="$(mktemp -d)"
     assemble_b_into "$tmp/secrets"
     tar -C "$tmp" -cf "$KEYS/node-b-bundle.tar" secrets
     chmod 600 "$KEYS/node-b-bundle.tar"
     rm -rf "$tmp"
-    log "bundle written: keys/node-b-bundle.tar"
-    log "move it once over the private network, e.g.: scp keys/node-b-bundle.tar <host-b>:finchain/keys/ ; then delete the local copy"
+    log "bundle written: $KEYS_REL/node-b-bundle.tar"
+    log "move it once over the private network, e.g.: scp $KEYS_REL/node-b-bundle.tar <host-b>:finchain/$KEYS_REL/ ; then delete the local copy"
     ;;
   install-b)
     bundle="${2:?usage: secrets.sh install-b <bundle.tar>}"
     [ -f "$bundle" ] || die "bundle not found: $bundle"
-    d="$FINCHAIN_ROOT/node-b"
-    tar -C "$d" -xf "$bundle"
-    chmod 700 "$d/secrets"; chmod 600 "$d"/secrets/*
-    log "host B secrets installed into node-b/secrets; delete the bundle now: rm $bundle"
+    d="$(secrets_dir b)"
+    mkdir -p "$d"; tar -C "$d" --strip-components=1 -xf "$bundle" secrets
+    chmod 700 "$d"; chmod 600 "$d"/*
+    log "host B secrets installed into node-b/secrets$ENV_SUFFIX; delete the bundle now: rm $bundle"
     ;;
   *) die "usage: secrets.sh a | b | bundle-b | install-b <bundle.tar>" ;;
 esac

@@ -27,10 +27,10 @@ require_cmd jq curl awk
 load_standard_env
 [ -n "${CAST_BIN:-}" ] || require_cmd docker
 
-L2_RPC="${1:-https://rpc.finchain.one}"
+L2_RPC="${1:-$(public_rpc)}"
 WITH_REPUTATION="${WITH_REPUTATION:-1}"
 BUILD="$FINCHAIN_ROOT/chain/contracts/erc8004/build.json"
-OUT="$FINCHAIN_ROOT/chain/out/erc8004.json"
+OUT="$CHAIN_DIR/out/erc8004.json"
 [ -f "$BUILD" ] || die "build record missing: $BUILD"
 [ -n "${OWNER_ADDRESS:-}" ] || die "OWNER_ADDRESS is empty in .env (the final owner of the registries)"
 if [ -f "$OUT" ] && [ "${FORCE:-0}" != "1" ]; then
@@ -222,4 +222,4 @@ echo "identity root recorded: $OUT"
 echo "  IdentityRegistry   $identity_proxy"
 [ -n "$reputation_proxy" ] && echo "  ReputationRegistry $reputation_proxy"
 echo "  completion block   $(( last_block_hex )) ($block_hash)"
-echo "Commit chain/out/erc8004.json. The IdentityRegistry address is the identity8004.address of chain/world/finchain-sepolia.world.json (this repository)."
+echo "Commit $CHAIN_REL/out/erc8004.json. The IdentityRegistry address is the identity8004.address of chain/world/finchain-sepolia.world.json (this repository)."

@@ -2,8 +2,11 @@
 # Services: op-reth (archive execution), op-node (sequencer), op-batcher, op-proposer.
 #
 # Environment files are passed explicitly by the Makefile:
-#   ../versions.lock  ../profiles/<profile>.env  ./.env
-# Secrets are mounted read-only from ./secrets (never committed):
+#   ../versions.lock  ../profiles/<profile>.env  ./.env (./.env.<chain> for a second chain)
+# The Makefile also sets CHAIN_OUT (the chain's artifacts, default ../chain/out) and SECRETS_DIR (default ./secrets),
+# and runs this file as project finchain-a (finchain-<chain>-a for a second chain). Host ports are the A_*_PORT
+# variables of .env, defaulting to the values a single chain uses (docs/runbook.md section 9).
+# Secrets are mounted read-only from SECRETS_DIR (never committed):
 #   jwt.txt            Engine API JWT (hex, 32 bytes)
 #   p2p-node-key.txt   op-node peer identity (hex, 32 bytes)
 #   op-node.env        OP_NODE_P2P_SEQUENCER_KEY=<unsafe block signer private key>
@@ -26,12 +29,12 @@ services:
     logging: *default-logging
     volumes:
       - reth-data:/data
-      - ../chain/out:/chain:ro
-      - ./secrets:/secrets:ro
+      - ${CHAIN_OUT:-../chain/out}:/chain:ro
+      - ${SECRETS_DIR:-./secrets}:/secrets:ro
     ports:
-      - "${A_BIND_IP}:8545:8545"   # HTTP JSON-RPC (private: host B forwards transactions here)
-      - "${A_BIND_IP}:8546:8546"   # WebSocket JSON-RPC (private)
-      - "${A_BIND_IP}:9001:9001"   # metrics (private)
+      - "${A_BIND_IP}:${A_RPC_PORT:-8545}:8545"   # HTTP JSON-RPC (private: host B forwards transactions here)
+      - "${A_BIND_IP}:${A_WS_PORT:-8546}:8546"   # WebSocket JSON-RPC (private)
+      - "${A_BIND_IP}:${A_RETH_METRICS_PORT:-9001}:9001"   # metrics (private)
     command:
       - node
       - --chain=/chain/genesis.json
@@ -66,19 +69,19 @@ services:
     depends_on:
       - op-reth
     env_file:
-      - path: ./secrets/op-node.env
+      - path: ${SECRETS_DIR:-./secrets}/op-node.env
         required: false   # created by make secrets-*/install-bundle-b; preflight warns when missing
     environment:
       OP_NODE_P2P_STATIC: ${P2P_STATIC_PEERS:-}
     volumes:
       - op-node-data:/data
-      - ../chain/out:/chain:ro
-      - ./secrets:/secrets:ro
+      - ${CHAIN_OUT:-../chain/out}:/chain:ro
+      - ${SECRETS_DIR:-./secrets}:/secrets:ro
     ports:
-      - "9222:9222/tcp"            # p2p (host B dials this address over the private network)
-      - "9222:9222/udp"
-      - "${A_BIND_IP}:8547:8547"   # op-node RPC incl. admin (private, unauthenticated)
-      - "${A_BIND_IP}:7300:7300"   # metrics (private)
+      - "${A_P2P_PORT:-9222}:9222/tcp"            # p2p (host B dials this address over the private network)
+      - "${A_P2P_PORT:-9222}:9222/udp"
+      - "${A_BIND_IP}:${A_NODE_RPC_PORT:-8547}:8547"   # op-node RPC incl. admin (private, unauthenticated)
+      - "${A_BIND_IP}:${A_NODE_METRICS_PORT:-7300}:7300"   # metrics (private)
     command:
       - op-node
       - --l1=${L1_RPC_URL}
@@ -98,8 +101,8 @@ services:
       - --p2p.listen.tcp=9222
       - --p2p.listen.udp=9222
       - --p2p.advertise.ip=${P2P_ADVERTISE_IP}
-      - --p2p.advertise.tcp=9222
-      - --p2p.advertise.udp=9222
+      - --p2p.advertise.tcp=${A_P2P_PORT:-9222}
+      - --p2p.advertise.udp=${A_P2P_PORT:-9222}
       - --p2p.priv.path=/secrets/p2p-node-key.txt
       - --p2p.peerstore.path=/data/peerstore
       - --p2p.discovery.path=/data/discovery
@@ -120,10 +123,10 @@ services:
     depends_on:
       - op-node
     env_file:
-      - path: ./secrets/op-batcher.env
+      - path: ${SECRETS_DIR:-./secrets}/op-batcher.env
         required: false   # created by make secrets-*/install-bundle-b; preflight warns when missing
     ports:
-      - "${A_BIND_IP}:8548:8548"   # batcher admin RPC (private)
+      - "${A_BIND_IP}:${A_BATCHER_RPC_PORT:-8548}:8548"   # batcher admin RPC (private)
     command:
       - op-batcher
       - --l1-eth-rpc=${L1_RPC_URL}
@@ -151,10 +154,10 @@ services:
     depends_on:
       - op-node
     env_file:
-      - path: ./secrets/op-proposer.env
+      - path: ${SECRETS_DIR:-./secrets}/op-proposer.env
         required: false   # created by make secrets-*/install-bundle-b; preflight warns when missing
     ports:
-      - "${A_BIND_IP}:8560:8560"   # proposer admin RPC (private)
+      - "${A_BIND_IP}:${A_PROPOSER_RPC_PORT:-8560}:8560"   # proposer admin RPC (private)
     command:
       - op-proposer
       - --l1-eth-rpc=${L1_RPC_URL}

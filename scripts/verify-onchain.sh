@@ -11,9 +11,9 @@
 require_cmd jq docker curl
 load_standard_env
 
-OUT="$FINCHAIN_ROOT/chain/out"
+OUT="$CHAIN_DIR/out"
 ADDR_FILE="$OUT/chain-record.json"
-[ -f "$ADDR_FILE" ] || die "chain/out/chain-record.json missing; run: make export"
+[ -f "$ADDR_FILE" ] || die "$CHAIN_REL/out/chain-record.json missing; run: make export CHAIN=$CHAIN"
 
 if [ -n "${1:-}" ]; then
   BLOCK="$1"
@@ -91,7 +91,7 @@ superchain="$(call "$PORTAL" 'superchainConfig()(address)')"
 [ "$superchain" = "n/a" ] && superchain="$(call "$SYSCFG" 'superchainConfig()(address)')"
 
 mkdir -p "$FINCHAIN_ROOT/manifests"
-OUTFILE="$FINCHAIN_ROOT/manifests/onchain-${BLOCK}.json"
+OUTFILE="$FINCHAIN_ROOT/manifests/onchain-$([ "$CHAIN" = sepolia ] || printf '%s-' "$CHAIN")${BLOCK}.json"
 
 jq -n \
   --argjson block "$BLOCK" --arg rpc "$(rpc_label "$L1_RPC_URL")" --arg at "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
@@ -128,16 +128,16 @@ jq -n \
 echo "written: $OUTFILE"
 echo
 echo "Checks:"
-expected_signer="$(grep -E '^UNSAFE_BLOCK_SIGNER_ADDRESS=' "$FINCHAIN_ROOT/keys/addresses.env" 2>/dev/null | cut -d= -f2 || true)"
+expected_signer="$(grep -E '^UNSAFE_BLOCK_SIGNER_ADDRESS=' "$KEYS_DIR/addresses.env" 2>/dev/null | cut -d= -f2 || true)"
 actual_signer="$(jq -r .systemConfig.unsafeBlockSigner "$OUTFILE")"
 if [ -n "$expected_signer" ]; then
   if [ "$(echo "$expected_signer" | tr 'A-F' 'a-f')" = "$(echo "$actual_signer" | tr 'A-F' 'a-f')" ]; then
-    echo "  unsafeBlockSigner matches keys/addresses.env"
+    echo "  unsafeBlockSigner matches $KEYS_REL/addresses.env"
   else
     echo "  MISMATCH: unsafeBlockSigner on chain $actual_signer vs expected $expected_signer"
   fi
 fi
-echo "  respected game type: $(jq -r .optimismPortal.respectedGameType "$OUTFILE") (set PROPOSER_GAME_TYPE in node-a/.env to this value)"
+echo "  respected game type: $(jq -r .optimismPortal.respectedGameType "$OUTFILE") (set PROPOSER_GAME_TYPE in node-a/.env$ENV_SUFFIX to this value)"
 echo "  game impl for respected type: $(jq -r --arg t "$(jq -r .optimismPortal.respectedGameType "$OUTFILE")" '.disputeGameFactory.games[] | select((.gameType|tostring) == $t) | .implementation' "$OUTFILE")"
 rt="$(jq -r .optimismPortal.respectedGameType "$OUTFILE")"
 rg() { jq -r --arg t "$rt" ".disputeGameFactory.games[] | select((.gameType|tostring) == \$t) | $1" "$OUTFILE"; }
@@ -145,11 +145,11 @@ echo "  absolute prestate (respected type): $(rg .absolutePrestate)  [from $(rg 
 echo "  game l2ChainId: $(rg .l2ChainId) (must be $CHAIN_ID)"
 for role in proposer challenger; do
   case "$role" in proposer) exp_key=PROPOSER_ADDRESS ;; *) exp_key=CHALLENGER_ADDRESS ;; esac
-  exp="$(grep -E "^${exp_key}=" "$FINCHAIN_ROOT/keys/addresses.env" 2>/dev/null | cut -d= -f2 || true)"
+  exp="$(grep -E "^${exp_key}=" "$KEYS_DIR/addresses.env" 2>/dev/null | cut -d= -f2 || true)"
   act="$(rg ".permissioned.$role")"
   if [ -n "$exp" ] && [ -n "$act" ]; then
     if [ "$(echo "$exp" | tr 'A-F' 'a-f')" = "$(echo "$act" | tr 'A-F' 'a-f')" ]; then
-      echo "  $role matches keys/addresses.env"
+      echo "  $role matches $KEYS_REL/addresses.env"
     else
       echo "  MISMATCH: $role on chain $act vs expected $exp"
     fi

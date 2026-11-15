@@ -12,11 +12,11 @@ require_cmd jq curl
 
 host="${1:?a|b}"
 case "$host" in
-  a) load_env "$FINCHAIN_ROOT/node-a/.env"; bind="${A_BIND_IP}" ;;
-  b) load_env "$FINCHAIN_ROOT/node-b/.env"; bind="${B_BIND_IP}" ;;
+  a) load_env "$(host_env a)"; bind="${A_BIND_IP}"; node_port="${A_NODE_RPC_PORT:-8547}" ;;
+  b) load_env "$(host_env b)"; bind="${B_BIND_IP}"; node_port="${B_NODE_RPC_PORT:-8547}" ;;
   *) die "usage: peers.sh <a|b> [peer-multiaddr]" ;;
 esac
-node="http://${bind}:8547"
+node="http://${bind}:${node_port}"
 
 self="$(rpc "$node" opp2p_self)"
 peer_id="$(echo "$self" | jq -r '.result.peerID')"

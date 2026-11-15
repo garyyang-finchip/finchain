@@ -5,9 +5,29 @@ ROOT    := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
 PROFILE ?= steady
 DEPLOY_MODE ?= auto
 
-ENV_COMMON := --env-file $(ROOT)/versions.lock --env-file $(ROOT)/profiles/$(PROFILE).env
-COMPOSE_A  := docker compose -f $(ROOT)/node-a/docker-compose.yml $(ENV_COMMON) --env-file $(ROOT)/node-a/.env
-COMPOSE_B  := docker compose -f $(ROOT)/node-b/docker-compose.yml $(ENV_COMMON) --env-file $(ROOT)/node-b/.env
+# CHAIN selects the deployment (docs/runbook.md section 9). Finchain Sepolia keeps the original layout; a second
+# chain lives in chain/<name>/ with .env.<name>, node-*/.env.<name>, keys/<name>/, node-*/secrets.<name>/ and the
+# compose projects finchain-<name>-a / -b, so that one host runs both without sharing a file, a volume or a port.
+CHAIN ?= sepolia
+export CHAIN
+ifeq ($(CHAIN),sepolia)
+CHAIN_DIR := $(ROOT)/chain
+SUFFIX    :=
+KEYS_DIR  := $(ROOT)/keys
+STACK     := finchain
+else
+CHAIN_DIR := $(ROOT)/chain/$(CHAIN)
+SUFFIX    := .$(CHAIN)
+KEYS_DIR  := $(ROOT)/keys/$(CHAIN)
+STACK     := finchain-$(CHAIN)
+endif
+
+ENV_COMMON  := --env-file $(ROOT)/versions.lock --env-file $(ROOT)/profiles/$(PROFILE).env
+# Caddy (80/443) runs once per host, in the first chain's stack; a second chain's host B stack starts without it.
+B_SCALE     := $(if $(filter sepolia,$(CHAIN)),,--scale caddy=0)
+COMPOSE_ENV := CHAIN_OUT=$(CHAIN_DIR)/out SECRETS_DIR=./secrets$(SUFFIX)
+COMPOSE_A   := $(COMPOSE_ENV) docker compose -p $(STACK)-a -f $(ROOT)/node-a/docker-compose.yml $(ENV_COMMON) --env-file $(ROOT)/node-a/.env$(SUFFIX)
+COMPOSE_B   := $(COMPOSE_ENV) docker compose -p $(STACK)-b -f $(ROOT)/node-b/docker-compose.yml $(ENV_COMMON) --env-file $(ROOT)/node-b/.env$(SUFFIX)
 
 .PHONY: help init-env preflight-a preflight-b op-deployer keys secrets-a secrets-b bundle-b install-bundle-b \
         chain-id-check l1-probe intent funding-table deploy-l1 deploy-l1-calldata export verify-onchain lock fund-roles \
@@ -15,12 +35,12 @@ COMPOSE_B  := docker compose -f $(ROOT)/node-b/docker-compose.yml $(ENV_COMMON) 
         compare rebuild-b deposit set-init-bond deploy-8004 build-8004 l2-send verify-world \
         evm-acceptance verify-evm foga-isolation world-manifest fee-lines withdraw games prestate lint
 
-help: ## List targets
+help: ## List targets (every target takes CHAIN=<name>; the default is sepolia)
 	@grep -E '^[a-zA-Z0-9_-]+:.*?## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  %-18s %s\n", $$1, $$2}'
 
-init-env: ## Create .env files from the examples (no overwrite)
+init-env: ## Create the .env files of CHAIN from the examples (no overwrite)
 	@for f in .env node-a/.env node-b/.env; do \
-	  if [ ! -f $(ROOT)/$$f ]; then cp $(ROOT)/$$f.example $(ROOT)/$$f && echo "created $$f"; else echo "exists  $$f"; fi; done
+	  if [ ! -f $(ROOT)/$$f$(SUFFIX) ]; then cp $(ROOT)/$$f.example $(ROOT)/$$f$(SUFFIX) && echo "created $$f$(SUFFIX)"; else echo "exists  $$f$(SUFFIX)"; fi; done
 
 preflight-a: ## Host A checks: tools, images for this CPU, L1 endpoints, flags
 	@bash $(ROOT)/scripts/preflight.sh a
@@ -30,7 +50,7 @@ preflight-b: ## Host B checks
 op-deployer: ## Download the op-deployer binary pinned in versions.lock
 	@bash $(ROOT)/scripts/get-op-deployer.sh
 
-keys: ## Generate role keys and node secrets into keys/ (never committed)
+keys: ## Generate role keys and node secrets into keys/ (keys/<chain>/ for a second chain; never committed)
 	@bash $(ROOT)/scripts/gen-keys.sh
 secrets-a: ## Assemble node-a/secrets from keys/
 	@bash $(ROOT)/scripts/secrets.sh a
@@ -39,7 +59,7 @@ secrets-b: ## Assemble node-b/secrets from keys/ (when keys/ is on host B)
 bundle-b: ## Pack host B secrets into keys/node-b-bundle.tar for a one-time move
 	@bash $(ROOT)/scripts/secrets.sh bundle-b
 install-bundle-b: ## On host B: unpack keys/node-b-bundle.tar into node-b/secrets
-	@bash $(ROOT)/scripts/secrets.sh install-b $(ROOT)/keys/node-b-bundle.tar
+	@bash $(ROOT)/scripts/secrets.sh install-b $(KEYS_DIR)/node-b-bundle.tar
 
 chain-id-check: ## Registry check for CHAIN_ID plus the manual check list
 	@bash $(ROOT)/scripts/chain-id-check.sh
@@ -47,7 +67,7 @@ chain-id-check: ## Registry check for CHAIN_ID plus the manual check list
 l1-probe: ## Test Sepolia RPC endpoints from this host (URLS="..." optional)
 	@bash $(ROOT)/scripts/l1-probe.sh $(URLS)
 
-intent: ## op-deployer init + Finchain overrides -> chain/deployer/intent.toml
+intent: ## op-deployer init + Finchain overrides -> <chain dir>/deployer/intent.toml
 	@bash $(ROOT)/scripts/render-intent.sh
 
 funding-table: ## Itemised Sepolia ETH budget for PROFILE
@@ -79,12 +99,12 @@ restart-a: ## Recreate host A containers with current env (e.g. after editing P2
 logs-a: ## Follow host A logs (SVC=op-node optional)
 	@$(COMPOSE_A) logs -f --tail=200 $(SVC)
 
-up-b: ## Start host B stack
-	@$(COMPOSE_B) up -d
+up-b: ## Start host B stack (a second chain starts without Caddy)
+	@$(COMPOSE_B) up -d $(B_SCALE)
 down-b: ## Stop host B stack (data kept)
 	@$(COMPOSE_B) down
 restart-b: ## Recreate host B containers with current env
-	@$(COMPOSE_B) up -d --force-recreate
+	@$(COMPOSE_B) up -d --force-recreate $(B_SCALE)
 logs-b: ## Follow host B logs (SVC=op-challenger optional)
 	@$(COMPOSE_B) logs -f --tail=200 $(SVC)
 

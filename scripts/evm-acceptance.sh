@@ -18,11 +18,11 @@ require_cmd jq curl awk
 load_standard_env
 [ -n "${CAST_BIN:-}" ] || require_cmd docker
 
-L2_RPC="${1:-https://rpc.finchain.one}"
+L2_RPC="${1:-$(public_rpc)}"
 TRANSFER_ETH="${2:-0.05}"
 ROLE="${ROLE:-deployer}"
 BUILD="$FINCHAIN_ROOT/chain/contracts/probe/build.json"
-OUT="$FINCHAIN_ROOT/chain/out/evm-acceptance.json"
+OUT="$CHAIN_DIR/out/evm-acceptance.json"
 [ -f "$BUILD" ] || die "build record missing: $BUILD"
 [ -n "${OWNER_ADDRESS:-}" ] || die "OWNER_ADDRESS is empty in .env (the transfer's recipient: an ordinary wallet address)"
 if [ -f "$OUT" ] && [ "${FORCE:-0}" != "1" ]; then die "$OUT exists; FORCE=1 to run the acceptance again"; fi
@@ -156,4 +156,4 @@ echo
 echo "record: $OUT"
 echo "  transfer tx   $(rfield "$r_tr" transactionHash)"
 echo "  FinchainProbe $probe (deployed in block $deploy_block, value $deploy_block written in block $(( last_block_hex )))"
-echo "Commit chain/out/evm-acceptance.json, then on host B: make verify-evm (after the completion block is finalized, about 20 minutes)."
+echo "Commit $CHAIN_REL/out/evm-acceptance.json, then on host B: make verify-evm (after the completion block is finalized, about 20 minutes)."

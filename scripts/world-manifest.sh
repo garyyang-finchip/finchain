@@ -19,7 +19,7 @@ load_env "$FINCHAIN_ROOT/versions.lock"
 
 BOOK="${1:-}"
 [ -n "$BOOK" ] || die "usage: scripts/world-manifest.sh <address-book.json> [l2-rpc] [bundle.json] [verify-report.json] (make world-manifest BOOK=chain/world/<name>.json ...)"
-L2_RPC="${2:-https://rpc.finchain.one}"
+L2_RPC="${2:-$(public_rpc)}"
 BUNDLE="${3:-}"
 REPORT="${4:-}"
 [ -f "$BOOK" ] || die "not found: $BOOK"
@@ -71,7 +71,7 @@ echo "  $n contracts hashed"
 
 # The identity root: chain/out/erc8004.json when it is the registry the address book names.
 root="null"
-rec="$FINCHAIN_ROOT/chain/out/erc8004.json"
+rec="$CHAIN_DIR/out/erc8004.json"
 book_id="$(jq -r '.identity8004.address | ascii_downcase' "$BOOK")"
 if [ -f "$rec" ] && [ "$(jq -r '.contracts.IdentityRegistry.proxy | ascii_downcase' "$rec")" = "$book_id" ]; then
   root="$(jq -c '

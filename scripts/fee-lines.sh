@@ -18,9 +18,9 @@
 . "$(dirname "${BASH_SOURCE[0]}")/common.sh"
 require_cmd jq curl
 
-L2_RPC="${1:-https://rpc.finchain.one}"
+L2_RPC="${1:-$(public_rpc)}"
 LOOP="${2:-$FINCHAIN_ROOT/manifests/evidence/business-loop-2026-11-13.json}"
-IDENTITY="$FINCHAIN_ROOT/chain/out/erc8004.json"
+IDENTITY="$CHAIN_DIR/out/erc8004.json"
 WORLD="$FINCHAIN_ROOT/manifests/covenant-world-finchain-sepolia.json"
 GENESIS="$FINCHAIN_ROOT/manifests/evidence/foga-genesis-finchain-sepolia.json"
 for f in "$IDENTITY" "$WORLD" "$GENESIS" "$LOOP"; do [ -f "$f" ] || die "not found: $f"; done
@@ -108,11 +108,11 @@ mkdir -p "$FINCHAIN_ROOT/manifests/evidence"
 out="$FINCHAIN_ROOT/manifests/evidence/fee-lines-$(date -u +%Y%m%dT%H%M%SZ).json"
 jq -n --arg rpc "$(rpc_label "$L2_RPC")" --argjson chainId "$((chain_hex))" --argjson finalized "$final" --arg at "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
   --argjson a "$line_identity" --argjson b "$line_world" --argjson c "$line_genesis" --argjson d "$line_loop" --argjson lf "$loop_final" \
-  --arg result "$([ "$FAILED" = 0 ] && echo PASS || echo FAIL)" '
+  --arg result "$([ "$FAILED" = 0 ] && echo PASS || echo FAIL)" --arg idrec "$CHAIN_REL/out/erc8004.json" '
   {schema: "finchain.fee-lines/1", acceptance: "M3 funding in four lines, three fee components per receipt (docs/world.md section 5, D7)",
    chainId: $chainId, rpc: $rpc, recordedAt: $at, finalizedAtRecord: $finalized,
    method: "every transaction of each line read by eth_getTransactionReceipt; executionFeeWei = gasUsed x effectiveGasPrice, l1FeeWei = the receipt l1Fee, operatorFeeWei = gasUsed x operatorFeeScalar / 1e6 + operatorFeeConstant (zero when the receipt carries neither); the business-loop blocks checked against the canonical chain at or below finalized",
-   sources: {"identity root": "chain/out/erc8004.json", "World deployment": "manifests/covenant-world-finchain-sepolia.json (deploymentTx and initializationTxs)", "genesis T0-T9": "manifests/evidence/foga-genesis-finchain-sepolia.json (journal txHash)", "business loop": "manifests/evidence/business-loop-2026-11-13.json (steps[].tx and the second cell funding)"},
+   sources: {"identity root": $idrec, "World deployment": "manifests/covenant-world-finchain-sepolia.json (deploymentTx and initializationTxs)", "genesis T0-T9": "manifests/evidence/foga-genesis-finchain-sepolia.json (journal txHash)", "business loop": "manifests/evidence/business-loop-2026-11-13.json (steps[].tx and the second cell funding)"},
    lines: [$a, $b, $c, $d] | map(del(.items)), receipts: {"identity root": $a.items, "World deployment": $b.items, "genesis T0-T9": $c.items, "business loop": $d.items},
    businessLoopAtFinalized: $lf, result: $result}' > "$out"
 echo "RESULT: $([ "$FAILED" = 0 ] && echo PASS || echo FAIL); report $out"

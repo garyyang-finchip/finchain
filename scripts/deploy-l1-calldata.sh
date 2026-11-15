@@ -39,15 +39,15 @@
 require_cmd jq curl
 load_standard_env
 
-WORKDIR="$FINCHAIN_ROOT/chain/deployer"
+WORKDIR="$CHAIN_DIR/deployer"
 STATE="$WORKDIR/state.json"
 INTENT="$WORKDIR/intent.toml"
-OUT="$FINCHAIN_ROOT/chain/out"
+OUT="$CHAIN_DIR/out"
 BIN="$(op_deployer_bin)"
 [ -x "$BIN" ] || die "op-deployer binary missing; run: make op-deployer"
 [ -f "$INTENT" ] || die "intent.toml missing; run: make intent"
 if [ -f "$OUT/deployment.json" ] && [ "${FORCE:-0}" != "1" ]; then
-  die "chain/out/deployment.json exists: the L1 contracts are already deployed (FORCE=1 to override)"
+  die "$CHAIN_REL/out/deployment.json exists: the L1 contracts are already deployed (FORCE=1 to override)"
 fi
 [ -n "${CAST_BIN:-}" ] || require_cmd docker
 
@@ -275,4 +275,4 @@ jq -n \
 
 echo
 echo "Deployment done. Deployer spent $spent_eth ETH; L1 start block $last_block."
-echo "Record: chain/out/deployment.json (transaction hashes, gas). Next: make export"
+echo "Record: $CHAIN_REL/out/deployment.json (transaction hashes, gas). Next: make export CHAIN=$CHAIN"

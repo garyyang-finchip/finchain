@@ -190,3 +190,29 @@ profile and its expected `safe` delay in the public documentation and in accepta
   both scripts stop with `NOT YET` when the checked block is below the completing block
   (`verify-world` exits 2 and writes no report) instead of reporting code that is not
   there yet as a mismatch.
+
+## 9. Two chains on one host
+
+The same two hosts can run a second chain (the mainnet deployment) beside Finchain Sepolia.
+Every `make` target takes `CHAIN=<name>`; the default `sepolia` is the first chain and keeps
+the original layout. A second chain never shares a file, a volume or a port with it:
+
+| | `sepolia` (default) | `CHAIN=<name>` |
+| --- | --- | --- |
+| Chain artifacts and deployer state | `chain/out/`, `chain/deployer/` | `chain/<name>/out/`, `chain/<name>/deployer/` |
+| Parameters | `.env`, `node-a/.env`, `node-b/.env` | `.env.<name>`, `node-a/.env.<name>`, `node-b/.env.<name>` (`make init-env CHAIN=<name>` creates them from the examples) |
+| Keys and secrets | `keys/`, `node-a/secrets/`, `node-b/secrets/` | `keys/<name>/`, `node-a/secrets.<name>/`, `node-b/secrets.<name>/` |
+| Compose projects and volumes | `finchain-a`, `finchain-b` | `finchain-<name>-a`, `finchain-<name>-b` |
+| Host ports | the defaults (8545, 8546, 8547, 9001, 7300, 8548, 8560, p2p 9222) | the `A_*_PORT` / `B_*_PORT` variables of the host env files, which the compose files also advertise (p2p) |
+| Public endpoint used by the scripts | `PUBLIC_RPC_URL` of `.env` (`https://rpc.finchain.one`) | `PUBLIC_RPC_URL` of `.env.<name>` |
+| On-chain snapshot | `manifests/onchain-<block>.json` | `manifests/onchain-<name>-<block>.json` |
+| Caddy (80/443) | in this stack | not started (`--scale caddy=0`); the first chain's Caddy serves the second chain's hostname through a shared network, delivered with that chain's deployment |
+
+The sequence for a second chain is the one of `docs/handbook.md` section 4 with `CHAIN=<name>`
+on every command: `make init-env CHAIN=<name>`, edit the three env files (chain id, L1
+endpoints, ports, `PUBLIC_RPC_URL`, `SEQUENCER_HTTP` and `P2P_STATIC_PEERS` pointing at the
+second chain's ports), `make keys CHAIN=<name>`, `make intent CHAIN=<name>`,
+`make deploy-l1 CHAIN=<name>`, `make export CHAIN=<name>`, `make secrets-a CHAIN=<name>`,
+`make up-a CHAIN=<name>`, and on host B `make install-bundle-b CHAIN=<name>` and
+`make up-b CHAIN=<name>`. Nothing in the first chain's stack is touched by any of these.
+

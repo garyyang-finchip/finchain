@@ -17,7 +17,7 @@ load_env "$FINCHAIN_ROOT/versions.lock"
 
 SECTION="${1:-}"
 [ -n "$SECTION" ] || die "usage: scripts/verify-world.sh <covenant-world.json> [l2-rpc] [block] (make verify-world SECTION=manifests/covenant-world-<name>.json ...)"
-L2_RPC="${2:-https://rpc.finchain.one}"
+L2_RPC="${2:-$(public_rpc)}"
 AT="${3:-finalized}"
 [ -f "$SECTION" ] || die "not found: $SECTION"
 

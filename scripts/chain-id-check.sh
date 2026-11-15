@@ -8,7 +8,7 @@
 # shellcheck source=scripts/common.sh
 . "$(dirname "${BASH_SOURCE[0]}")/common.sh"
 require_cmd curl
-[ -f "$FINCHAIN_ROOT/.env" ] && load_env "$FINCHAIN_ROOT/.env"
+[ -f "$FINCHAIN_ROOT/.env$ENV_SUFFIX" ] && load_env "$FINCHAIN_ROOT/.env$ENV_SUFFIX"
 id="${1:-${CHAIN_ID:?}}"
 
 url="https://raw.githubusercontent.com/ethereum-lists/chains/master/_data/chains/eip155-${id}.json"

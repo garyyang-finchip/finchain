@@ -11,8 +11,8 @@
 require_cmd jq
 load_standard_env
 
-WORKDIR="$FINCHAIN_ROOT/chain/deployer"
-OUT="$FINCHAIN_ROOT/chain/out"
+WORKDIR="$CHAIN_DIR/deployer"
+OUT="$CHAIN_DIR/out"
 BIN="$(op_deployer_bin)"
 [ -x "$BIN" ] || die "op-deployer binary missing; run: make op-deployer"
 [ -f "$WORKDIR/state.json" ] || die "state.json missing; run: make deploy-l1"
@@ -65,19 +65,19 @@ jq -n \
 
 # Fill DISPUTE_GAME_FACTORY into the host env files that exist on this machine.
 if [ -n "${dgf:-}" ]; then
-  for f in "$FINCHAIN_ROOT/node-a/.env" "$FINCHAIN_ROOT/node-b/.env"; do
+  for f in "$(host_env a)" "$(host_env b)"; do
     [ -f "$f" ] || continue
     if grep -q '^DISPUTE_GAME_FACTORY=' "$f"; then
       sedi -E "s|^DISPUTE_GAME_FACTORY=.*|DISPUTE_GAME_FACTORY=${dgf}|" "$f"
     else
       echo "DISPUTE_GAME_FACTORY=${dgf}" >> "$f"
     fi
-    log "DISPUTE_GAME_FACTORY set in $(basename "$(dirname "$f")")/.env"
+    log "DISPUTE_GAME_FACTORY set in $(basename "$(dirname "$f")")/$(basename "$f")"
   done
 fi
 
 echo
 cat "$OUT/chain-record.json"
 echo
-echo "Commit chain/deployer/intent.toml, chain/deployer/state.json and chain/out/* as the chain record."
+echo "Commit $CHAIN_REL/deployer/intent.toml, $CHAIN_REL/deployer/state.json and $CHAIN_REL/out/* as the chain record."
 echo "Next: make verify-onchain (reads the live L1 configuration at a fixed block)."

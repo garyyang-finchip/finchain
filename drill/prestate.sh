@@ -14,7 +14,7 @@
 # the same pipeline must reproduce the official image bit for bit before its Finchain variant is trusted.
 #
 # Usage: drill/prestate.sh [TAG] [ROLLUP] [GENESIS]
-#   defaults: op-program/v1.9.0, chain/out/rollup.json, chain/out/genesis.json
+#   defaults: op-program/v1.9.0, <chain dir>/out/rollup.json and genesis.json (CHAIN=sepolia: chain/out; CHAIN=<name>: chain/<name>/out)
 # Host: Linux with docker (BuildKit with buildx, for --output), git, jq, gzip; about 4 GB of memory and 20 GB of disk
 # for the module cache and images; 30-60 minutes on two cores. No key, no chain access.
 
@@ -23,8 +23,8 @@
 require_cmd docker git jq gzip sha256sum
 
 TAG="${1:-${TAG:-op-program/v1.9.0}}"
-ROLLUP="${2:-${ROLLUP:-$FINCHAIN_ROOT/chain/out/rollup.json}}"
-GENESIS="${3:-${GENESIS:-$FINCHAIN_ROOT/chain/out/genesis.json}}"
+ROLLUP="${2:-${ROLLUP:-$CHAIN_DIR/out/rollup.json}}"
+GENESIS="${3:-${GENESIS:-$CHAIN_DIR/out/genesis.json}}"
 WORK="$FINCHAIN_ROOT/drill/work"; OUT="$FINCHAIN_ROOT/drill/out/prestates"; LOGS="$FINCHAIN_ROOT/drill/out/logs"
 mkdir -p "$WORK" "$OUT" "$LOGS" "$FINCHAIN_ROOT/manifests/evidence"
 

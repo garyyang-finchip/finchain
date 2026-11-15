@@ -21,7 +21,7 @@
 require_cmd docker jq openssl
 load_standard_env
 
-KEYS="$FINCHAIN_ROOT/keys"
+KEYS="$KEYS_DIR"
 mkdir -p "$KEYS"
 chmod 700 "$KEYS"
 
@@ -48,7 +48,7 @@ for role in deployer unsafe_block_signer batcher proposer challenger; do
 done
 
 if [ -z "${OWNER_ADDRESS:-}" ]; then
-  warn "OWNER_ADDRESS is empty: generating a cold owner key. Keep keys/owner.json offline; for mainnet use a Safe."
+  warn "OWNER_ADDRESS is empty: generating a cold owner key. Keep $KEYS_REL/owner.json offline; for mainnet use a Safe."
   write_key owner
   OWNER_ADDRESS="$(key_field owner address)"
 fi

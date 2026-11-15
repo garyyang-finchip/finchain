@@ -16,9 +16,9 @@
 . "$(dirname "${BASH_SOURCE[0]}")/common.sh"
 require_cmd jq
 load_standard_env
-load_env "$FINCHAIN_ROOT/keys/addresses.env"
+load_env "$KEYS_DIR/addresses.env"
 
-WORKDIR="$FINCHAIN_ROOT/chain/deployer"
+WORKDIR="$CHAIN_DIR/deployer"
 INTENT="$WORKDIR/intent.toml"
 BIN="$(op_deployer_bin)"
 [ -x "$BIN" ] || die "op-deployer binary missing; run: make op-deployer"

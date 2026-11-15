@@ -371,6 +371,7 @@ targets end in `-a` or `-b`.
 | Lower or raise the initial bond (owner) | `make set-init-bond TYPE=1 BOND=0` (or the owner console page) |
 | Freeze image digests | `make lock` |
 | Funding table for a profile | `make funding-table PROFILE=steady` |
+| A second chain on the same hosts | `CHAIN=<name>` on every target: own artifacts, env files, keys, projects, ports (`docs/runbook.md` section 9) |
 
 The owner console (`owner-console.html`, served from the repository's GitHub Pages) lets
 the owner wallet read the DisputeGameFactory and send `setInitBond` without a command line.

@@ -47,17 +47,17 @@ else
 fi
 
 echo "== environment files"
-if [ -f "$FINCHAIN_ROOT/.env" ]; then ok ".env"; else bad ".env missing (cp .env.example .env)"; fi
+if [ -f "$FINCHAIN_ROOT/.env$ENV_SUFFIX" ]; then ok ".env$ENV_SUFFIX"; else bad ".env$ENV_SUFFIX missing (cp .env.example .env$ENV_SUFFIX)"; fi
 if [ -f "$FINCHAIN_ROOT/node-$host/.env" ]; then ok "node-$host/.env"; else bad "node-$host/.env missing"; fi
 if [ "$host" = "a" ]; then secrets=(jwt.txt p2p-node-key.txt op-node.env op-batcher.env op-proposer.env); else secrets=(jwt.txt p2p-node-key.txt op-challenger.env); fi
 for s in "${secrets[@]}"; do
-  if [ -f "$FINCHAIN_ROOT/node-$host/secrets/$s" ]; then ok "secret $s"; else note "secret node-$host/secrets/$s missing (make secrets-$host / install-bundle-b before up)"; fi
+  if [ -f "$(secrets_dir "$host")/$s" ]; then ok "secret $s"; else note "secret node-$host/secrets$ENV_SUFFIX/$s missing (make secrets-$host / install-bundle-b before up)"; fi
 done
 for a in genesis.json rollup.json; do
-  if [ -f "$FINCHAIN_ROOT/chain/out/$a" ]; then ok "chain/out/$a"; else note "chain/out/$a missing (make export before up)"; fi
+  if [ -f "$CHAIN_DIR/out/$a" ]; then ok "$CHAIN_REL/out/$a"; else note "$CHAIN_REL/out/$a missing (make export before up)"; fi
 done
 load_env "$FINCHAIN_ROOT/versions.lock"
-[ -f "$FINCHAIN_ROOT/.env" ] && load_env "$FINCHAIN_ROOT/.env"
+[ -f "$FINCHAIN_ROOT/.env$ENV_SUFFIX" ] && load_env "$FINCHAIN_ROOT/.env$ENV_SUFFIX"
 [ -f "$FINCHAIN_ROOT/node-$host/.env" ] && load_env "$FINCHAIN_ROOT/node-$host/.env"
 
 echo "== images (architecture $arch)"

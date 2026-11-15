@@ -30,7 +30,8 @@ to_seconds() { # 6h | 90m | 3600s | 3600
   esac
 }
 
-snap="$(find "$FINCHAIN_ROOT/manifests" -maxdepth 1 -name 'onchain-*.json' -print 2>/dev/null | sort | tail -1 || true)"
+snap_glob='onchain-[0-9]*.json'; [ "$CHAIN" = sepolia ] || snap_glob="onchain-$CHAIN-*.json"   # verify-onchain names a second chain's snapshot after it
+snap="$(find "$FINCHAIN_ROOT/manifests" -maxdepth 1 -name "$snap_glob" -print 2>/dev/null | sort | tail -1 || true)"
 init_bond_wei="80000000000000000"; max_clock=302400; weth_delay=604800; bond_src="assumed standard (0.08 ETH, 3.5 d clock, 7 d WETH delay)"
 if [ -n "$snap" ]; then
   t="$(jq -r '.optimismPortal.respectedGameType' "$snap")"

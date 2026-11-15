@@ -2,7 +2,10 @@
 # Services: op-reth (archive execution), op-node (verifier), op-challenger, caddy.
 #
 # Environment files are passed explicitly by the Makefile:
-#   ../versions.lock  ../profiles/<profile>.env  ./.env
+#   ../versions.lock  ../profiles/<profile>.env  ./.env (./.env.<chain> for a second chain)
+# The Makefile also sets CHAIN_OUT (the chain's artifacts, default ../chain/out) and SECRETS_DIR (default ./secrets),
+# and runs this file as project finchain-b (finchain-<chain>-b for a second chain). Host ports are the B_*_PORT
+# variables of .env, defaulting to the values a single chain uses (docs/runbook.md section 9).
 # Secrets are mounted read-only from ./secrets (never committed):
 #   jwt.txt             Engine API JWT (hex, 32 bytes)
 #   p2p-node-key.txt    op-node peer identity (hex, 32 bytes)
@@ -30,12 +33,12 @@ services:
     logging: *default-logging
     volumes:
       - reth-data:/data
-      - ../chain/out:/chain:ro
-      - ./secrets:/secrets:ro
+      - ${CHAIN_OUT:-../chain/out}:/chain:ro
+      - ${SECRETS_DIR:-./secrets}:/secrets:ro
     ports:
-      - "${B_BIND_IP}:8545:8545"   # private HTTP (Caddy reaches the container directly)
-      - "${B_BIND_IP}:8546:8546"   # private WebSocket
-      - "${B_BIND_IP}:9001:9001"   # metrics
+      - "${B_BIND_IP}:${B_RPC_PORT:-8545}:8545"   # private HTTP (Caddy reaches the container directly)
+      - "${B_BIND_IP}:${B_WS_PORT:-8546}:8546"   # private WebSocket
+      - "${B_BIND_IP}:${B_RETH_METRICS_PORT:-9001}:9001"   # metrics
     command:
       - node
       - --chain=/chain/genesis.json
@@ -73,13 +76,13 @@ services:
       OP_NODE_P2P_STATIC: ${P2P_STATIC_PEERS:-}
     volumes:
       - op-node-data:/data
-      - ../chain/out:/chain:ro
-      - ./secrets:/secrets:ro
+      - ${CHAIN_OUT:-../chain/out}:/chain:ro
+      - ${SECRETS_DIR:-./secrets}:/secrets:ro
     ports:
-      - "9222:9222/tcp"            # p2p, public: future third-party verifiers dial here
-      - "9222:9222/udp"
-      - "${B_BIND_IP}:8547:8547"   # op-node RPC incl. admin (private)
-      - "${B_BIND_IP}:7300:7300"   # metrics
+      - "${B_P2P_PORT:-9222}:9222/tcp"            # p2p, public: future third-party verifiers dial here
+      - "${B_P2P_PORT:-9222}:9222/udp"
+      - "${B_BIND_IP}:${B_NODE_RPC_PORT:-8547}:8547"   # op-node RPC incl. admin (private)
+      - "${B_BIND_IP}:${B_NODE_METRICS_PORT:-7300}:7300"   # metrics
     command:
       - op-node
       - --l1=${L1_RPC_URL}
@@ -99,8 +102,8 @@ services:
       - --p2p.listen.tcp=9222
       - --p2p.listen.udp=9222
       - --p2p.advertise.ip=${P2P_ADVERTISE_IP}
-      - --p2p.advertise.tcp=9222
-      - --p2p.advertise.udp=9222
+      - --p2p.advertise.tcp=${B_P2P_PORT:-9222}
+      - --p2p.advertise.udp=${B_P2P_PORT:-9222}
       - --p2p.priv.path=/secrets/p2p-node-key.txt
       - --p2p.peerstore.path=/data/peerstore
       - --p2p.discovery.path=/data/discovery
@@ -121,11 +124,11 @@ services:
     depends_on:
       - op-node
     env_file:
-      - path: ./secrets/op-challenger.env
+      - path: ${SECRETS_DIR:-./secrets}/op-challenger.env
         required: false   # created by make secrets-*/install-bundle-b; preflight warns when missing
     volumes:
       - challenger-data:/data
-      - ../chain/out:/chain:ro
+      - ${CHAIN_OUT:-../chain/out}:/chain:ro
     command:
       - op-challenger
       - --trace-type=permissioned

@@ -12,12 +12,12 @@ require_cmd jq curl
 load_env "$FINCHAIN_ROOT/versions.lock"
 [ -n "${CAST_BIN:-}" ] || require_cmd docker
 
-RECORD="${1:-$FINCHAIN_ROOT/chain/out/evm-acceptance.json}"
+RECORD="${1:-$CHAIN_DIR/out/evm-acceptance.json}"
 L2_RPC="${2:-}"
 AT="${3:-finalized}"
 [ -f "$RECORD" ] || die "record not found: $RECORD"
 if [ -z "$L2_RPC" ]; then
-  if [ -f "$FINCHAIN_ROOT/node-b/.env" ]; then load_env "$FINCHAIN_ROOT/node-b/.env"; L2_RPC="http://${B_BIND_IP:-127.0.0.1}:8545"; else L2_RPC="https://rpc.finchain.one"; fi
+  if [ -f "$(host_env b)" ]; then load_env "$(host_env b)"; L2_RPC="http://${B_BIND_IP:-127.0.0.1}:${B_RPC_PORT:-8545}"; else L2_RPC="$(public_rpc)"; fi
 fi
 
 case "$AT" in

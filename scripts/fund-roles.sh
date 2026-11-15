@@ -13,7 +13,7 @@
 . "$(dirname "${BASH_SOURCE[0]}")/common.sh"
 require_cmd jq curl
 load_standard_env
-load_env "$FINCHAIN_ROOT/keys/addresses.env"
+load_env "$KEYS_DIR/addresses.env"
 [ -n "${CAST_BIN:-}" ] || require_cmd docker
 [ "$#" -ge 1 ] || die "usage: fund-roles.sh <role>=<eth> ...   (roles: batcher proposer challenger unsafe_block_signer)"
 
@@ -47,7 +47,7 @@ total=0
 for spec in "$@"; do
   role="${spec%%=*}"; amount="${spec#*=}"
   addr="$(role_addr "$role")"
-  [ -n "$addr" ] || die "unknown role or address missing in keys/addresses.env: $role"
+  [ -n "$addr" ] || die "unknown role or address missing in $KEYS_REL/addresses.env: $role"
   awk -v a="$amount" 'BEGIN { exit !(a > 0 && a < 10) }' || die "amount for $role must be between 0 and 10 ETH: $amount"
   echo "  $role $addr: $(balance_eth "$addr") ETH  ->  +$amount ETH"
   total="$(awk -v t="$total" -v a="$amount" 'BEGIN { printf "%.6f", t + a }')"

@@ -16,8 +16,8 @@ load_standard_env
 
 TYPE="${1:?game type (uint32)}"
 BOND="${2:?bond in wei}"
-DGF="$(jq -r '.l1.DisputeGameFactoryProxy // empty' "$FINCHAIN_ROOT/chain/out/chain-record.json")"
-[ -n "$DGF" ] || die "DisputeGameFactoryProxy missing in chain/out/chain-record.json"
+DGF="$(jq -r '.l1.DisputeGameFactoryProxy // empty' "$CHAIN_DIR/out/chain-record.json")"
+[ -n "$DGF" ] || die "DisputeGameFactoryProxy missing in $CHAIN_REL/out/chain-record.json"
 
 current="$(cast call "$DGF" 'initBonds(uint32)(uint256)' "$TYPE" --rpc-url "$L1_RPC_URL")"
 owner="$(cast call "$DGF" 'owner()(address)' --rpc-url "$L1_RPC_URL")"

@@ -65,20 +65,21 @@ The full procedure, with expected outputs and acceptance checks, is in
 | Path | Content |
 | --- | --- |
 | `versions.lock` | Candidate version set and image references; digests filled by `make lock` |
-| `chain/` | Chain parameters, op-deployer workdir (`chain/deployer/`), exported artifacts and acceptance records (`chain/out/`), pinned contract builds (`chain/contracts/erc8004/`, `chain/contracts/probe/`), the FOGA world configuration and address book for Finchain (`chain/world/`) |
+| `chain/` | Chain parameters, op-deployer workdir (`chain/deployer/`), exported artifacts and acceptance records (`chain/out/`), pinned contract builds (`chain/contracts/erc8004/`, `chain/contracts/probe/`), the FOGA world configuration and address book for Finchain (`chain/world/`); a second chain lives in `chain/<name>/` and is selected with `CHAIN=<name>` (`docs/runbook.md` section 9) |
 | `keys/` | Key material (git-ignored) and the key policy |
 | `node-a/`, `node-b/` | Docker Compose stacks for the two hosts |
 | `profiles/` | Runtime profiles: `steady` (fast batches, one proposal every 6 hours; the default), `demo` (hourly proposals) and `lowcost` (low L1 spend) |
 | `scripts/` | Preflight, key generation, intent rendering, deployment, export, verification, funding table |
 | `manifests/` | Reference-version manifest schema and template, the published manifests (`finchain-sepolia/`), the on-chain snapshot, the covenant World section, the acceptance evidence |
 | `registry/` | Draft `ethereum-lists/chains` entry |
-| `docs/` | Handbook, execution brief, runbook, funding model, proof plan, FOGA confirmation policy, covenant World design (M3), acceptance, governance, networking, versions, chain id |
+| `docs/` | Handbook, execution brief, runbook, funding model, proof plan, FOGA confirmation policy, covenant World design (M3), acceptance, governance, networking, versions, chain id, mainnet plan (M5) |
 | `drill/` | The M4 proof-system exercises for a scratch host: the Finchain-embedding prestate build (stage 1), then the trace self-check and the isolated-devnet dispute drill |
 
 ## Status
 
-v0.3.0-alpha.10: M4 in progress (`make withdraw` drives the deposit -> proof -> withdrawal
-cycle step by step, with its record; `make games` reads the dispute games back from L1 - the
+v0.3.0-alpha.11: M4 in progress (`make withdraw` drives the deposit -> proof -> withdrawal
+cycle step by step, with its record; every target takes `CHAIN=<name>` so that the same hosts
+run a second chain beside the first, `docs/runbook.md` section 9, the M5 preparation; `make games` reads the dispute games back from L1 - the
 resident challenger resolved the first ten games on 2026-11-15, 72-168 s after their clocks,
 `manifests/evidence/m4-challenger-2026-11-15.json`; the
 `steady` profile and `CHALLENGER_L1_RPC_URL` answer the L1 rate limiting that report

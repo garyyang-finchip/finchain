@@ -18,14 +18,14 @@ require_cmd jq curl awk
 
 L1="${1:-${L1_RPC_URL:-}}"
 if [ -z "$L1" ]; then
-  for f in "$FINCHAIN_ROOT/node-b/.env" "$FINCHAIN_ROOT/.env"; do
+  for f in "$(host_env b)" "$FINCHAIN_ROOT/.env$ENV_SUFFIX"; do
     [ -f "$f" ] && L1="$(grep -E '^L1_RPC_URL=' "$f" | tail -1 | cut -d= -f2- | tr -d '"')" && [ -n "$L1" ] && break
   done
 fi
 [ -n "$L1" ] || die "no L1 RPC: pass it as the first argument or set L1_RPC_URL"
 L1_LABEL="$(rpc_label "$L1")"   # what is printed and recorded: scheme and host, never a provider path or key
 LAST="${2:-all}"
-REC="$FINCHAIN_ROOT/chain/out/chain-record.json"
+REC="$CHAIN_DIR/out/chain-record.json"; [ -f "$REC" ] || die "chain record not found: $REC (CHAIN=$CHAIN; make export first)"
 DGF="$(jq -r '.l1.DisputeGameFactoryProxy // empty' "$REC")"; PORTAL="$(jq -r '.l1.OptimismPortalProxy // empty' "$REC")"
 [ -n "$DGF" ] && [ -n "$PORTAL" ] || die "DisputeGameFactoryProxy / OptimismPortalProxy missing in $REC"
 DEPLOY_BLOCK="$(jq -r '.l1Anchor.number' "$REC")"

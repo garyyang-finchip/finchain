@@ -7,6 +7,29 @@ set -euo pipefail
 FINCHAIN_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 export FINCHAIN_ROOT
 
+# Chain selection. CHAIN names the deployment this checkout operates on (docs/runbook.md section 9). Finchain
+# Sepolia, the first chain, keeps the original layout: chain/, .env, node-*/.env, keys/, node-*/secrets/, compose
+# projects finchain-a and finchain-b. Every other chain lives beside it: chain/<name>/, .env.<name>, node-*/.env.<name>,
+# keys/<name>/, node-*/secrets.<name>/, projects finchain-<name>-a and finchain-<name>-b, so that one host runs two
+# chains from one checkout without the two ever sharing a file, a volume or a port.
+CHAIN="${CHAIN:-sepolia}"
+case "$CHAIN" in
+  sepolia) CHAIN_REL="chain"; ENV_SUFFIX=""; KEYS_REL="keys"; STACK="finchain" ;;
+  *[!a-z0-9-]*|"") printf '[finchain] ERROR: CHAIN must be lowercase letters, digits and dashes: %s\n' "$CHAIN" >&2; exit 1 ;;
+  *) CHAIN_REL="chain/$CHAIN"; ENV_SUFFIX=".$CHAIN"; KEYS_REL="keys/$CHAIN"; STACK="finchain-$CHAIN" ;;
+esac
+CHAIN_DIR="$FINCHAIN_ROOT/$CHAIN_REL"; KEYS_DIR="$FINCHAIN_ROOT/$KEYS_REL"
+export CHAIN CHAIN_REL CHAIN_DIR ENV_SUFFIX KEYS_REL KEYS_DIR STACK
+# host_env <a|b> -> the host env file of this chain; secrets_dir <a|b> -> its secrets directory
+host_env() { echo "$FINCHAIN_ROOT/node-$1/.env$ENV_SUFFIX"; }
+secrets_dir() { echo "$FINCHAIN_ROOT/node-$1/secrets$ENV_SUFFIX"; }
+# public_rpc -> the chain's public L2 endpoint: PUBLIC_RPC_URL of .env<suffix> when set, else Finchain Sepolia's
+public_rpc() {
+  local v=""
+  [ -f "$FINCHAIN_ROOT/.env$ENV_SUFFIX" ] && v="$(grep -E '^PUBLIC_RPC_URL=' "$FINCHAIN_ROOT/.env$ENV_SUFFIX" | tail -1 | cut -d= -f2- | tr -d '"' || true)"
+  echo "${PUBLIC_RPC_URL:-${v:-https://rpc.finchain.one}}"
+}
+
 log()  { printf '[finchain] %s\n' "$*" >&2; }
 warn() { printf '[finchain] WARNING: %s\n' "$*" >&2; }
 die()  { printf '[finchain] ERROR: %s\n' "$*" >&2; exit 1; }
@@ -33,8 +56,8 @@ load_env() {
 # Load the standard set: versions.lock, .env (shared), and optionally a profile.
 load_standard_env() {
   load_env "$FINCHAIN_ROOT/versions.lock"
-  [ -f "$FINCHAIN_ROOT/.env" ] || die "copy .env.example to .env first"
-  load_env "$FINCHAIN_ROOT/.env"
+  [ -f "$FINCHAIN_ROOT/.env$ENV_SUFFIX" ] || die "copy .env.example to .env$ENV_SUFFIX first (CHAIN=$CHAIN)"
+  load_env "$FINCHAIN_ROOT/.env$ENV_SUFFIX"
   if [ -n "${PROFILE:-}" ]; then
     load_env "$FINCHAIN_ROOT/profiles/${PROFILE}.env"
   fi
@@ -120,8 +143,8 @@ op_deployer_bin() {
 
 # Read a key file written by gen-keys.sh: key_field <role> <address|private_key>
 key_field() {
-  local role="$1" field="$2" f="$FINCHAIN_ROOT/keys/$1.json"
-  [ -f "$f" ] || die "key file not found for role '$role': $f (run make keys)"
+  local role="$1" field="$2" f="$KEYS_DIR/$1.json"
+  [ -f "$f" ] || die "key file not found for role '$role': $f (run make keys CHAIN=$CHAIN)"
   jq -r ".$field" "$f"
 }
 
