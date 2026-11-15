@@ -73,10 +73,11 @@ The full procedure, with expected outputs and acceptance checks, is in
 | `manifests/` | Reference-version manifest schema and template, the published manifests (`finchain-sepolia/`), the on-chain snapshot, the covenant World section, the acceptance evidence |
 | `registry/` | Draft `ethereum-lists/chains` entry |
 | `docs/` | Handbook, execution brief, runbook, funding model, proof plan, FOGA confirmation policy, covenant World design (M3), acceptance, governance, networking, versions, chain id |
+| `drill/` | The M4 proof-system exercises for a scratch host: the Finchain-embedding prestate build (stage 1), then the trace self-check and the isolated-devnet dispute drill |
 
 ## Status
 
-v0.3.0-alpha.8: M4 in progress (`make withdraw` drives the deposit -> proof -> withdrawal
+v0.3.0-alpha.9: M4 in progress (`make withdraw` drives the deposit -> proof -> withdrawal
 cycle step by step, with its record; `make games` reads the dispute games back from L1 - the
 first report, 2026-11-13, shows 48 hourly games in progress before any clock expired; the
 `steady` profile and `CHALLENGER_L1_RPC_URL` answer the L1 rate limiting that report

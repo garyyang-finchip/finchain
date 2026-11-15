@@ -17,7 +17,7 @@ patch level was chosen, including the changes made during the first M1 run.
 | op-batcher | v1.17.2 | v1.16.13 knows the Glamsterdam header fields but still sizes calldata transactions with the pre-Amsterdam EIP-7623 floor, so every batch is refused with "intrinsic gas too low" (seen in the first M1 run). v1.17.0 added `maxFloorDataGas` (the larger of the EIP-7623 and EIP-7976 floors); v1.17.2 is the latest patch (checked 2026-11-12) |
 | op-proposer | v1.16.7 | latest v1.16 patch; Glamsterdam L1 headers since v1.16.4 |
 | op-challenger | v1.9.6 | v1.9.5 fixes VM selection during Cannon-Kona prestate conversion; v1.9.6 adds the Glamsterdam L1 header fields (the challenger computes head hashes itself, so `--l1.trustrpc` would not help it); the permissioned path registration must be re-checked on this version |
-| kona-node (prestate source) | v1.6.1 | tutorial reference for building the prestate; the built kona-client, host, Cannon VM, procedure and prestate hash are recorded separately |
+| op-program (prestate source) | op-program/v1.9.0 | the release whose Cannon64 prestate `make prestate` rebuilds with Finchain embedded (`drill/README.md`); the hash and the embedded files' digests are recorded in `manifests/evidence/prestate-<chainId>-<date>.json`. kona-node v1.6.1 was the earlier tutorial reference and is not used: the public chain's `permissioned` path runs op-program |
 
 op-geth reached end of support on 2026-05-31 and does not follow the Karst hardfork;
 op-program has also reached end of support. Neither is used.
