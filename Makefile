@@ -33,7 +33,7 @@ COMPOSE_B   := $(COMPOSE_ENV) docker compose -p $(STACK)-b -f $(ROOT)/node-b/doc
         chain-id-check l1-probe intent funding-table deploy-l1 deploy-l1-calldata export verify-onchain lock fund-roles \
         up-a down-a restart-a logs-a up-b down-b restart-b logs-b status-a status-b peers-a peers-b \
         compare rebuild-b deposit set-init-bond deploy-8004 build-8004 l2-send verify-world \
-        evm-acceptance verify-evm foga-isolation world-manifest fee-lines withdraw games prestate lint
+        evm-acceptance verify-evm foga-isolation world-manifest fee-lines withdraw games prestate run-trace lint
 
 help: ## List targets (every target takes CHAIN=<name>; the default is sepolia)
 	@grep -E '^[a-zA-Z0-9_-]+:.*?## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  %-18s %s\n", $$1, $$2}'
@@ -150,6 +150,8 @@ games: ## M4: the dispute games on L1 and what the resident challenger did with 
 	@bash $(ROOT)/scripts/games.sh "$(L1_RPC_URL)" "$(LAST)"
 prestate: ## M4 (scratch host): reproducible op-program prestate with Finchain embedded: TAG=op-program/v1.9.0 UPSTREAM_CHECK=1 optional (drill/README.md)
 	@bash $(ROOT)/drill/prestate.sh "$(TAG)" "$(ROLLUP)" "$(GENESIS)"
+run-trace: ## M4 (host B): op-challenger run-trace with the Finchain prestate against a recent block: PRESTATE=<file> HOST=b (drill/README.md)
+	@bash $(ROOT)/drill/run-trace.sh "$(PRESTATE)" "$(or $(HOST),b)"
 
 lint: ## Static checks: shellcheck, compose config, JSON/YAML validity
 	@shellcheck -x $(ROOT)/scripts/*.sh $(ROOT)/drill/*.sh

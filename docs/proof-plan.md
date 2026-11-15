@@ -55,7 +55,10 @@ Steps:
    chain will run (a Kona prestate would exercise the `cannon-kona` path instead). The
    record `manifests/evidence/prestate-<chainId>-<date>.json` holds the hash, the digests of
    the embedded files and the embedding check; `UPSTREAM_CHECK=1` first reproduces the
-   published prestate of the tag bit for bit. For the devnet the same script runs again
+   published prestate of the tag bit for bit. Done 2026-11-15 for the public chain's
+   configuration: `0x03e76631...5af1` (`prestate-85422-20261115T162912Z.json`), the published
+   `0x033c0009...bb6e` reproduced first. Before the devnet, `make run-trace` (stage 2 of
+   `drill/README.md`) executes a real Finchain block inside the VM from that prestate. For the devnet the same script runs again
    with the devnet's own `rollup.json` and `genesis.json`, since the prestate pins the L1
    addresses and the genesis of the chain it proves.
 2. Deploy the chain on the devnet; the game implementation is then pointed at the devnet

@@ -77,9 +77,10 @@ The full procedure, with expected outputs and acceptance checks, is in
 
 ## Status
 
-v0.3.0-alpha.11: M4 in progress (`make withdraw` drives the deposit -> proof -> withdrawal
+v0.3.0-alpha.12: M4 in progress (`make withdraw` drives the deposit -> proof -> withdrawal
 cycle step by step, with its record; every target takes `CHAIN=<name>` so that the same hosts
-run a second chain beside the first, `docs/runbook.md` section 9, the M5 preparation; `make games` reads the dispute games back from L1 - the
+run a second chain beside the first, `docs/runbook.md` section 9, the M5 preparation; the
+Finchain-embedding prestate is built and recorded, `make prestate`; `make games` reads the dispute games back from L1 - the
 resident challenger resolved the first ten games on 2026-11-15, 72-168 s after their clocks,
 `manifests/evidence/m4-challenger-2026-11-15.json`; the
 `steady` profile and `CHALLENGER_L1_RPC_URL` answer the L1 rate limiting that report
