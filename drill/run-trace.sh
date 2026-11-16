@@ -22,7 +22,8 @@
 #   Environment: TRACE (cannon-kona | cannon), ROLLUP_RPC (default http://op-node:8547 in the stack network), L2_RPC_DEBUG
 #   (default: on host b the SEQUENCER_HTTP of its env, on host a http://op-reth:8545), DRILL_NETWORK (default the host
 #   stack's compose network; `host` on a scratch machine that reaches both RPCs over the private network and runs no
-#   stack), RUN_TIMEOUT (default 3h, the VM timeout), L1_RPC_URL / L1_BEACON_URL (default the env files'); TRACE=cannon
+#   stack), RUN_TIMEOUT (default 3h, the VM timeout), L1_RPC_URL / L1_BEACON_URL (the env files' unless given), L1_RAW_SHIM
+#   (auto | 1 | 0: drill/l1-raw-shim.py in front of an L1 endpoint without the raw debug methods); TRACE=cannon
 #   only: OP_PROGRAM_TAG (default op-program/v1.9.0, the checkout the host is built from) or OP_PROGRAM_BIN.
 #   Scratch host example: ROLLUP_RPC=http://<host B>:8547 L2_RPC_DEBUG=http://<host A>:8545 DRILL_NETWORK=host
 # Outputs: drill/out/logs/run-trace-<date>.log (the service log), manifests/evidence/run-trace-<date>.json.
@@ -34,17 +35,19 @@ PRESTATE="${1:-}"; HOST="${2:-b}"
 case "$HOST" in a|b) ;; *) die "host must be a or b" ;; esac
 TRACE="${TRACE:-cannon-kona}"
 case "$TRACE" in cannon-kona|cannon) ;; *) die "TRACE must be cannon-kona or cannon" ;; esac
+pre_l1="${L1_RPC_URL:-}"; pre_beacon="${L1_BEACON_URL:-}"   # given on the command line: they win over the env files
 load_standard_env
 henv="$(host_env "$HOST")"; [ -f "$henv" ] && load_env "$henv"
+[ -z "$pre_l1" ] || L1_RPC_URL="$pre_l1"; [ -z "$pre_beacon" ] || L1_BEACON_URL="$pre_beacon"
 ROLLUP_RPC="${ROLLUP_RPC:-http://op-node:8547}"
 if [ -z "${L2_RPC_DEBUG:-}" ]; then
   if [ "$HOST" = b ]; then L2_RPC_DEBUG="${SEQUENCER_HTTP:?SEQUENCER_HTTP missing in $(host_env b): the L2 RPC with debug is the op-reth of host A}"; else L2_RPC_DEBUG="http://op-reth:8545"; fi
 fi
 L1_RPC_URL="${L1_RPC_URL:?L1_RPC_URL missing (.env or the host env file)}"; L1_BEACON_URL="${L1_BEACON_URL:?L1_BEACON_URL missing (.env or the host env file)}"
 if [ -z "$PRESTATE" ]; then
-  PRESTATE="$(find "$FINCHAIN_ROOT/drill/out/prestates" -maxdepth 1 -name '0x*.bin.gz' -print 2>/dev/null | sort | tail -1 || true)"
+  PRESTATE="$(find "$FINCHAIN_ROOT/drill/out/prestates" -maxdepth 1 -name '0x*.bin.gz' -printf '%T@ %p\n' 2>/dev/null | sort -n | tail -1 | cut -d' ' -f2- || true)"
   [ -n "$PRESTATE" ] || die "no prestate under drill/out/prestates/; run make prestate first or name the file"
-  [ "$(find "$FINCHAIN_ROOT/drill/out/prestates" -maxdepth 1 -name '0x*.bin.gz' 2>/dev/null | wc -l | tr -d ' ')" = 1 ] || warn "several prestates under drill/out/prestates/; using $PRESTATE (name the file to choose)"
+  [ "$(find "$FINCHAIN_ROOT/drill/out/prestates" -maxdepth 1 -name '0x*.bin.gz' 2>/dev/null | wc -l | tr -d ' ')" = 1 ] || warn "several prestates under drill/out/prestates/; using the newest, $(basename "$PRESTATE") (PRESTATE=<file> to choose)"
 fi
 [ -f "$PRESTATE" ] || die "prestate not found: $PRESTATE"
 PRESTATE="$(cd "$(dirname "$PRESTATE")" && pwd)/$(basename "$PRESTATE")"
@@ -168,6 +171,10 @@ docker run -d --name "$name" --network "$network" \
   --private-key "$throwaway" --log.format json --log.level info >/dev/null
 unset throwaway
 
+# first_line <jq filter>: the first matching line of the service log, compact; the log is JSON lines, one object
+# per line, and may be long - jq stops after the first match, so no pipe is closed on a writer (pipefail is on)
+first_line() { jq -c "first(inputs | $1)" -n <"$logf" 2>/dev/null || true; }
+
 # follow the log until the first verdict; run-trace itself loops forever
 result=""; reason=""
 while :; do
@@ -176,7 +183,7 @@ while :; do
   if grep -q '"msg":"Incorrect status code"' "$logf"; then result=FAIL; reason="VM exited but the claim was not verified"; break; fi
   if grep -q '"msg":"VM panicked"' "$logf"; then result=FAIL; reason="VM panicked"; break; fi
   if grep -q '"msg":"VM execution timed out"' "$logf"; then result=FAIL; reason="VM timed out after $RUN_TIMEOUT"; break; fi
-  if grep -q '"msg":"Failed to run"' "$logf"; then result=FAIL; reason="setup failure: $(jq -r 'select(.msg=="Failed to run") | .err' <"$logf" 2>/dev/null | head -1 | cut -c1-300)"; break; fi
+  if grep -q '"msg":"Failed to run"' "$logf"; then result=FAIL; reason="setup failure: $(first_line 'select(.msg=="Failed to run") | .err' | jq -r . 2>/dev/null | cut -c1-300)"; break; fi
   if ! docker ps -q --no-trunc --filter "name=^/$name$" | grep -q .; then result=FAIL; reason="the container exited: $(tail -n 3 "$logf" | tr '\n' ' ' | cut -c1-300)"; break; fi
   sleep 20
 done
@@ -185,9 +192,9 @@ elapsed=$(( $(date +%s) - t0 ))
 stop_shim
 
 # what the run looked at, from its own log
-inputs="$(jq -c 'select(.msg=="Using L1 head") | {l1Head: .num, l1HeadHash: .hash, disputeL1: .disputeL1}' <"$logf" 2>/dev/null | head -1)"; [ -n "$inputs" ] || inputs=null
-l2="$(jq -c 'select(.msg=="Got sync status") | .status | {finalizedL1: .finalized_l1.number, safeL2: .safe_l2.number, finalizedL2: .finalized_l2.number}' <"$logf" 2>/dev/null | head -1)"; [ -n "$l2" ] || l2=null
-claim="$(jq -c 'select(.l2Block != null and .claim != null) | {l2Block: .l2Block, claim: .claim, l2Head: .l2, l1: .l1}' <"$logf" 2>/dev/null | head -1)"; [ -n "$claim" ] || claim=null
+inputs="$(first_line 'select(.msg=="Using L1 head") | {l1Head: .num, l1HeadHash: .hash, disputeL1: .disputeL1}')"; [ -n "$inputs" ] || inputs=null
+l2="$(first_line 'select(.msg=="Got sync status") | .status | {finalizedL1: .finalized_l1.number, safeL2: .safe_l2.number, finalizedL2: .finalized_l2.number}')"; [ -n "$l2" ] || l2=null
+claim="$(first_line 'select(.l2Block != null and .claim != null) | {l2Block: .l2Block, claim: .claim, l2Head: .l2, l1: .l1}')"; [ -n "$claim" ] || claim=null
 if [ "$TRACE" = cannon-kona ]; then client="kona-client"; l2note=" (kona-host preimage path: eth and debug namespaces)"; else client="op-program"; l2note=" (execution-witness path)"; fi
 ev="$FINCHAIN_ROOT/manifests/evidence/run-trace-$stamp.json"
 jq -n --arg at "$started" --arg end "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --argjson secs "$elapsed" --arg host "$HOST" --arg hash "$hash" --arg file "$(basename "$PRESTATE")" \
