@@ -8,12 +8,18 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
+      # the pinned release, not the distribution package: the same version the scripts are checked with before a
+      # delivery, independent of what the runner image ships
       - name: shellcheck
         run: |
-          sudo apt-get update -qq && sudo apt-get install -y -qq shellcheck
-          shellcheck -x scripts/*.sh drill/*.sh
+          curl -fsSL https://github.com/koalaman/shellcheck/releases/download/v0.11.0/shellcheck-v0.11.0.linux.x86_64.tar.xz | tar -xJ -C /tmp
+          /tmp/shellcheck-v0.11.0/shellcheck --version
+          /tmp/shellcheck-v0.11.0/shellcheck -x scripts/*.sh drill/*.sh
+
+      - name: python syntax
+        run: python3 -m py_compile drill/rpc-shim.py
 
       - name: compose config (host A)
         working-directory: node-a
@@ -25,8 +31,8 @@ jobs:
 
       - name: json and schema
         run: |
-          for f in manifests/*.json registry/*.json; do jq empty "$f"; done
-          pip install -q jsonschema
+          for f in manifests/*.json manifests/evidence/*.json registry/*.json; do jq empty "$f"; done
+          python3 -m pip install -q --break-system-packages jsonschema 2>/dev/null || python3 -m pip install -q jsonschema
           python3 - <<'EOF'
           import json, jsonschema
           schema = json.load(open("manifests/manifest.schema.json"))
