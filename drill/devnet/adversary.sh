@@ -133,15 +133,22 @@ cmd_dispute() {
       .claims as $all | [ $all[] | . as $c | select((($c.claimant | ascii_downcase) != $me) and ($c.depth < $d) and (($c.counteredBy // "") == "")
                           and (([$all[] | select(.parentIndex == $c.index and (.claimant | ascii_downcase) == $me)] | length) == 0)) | .index ]' <<<"$claims")"
     if [ "$(jq length <<<"$targets")" -gt 0 ]; then
-      local idx value out hash
+      local idx value out hash pd
       for idx in $(jq -r '.[]' <<<"$targets"); do
-        value="0x$(openssl rand -hex 32)"
+        pd="$(jq -r --argjson i "$idx" '.claims[] | select(.index == $i) | .depth' <<<"$claims")"
+        if [ "$pd" = "$split_depth" ]; then
+          # the first execution-trace claim is the root of that sub-game and the contract checks its status byte:
+          # an attacker must claim the VM found the disputed output INVALID (0x01) or PANIC (0x02), anything else
+          # reverts with UnexpectedRootClaim (FaultDisputeGame._verifyExecBisectionRoot)
+          value="0x01$(openssl rand -hex 31)"
+        else
+          value="0x$(openssl rand -hex 32)"
+        fi
         out="$(cli_signed move --l1-eth-rpc http://anvil:8545 --game-address "$game" --attack --parent-index "$idx" --claim "$value" 2>&1)" \
-          || { result=FAIL; reason="move against claim #$idx failed: $(printf '%s' "$out" | tail -n 3 | tr '\n' ' ' | cut -c1-400)"; break 2; }
+          || { result=FAIL; reason="move against claim #$idx (depth $pd) failed: $( { printf '%s' "$out" | grep -o 'execution reverted[^"]*' | tail -1; } || printf '%s' "$out" | tail -n 2 | tr '\n' ' ' | cut -c1-300)"; break 2; }
         hash="$(printf '%s' "$out" | sed -nE 's/.*hash: (0x[0-9a-fA-F]+).*/\1/p' | tail -1)"
         moves=$(( moves + 1 )); last_move_at="$(date +%s)"; waiting_since=0
         txs+=("$(jq -cn --argjson parent "$idx" --arg claim "$value" --arg tx "$hash" --argjson n "$moves" --arg at "$(date -u +%Y-%m-%dT%H:%M:%SZ)" '{move: $n, attackOn: $parent, claim: $claim, tx: $tx, at: $at}')")
-        local pd; pd="$(jq -r --argjson i "$idx" '.claims[] | select(.index == $i) | .depth' <<<"$claims")"
         depth_reached=$(( pd + 1 ))
         log "move $moves: attacked claim #$idx (depth $pd) -> depth $depth_reached, tx $hash"
       done

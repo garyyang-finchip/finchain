@@ -44,7 +44,11 @@ the PreimageOracle, then calls `step(claimIndex, isAttack, stateData, proof)`, a
 contract executes one instruction of the kona-client trace from the devnet prestate and finds
 the leaf wrong. `list-claims` shows that leaf countered the moment the step lands. The driver
 then stops; the attacker's clock runs out; the honest challenger resolves the claims and the
-game (`DEFENDER_WINS`), and the record is completed.
+game (`DEFENDER_WINS`), and the record is completed. One claim is not arbitrary: the first
+execution-trace claim (depth split + 1) is the root of that sub-game, and the contract checks
+its status byte (`_verifyExecBisectionRoot`) - an attacker has to claim the VM found the
+disputed output INVALID (`0x01`) or PANIC (`0x02`), so the driver sets that byte and fills the
+rest at random (found on the first run, 2026-11-16: `UnexpectedRootClaim`).
 
 The root has to be the honest side's. With the standard max depth of 73 (odd) the claims
 alternate: root 0, attacker 1, honest 2, ..., attacker 73. A claim at the max depth is answered
