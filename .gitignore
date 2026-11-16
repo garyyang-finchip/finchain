@@ -36,3 +36,7 @@ data/
 # Drill scratch (monorepo checkout, prestates, logs) - docs/proof-plan.md, drill/README.md
 drill/work/
 drill/out/
+
+# python bytecode (drill/rpc-shim.py)
+__pycache__/
+*.pyc
