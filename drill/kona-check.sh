@@ -32,7 +32,7 @@ WORK="$FINCHAIN_ROOT/drill/work"; LOGS="$FINCHAIN_ROOT/drill/out/logs"
 CONFIGS_DIR="${CONFIGS_DIR:-$WORK/kona-configs-$chain_id}"
 mkdir -p "$WORK" "$LOGS" "$FINCHAIN_ROOT/manifests/evidence"
 
-"$FINCHAIN_ROOT/drill/kona-configs.sh" "$ROLLUP" "$GENESIS" "$CONFIGS_DIR"
+bash "$FINCHAIN_ROOT/drill/kona-configs.sh" "$ROLLUP" "$GENESIS" "$CONFIGS_DIR"   # through bash: the web upload drops the executable bit
 
 repo="$WORK/optimism-$(printf '%s' "$KONA_TAG" | tr '/' '-')"
 if [ ! -d "$repo/.git" ]; then

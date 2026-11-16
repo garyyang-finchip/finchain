@@ -86,7 +86,7 @@ count_in_image() { local n; n="$(zcat "$1" | grep -a -o -F -- "$2" | wc -l || tr
 if [ "$PROVER" = kona ]; then
   require_cmd just
   cfgdir="$WORK/kona-configs-$chain_id"
-  "$FINCHAIN_ROOT/drill/kona-configs.sh" "$ROLLUP" "$GENESIS" "$cfgdir" >&2
+  bash "$FINCHAIN_ROOT/drill/kona-configs.sh" "$ROLLUP" "$GENESIS" "$cfgdir" >&2   # through bash: the web upload drops the executable bit
   identifier="$(jq -r '.[0].identifier' "$cfgdir/chainList.json")"
   artifacts="$repo/rust/kona/prestate-artifacts-cannon"; artifacts_int="$repo/rust/kona/prestate-artifacts-cannon-interop"
   [ -f "$repo/rust/kona/docker/fpvm-prestates/cannon-repro.dockerfile" ] || die "no cannon-repro.dockerfile in $repo; the layout of $TAG differs from what this script knows"
