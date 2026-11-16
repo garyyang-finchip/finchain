@@ -144,9 +144,21 @@ cmd_dispute() {
         else
           value="0x$(openssl rand -hex 32)"
         fi
-        out="$(cli_signed move --l1-eth-rpc http://anvil:8545 --game-address "$game" --attack --parent-index "$idx" --claim "$value" 2>&1)" \
-          || { result=FAIL; reason="move against claim #$idx (depth $pd) failed: $( { printf '%s' "$out" | grep -o 'execution reverted[^"]*' | tail -1; } || printf '%s' "$out" | tail -n 2 | tr '\n' ' ' | cut -c1-300)"; break 2; }
+        local rc=0 landed
+        out="$(cli_signed move --l1-eth-rpc http://anvil:8545 --game-address "$game" --attack --parent-index "$idx" --claim "$value" 2>&1)" || rc=$?
+        printf '%s\n' "$out" > "$dir/move-$(printf '%04d' $(( moves + 1 ))).log"
         hash="$(printf '%s' "$out" | sed -nE 's/.*hash: (0x[0-9a-fA-F]+).*/\1/p' | tail -1)"
+        [ -n "$hash" ] || hash="$(printf '%s' "$out" | sed -nE 's/.*Publishing transaction.* tx=(0x[0-9a-fA-F]+).*/\1/p' | tail -1)"
+        if [ "$rc" -ne 0 ]; then
+          # the CLI can exit non-zero after the transaction was published (its receipt wait); the chain decides
+          sleep 6
+          landed="$(list_claims "$game" | jq -r --arg me "$ADVERSARY" --argjson p "$idx" --arg v "$value" '[.claims[] | select(.parentIndex == $p and (.claimant | ascii_downcase) == $me and (.value | ascii_downcase) == ($v | ascii_downcase))] | first // empty | .index')"
+          if [ -n "$landed" ]; then
+            warn "the move CLI exited $rc after publishing, but claim #$landed is on chain (move-$(printf '%04d' $(( moves + 1 ))).log); continuing"
+          else
+            result=FAIL; reason="move against claim #$idx (depth $pd) failed: $( { printf '%s' "$out" | grep -o 'execution reverted[^"]*' | tail -1; } || printf '%s' "$out" | grep -E 'lvl=(error|crit)|err=' | tail -n 2 | tr '\n' ' ' | cut -c1-400)"; break 2
+          fi
+        fi
         moves=$(( moves + 1 )); last_move_at="$(date +%s)"; waiting_since=0
         txs+=("$(jq -cn --argjson parent "$idx" --arg claim "$value" --arg tx "$hash" --argjson n "$moves" --arg at "$(date -u +%Y-%m-%dT%H:%M:%SZ)" '{move: $n, attackOn: $parent, claim: $claim, tx: $tx, at: $at}')")
         depth_reached=$(( pd + 1 ))
