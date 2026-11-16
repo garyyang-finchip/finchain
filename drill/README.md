@@ -153,13 +153,32 @@ Inputs and where they come from:
 - the L2 RPC with the `debug` namespace: kona-host reads raw headers and trie preimages
   (`debug_getRawHeader`, `debug_dbGet`); host A's op-reth serves it privately, host B's public
   op-reth deliberately does not - so on host B the L2 RPC is host A's op-reth over the private
-  network, the address host B already uses as `SEQUENCER_HTTP`;
+  network, the address host B already uses as `SEQUENCER_HTTP`. kona-host also asks that node
+  for `eth_getProof` at the agreed L2 block (the output root's message-passer storage root), a
+  block some minutes old, and reth answers `eth_getProof` only at its head unless
+  `--rpc.eth-proof-window` is set: host B's op-reth has the window (the withdrawal proof needs
+  it), host A's does not. `drill/run-trace.sh` probes this too and, when host A refuses, puts
+  `drill/rpc-shim.py` in front of host A with `eth_getProof` routed to host B's private RPC
+  (`L2_PROOF_RPC`, default `http://<B_BIND_IP>:<B_RPC_PORT>` of the host env). The lasting fix is
+  the same flag on host A's op-reth (`node-a/docker-compose.yml`), a change to the sequencer's
+  execution client that is applied in a maintenance window, not during a drill;
 - the L1 execution endpoint, which for kona-host must serve `debug_getRawHeader` and
   `debug_getRawReceipts` (it takes the RLP from the node rather than re-encoding JSON, which is
   also why the header problem of the op-program route cannot happen to it), and the L1 beacon
-  endpoint for blobs; `drill/run-trace.sh` probes both debug methods before it starts and stops
-  with a clear message when the endpoint does not have them - the choice of L1 provider for
-  the proof work and for mainnet (`docs/mainnet.md` decision 3) has to take this into account;
+  endpoint for blobs. No public Sepolia endpoint checked on 2026-11-16 serves the two methods
+  (publicnode, OnFinality: not available; dRPC: paid plan; Blast: closed; Tenderly's public
+  gateway: rate limited; BlockPI: key required), so `drill/run-trace.sh` probes them and, when
+  they are missing, starts `drill/rpc-shim.py --synth` in front of the endpoint: the shim
+  forwards every method and synthesises the two raw ones from `eth_getBlockByHash` and
+  `eth_getBlockReceipts`, serving nothing whose keccak (header) or Merkle-Patricia root
+  (receipts) the node's own header does not confirm. Its encoders are checked by
+  `drill/rpc-shim.py --self-test` against the saved header of block 12141687 (the Amsterdam
+  header op-program could not reproduce) and the `ethereum/tests` trie vectors, and its live
+  probe on 2026-11-16 reproduced a finalized Sepolia block's hash and receipts root before the
+  run. `L1_RAW_SHIM=0` refuses the shim; the record names every shim instance, what it
+  synthesised or routed, its counters and its log. The choice of L1 provider for the proof
+  work and for mainnet (`docs/mainnet.md` decision 3) has to take the two methods into account:
+  the shim is for the drill, a resident challenger needs the real thing;
 - the chain's `rollup.json` and `genesis.json` (given to kona-host, the host side; the client
   inside the VM uses the configuration embedded in the prestate) and the prestate file under
   `drill/out/prestates/`.
@@ -167,16 +186,21 @@ Inputs and where they come from:
 ```bash
 # on the scratch host that built the prestate, once it is on the private network:
 make init-env                        # .env from the example: the L1 endpoints are enough for one run
-ROLLUP_RPC=http://<host B private IP>:8547 L2_RPC_DEBUG=http://<host A private IP>:8545 DRILL_NETWORK=host make run-trace
+ROLLUP_RPC=http://<host B private IP>:8547 L2_RPC_DEBUG=http://<host A private IP>:8545 \
+  L2_PROOF_RPC=http://<host B private IP>:8545 L1_RPC_URL=<L1 endpoint> DRILL_NETWORK=host make run-trace
 # on host B (its own op-node, host A's op-reth over the private network):
 make prestate                        # the same hash as on the scratch host, or stop
 make run-trace                       # HOST=b default; PRESTATE=<file> when there are several
 ```
 
 The run is one `docker run` of the pinned op-challenger image (`--trace-type cannon-kona`,
-`--cannon-kona-server /usr/local/bin/kona-host`, which the image ships, `--run
-cannon-kona/finchain/file:<prestate>`), joined to the host's compose network or to the host
-network on a scratch machine; it ends at the first verdict and removes the container. Expect a
+`--cannon-kona-server /usr/local/bin/kona-host`, which the image ships - 1.0.2 in
+op-challenger v1.9.6 - and `--run cannon-kona/finchain/file:<prestate>`), joined to the host's
+compose network or to the host network on a scratch machine; it ends at the first verdict and
+removes the container. With several prestates under `drill/out/prestates/` the newest is
+taken; `PRESTATE=<file>` chooses. `L1_RPC_URL` and `L1_BEACON_URL` given on the command line
+win over the env files (a scratch host's `node-b/.env`, copied from the example, names a
+rate-limited public gateway). Expect a
 few GB of memory for the VM and from minutes to an hour on two cores; `RUN_TIMEOUT` (default
 3h) bounds it. Outputs: `drill/out/logs/run-trace-<date>.log` (the service log) and
 `manifests/evidence/run-trace-<date>.json` (schema `finchain.run-trace/2`: prestate, image,

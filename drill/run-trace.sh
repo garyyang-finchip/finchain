@@ -63,12 +63,17 @@ LOGS="$FINCHAIN_ROOT/drill/out/logs"; mkdir -p "$LOGS" "$FINCHAIN_ROOT/drill/out
 stamp="$(date -u +%Y%m%dT%H%M%SZ)"
 mkdir -p "$FINCHAIN_ROOT/manifests/evidence"
 
-# kona-host takes raw RLP from the nodes instead of re-encoding JSON: debug_getRawHeader and debug_getRawReceipts on
-# L1, debug_getRawHeader and debug_dbGet on L2. Probe the two endpoints from here before the long run. An endpoint that
-# cannot be reached from this shell (a compose-internal name) is skipped. An L1 endpoint that answers "method not
-# found" gets drill/l1-raw-shim.py in front of it (L1_RAW_SHIM=auto, the default; 1 forces it, 0 refuses): the shim
-# forwards everything and synthesises the two raw methods from eth_getBlockByHash and eth_getBlockReceipts, serving
-# nothing whose hash or trie root the node's own header does not confirm. The record says when it was used.
+# kona-host reads the nodes as raw RLP and proofs: debug_getRawHeader and debug_getRawReceipts on L1; debug_getRawHeader,
+# debug_dbGet and eth_getProof at the agreed L2 block on L2. Probe both endpoints from here before the long run (an
+# endpoint this shell cannot reach, a compose-internal name, is skipped). drill/rpc-shim.py fills the two gaps that
+# public endpoints and the hosts' own settings leave, and the record says when it did:
+#   L1: an endpoint without the raw methods gets the shim in front of it (L1_RAW_SHIM=auto, the default; 1 forces, 0
+#       refuses), which synthesises them from the standard methods and serves nothing whose hash or trie root the
+#       node's own header does not confirm;
+#   L2: host A's op-reth answers eth_getProof only at its head (reth's default proof window), so when the probe says
+#       "exceeds maximum proof window" the shim routes eth_getProof to an op-reth that has a window - host B's
+#       (L2_PROOF_RPC; default http://<B_BIND_IP>:<B_RPC_PORT> when the host env knows them) - and everything else
+#       to A. The lasting fix is --rpc.eth-proof-window on host A's op-reth (drill/README.md, K2b).
 probe_debug() {   # probe_debug <label> <url> <block hash> <method>... -> 0 all served, 1 a method is missing, 2 unreachable
   local label="$1" url="$2" block="$3" m resp err
   for m in "${@:4}"; do
@@ -79,41 +84,71 @@ probe_debug() {   # probe_debug <label> <url> <block hash> <method>... -> 0 all 
   done
   log "$label endpoint $(rpc_label "$url") serves ${*:4}"
 }
-L1_UPSTREAM="$L1_RPC_URL"; shim_pid=""; shim_log=""; shim_rec=null; L1_FOR_CONTAINER="$L1_RPC_URL"
+shim_pids=(); shim_logs=(); shim_urls=(); shim_recs=(); SHIM_URL=""
+start_shim() {   # start_shim <name> <upstream> <port> <shim args...>; sets SHIM_URL (no subshell: the pid must reach stop_shims)
+  local name="$1" up="$2" port="$3" bind logf pid
+  if [ "$network" = host ]; then bind=127.0.0.1; else
+    bind="$(docker network inspect "$network" -f '{{(index .IPAM.Config 0).Gateway}}' 2>/dev/null || true)"
+    [ -n "$bind" ] || die "cannot find the gateway address of the compose network $network for the $name shim"
+  fi
+  logf="$LOGS/rpc-shim-$name-$stamp.log"
+  python3 -I "$FINCHAIN_ROOT/drill/rpc-shim.py" --upstream "$up" --listen "$bind:$port" --log "$logf" "${@:4}" &
+  pid=$!
+  for _ in 1 2 3 4 5 6 7 8 9 10; do curl -sf "http://$bind:$port/healthz" >/dev/null 2>&1 && break; sleep 1; done
+  curl -sf "http://$bind:$port/healthz" >/dev/null 2>&1 || { kill "$pid" 2>/dev/null; die "the $name shim did not come up on $bind:$port; see $logf"; }
+  SHIM_URL="http://$bind:$port"
+  shim_pids+=("$pid"); shim_logs+=("$logf"); shim_urls+=("$SHIM_URL")
+}
+stop_shims() {
+  local i counts
+  for i in "${!shim_pids[@]}"; do
+    counts="$(curl -sf "${shim_urls[$i]}/healthz" 2>/dev/null || echo '{}')"
+    kill "${shim_pids[$i]}" 2>/dev/null || true; wait "${shim_pids[$i]}" 2>/dev/null || true
+    shim_recs+=("$(jq -cn --argjson c "$counts" --arg log "drill/out/logs/$(basename "${shim_logs[$i]}")" --arg sha "$(sha256_of "${shim_logs[$i]}")" \
+      '{upstream: $c.upstream, synthesised: ($c.synth // []), routes: ($c.routes // {}), counts: ($c | {forwarded, routed, headers, receipts, failed}), log: $log, logSha256: $sha}')")
+  done
+  shim_pids=()
+}
+trap stop_shims EXIT
+L1_UPSTREAM="$L1_RPC_URL"; L1_FOR_CONTAINER="$L1_RPC_URL"; L2_FOR_CONTAINER="$L2_RPC_DEBUG"; L2_PROOF_USED=""
 if [ "$TRACE" = cannon-kona ]; then
   fin="$(rpc "$L1_RPC_URL" eth_getBlockByNumber '["finalized",false]' 2>/dev/null | jq -r '.result.hash // empty' 2>/dev/null || true)"
   l1_ok=2; [ -z "$fin" ] || { probe_debug L1 "$L1_RPC_URL" "$fin" debug_getRawHeader debug_getRawReceipts && l1_ok=0 || l1_ok=$?; }
   want_shim="${L1_RAW_SHIM:-auto}"
   if [ "$want_shim" = 1 ] || { [ "$want_shim" = auto ] && [ "$l1_ok" = 1 ]; }; then
     require_cmd python3
-    [ "$l1_ok" != 1 ] || log "the L1 endpoint lacks the raw methods kona-host reads; starting drill/l1-raw-shim.py in front of it (L1_RAW_SHIM=0 to refuse)"
-    shim_port="${L1_RAW_SHIM_PORT:-8550}"; shim_log="$LOGS/l1-raw-shim-$stamp.log"
-    if [ "$network" = host ]; then shim_bind=127.0.0.1; else
-      shim_bind="$(docker network inspect "$network" -f '{{(index .IPAM.Config 0).Gateway}}' 2>/dev/null || true)"
-      [ -n "$shim_bind" ] || die "cannot find the gateway address of the compose network $network for the shim"
-    fi
-    python3 -I "$FINCHAIN_ROOT/drill/l1-raw-shim.py" --upstream "$L1_UPSTREAM" --listen "$shim_bind:$shim_port" --log "$shim_log" &
-    shim_pid=$!
-    for _ in 1 2 3 4 5 6 7 8 9 10; do curl -sf "http://$shim_bind:$shim_port/healthz" >/dev/null 2>&1 && break; sleep 1; done
-    curl -sf "http://$shim_bind:$shim_port/healthz" >/dev/null 2>&1 || die "the shim did not come up on $shim_bind:$shim_port; see $shim_log"
-    L1_FOR_CONTAINER="http://$shim_bind:$shim_port"
-    probe_debug "L1 (shim)" "$L1_FOR_CONTAINER" "$fin" debug_getRawHeader debug_getRawReceipts || { kill "$shim_pid" 2>/dev/null; die "the shim cannot synthesise the raw methods from $(rpc_label "$L1_UPSTREAM"); see $shim_log"; }
-    log "L1 for the run: the shim at $L1_FOR_CONTAINER, upstream $(rpc_label "$L1_UPSTREAM"); log $shim_log"
+    [ "$l1_ok" != 1 ] || log "the L1 endpoint lacks the raw methods kona-host reads; starting drill/rpc-shim.py --synth in front of it (L1_RAW_SHIM=0 to refuse)"
+    start_shim l1 "$L1_UPSTREAM" "${L1_RAW_SHIM_PORT:-8550}" --synth; L1_FOR_CONTAINER="$SHIM_URL"
+    probe_debug "L1 (shim)" "$L1_FOR_CONTAINER" "$fin" debug_getRawHeader debug_getRawReceipts || die "the shim cannot synthesise the raw methods from $(rpc_label "$L1_UPSTREAM"); see $LOGS/rpc-shim-l1-$stamp.log"
+    log "L1 for the run: the shim at $L1_FOR_CONTAINER, upstream $(rpc_label "$L1_UPSTREAM")"
   elif [ "$l1_ok" = 1 ]; then
     die "the L1 endpoint $(rpc_label "$L1_RPC_URL") does not serve the raw methods and L1_RAW_SHIM=0; the cannon-kona path needs them (drill/README.md, K2)"
   fi
   l2h="$(rpc "$L2_RPC_DEBUG" eth_getBlockByNumber '["latest",false]' 2>/dev/null | jq -r '.result.hash // empty' 2>/dev/null || true)"
-  if [ -n "$l2h" ]; then probe_debug L2 "$L2_RPC_DEBUG" "$l2h" debug_getRawHeader || { [ $? = 2 ] || { [ -z "$shim_pid" ] || kill "$shim_pid" 2>/dev/null; die "the L2 endpoint must be an op-reth with the debug namespace (drill/README.md, K2)"; }; }; fi
+  if [ -n "$l2h" ]; then
+    probe_debug L2 "$L2_RPC_DEBUG" "$l2h" debug_getRawHeader || { [ $? = 2 ] || die "the L2 endpoint must be an op-reth with the debug namespace (drill/README.md, K2)"; }
+    # eth_getProof at a block a few minutes old, as kona-host asks it for the agreed L2 head
+    l2n="$(rpc "$L2_RPC_DEBUG" eth_blockNumber 2>/dev/null | jq -r '.result // empty' 2>/dev/null || true)"
+    if [ -n "$l2n" ]; then
+      past="$(printf '0x%x' $(( l2n - 300 )))"
+      perr="$(rpc "$L2_RPC_DEBUG" eth_getProof "[\"0x4200000000000000000000000000000000000016\",[],\"$past\"]" 2>/dev/null | jq -r '.error.message // empty' 2>/dev/null || true)"
+      if [ -n "$perr" ]; then
+        warn "the L2 endpoint $(rpc_label "$L2_RPC_DEBUG") refuses eth_getProof at block $((l2n - 300)) ($perr)"
+        L2_PROOF_RPC="${L2_PROOF_RPC:-${B_BIND_IP:+http://$B_BIND_IP:${B_RPC_PORT:-8545}}}"
+        [ -n "${L2_PROOF_RPC:-}" ] || die "set L2_PROOF_RPC to an op-reth of this chain with --rpc.eth-proof-window (host B's private RPC), or give host A's op-reth that flag (drill/README.md, K2b)"
+        pres2="$(rpc "$L2_PROOF_RPC" eth_getProof "[\"0x4200000000000000000000000000000000000016\",[],\"$past\"]" 2>/dev/null || true)"
+        [ "$(jq -r '.result.storageHash // empty' <<<"$pres2" 2>/dev/null || true)" != "" ] || die "the proof endpoint $(rpc_label "$L2_PROOF_RPC") gives no eth_getProof at block $((l2n - 300)): $( [ -n "$pres2" ] && jq -r '.error.message // "no result"' <<<"$pres2" 2>/dev/null || echo unreachable)"
+        require_cmd python3
+        log "routing eth_getProof to $(rpc_label "$L2_PROOF_RPC") and everything else to $(rpc_label "$L2_RPC_DEBUG") through drill/rpc-shim.py"
+        start_shim l2 "$L2_RPC_DEBUG" "${L2_SHIM_PORT:-8551}" --route "eth_getProof=$L2_PROOF_RPC"; L2_FOR_CONTAINER="$SHIM_URL"
+        L2_PROOF_USED="$L2_PROOF_RPC"
+        probe_debug "L2 (shim)" "$L2_FOR_CONTAINER" "$l2h" debug_getRawHeader || die "the L2 shim does not forward to $(rpc_label "$L2_RPC_DEBUG"); see $LOGS/rpc-shim-l2-$stamp.log"
+      else
+        log "L2 endpoint $(rpc_label "$L2_RPC_DEBUG") serves eth_getProof at block $((l2n - 300))"
+      fi
+    fi
+  fi
 fi
-stop_shim() {
-  [ -n "$shim_pid" ] || return 0
-  local counts; counts="$(curl -sf "http://${L1_FOR_CONTAINER#http://}/healthz" 2>/dev/null || echo '{}')"
-  kill "$shim_pid" 2>/dev/null || true; wait "$shim_pid" 2>/dev/null || true
-  shim_rec="$(jq -cn --arg up "$(rpc_label "$L1_UPSTREAM")" --arg log "drill/out/logs/$(basename "$shim_log")" --arg sha "$(sha256_of "$shim_log")" --argjson c "$counts" \
-    '{used: true, what: "drill/l1-raw-shim.py: debug_getRawHeader and debug_getRawReceipts synthesised from eth_getBlockByHash and eth_getBlockReceipts, each answer verified against the header (block hash, receiptsRoot) before it is served; every other method forwarded", upstream: $up, counts: ($c | {forwarded, headers, receipts, failed}), log: $log, logSha256: $sha}')"
-  shim_pid=""
-}
-trap stop_shim EXIT
 
 # The preimage server of each path. cannon-kona: kona-host, shipped in the op-challenger image. cannon: the
 # op-program host, which the image does not ship; it is built once from the monorepo checkout of the prestate's
@@ -153,11 +188,11 @@ throwaway="$(openssl rand -hex 32)"
 if [ "$TRACE" = cannon-kona ]; then
   trace_flags=(--trace-type cannon-kona --cannon-bin /usr/local/bin/cannon --cannon-kona-server /usr/local/bin/kona-host
     --cannon-kona-rollup-config /chain/rollup.json --cannon-kona-l2-genesis /chain/genesis.json
-    --cannon-kona-prestate "$pfile" --run "cannon-kona/finchain/file:$pfile" --l2-eth-rpc "$L2_RPC_DEBUG")
+    --cannon-kona-prestate "$pfile" --run "cannon-kona/finchain/file:$pfile" --l2-eth-rpc "$L2_FOR_CONTAINER")
 else
   trace_flags=(--trace-type cannon --cannon-bin /usr/local/bin/cannon --cannon-server /usr/local/bin/op-program
     --cannon-rollup-config /chain/rollup.json --cannon-l2-genesis /chain/genesis.json
-    --cannon-prestate "$pfile" --run "cannon/finchain/file:$pfile" --l2-eth-rpc "$L2_RPC_DEBUG" --l2-experimental-eth-rpc "$L2_RPC_DEBUG")
+    --cannon-prestate "$pfile" --run "cannon/finchain/file:$pfile" --l2-eth-rpc "$L2_FOR_CONTAINER" --l2-experimental-eth-rpc "$L2_FOR_CONTAINER")
 fi
 
 log "run-trace ($TRACE) on host $HOST: prestate $hash, network $network, rollup RPC $(rpc_label "$ROLLUP_RPC"), L2 debug RPC $(rpc_label "$L2_RPC_DEBUG")"
@@ -189,7 +224,8 @@ while :; do
 done
 docker rm -f "$name" >/dev/null 2>&1 || true
 elapsed=$(( $(date +%s) - t0 ))
-stop_shim
+stop_shims
+shims_json="$(printf '%s\n' "${shim_recs[@]+"${shim_recs[@]}"}" | jq -cs 'map(select(. != null))')"
 
 # what the run looked at, from its own log
 inputs="$(first_line 'select(.msg=="Using L1 head") | {l1Head: .num, l1HeadHash: .hash, disputeL1: .disputeL1}')"; [ -n "$inputs" ] || inputs=null
@@ -198,7 +234,7 @@ claim="$(first_line 'select(.l2Block != null and .claim != null) | {l2Block: .l2
 if [ "$TRACE" = cannon-kona ]; then client="kona-client"; l2note=" (kona-host preimage path: eth and debug namespaces)"; else client="op-program"; l2note=" (execution-witness path)"; fi
 ev="$FINCHAIN_ROOT/manifests/evidence/run-trace-$stamp.json"
 jq -n --arg at "$started" --arg end "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --argjson secs "$elapsed" --arg host "$HOST" --arg hash "$hash" --arg file "$(basename "$PRESTATE")" \
-  --arg image "$IMAGE" --arg l1 "$(rpc_label "$L1_UPSTREAM")" --argjson shim "$shim_rec" --arg dgf "$DGF" --argjson inputs "$inputs" --argjson sync "$l2" --argjson claim "$claim" \
+  --arg image "$IMAGE" --arg l1 "$(rpc_label "$L1_UPSTREAM")" --argjson shims "$shims_json" --arg l2proof "$( [ -n "$L2_PROOF_USED" ] && rpc_label "$L2_PROOF_USED" || echo "")" --arg dgf "$DGF" --argjson inputs "$inputs" --argjson sync "$l2" --argjson claim "$claim" \
   --arg result "$result" --arg reason "$reason" --arg logname "drill/out/logs/run-trace-$stamp.log" --argjson cid "${CHAIN_ID:-0}" \
   --arg rollup "$(rpc_label "$ROLLUP_RPC")" --arg l2src "$(rpc_label "$L2_RPC_DEBUG")$l2note" --arg server "$server_desc" --arg trace "$TRACE" --arg client "$client" '
   {schema: "finchain.run-trace/2",
@@ -206,7 +242,9 @@ jq -n --arg at "$started" --arg end "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --argjson s
    environment: "public-testnet", chainId: $cid, host: $host, startedAt: $at, finishedAt: $end, seconds: $secs,
    what: ("op-challenger run-trace: " + $client + " executed inside the Cannon VM from the prestate below for one recent L2 block of the live chain (the safe head at a finalized L1 block and its parent, from the host op-node); PASS = the VM exited with the claim verified"),
    prestate: {hash: $hash, file: $file, source: "drill/prestate.sh (manifests/evidence/prestate-<chainId>-<date>.json)"},
-   image: $image, traceType: $trace, preimageServer: $server, l1: $l1, l1RawMethodsShim: $shim, disputeGameFactory: $dgf, rollupRpc: $rollup, l2Source: $l2src,
+   image: $image, traceType: $trace, preimageServer: $server, l1: $l1, disputeGameFactory: $dgf, rollupRpc: $rollup, l2Source: $l2src,
+   l2ProofSource: (if $l2proof == "" then null else ($l2proof + " (eth_getProof routed there by the shim: host A answers proofs only at its head)") end),
+   rpcShims: {what: "drill/rpc-shim.py between op-challenger/kona-host and the endpoints; synthesised = raw methods built from standard ones and verified against the header before being served; routes = methods sent to another endpoint", instances: $shims},
    inputs: {syncStatus: $sync, l1Head: $inputs, block: $claim},
    result: $result, reason: $reason, log: $logname}' > "$ev"
 echo "run-trace ($TRACE) $result: $reason (${elapsed}s)"
