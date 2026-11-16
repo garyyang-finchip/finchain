@@ -174,7 +174,12 @@ counts uses the same pair a `cannon-kona` challenger for this chain needs:
 the guest's stdout afterwards, and reports a run whose client fell back to the oracle as
 `PASS-WITH-ORACLE-CONFIG` (exit 3) with the chain id the client saw; the record carries
 `konaHost` (embedded or not, binary digest) and `clientBoot` (which configuration the client
-used). Only `PASS` closes K2b. A resident Type 8 challenger on Sepolia (K4) needs the same
+used). Only `PASS` closes K2b. Result (2026-11-16, scratch host, 2 cores): `make kona-host`
+took 39 minutes (`kona-host-85422-20261116T055801Z.json`); the run with it,
+`run-trace-20261116T080811Z.json`, verified L2 block 200126 at L1 head 12145948 in 542 s
+(`PASS`, `embeddedConfigUsed: true`, no fallback line in 213 lines of log), the L1 shim having
+synthesised 133 headers and 66 receipt sets without a failure and the L2 shim having routed 9
+`eth_getProof` calls to host B. K2 is closed. A resident Type 8 challenger on Sepolia (K4) needs the same
 wrapper and host, or an upstream op-challenger that can pass `--l2-chain-id` for a chain it
 does not know by name.
 

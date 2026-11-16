@@ -1,0 +1,48 @@
+{
+  "schema": "finchain.kona-host/1",
+  "acceptance": "M4 K2: kona-host built with the chain in its registry, the host side of the cannon-kona path (docs/proof-plan.md K2; drill/kona-host-wrapper.sh)",
+  "environment": "build",
+  "recordedAt": "2026-11-16T06:37:34Z",
+  "chainId": 85422,
+  "source": {
+    "repository": "https://github.com/ethereum-optimism/optimism",
+    "tag": "kona-client/v1.9.0",
+    "commit": "1286a886f0853e07503b46c2d6233b6a2f623286",
+    "crate": "kona-host 1.0.2",
+    "recipe": "cargo build --locked --release --bin kona-host, RUSTFLAGS=-C target-cpu=generic, KONA_CUSTOM_CONFIGS_DIR of K1 (the image builds the same binary with --profile release-perf)",
+    "toolchain": "rustc 1.95.0 (rust:1.95)",
+    "cargo": "docker",
+    "jobs": 2
+  },
+  "binary": {
+    "file": "drill/out/bin/kona-host-finchain-kona-client-v1.9.0",
+    "sha256": "7931020b06ca9a4ddf32bbcdfb94f3619f440ac0fb58655ca641543153f310c0",
+    "bytes": 38688088,
+    "arch": "x86_64",
+    "reportsVersion": "kona-host 1.0.2",
+    "runsIn": "us-docker.pkg.dev/oplabs-tools-artifacts/images/op-challenger:v1.9.6@sha256:4f01ba7d5f4e58d771534522e5624ab3e6e200d8be619a17e1b04c47548bdb93"
+  },
+  "embedded": {
+    "identifier": "sepolia/finchain",
+    "chainList": {
+      "sha256": "d62f5b7d3194d5c209e08726c62117d3cb634098b4f65da3ccdea0c17ef60e80"
+    },
+    "configs": {
+      "sha256": "ebd7790529470a0a8d0c36f9a0a6095fbba5137be80461526d34fb8986d3a2c4"
+    },
+    "depsets": {
+      "sha256": "aa12fe6ae8963940d5ff92abee2e6016e2ba5d0e70866b209e0ffbf39e601dc6"
+    },
+    "check": {
+      "method": "the binary is searched for the embedded registry text",
+      "identifierField": {
+        "found": 1
+      },
+      "chainIdField": {
+        "found": 1
+      },
+      "result": "PASS"
+    }
+  },
+  "use": "mounted into the op-challenger container by drill/run-trace.sh behind drill/kona-host-wrapper.sh (--l2-chain-id instead of --rollup-config-path); the same pair is what a cannon-kona challenger for this chain needs"
+}

@@ -1,0 +1,94 @@
+{
+  "schema": "finchain.run-trace/2",
+  "acceptance": "M4 K2: trace self-check (run-trace) passes for a recent block (docs/acceptance.md M4; docs/proof-plan.md K2)",
+  "environment": "public-testnet",
+  "chainId": 85422,
+  "host": "b",
+  "startedAt": "2026-11-16T08:08:19Z",
+  "finishedAt": "2026-11-16T08:17:21Z",
+  "seconds": 542,
+  "what": "op-challenger run-trace: kona-client executed inside the Cannon VM from the prestate below for one recent L2 block of the live chain (the safe head at a finalized L1 block and its parent, from the host op-node); PASS = the VM exited with the claim verified",
+  "prestate": {
+    "hash": "0x038b60ac8db81e83cb87229ef9119b500c5723767806cb93a639d70618cad9fb",
+    "file": "0x038b60ac8db81e83cb87229ef9119b500c5723767806cb93a639d70618cad9fb.bin.gz",
+    "source": "drill/prestate.sh (manifests/evidence/prestate-<chainId>-<date>.json)"
+  },
+  "image": "us-docker.pkg.dev/oplabs-tools-artifacts/images/op-challenger:v1.9.6@sha256:4f01ba7d5f4e58d771534522e5624ab3e6e200d8be619a17e1b04c47548bdb93",
+  "traceType": "cannon-kona",
+  "preimageServer": "kona-host 1.0.2 built from kona-client/v1.9.0 with chain 85422 in its registry (sha256 7931020b06ca9a4d...), through drill/kona-host-wrapper.sh: --l2-chain-id 85422 instead of --rollup-config-path",
+  "konaHost": {
+    "embeddedRegistry": true,
+    "binarySha256": "7931020b06ca9a4ddf32bbcdfb94f3619f440ac0fb58655ca641543153f310c0",
+    "record": "manifests/evidence/kona-host-<chainId>-<date>.json"
+  },
+  "clientBoot": {
+    "embeddedConfigUsed": true,
+    "chainIdSeenByClient": null,
+    "guestLine": null,
+    "meaning": "on chain the game contract gives the client its L2 chain id (local preimage key 5) and the client reads the configuration embedded in the prestate; a client that fell back to the oracle-supplied configuration ran a different boot path"
+  },
+  "l1": "https://ethereum-sepolia-rpc.publicnode.com",
+  "disputeGameFactory": "0xc752f10ab0696860b11b789a2ab9f4f93331329c",
+  "rollupRpc": "http://100.120.188.50:8547",
+  "l2Source": "http://100.89.247.8:8545 (kona-host preimage path: eth and debug namespaces)",
+  "l2ProofSource": "http://100.120.188.50:8545 (eth_getProof routed there by the shim: host A answers proofs only at its head)",
+  "rpcShims": {
+    "what": "drill/rpc-shim.py between op-challenger/kona-host and the endpoints; synthesised = raw methods built from standard ones and verified against the header before being served; routes = methods sent to another endpoint",
+    "instances": [
+      {
+        "upstream": "ethereum-sepolia-rpc.publicnode.com",
+        "synthesised": [
+          "debug_getRawHeader",
+          "debug_getRawReceipts"
+        ],
+        "routes": {},
+        "counts": {
+          "forwarded": 66,
+          "routed": 0,
+          "headers": 133,
+          "receipts": 66,
+          "failed": 0
+        },
+        "log": "drill/out/logs/rpc-shim-l1-20261116T080811Z.log",
+        "logSha256": "a8c2fc8202d318b163bbc90ca2e74864e3540fdddb095a5a4b8765d48d2af533"
+      },
+      {
+        "upstream": "100.89.247.8:8545",
+        "synthesised": [],
+        "routes": {
+          "eth_getProof": "100.120.188.50:8545"
+        },
+        "counts": {
+          "forwarded": 600,
+          "routed": 9,
+          "headers": 0,
+          "receipts": 0,
+          "failed": 0
+        },
+        "log": "drill/out/logs/rpc-shim-l2-20261116T080811Z.log",
+        "logSha256": "51fcbc6a3b842d770ded50286f49f76b5d88d51a1a4fa8abe96229ce383dce9c"
+      }
+    ]
+  },
+  "inputs": {
+    "syncStatus": {
+      "finalizedL1": 12145948,
+      "safeL2": 200874,
+      "finalizedL2": 200298
+    },
+    "l1Head": {
+      "l1Head": 12145948,
+      "l1HeadHash": "0xb9717b6848a0b0f0100eb9213c838751eee7b526ec9cc81a1bfae972acba6d41",
+      "disputeL1": 12145948
+    },
+    "block": {
+      "l2Block": "200126",
+      "claim": "0x6ed1e8f536318c8d7a2c0f383f4565bebbb71942e520cd4eddb1e3b03b751a0b",
+      "l2Head": "0xff87281605197fe43458f50b838b8623e159e11013903e2746ba4c9bcf2c7b4b",
+      "l1": "0xb9717b6848a0b0f0100eb9213c838751eee7b526ec9cc81a1bfae972acba6d41"
+    }
+  },
+  "result": "PASS",
+  "reason": "VM exited with the claim verified",
+  "log": "drill/out/logs/run-trace-20261116T080811Z.log"
+}

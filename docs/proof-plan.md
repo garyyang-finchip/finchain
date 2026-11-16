@@ -86,7 +86,7 @@ pipeline and the embedding method; it is superseded and nothing downstream uses 
 | Step | What is done | What may be claimed when it passes |
 | --- | --- | --- |
 | K1 | Finchain's configuration converted to the registry format kona-client embeds; merged by the registry crate's own build script; the rollup configuration the client derives compared with `rollup.json` field by field (`make kona-check`, `drill/README.md`) | the client will see the chain as op-node does. Done 2026-11-15: `manifests/evidence/kona-configs-85422-20261115T185730Z.json`, 28 of 28 fields equal |
-| K2 | Reproducible kona-client prestate with Finchain embedded, the published kona prestate reproduced first (`UPSTREAM_CHECK=1 make prestate`); then `run-trace` (`cannon-kona`) with it against a recent block of the public chain (`make run-trace`), the client booting from the embedded configuration the way the game contract boots it (a kona-host that knows the chain, `make kona-host`, behind `drill/kona-host-wrapper.sh`) | the prestate proves a real Finchain block in the VM that the public chain's game type would run. K2a done 2026-11-16: `0x038b60ac...d9fb`, the published `0x03f872c2...6b0b` reproduced first (`prestate-85422-20261116T012620Z.json`). K2b: a first run verified the claim in 502 s but with the client on the oracle-supplied configuration (chain id 0; `run-trace-20261116T045749Z.json`, kept as what it is); the run with the embedded boot path is the one that closes the step |
+| K2 | Reproducible kona-client prestate with Finchain embedded, the published kona prestate reproduced first (`UPSTREAM_CHECK=1 make prestate`); then `run-trace` (`cannon-kona`) with it against a recent block of the public chain (`make run-trace`), the client booting from the embedded configuration the way the game contract boots it (a kona-host that knows the chain, `make kona-host`, behind `drill/kona-host-wrapper.sh`) | the prestate proves a real Finchain block in the VM that the public chain's game type would run. K2a done 2026-11-16: `0x038b60ac...d9fb`, the published `0x03f872c2...6b0b` reproduced first (`prestate-85422-20261116T012620Z.json`). K2b done 2026-11-16: `run-trace-20261116T080811Z.json`, L2 block 200126 verified in 542 s with the embedded kona-host (`kona-host-85422-20261116T055801Z.json`) and `clientBoot.embeddedConfigUsed: true`; a first run the same day (`run-trace-20261116T045749Z.json`, 502 s) had verified the claim with the client on the oracle-supplied configuration (chain id 0) and is kept as what it is |
 | K3 | Isolated devnet: a `CANNON_KONA` game on an invalid root, an adversary that answers every move, a real `step()` on chain, correct resolution, anchor state unchanged | the proof system executes end to end for Finchain's configuration (environment stated) |
 | K4 | Minimal integration check against Sepolia: what a Type 8 implementation needs there (prestate URL, challenger configuration, bonds), as a non-default game type if deployed at all | readiness of the public chain for a later decision; no change to what the public chain trusts |
 
@@ -109,38 +109,65 @@ A game won by timeout (the bad proposer stops answering) demonstrates L1, never 
 
 ## K3: isolated environment
 
-Environment: a local L1 devnet (for example the OP Stack Kurtosis devnet or the automated
-deployment example with a local L1), the same `versions.lock`, Finchain's chain id and
-parameters. Funds are free there, so bonds of any size can be posted.
+Environment: one scratch host (the one that built the prestate), a local L1, the same
+`versions.lock`, Finchain's parameters (block time, gas limit, EIP-1559, the same forks at
+genesis) and a chain id of its own so that no artifact of the devnet can be mistaken for one of
+the public chain. Funds are free there, so bonds of any size can be posted. Nothing in it
+touches the public chain or its hosts. The pieces, all of which exist upstream:
+
+- L1: a `foundry` anvil (`versions.lock`), a pre-Amsterdam fork, 2-second blocks; no
+  consensus client - batches are calldata, op-node runs with `--l1.beacon.ignore`, and the
+  beacon endpoints kona-host asks at start-up are answered by the drill shim.
+- Contracts: op-deployer v0.7.1 against the anvil (live broadcast works on a pre-Amsterdam
+  L1), deploying the superchain and the implementations itself (`superchainRoles` instead of
+  an OPCM address, `l1ContractsLocator = embedded`, op-contracts/v7.0.0), with
+  `dangerousAdditionalDisputeGames` adding a `FaultDisputeGame` of game type 8, VM type
+  `CANNON` (the current Cannon state version, `multithreaded64-5`, the one the kona prestate
+  is generated for), `faultGameAbsolutePrestate` = the devnet's kona prestate, `MakeRespected`
+  = true, and dispute clocks measured in minutes (`dangerouslyAllowCustomDisputeParameters`).
+  The result is the configuration a public chain with a Type 8 game would have: the factory's
+  respected type is 8, its implementation carries a Finchain-embedding prestate.
+- Prestate and host: K1 and K2a repeated for the devnet's `rollup.json` and `genesis.json`
+  (the registry entry pins the L1 genesis and the contract addresses), `make kona-host` for
+  the host side; the same wrapper.
+- Chain: op-reth, op-node (sequencer), op-batcher, op-proposer with `--game-type 8`, and the
+  resident op-challenger with `--trace-type cannon-kona`, the devnet prestate and the
+  embedded kona-host - in one compose file under `drill/devnet/` (the production compose files
+  serve the public hosts; the drill does not bend them).
+- Adversary: the simplest dishonest proposer that forces a real step. op-challenger's own
+  subcommands do it: `create-game` posts a game on a wrong output root for a real devnet block;
+  a loop then answers every counter-claim of the resident challenger with `move`, posting
+  arbitrary claims down the tree (the contract verifies nothing about intermediate claims; the
+  bonds grow with depth and are paid from a devnet account with unlimited funds). When the
+  dishonest leaf is reached, the honest challenger has to prove it wrong: that is the
+  `step()` transaction, executed by the MIPS contract against the kona-client trace from the
+  Finchain-embedding prestate. The driver then stops; the clock runs out; the challenger
+  resolves the game; the anchor state must not have moved.
 
 Steps:
 
-1. Build the prestate for the devnet's chain: `make prestate` with the devnet's own
-   `rollup.json` and `genesis.json`, since the prestate pins the L1 addresses and the genesis
-   of the chain it proves (K1 and K2 run against the public chain's configuration; the devnet
-   repeats them for its own). The record `manifests/evidence/prestate-<chainId>-<date>.json`
-   holds the hash, the digests of the embedded files and the embedding check.
-2. Deploy the chain on the devnet; the `CANNON_KONA` implementation is then pointed at the
-   devnet prestate through the OPCM's `updatePrestate` (the owner is a test key there) - the
-   same call a public-chain upgrade would use.
-3. Run the resident op-challenger (`cannon-kona`) on the B-equivalent node.
-4. Adversarial driver: a second proposer posts an invalid output root and keeps responding
-   to every counter-move (attack/defend at each depth) until the dispute reaches the
-   execution-trace split and the first `step()`.
-5. Record the evidence listed below; stop the driver; let the game resolve; confirm the
-   invalid root is not accepted as a withdrawal basis (anchor state unchanged).
+1. `drill/devnet/`: anvil up; intent rendered from a template; `op-deployer apply`; the
+   devnet's `rollup.json` and `genesis.json` exported; the devnet kona prestate and kona-host
+   built (`make prestate`, `make kona-host` with the devnet's files - the K1 comparison and the
+   embedding checks run exactly as for the public chain).
+2. The chain up with the respected game type 8; the proposer's first games created and
+   resolved by the challenger without a dispute (the devnet's L0/L1, minutes instead of days).
+3. `make run-trace` against the devnet (K2b for the devnet).
+4. The adversary: one game on an invalid root, driven to the first `step()`; the record below.
+5. Stop the driver; resolution; the invalid root rejected; anchor state unchanged.
 
-Evidence (committed under `manifests/evidence/`):
+Evidence (committed under `manifests/evidence/`, `environment: local-devnet`):
 
-- game address, game type, implementation address;
-- VM address, prestate hash, Finchain configuration it embeds;
+- game address, game type, implementation address, the factory's respected type;
+- VM address and state version, prestate hash, the Finchain configuration it embeds (the K1
+  record of the devnet);
 - the sequence of attack/defend transactions and the final dispute depth;
-- the `step()` transaction receipt executed by the contract;
+- the `step()` transaction receipt executed by the contract, with the claim it disproved;
 - resolution result, bond settlement, anchor state before and after;
 - `versions.lock` digests used.
 
-The drill is recorded with `environment: local-devnet`. The public-chain repetition (L3) is
-a separate acceptance entry that stays `not-run` until done.
+The public-chain repetition (L3) is a separate acceptance entry that stays `not-run` until
+done.
 
 ## Resident service on the public testnet
 

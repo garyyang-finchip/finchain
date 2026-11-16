@@ -77,16 +77,16 @@ The full procedure, with expected outputs and acceptance checks, is in
 
 ## Status
 
-v0.3.0-alpha.14: M4 in progress on the kona-client route (`docs/proof-plan.md`: the op-program
+v0.3.0-alpha.15: M4 in progress on the kona-client route (`docs/proof-plan.md`: the op-program
 client cannot follow the current Sepolia L1, its prestate `0x03e76631...5af1` is superseded; `make
 kona-check` validated Finchain's registry files against the kona-registry crate, 28 of 28 fields
 equal, on two hosts; `make prestate` built the kona-client prestate with Finchain embedded on
 2026-11-16, `0x038b60ac...d9fb`, the published kona prestate reproduced bit for bit first; `make
-run-trace` ran the `cannon-kona` self-check against a live block - the first run verified the
-claim in 502 s but with the client on the oracle-supplied configuration, so `make kona-host`
-builds the host side with the chain embedded and the closing run is the one whose client boots
-from the prestate's registry, `drill/README.md` K2b; `make l1-header` records the raw L1 header
-the first route failed on). `make withdraw` drives the deposit -> proof -> withdrawal
+run-trace` ran the `cannon-kona` self-check against a live block and passed on 2026-11-16 with
+the client booting from the prestate's own registry, through the kona-host that `make kona-host`
+builds with the chain embedded - K2 closed, `drill/README.md` K2b; `make l1-header` records the
+raw L1 header the first route failed on). Next: K3, the isolated-devnet dispute with a real
+`step()` (`docs/proof-plan.md`). `make withdraw` drives the deposit -> proof -> withdrawal
 cycle step by step, with its record; every target takes `CHAIN=<name>` so that the same hosts
 run a second chain beside the first, `docs/runbook.md` section 9, the M5 preparation;
 `make games` reads the dispute games back from L1 - the

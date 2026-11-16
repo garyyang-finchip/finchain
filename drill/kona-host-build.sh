@@ -111,7 +111,7 @@ jq -n --arg at "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --argjson cid "$chain_id" --arg 
    embedded: {identifier: $ident, chainList: {sha256: $clsha}, configs: {sha256: $cfsha}, depsets: {sha256: $dssha},
               check: {method: "the binary is searched for the embedded registry text", identifierField: {found: $n_ident}, chainIdField: {found: $n_cid}, result: $emb}},
    use: "mounted into the op-challenger container by drill/run-trace.sh behind drill/kona-host-wrapper.sh (--l2-chain-id instead of --rollup-config-path); the same pair is what a cannon-kona challenger for this chain needs"}' > "$ev"
-echo "kona-host $reported with chain $chain_id embedded ($embedded: identifier x$n_ident, chain id field x$n_cid): $out"
+echo "$reported with chain $chain_id embedded ($embedded: identifier x$n_ident, chain id field x$n_cid): $out"
 echo "sha256: $(sha256_of "$out")"
 echo "record: $ev"
 [ "$embedded" = PASS ] || exit 3
