@@ -36,6 +36,8 @@ data/
 # Drill scratch (monorepo checkout, prestates, logs) - docs/proof-plan.md, drill/README.md
 drill/work/
 drill/out/
+# the devnet's keys, deployment, artifacts, logs and snapshots (drill/devnet/README.md)
+drill/devnet/out/
 
 # python bytecode (drill/rpc-shim.py)
 __pycache__/
