@@ -33,7 +33,7 @@ COMPOSE_B   := $(COMPOSE_ENV) docker compose -p $(STACK)-b -f $(ROOT)/node-b/doc
         chain-id-check l1-probe intent funding-table deploy-l1 deploy-l1-calldata export verify-onchain lock fund-roles \
         up-a down-a restart-a logs-a up-b down-b restart-b logs-b status-a status-b peers-a peers-b \
         compare rebuild-b deposit set-init-bond deploy-8004 build-8004 l2-send verify-world \
-        evm-acceptance verify-evm foga-isolation world-manifest fee-lines withdraw games kona-configs kona-check prestate kona-host run-trace l1-header lint
+        evm-acceptance verify-evm foga-isolation world-manifest fee-lines withdraw games kona-configs kona-check prestate kona-host run-trace l1-header devnet lint
 
 help: ## List targets (every target takes CHAIN=<name>; the default is sepolia)
 	@grep -E '^[a-zA-Z0-9_-]+:.*?## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  %-18s %s\n", $$1, $$2}'
@@ -160,10 +160,15 @@ run-trace: ## M4 K2: op-challenger run-trace (TRACE=cannon-kona) with the Fincha
 	@bash $(ROOT)/drill/run-trace.sh "$(PRESTATE)" "$(or $(HOST),b)"
 l1-header: ## M4: record the raw L1 header the op-program route failed on (drill/out/logs/l1-header-*.json -> manifests/evidence)
 	@bash $(ROOT)/drill/l1-header-evidence.sh "$(BLOCK_HASH)"
+devnet: ## M4 K3 (scratch host): the isolated devnet, one step at a time - make devnet-keys, devnet-l1, devnet-intent, devnet-deploy, devnet-build, devnet-install-game, devnet-l2, devnet-proof, devnet-run-trace, devnet-dispute, devnet-resolve, devnet-status, devnet-down (drill/devnet/README.md)
+	@bash $(ROOT)/drill/devnet/devnet.sh
+devnet-%:
+	@bash $(ROOT)/drill/devnet/devnet.sh $*
 
 lint: ## Static checks: shellcheck, compose config, JSON/YAML validity
-	@shellcheck -x $(ROOT)/scripts/*.sh $(ROOT)/drill/*.sh
+	@shellcheck -x $(ROOT)/scripts/*.sh $(ROOT)/drill/*.sh $(ROOT)/drill/devnet/*.sh
 	@cd $(ROOT)/node-a && docker compose $(ENV_COMMON) --env-file .env.example config -q
 	@cd $(ROOT)/node-b && docker compose $(ENV_COMMON) --env-file .env.example config -q
+	@cd $(ROOT)/drill/devnet && docker compose --env-file $(ROOT)/versions.lock --env-file devnet.env config -q
 	@for f in $(ROOT)/manifests/*.json $(ROOT)/registry/*.json; do jq empty $$f || exit 1; done
 	@echo "lint passed"

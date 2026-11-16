@@ -23,8 +23,8 @@ build pipeline and is marked superseded. Nothing downstream uses it.
 | K1 | Finchain's configuration in the registry format kona-client embeds; merged by the registry crate's own build script; the derived rollup configuration equal to `rollup.json` | scratch host (or any machine with cargo) | `make kona-check` (`make kona-configs` writes the files only) |
 | K2a | Reproducible kona-client prestate with Finchain embedded; the official kona prestate reproduced first; embedding verified | scratch host | `UPSTREAM_CHECK=1 make prestate` |
 | K2b | `op-challenger run-trace` (`cannon-kona`) with that prestate and a kona-host that knows the chain, against a recent block of the public chain; the client must boot from the embedded configuration | scratch host over the private network, or host B | `make kona-host`, then `make run-trace` |
-| K3 | Isolated devnet: a `CANNON_KONA` game on an invalid root, an adversary that answers every move, a real `step()`, correct resolution | scratch host | documented when K2 is done |
-| K4 | Minimal integration check against Sepolia: what a Type 8 implementation would need there, without changing the respected game type | - | documented when K3 is done |
+| K3 | Isolated devnet: an honest type-8 game attacked down to the leaf by a dishonest challenger, the honest challenger's real `step()` on chain, resolution for the honest root | scratch host | `make devnet-<step>` (`drill/devnet/README.md`) |
+| K4 | Minimal integration check against Sepolia: what a Type 8 implementation would need there, without changing the respected game type | - | documented when K3 is done; K3 rehearses the installing transaction (`setImplementation(8, impl, args)`) |
 
 A Type 8 implementation may be deployed on Sepolia only as a non-default game type, and only
 after K3; changing the respected game type, the withdrawal path or any permission of the
@@ -80,7 +80,11 @@ are copied verbatim; the hardfork times are the ones `rollup.json` schedules, an
 pinned client does not model stops the conversion instead of being dropped. The two addresses
 the client derives from - `OptimismPortalProxy` and `SystemConfigProxy` - come from
 `rollup.json`; the rest of the address list is informational and comes from
-`chain/out/l1-addresses.json`.
+`chain/out/l1-addresses.json`. A chain that does not belong to a registry superchain (the K3
+devnet, whose L1 is an anvil) gets a superchain of its own with `KONA_SUPERCHAIN=<name>` and
+`L1_PUBLIC_RPC=<its L1>`: the merge inserts that superchain whole, with the chain's own
+SuperchainConfig address, the way the registry holds `sepolia-devnet-2` beside `sepolia`. The
+L1 chain id must still be one the client carries an L1 configuration for (1, 11155111, 17000).
 
 `drill/kona-check.sh` then builds `drill/kona-check/` (a twenty-line probe that prints what
 `kona_registry::ROLLUP_CONFIGS` holds for a chain id) against the `kona-registry` crate of the
@@ -170,9 +174,10 @@ counts uses the same pair a `cannon-kona` challenger for this chain needs:
 - `drill/kona-host-wrapper.sh` as `--cannon-kona-server`: it drops `--rollup-config-path` from
   what op-challenger passes and appends `--l2-chain-id <chain id>`, then runs that kona-host.
 
-`drill/run-trace.sh` mounts both when `drill/out/bin/kona-host-finchain-<tag>` exists, reads
-the guest's stdout afterwards, and reports a run whose client fell back to the oracle as
-`PASS-WITH-ORACLE-CONFIG` (exit 3) with the chain id the client saw; the record carries
+`drill/run-trace.sh` mounts both when `drill/out/bin/kona-host-<slug>-<tag>` exists (the slug
+is `KONA_CHAIN_SLUG`, `finchain` for the public chain, `devnet` for K3's), reads the guest's
+stdout afterwards, and reports a run whose client fell back to the oracle (rollup or L1
+configuration) as `PASS-WITH-ORACLE-CONFIG` (exit 3) with the chain id the client saw; the record carries
 `konaHost` (embedded or not, binary digest) and `clientBoot` (which configuration the client
 used). Only `PASS` closes K2b. Result (2026-11-16, scratch host, 2 cores): `make kona-host`
 took 39 minutes (`kona-host-85422-20261116T055801Z.json`); the run with it,
@@ -238,7 +243,9 @@ compose network or to the host network on a scratch machine; it ends at the firs
 removes the container. With several prestates under `drill/out/prestates/` the newest is
 taken; `PRESTATE=<file>` chooses. `L1_RPC_URL` and `L1_BEACON_URL` given on the command line
 win over the env files (a scratch host's `node-b/.env`, copied from the example, names a
-rate-limited public gateway). Expect a
+rate-limited public gateway); `CHAIN_OUT=<dir>` with both URLs runs it for another chain's
+artifacts without the public chain's env files at all (`make devnet-run-trace` does), and
+`ENVIRONMENT` names the environment in the record. Expect a
 few GB of memory for the VM and from minutes to an hour on two cores; `RUN_TIMEOUT` (default
 3h) bounds it. Outputs: `drill/out/logs/run-trace-<date>.log` (the service log) and
 `manifests/evidence/run-trace-<date>.json` (schema `finchain.run-trace/2`: prestate, image,

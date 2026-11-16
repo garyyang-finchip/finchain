@@ -23,9 +23,13 @@
 #   (default: on host b the SEQUENCER_HTTP of its env, on host a http://op-reth:8545), DRILL_NETWORK (default the host
 #   stack's compose network; `host` on a scratch machine that reaches both RPCs over the private network and runs no
 #   stack), RUN_TIMEOUT (default 3h, the VM timeout), L1_RPC_URL / L1_BEACON_URL (the env files' unless given), L1_RAW_SHIM
-#   (auto | 1 | 0: drill/l1-raw-shim.py in front of an L1 endpoint without the raw debug methods); TRACE=cannon
+#   (auto | 1 | 0: drill/rpc-shim.py --synth in front of an L1 endpoint without the raw debug methods); TRACE=cannon
 #   only: OP_PROGRAM_TAG (default op-program/v1.9.0, the checkout the host is built from) or OP_PROGRAM_BIN.
 #   Scratch host example: ROLLUP_RPC=http://<host B>:8547 L2_RPC_DEBUG=http://<host A>:8545 DRILL_NETWORK=host
+#   Another chain (the devnet of K3, drill/devnet/): CHAIN_OUT=<dir with rollup.json, genesis.json, chain-record.json>
+#   together with L1_RPC_URL and L1_BEACON_URL skips the public chain's env files; KONA_CHAIN_SLUG picks that chain's
+#   embedded kona-host (drill/out/bin/kona-host-<slug>-<tag>); ENVIRONMENT (default public-testnet) names the
+#   environment in the record.
 # Outputs: drill/out/logs/run-trace-<date>.log (the service log), manifests/evidence/run-trace-<date>.json.
 
 # shellcheck source=scripts/common.sh
@@ -36,9 +40,15 @@ case "$HOST" in a|b) ;; *) die "host must be a or b" ;; esac
 TRACE="${TRACE:-cannon-kona}"
 case "$TRACE" in cannon-kona|cannon) ;; *) die "TRACE must be cannon-kona or cannon" ;; esac
 pre_l1="${L1_RPC_URL:-}"; pre_beacon="${L1_BEACON_URL:-}"   # given on the command line: they win over the env files
-load_standard_env
-henv="$(host_env "$HOST")"; [ -f "$henv" ] && load_env "$henv"
+if [ -n "${CHAIN_OUT:-}" ] && [ -n "$pre_l1" ] && [ -n "$pre_beacon" ]; then
+  load_env "$FINCHAIN_ROOT/versions.lock"   # another chain's artifacts and endpoints: the public chain's env files stay out of it
+else
+  load_standard_env
+  henv="$(host_env "$HOST")"; [ -f "$henv" ] && load_env "$henv"
+fi
 [ -z "$pre_l1" ] || L1_RPC_URL="$pre_l1"; [ -z "$pre_beacon" ] || L1_BEACON_URL="$pre_beacon"
+CHAIN_OUT="${CHAIN_OUT:-$CHAIN_DIR/out}"; [ -f "$CHAIN_OUT/rollup.json" ] || die "rollup.json not found under $CHAIN_OUT"
+ENVIRONMENT="${ENVIRONMENT:-public-testnet}"
 ROLLUP_RPC="${ROLLUP_RPC:-http://op-node:8547}"
 if [ -z "${L2_RPC_DEBUG:-}" ]; then
   if [ "$HOST" = b ]; then L2_RPC_DEBUG="${SEQUENCER_HTTP:?SEQUENCER_HTTP missing in $(host_env b): the L2 RPC with debug is the op-reth of host A}"; else L2_RPC_DEBUG="http://op-reth:8545"; fi
@@ -52,7 +62,7 @@ fi
 [ -f "$PRESTATE" ] || die "prestate not found: $PRESTATE"
 PRESTATE="$(cd "$(dirname "$PRESTATE")" && pwd)/$(basename "$PRESTATE")"
 hash="$(basename "$PRESTATE" .bin.gz)"
-REC="$CHAIN_DIR/out/chain-record.json"; [ -f "$REC" ] || die "chain record not found: $REC"
+REC="$CHAIN_OUT/chain-record.json"; [ -f "$REC" ] || die "chain record not found: $REC"
 DGF="$(jq -r '.l1.DisputeGameFactoryProxy // empty' "$REC")"; [ -n "$DGF" ] || die "DisputeGameFactoryProxy missing in $REC"
 network="${DRILL_NETWORK:-$STACK-${HOST}_default}"
 [ "$network" = host ] || docker network inspect "$network" >/dev/null 2>&1 || die "compose network $network not found: is the host $HOST stack up on this machine? (DRILL_NETWORK=host on a scratch machine)"
@@ -105,7 +115,7 @@ stop_shims() {
     counts="$(curl -sf "${shim_urls[$i]}/healthz" 2>/dev/null || echo '{}')"
     kill "${shim_pids[$i]}" 2>/dev/null || true; wait "${shim_pids[$i]}" 2>/dev/null || true
     shim_recs+=("$(jq -cn --argjson c "$counts" --arg log "drill/out/logs/$(basename "${shim_logs[$i]}")" --arg sha "$(sha256_of "${shim_logs[$i]}")" \
-      '{upstream: $c.upstream, synthesised: ($c.synth // []), routes: ($c.routes // {}), counts: ($c | {forwarded, routed, headers, receipts, failed}), log: $log, logSha256: $sha}')")
+      '{upstream: $c.upstream, synthesised: ($c.synth // []), routes: ($c.routes // {}), beaconStub: ($c.beaconStub // null), counts: ($c | {forwarded, routed, headers, receipts, beacon, failed}), log: $log, logSha256: $sha}')")
   done
   shim_pids=()
 }
@@ -161,8 +171,8 @@ fi
 server_args=(); kona_server=/usr/local/bin/kona-host; embedded_host=false; kona_host_sha=""
 if [ "$TRACE" = cannon-kona ]; then
   KONA_TAG="${KONA_TAG:-kona-client/v1.9.0}"
-  KONA_HOST_BIN="${KONA_HOST_BIN:-$FINCHAIN_ROOT/drill/out/bin/kona-host-finchain-$(printf '%s' "$KONA_TAG" | tr '/' '-')}"
-  l2_chain_id="$(jq -r '.l2_chain_id' "$CHAIN_DIR/out/rollup.json")"
+  KONA_HOST_BIN="${KONA_HOST_BIN:-$FINCHAIN_ROOT/drill/out/bin/kona-host-${KONA_CHAIN_SLUG:-finchain}-$(printf '%s' "$KONA_TAG" | tr '/' '-')}"
+  l2_chain_id="$(jq -r '.l2_chain_id' "$CHAIN_OUT/rollup.json")"
   if [ -s "$KONA_HOST_BIN" ]; then
     wrapper="$FINCHAIN_ROOT/drill/out/bin/kona-host-wrapper.sh"
     cp "$FINCHAIN_ROOT/drill/kona-host-wrapper.sh" "$wrapper"; chmod +x "$wrapper" "$KONA_HOST_BIN"
@@ -220,7 +230,7 @@ log "run-trace ($TRACE) on host $HOST: prestate $hash, network $network, rollup 
 log "preimage server: $server_desc; VM timeout $RUN_TIMEOUT; log $logf"
 started="$(date -u +%Y-%m-%dT%H:%M:%SZ)"; t0="$(date +%s)"
 docker run -d --name "$name" --network "$network" \
-  -v "$CHAIN_DIR/out:/chain:ro" -v "$(dirname "$PRESTATE"):/prestates:ro" -v "finchain-drill-run-trace:/data" ${server_args[@]+"${server_args[@]}"} \
+  -v "$CHAIN_OUT:/chain:ro" -v "$(dirname "$PRESTATE"):/prestates:ro" -v "finchain-drill-run-trace:/data" ${server_args[@]+"${server_args[@]}"} \
   --entrypoint op-challenger "$IMAGE" run-trace \
   --l1-eth-rpc "$L1_FOR_CONTAINER" --l1-beacon "$L1_BEACON_URL" --rollup-rpc "$ROLLUP_RPC" \
   --game-factory-address "$DGF" --datadir /data "${trace_flags[@]}" --vm-timeout "$RUN_TIMEOUT" \
@@ -254,8 +264,9 @@ l2="$(first_line 'select(.msg=="Got sync status") | .status | {finalizedL1: .fin
 claim="$(first_line 'select(.l2Block != null and .claim != null) | {l2Block: .l2Block, claim: .claim, l2Head: .l2, l1: .l1}')"; [ -n "$claim" ] || claim=null
 if [ "$TRACE" = cannon-kona ]; then client="kona-client"; l2note=" (kona-host preimage path: eth and debug namespaces)"; else client="op-program"; l2note=" (execution-witness path)"; fi
 # the client's boot path, from the guest's own stdout: a chain id its registry does not hold makes it fall back to the
-# oracle-supplied configuration, which is not what the game contract would put it on; such a pass does not count
-boot_line="$(first_line 'select(.msg | test("boot_loader: No rollup config found for chain ID")) | .msg' | jq -r . 2>/dev/null | sed -E 's/.*(boot_loader: [^"\\]*).*/\1/' | head -c 300 || true)"
+# oracle-supplied configuration (rollup or L1), which is not what the game contract would put it on; such a pass does
+# not count
+boot_line="$(first_line 'select(.msg | test("boot_loader: No .* config found for chain ID")) | .msg' | jq -r . 2>/dev/null | sed -E 's/.*(boot_loader: [^"\\]*).*/\1/' | head -c 300 || true)"
 boot_chain=""; embedded_used=true
 if [ -n "$boot_line" ]; then embedded_used=false; boot_chain="$(sed -nE 's/.*chain ID ([0-9]+).*/\1/p' <<<"$boot_line")"; fi
 if [ "$result" = PASS ] && [ "$embedded_used" = false ]; then
@@ -264,13 +275,13 @@ fi
 ev="$FINCHAIN_ROOT/manifests/evidence/run-trace-$stamp.json"
 jq -n --arg at "$started" --arg end "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --argjson secs "$elapsed" --arg host "$HOST" --arg hash "$hash" --arg file "$(basename "$PRESTATE")" \
   --arg image "$IMAGE" --arg l1 "$(rpc_label "$L1_UPSTREAM")" --argjson shims "$shims_json" --arg l2proof "$( [ -n "$L2_PROOF_USED" ] && rpc_label "$L2_PROOF_USED" || echo "")" --arg dgf "$DGF" --argjson inputs "$inputs" --argjson sync "$l2" --argjson claim "$claim" \
-  --arg result "$result" --arg reason "$reason" --arg logname "drill/out/logs/run-trace-$stamp.log" --argjson cid "${CHAIN_ID:-0}" \
-  --arg rollup "$(rpc_label "$ROLLUP_RPC")" --arg l2src "$(rpc_label "$L2_RPC_DEBUG")$l2note" --arg server "$server_desc" --arg trace "$TRACE" --arg client "$client" \
+  --arg result "$result" --arg reason "$reason" --arg logname "drill/out/logs/run-trace-$stamp.log" --argjson cid "$(jq -r '.l2_chain_id' "$CHAIN_OUT/rollup.json")" \
+  --arg rollup "$(rpc_label "$ROLLUP_RPC")" --arg l2src "$(rpc_label "$L2_RPC_DEBUG")$l2note" --arg server "$server_desc" --arg trace "$TRACE" --arg client "$client" --arg environment "$ENVIRONMENT" \
   --argjson emb_host "$embedded_host" --arg khsha "$kona_host_sha" --argjson emb_used "$embedded_used" --arg bootline "$boot_line" --arg bootchain "$boot_chain" '
   {schema: "finchain.run-trace/2",
    acceptance: "M4 K2: trace self-check (run-trace) passes for a recent block (docs/acceptance.md M4; docs/proof-plan.md K2)",
-   environment: "public-testnet", chainId: $cid, host: $host, startedAt: $at, finishedAt: $end, seconds: $secs,
-   what: ("op-challenger run-trace: " + $client + " executed inside the Cannon VM from the prestate below for one recent L2 block of the live chain (the safe head at a finalized L1 block and its parent, from the host op-node); PASS = the VM exited with the claim verified"),
+   environment: $environment, chainId: $cid, host: $host, startedAt: $at, finishedAt: $end, seconds: $secs,
+   what: ("op-challenger run-trace: " + $client + " executed inside the Cannon VM from the prestate below for one recent L2 block of the chain (the safe head at a finalized L1 block and its parent, from the op-node named below); PASS = the VM exited with the claim verified"),
    prestate: {hash: $hash, file: $file, source: "drill/prestate.sh (manifests/evidence/prestate-<chainId>-<date>.json)"},
    image: $image, traceType: $trace, preimageServer: $server,
    konaHost: (if $trace == "cannon-kona" then {embeddedRegistry: $emb_host, binarySha256: (if $khsha == "" then null else $khsha end), record: (if $emb_host then "manifests/evidence/kona-host-<chainId>-<date>.json" else null end)} else null end),

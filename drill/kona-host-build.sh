@@ -15,9 +15,12 @@
 #   KONA_TAG      monorepo tag (default kona-client/v1.9.0; the checkout drill/prestate.sh made)
 #   CARGO_MODE    auto | native | docker (default auto: a native cargo at the workspace's Rust version, else rust:<version>)
 #   BUILD_JOBS    cargo jobs (default: the machine's cores; the checkout's jobs = 1 is for the prestate build only)
-# Output: drill/out/bin/kona-host-finchain-<tag slug> and manifests/evidence/kona-host-<chainId>-<date>.json.
-# Host: git, jq, docker (the binary is checked inside the op-challenger image, the environment it runs in);
-# 20-40 minutes and about 6 GB of disk for the first build on two cores.
+#   ROLLUP, GENESIS  the chain's files (default <chain dir>/out/); KONA_CHAIN_SLUG and the other drill/kona-configs.sh
+#                 variables describe the chain (the devnet of K3 sets its own slug and superchain)
+# Output: drill/out/bin/kona-host-<slug>-<tag slug> (slug: KONA_CHAIN_SLUG, default finchain) and
+# manifests/evidence/kona-host-<chainId>-<date>.json. Host: git, jq, docker (the binary is checked inside the
+# op-challenger image, the environment it runs in); 20-40 minutes and about 6 GB of disk for the first build on two
+# cores, a few minutes for a second chain from the same target directory.
 
 # shellcheck source=scripts/common.sh
 . "$(dirname "${BASH_SOURCE[0]}")/../scripts/common.sh"
@@ -44,7 +47,8 @@ commit="$(git -C "$repo" rev-parse HEAD)"
 host_version="$(grep -m1 -E '^version' "$repo/rust/kona/bin/host/Cargo.toml" | sed -E 's/.*"([^"]+)".*/\1/')"
 rust_version="$(grep -m1 -E '^channel' "$repo/rust/rust-toolchain.toml" | sed -E 's/.*"([^"]+)".*/\1/')"
 jobs="${BUILD_JOBS:-$(nproc 2>/dev/null || echo 2)}"
-out="$BIN/kona-host-finchain-$tagslug"
+slug="${KONA_CHAIN_SLUG:-finchain}"
+out="$BIN/kona-host-$slug-$tagslug"
 target="$WORK/kona-host-target-$tagslug"; mkdir -p "$target"
 stamp="$(date -u +%Y%m%dT%H%M%SZ)"; logf="$LOGS/kona-host-build-$stamp.log"
 

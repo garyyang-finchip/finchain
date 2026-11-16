@@ -6,8 +6,10 @@
 # configs.json and (optionally) depsets.json in the superchain-registry format of the crate's etc/ files. This
 # script writes those three files for one chain from op-node's rollup.json and the L2 genesis.json:
 #   chainList.json  - one Chain entry (name, identifier <superchain>/<slug>, chain id, parent L1);
-#   configs.json    - one Superchain entry holding one ChainConfig; the superchain is the one of the L1
+#   configs.json    - one Superchain entry holding one ChainConfig. By default the superchain is the one of the L1
 #                     (sepolia or mainnet), so the registry keeps its own superchain config and appends the chain;
+#                     KONA_SUPERCHAIN names a superchain of its own instead (the devnet of K3), which the merge
+#                     inserts whole, with this chain's SuperchainConfig address and L1 endpoint;
 #   depsets.json    - the self-only dependency set the registry gives every non-interop chain.
 # Field names and the set of fields follow kona-genesis at the pinned tag (ChainConfig, ChainGenesis,
 # HardForkConfig and Roles reject unknown fields). The op-node genesis block (l1, l2, l2_time, system_config)
@@ -17,6 +19,11 @@
 #   defaults: <chain dir>/out/rollup.json, <chain dir>/out/genesis.json, drill/work/kona-configs-<chainId>
 #   KONA_CHAIN_NAME  display name (default: name in <chain dir>/out/chain-record.json, else "Finchain")
 #   KONA_CHAIN_SLUG  identifier slug (default finchain): the identifier is <superchain>/<slug>
+#   KONA_SUPERCHAIN  a superchain of this chain's own (lowercase letters, digits, dashes; must not be a registry
+#                    superchain: mainnet, sepolia, sepolia-devnet-*). Its L1 is rollup.json's l1_chain_id, which must
+#                    be one kona-client carries an L1 configuration for (1, 11155111, 17000: kona-registry l1/mod.rs;
+#                    any other L1 makes the client fall back to an oracle-supplied L1 configuration).
+#   L1_PUBLIC_RPC, L1_EXPLORER  the L1 endpoint and explorer written into that superchain entry (devnet: the anvil URL)
 #   EXPLORER_URL     explorer of the L2 (default: none)
 #   FAULT_PROOFS_STATUS  none | permissioned | permissionless (default permissioned, the testnet's state)
 #   L1_ADDRESSES     op-deployer's L1 address file (default <chain dir>/out/l1-addresses.json; optional)
@@ -38,11 +45,22 @@ SLUG="${KONA_CHAIN_SLUG:-finchain}"
 case "$SLUG" in *[!a-z0-9-]*|"") die "KONA_CHAIN_SLUG must be lowercase letters, digits and dashes: $SLUG" ;; esac
 
 l1_chain_id="$(jq -r '.l1_chain_id' "$ROLLUP")"
-case "$l1_chain_id" in
-  11155111) superchain=sepolia; l1_rpc=https://ethereum-sepolia-rpc.publicnode.com; l1_explorer=https://sepolia.etherscan.io ;;
-  1) superchain=mainnet; l1_rpc=https://ethereum-rpc.publicnode.com; l1_explorer=https://etherscan.io ;;
-  *) die "L1 chain id $l1_chain_id is neither Sepolia nor mainnet; name the superchain and its L1 by hand before using this script" ;;
-esac
+own_superchain="${KONA_SUPERCHAIN:-}"
+if [ -n "$own_superchain" ]; then
+  case "$own_superchain" in *[!a-z0-9-]*) die "KONA_SUPERCHAIN must be lowercase letters, digits and dashes: $own_superchain" ;; esac
+  case "$own_superchain" in mainnet|sepolia|sepolia-devnet-*) die "KONA_SUPERCHAIN $own_superchain is a superchain of the registry itself; leave KONA_SUPERCHAIN unset to append the chain to it" ;; esac
+  # kona-client holds an L1 configuration for these three L1s only (kona-registry l1/mod.rs); for any other L1 chain
+  # id the client would fall back to an oracle-supplied L1 configuration, the path the embedding exists to avoid
+  case "$l1_chain_id" in 1|11155111|17000) ;; *) die "L1 chain id $l1_chain_id: kona-client embeds no L1 configuration for it (only 1, 11155111 and 17000); the devnet L1 must present one of these" ;; esac
+  [ -n "${L1_PUBLIC_RPC:-}" ] || die "L1_PUBLIC_RPC (the L1 endpoint of the $own_superchain superchain) must be set with KONA_SUPERCHAIN"
+  superchain="$own_superchain"; l1_rpc="$L1_PUBLIC_RPC"; l1_explorer="${L1_EXPLORER:-}"
+else
+  case "$l1_chain_id" in
+    11155111) superchain=sepolia; l1_rpc=https://ethereum-sepolia-rpc.publicnode.com; l1_explorer=https://sepolia.etherscan.io ;;
+    1) superchain=mainnet; l1_rpc=https://ethereum-rpc.publicnode.com; l1_explorer=https://etherscan.io ;;
+    *) die "L1 chain id $l1_chain_id is neither Sepolia nor mainnet; set KONA_SUPERCHAIN (and L1_PUBLIC_RPC) to describe its superchain" ;;
+  esac
+fi
 
 name="${KONA_CHAIN_NAME:-}"
 if [ -z "$name" ] && [ -f "$CHAIN_DIR/out/chain-record.json" ]; then name="$(jq -r '.name // empty' "$CHAIN_DIR/out/chain-record.json")"; fi
@@ -128,4 +146,8 @@ jq -n --argjson cid "$chain_id" '[{dependencies: {($cid | tostring): {}}, overri
 
 echo "kona custom configs for chain $chain_id ($superchain/$SLUG, \"$name\") in $OUTDIR"
 for f in chainList.json configs.json depsets.json; do echo "  $f  sha256 $(sha256_of "$OUTDIR/$f")"; done
-echo "note: the $superchain superchain exists in the registry, so the merge keeps the registry's own superchain config (L1 chain id, SuperchainConfig address) and appends this chain"
+if [ -n "$own_superchain" ]; then
+  echo "note: $superchain is a superchain of its own; the merge inserts it whole (L1 chain id $l1_chain_id, L1 endpoint $(rpc_label "$l1_rpc"), SuperchainConfig $(jq -r . <<<"$superchain_config_addr"))"
+else
+  echo "note: the $superchain superchain exists in the registry, so the merge keeps the registry's own superchain config (L1 chain id, SuperchainConfig address) and appends this chain"
+fi

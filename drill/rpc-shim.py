@@ -21,11 +21,18 @@ Three jobs, each switched on by a flag:
                         either check becomes a JSON-RPC error, so the shim can never hand the prover a preimage
                         the chain does not vouch for; the proof client verifies the same hashes again on its side.
 
-The shim is a drill convenience for `run-trace` (drill/README.md, K2b) and nothing more: a resident challenger
-needs endpoints that serve these methods themselves (docs/mainnet.md, decision 3).
+  --beacon-stub SECS    the three Beacon API reads kona-host and op-node make at start-up are answered on the same
+                        address (GET /eth/v1/beacon/genesis, /eth/v1/config/spec, /eth/v1/node/version): genesis_time
+                        is the timestamp of the upstream's block 0, SECONDS_PER_SLOT is SECS (the L1 block time). For
+                        the devnet of K3 (drill/devnet/), whose anvil L1 has no consensus layer: batches there are
+                        calldata, so no blob is ever asked for, and every other beacon path answers 404.
+
+The shim is a drill convenience for `run-trace` (drill/README.md, K2b) and the devnet (K3) and nothing more: a
+resident challenger needs endpoints that serve these methods themselves (docs/mainnet.md, decision 3).
 
 Usage:
   drill/rpc-shim.py --upstream URL [--listen 127.0.0.1:8550] [--log FILE] [--synth] [--route METHOD=URL ...]
+                    [--beacon-stub SECONDS_PER_SLOT]
   drill/rpc-shim.py --self-test <eth_getBlockByHash answer.json> [--trie-tests <ethereum/tests TrieTests dir>]
 No dependencies beyond the Python 3 standard library (keccak-256 is implemented here).
 """
@@ -244,20 +251,40 @@ class Upstream:
 class Stats:
     def __init__(self):
         self.lock = threading.Lock()
-        self.counts = {"forwarded": 0, "routed": 0, "headers": 0, "receipts": 0, "failed": 0}
+        self.counts = {"forwarded": 0, "routed": 0, "headers": 0, "receipts": 0, "beacon": 0, "failed": 0}
 
     def bump(self, k):
         with self.lock:
             self.counts[k] += 1
 
 
-def make_handler(upstream: Upstream, stats: Stats, logf, synth_enabled=False, routes=None):
+def make_handler(upstream: Upstream, stats: Stats, logf, synth_enabled=False, routes=None, beacon_slot=0):
     routes = {m: Upstream(u) for m, u in (routes or {}).items()}
+    beacon_genesis = {}   # the upstream's block 0 timestamp, read once
 
     def log(msg):
         line = "%s %s\n" % (time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), msg)
         logf.write(line)
         logf.flush()
+
+    def beacon(path):
+        """The Beacon API answers of the stub: (status, payload) for a GET path, None when the stub is off."""
+        if not beacon_slot:
+            return None
+        p = path.split("?")[0].rstrip("/")
+        if p == "/eth/v1/beacon/genesis":
+            if "time" not in beacon_genesis:
+                blk = upstream.call("eth_getBlockByNumber", ["0x0", False])
+                beacon_genesis["time"] = int(blk["timestamp"], 16)
+                log("beacon stub: genesis_time %d from the upstream's block 0" % beacon_genesis["time"])
+            data = {"genesis_time": str(beacon_genesis["time"]), "genesis_validators_root": "0x" + "00" * 32, "genesis_fork_version": "0x00000000"}
+        elif p == "/eth/v1/config/spec":
+            data = {"SECONDS_PER_SLOT": str(beacon_slot), "SLOTS_PER_EPOCH": "32"}
+        elif p == "/eth/v1/node/version":
+            data = {"version": "finchain-drill-rpc-shim beacon stub (no consensus layer behind it)"}
+        else:
+            return 404, {"code": 404, "message": "the beacon stub serves genesis, spec and node version only; the L1 behind it has no blobs"}
+        return 200, {"data": data}
 
     def block_by(param):
         if isinstance(param, str) and len(param) == 66:
@@ -353,9 +380,20 @@ def make_handler(upstream: Upstream, stats: Stats, logf, synth_enabled=False, ro
 
         def do_GET(self):
             if self.path == "/healthz":
-                info = {"shim": "rpc-shim", "upstream": upstream.url.split("/")[2], "synth": sorted(synth), "routes": {m: u.url.split("/")[2] for m, u in routes.items()}}
+                info = {"shim": "rpc-shim", "upstream": upstream.url.split("/")[2], "synth": sorted(synth), "routes": {m: u.url.split("/")[2] for m, u in routes.items()},
+                        "beaconStub": ({"secondsPerSlot": beacon_slot} if beacon_slot else None)}
                 info.update(stats.counts)
                 return self._send(200, json.dumps(info).encode())
+            if self.path.startswith("/eth/"):
+                try:
+                    ans = beacon(self.path)
+                except Exception as e:  # noqa: BLE001
+                    stats.bump("failed")
+                    log("beacon stub failed on %s: %s" % (self.path, e))
+                    return self._send(502, json.dumps({"code": 502, "message": "shim: %s" % e}).encode())
+                if ans is not None:
+                    stats.bump("beacon")
+                    return self._send(ans[0], json.dumps(ans[1]).encode())
             return self._send(404, b"not found")
 
         def _send(self, code, payload: bytes):
@@ -428,6 +466,8 @@ def main():
     ap.add_argument("--log", default="-", help="log file (default stderr)")
     ap.add_argument("--synth", action="store_true", help="synthesise debug_getRawHeader and debug_getRawReceipts from the standard methods")
     ap.add_argument("--route", action="append", default=[], metavar="METHOD=URL", help="send METHOD to URL instead of the upstream (repeatable)")
+    ap.add_argument("--beacon-stub", type=int, default=0, metavar="SECONDS_PER_SLOT",
+                    help="answer the Beacon API genesis, spec and node version reads for an L1 without a consensus layer (devnet)")
     ap.add_argument("--self-test", metavar="BLOCK_JSON", help="encode the header of a saved eth_getBlockByHash answer and check its hash")
     ap.add_argument("--trie-tests", metavar="DIR", help="run the ethereum/tests TrieTests vectors found in DIR")
     args = ap.parse_args()
@@ -444,10 +484,12 @@ def main():
         routes[m] = u
     logf = sys.stderr if args.log == "-" else open(args.log, "a")
     stats = Stats()
-    server = ThreadingHTTPServer((host, int(port)), make_handler(Upstream(args.upstream), stats, logf, args.synth, routes))
-    logf.write("%s rpc-shim listening on %s, upstream %s, synth %s, routes %s\n" % (
+    if args.beacon_stub < 0:
+        ap.error("--beacon-stub takes the L1 block time in seconds")
+    server = ThreadingHTTPServer((host, int(port)), make_handler(Upstream(args.upstream), stats, logf, args.synth, routes, args.beacon_stub))
+    logf.write("%s rpc-shim listening on %s, upstream %s, synth %s, routes %s, beacon stub %s\n" % (
         time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), args.listen, args.upstream.split("/")[2], args.synth,
-        {m: u.split("/")[2] for m, u in routes.items()}))
+        {m: u.split("/")[2] for m, u in routes.items()}, ("%ds slots" % args.beacon_stub) if args.beacon_stub else "off"))
     logf.flush()
     try:
         server.serve_forever()

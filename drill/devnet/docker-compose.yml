@@ -1,0 +1,241 @@
+# Finchain devnet (M4 K3): the isolated environment of drill/devnet/README.md, driven by drill/devnet/devnet.sh.
+# The same images as the public hosts (../../versions.lock); the flags follow node-a/ and node-b/ where the devnet
+# does the same thing, and differ where the environment does (no p2p, no consensus layer, one host for everything).
+#
+# Env files, passed by devnet.sh: ../../versions.lock, ./devnet.env, ./out/generated.env (written by the steps:
+# addresses, the prestate's file name, the embedded kona-host). Every value the generated file provides has a
+# placeholder default here so that `docker compose config` works before a run.
+#
+# Profiles: l1 (anvil, the shim), l2 (op-reth, op-node, op-batcher), proof (op-proposer, op-challenger). The
+# services of a profile start when devnet.sh reaches the step that needs them.
+#
+# Secrets (out/secrets/, derived from anvil's published test mnemonic by `devnet.sh keys`, never committed):
+#   jwt.txt  op-node.env (OP_NODE_P2P_SEQUENCER_KEY)  op-batcher.env  op-proposer.env  op-challenger.env
+
+name: finchain-devnet
+
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "50m"
+    max-file: "10"
+
+services:
+  # ---- L1 -----------------------------------------------------------------------------------------------------
+  anvil:
+    image: ${FOUNDRY_IMAGE}
+    profiles: ["l1"]
+    restart: "no"              # the L1 lives in memory: a restart would be a new chain, and must be visible as one
+    logging: *default-logging
+    entrypoint: ["anvil"]
+    command:
+      - --host=0.0.0.0
+      - --port=8545
+      - --chain-id=${DEVNET_L1_CHAIN_ID}
+      - --block-time=${DEVNET_L1_BLOCK_TIME}
+      - --slots-in-an-epoch=1          # safe = head - 1, finalized = head - 2: finality in seconds, the stack's finalized flows run
+      - --hardfork=${DEVNET_L1_HARDFORK}
+      - --mnemonic=${DEVNET_MNEMONIC}
+      - --accounts=10
+      - --balance=1000000              # ETH per account: the standard bond schedule reaches 60 ETH per move near the leaf
+      - --gas-limit=60000000
+    ports:
+      - "127.0.0.1:${DEVNET_L1_PORT}:8545"
+
+  # drill/rpc-shim.py in front of the anvil: the raw-RLP debug methods kona-host reads, synthesised from the standard
+  # ones and verified against the header (K2b), and the Beacon API start-up reads for an L1 without a consensus layer.
+  rpc-shim:
+    image: ${DEVNET_PYTHON_IMAGE}
+    profiles: ["l1"]
+    restart: unless-stopped
+    logging: *default-logging
+    depends_on:
+      - anvil
+    volumes:
+      - ../rpc-shim.py:/shim/rpc-shim.py:ro
+      - ./out/logs:/logs
+    command:
+      - python3
+      - -I
+      - /shim/rpc-shim.py
+      - --upstream=http://anvil:8545
+      - --listen=0.0.0.0:8550
+      - --synth
+      - --beacon-stub=${DEVNET_L1_BLOCK_TIME}
+      - --log=/logs/rpc-shim.log
+    ports:
+      - "127.0.0.1:${DEVNET_SHIM_PORT}:8550"
+
+  # ---- L2 -----------------------------------------------------------------------------------------------------
+  op-reth:
+    image: ${OP_RETH_IMAGE}
+    profiles: ["l2"]
+    restart: unless-stopped
+    stop_grace_period: 1m
+    logging: *default-logging
+    volumes:
+      - reth-data:/data
+      - ./out/chain:/chain:ro
+      - ./out/secrets:/secrets:ro
+    ports:
+      - "127.0.0.1:${DEVNET_L2_PORT}:8545"
+    command:
+      - node
+      - --chain=/chain/genesis.json
+      - --datadir=/data
+      - --http
+      - --http.addr=0.0.0.0
+      - --http.port=8545
+      - --http.api=admin,debug,eth,miner,net,txpool,web3
+      - --http.corsdomain=*
+      # eth_getProof at the agreed L2 block, which kona-host asks for (K2b: host A answers proofs only at its head)
+      - --rpc.eth-proof-window=100000
+      - --authrpc.addr=0.0.0.0
+      - --authrpc.port=8551
+      - --authrpc.jwtsecret=/secrets/jwt.txt
+      - --rollup.disable-tx-pool-gossip
+      - --builder.deadline=2
+      - --builder.interval=100ms
+      - --disable-discovery
+      - --log.stdout.format=json
+
+  op-node:
+    image: ${OP_NODE_IMAGE}
+    profiles: ["l2"]
+    restart: unless-stopped
+    stop_grace_period: 1m
+    logging: *default-logging
+    depends_on:
+      - op-reth
+    env_file:
+      - path: ./out/secrets/op-node.env
+        required: false
+    volumes:
+      - op-node-data:/data
+      - ./out/chain:/chain:ro
+      - ./out/secrets:/secrets:ro
+    ports:
+      - "127.0.0.1:${DEVNET_NODE_PORT}:8547"
+    command:
+      - op-node
+      - --l1=http://anvil:8545
+      - --l1.rpckind=standard
+      - --l1.trustrpc=true
+      - --l1.http-poll-interval=1s
+      # the shim answers the beacon start-up reads; batches are calldata, so no blob is ever fetched
+      - --l1.beacon=http://rpc-shim:8550
+      - --l1.beacon.ignore=true
+      - --l2=http://op-reth:8551
+      - --l2.jwt-secret=/secrets/jwt.txt
+      - --l2.enginekind=reth
+      - --rollup.config=/chain/rollup.json
+      - --sequencer.enabled=true
+      - --sequencer.stopped=false
+      - --sequencer.l1-confs=0
+      - --verifier.l1-confs=0
+      - --p2p.disable
+      # safe-head history per L1 block: op-challenger asks for it (optimism_safeHeadAtL1Block)
+      - --safedb.path=/data/safedb
+      - --rpc.addr=0.0.0.0
+      - --rpc.port=8547
+      - --rpc.enable-admin
+      - --log.level=info
+      - --log.format=json
+
+  op-batcher:
+    image: ${OP_BATCHER_IMAGE}
+    profiles: ["l2"]
+    restart: unless-stopped
+    logging: *default-logging
+    depends_on:
+      - op-node
+    env_file:
+      - path: ./out/secrets/op-batcher.env
+        required: false
+    command:
+      - op-batcher
+      - --l1-eth-rpc=http://anvil:8545
+      - --l2-eth-rpc=http://op-reth:8545
+      - --rollup-rpc=http://op-node:8547
+      - --poll-interval=1s
+      - --sub-safety-margin=4
+      - --num-confirmations=1
+      - --safe-abort-nonce-too-low-count=3
+      - --resubmission-timeout=30s
+      - --max-channel-duration=5
+      - --batch-type=1
+      - --data-availability-type=calldata
+      - --compression-algo=brotli
+      - --rpc.addr=0.0.0.0
+      - --rpc.port=8548
+      - --log.level=info
+      - --log.format=json
+
+  # ---- proof system ----------------------------------------------------------------------------------------------
+  op-proposer:
+    image: ${OP_PROPOSER_IMAGE}
+    profiles: ["proof"]
+    restart: unless-stopped
+    logging: *default-logging
+    env_file:
+      - path: ./out/secrets/op-proposer.env
+        required: false
+    command:
+      - op-proposer
+      - --l1-eth-rpc=http://anvil:8545
+      - --rollup-rpc=http://op-node:8547
+      - --game-factory-address=${DEVNET_DGF:-0x0000000000000000000000000000000000000000}
+      - --game-type=${DEVNET_GAME_TYPE}
+      - --proposal-interval=${DEVNET_PROPOSAL_INTERVAL}
+      - --poll-interval=3s
+      - --num-confirmations=1
+      - --resubmission-timeout=30s
+      - --wait-node-sync=true
+      - --rpc.addr=0.0.0.0
+      - --rpc.port=8560
+      - --log.level=info
+      - --log.format=json
+
+  # The honest challenger: cannon-kona with the devnet prestate and the devnet kona-host (K2b's pair, built for this
+  # chain), the kona-host behind drill/kona-host-wrapper.sh so that the client boots from the embedded registry.
+  op-challenger:
+    image: ${OP_CHALLENGER_IMAGE}
+    profiles: ["proof"]
+    restart: unless-stopped
+    logging: *default-logging
+    env_file:
+      - path: ./out/secrets/op-challenger.env
+        required: false
+    environment:
+      KONA_L2_CHAIN_ID: ${DEVNET_L2_CHAIN_ID}
+    volumes:
+      - challenger-data:/data
+      - ./out/chain:/chain:ro
+      - ../out/prestates:/prestates:ro
+      - ${DEVNET_KONA_HOST_BIN:-./out/bin/kona-host-missing}:/usr/local/bin/kona-host-finchain-bin:ro
+      - ./out/bin/kona-host-wrapper.sh:/usr/local/bin/kona-host-finchain:ro
+    command:
+      - op-challenger
+      - --trace-type=cannon-kona
+      # kona-host reads L1 through the shim (raw methods, beacon reads); the challenger's own reads go the same way
+      - --l1-eth-rpc=http://rpc-shim:8550
+      - --l1-beacon=http://rpc-shim:8550
+      - --l2-eth-rpc=http://op-reth:8545
+      - --rollup-rpc=http://op-node:8547
+      - --game-factory-address=${DEVNET_DGF:-0x0000000000000000000000000000000000000000}
+      - --datadir=/data
+      - --cannon-bin=/usr/local/bin/cannon
+      - --cannon-kona-server=/usr/local/bin/kona-host-finchain
+      - --cannon-kona-rollup-config=/chain/rollup.json
+      - --cannon-kona-l2-genesis=/chain/genesis.json
+      - --cannon-kona-prestate=/prestates/${DEVNET_PRESTATE_FILE:-missing.bin.gz}
+      - --cannon-snapshot-freq=${DEVNET_SNAPSHOT_FREQ}
+      - --max-concurrency=1
+      - --http-poll-interval=3s
+      - --log.level=info
+      - --log.format=json
+
+volumes:
+  reth-data:
+  op-node-data:
+  challenger-data:

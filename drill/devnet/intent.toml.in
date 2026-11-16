@@ -1,0 +1,55 @@
+# op-deployer intent of the Finchain devnet (M4 K3). Rendered by drill/devnet/devnet.sh intent: every token between
+# at-signs is filled from devnet.env and the derived accounts; the file lands in drill/devnet/out/deploy/intent.toml
+# beside the state.json that `op-deployer init` wrote. A custom intent on a fresh L1: the superchain contracts, the
+# implementations and the OPCM are deployed by the same run (superchainRoles instead of an OPCM address), from the
+# artifacts embedded in the op-deployer release pinned in versions.lock, the release the public chain was deployed
+# with. The chain parameters are Finchain Sepolia's (chain/deployer/intent.toml); globalDeployOverrides shortens the
+# proof-system clocks of the shared implementations (devnet.env explains each value).
+
+configType = "custom"
+opDeployerVersion = "@OP_DEPLOYER_VERSION@"
+l1ChainID = @L1_CHAIN_ID@
+fundDevAccounts = false
+l1ContractsLocator = "embedded"
+l2ContractsLocator = "embedded"
+useInterop = false
+
+[superchainRoles]
+  SuperchainProxyAdminOwner = "@OWNER@"
+  SuperchainGuardian = "@OWNER@"
+  Challenger = "@CHALLENGER@"
+
+[globalDeployOverrides]
+  faultGameMaxDepth = @GAME_MAX_DEPTH@
+  faultGameSplitDepth = @GAME_SPLIT_DEPTH@
+  faultGameClockExtension = @GAME_CLOCK_EXTENSION@
+  faultGameMaxClockDuration = @GAME_MAX_CLOCK_DURATION@
+  preimageOracleChallengePeriod = @ORACLE_CHALLENGE_PERIOD@
+  faultGameWithdrawalDelay = @WITHDRAWAL_DELAY@
+  proofMaturityDelaySeconds = @PROOF_MATURITY_DELAY@
+  disputeGameFinalityDelaySeconds = @GAME_FINALITY_DELAY@
+
+[[chains]]
+  id = "@L2_CHAIN_ID_HEX32@"
+  baseFeeVaultRecipient = "@TREASURY@"
+  l1FeeVaultRecipient = "@TREASURY@"
+  sequencerFeeVaultRecipient = "@TREASURY@"
+  operatorFeeVaultRecipient = "@TREASURY@"
+  eip1559DenominatorCanyon = @EIP1559_DENOMINATOR_CANYON@
+  eip1559Denominator = @EIP1559_DENOMINATOR@
+  eip1559Elasticity = @EIP1559_ELASTICITY@
+  gasLimit = @GAS_LIMIT@
+  operatorFeeScalar = 0
+  operatorFeeConstant = 0
+  minBaseFee = 0
+  daFootprintGasScalar = 0
+  [chains.roles]
+    l1ProxyAdminOwner = "@OWNER@"
+    l2ProxyAdminOwner = "@OWNER@"
+    systemConfigOwner = "@OWNER@"
+    unsafeBlockSigner = "@UNSAFE_BLOCK_SIGNER@"
+    batcher = "@BATCHER@"
+    proposer = "@PROPOSER@"
+    challenger = "@CHALLENGER@"
+  [chains.customGasToken]
+    liquidityControllerOwner = "0x0000000000000000000000000000000000000000"
