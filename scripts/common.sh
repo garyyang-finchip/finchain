@@ -58,6 +58,12 @@ load_standard_env() {
   load_env "$FINCHAIN_ROOT/versions.lock"
   [ -f "$FINCHAIN_ROOT/.env$ENV_SUFFIX" ] || die "copy .env.example to .env$ENV_SUFFIX first (CHAIN=$CHAIN)"
   load_env "$FINCHAIN_ROOT/.env$ENV_SUFFIX"
+  # a second chain's env is copied from the example, which carries Finchain Sepolia's identity: refuse to run a
+  # CHAIN=<name> command while it still has that chain id or slug (docs/mainnet.md section 2)
+  if [ "$CHAIN" != sepolia ]; then
+    [ "${CHAIN_ID:-}" != 85422 ] || die ".env$ENV_SUFFIX still has CHAIN_ID=85422, Finchain Sepolia's; set the chain id of $CHAIN before running anything"
+    [ "${CHAIN_SLUG:-}" != finchain-sepolia ] || die ".env$ENV_SUFFIX still has CHAIN_SLUG=finchain-sepolia; set the slug of $CHAIN before running anything"
+  fi
   if [ -n "${PROFILE:-}" ]; then
     load_env "$FINCHAIN_ROOT/profiles/${PROFILE}.env"
   fi

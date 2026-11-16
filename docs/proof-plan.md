@@ -9,12 +9,18 @@ adversarial driver and transaction-level evidence. Nothing in between is claimed
 - Contracts (op-contracts/v7.0.0): `PermissionedDisputeGame` inherits `FaultDisputeGame`;
   `move()` and `step()` add an authorisation check and then call the parent
   implementation. The VM single-step proof is available to the authorised proposer and
-  challenger.
+  challenger. The same release defines the permissionless game type `CANNON_KONA` (8), a
+  `FaultDisputeGame` whose VM runs kona-client; op-deployer's address output has a slot for
+  its implementation (`FaultDisputeGameCannonKonaImpl`, zero on Finchain Sepolia: none is
+  deployed).
 - Client (op-challenger v1.9.x): trace type `permissioned` is registered on the Cannon +
-  op-program path and skips prestate validation; trace type `cannon-kona` is a separate
-  Cannon + Kona path. Running `permissioned` with a Kona prestate does not produce
-  "authorised participants with Kona proofs"; `run-trace` is a trace self-check and is not
-  the resident service.
+  op-program path and skips prestate validation; trace type `cannon-kona` is the Cannon +
+  kona-client path, with kona-host (shipped in the image) as the preimage server, and is the
+  default trace type of this release. Running `permissioned` with a Kona prestate does not
+  produce "authorised participants with Kona proofs"; `run-trace` is a trace self-check and
+  is not the resident service. kona-host takes raw RLP from the nodes - `debug_getRawHeader`
+  and `debug_getRawReceipts` on L1, `debug_getRawHeader` and `debug_dbGet` on L2 - so the L1
+  endpoint of anything that runs it must serve those methods.
 - The public testnet's game implementation is deployed with the absolute prestate
   configured at deployment. Unless that prestate embeds Finchain's rollup and genesis
   configuration, a real dispute on that implementation cannot reach a valid step. A new
@@ -29,18 +35,66 @@ adversarial driver and transaction-level evidence. Nothing in between is claimed
   permissioned flow (resolution by clock) is unaffected. The replacement implementation (L3,
   M5) carries the Cannon64 prestate that `make prestate` builds (`drill/README.md`).
 
+## The route: kona-client, and why op-program was left
+
+The first attempt (2026-11-15) built the Cannon64 prestate of op-program/v1.9.0 with
+Finchain's `rollup.json` and `genesis.json` embedded - the pipeline reproduced the published
+op-program prestate bit for bit first, then gave `0x03e76631...5af1`
+(`manifests/evidence/prestate-85422-20261115T162912Z.json`). The trace self-check with it
+stopped before the VM started: the op-program host, fetching the L1 head 12141687 from the
+public Sepolia node, reported `failed to verify block hash: computed 0xb88587b6...f6b8 but
+RPC said 0xeb3344a2...b605`. The node's header carries `blockAccessListHash` (EIP-7928) and
+`slotNumber` (EIP-7843), the Amsterdam fields; the header type of op-program/v1.9.0
+(`op-service/sources/types.go` at that tag) has neither, so the hash it recomputes from the
+JSON header cannot equal the node's. op-challenger/v1.9.6 has both fields, but the monorepo
+no longer contains `op-program/` at that tag: the Go client is end of support and there is no
+op-program release that follows the current L1. The raw header, the node's client version and
+the two hashes are recorded by `make l1-header` (`manifests/evidence/l1-header-12141687-<date>.json`).
+
+The route is therefore kona-client, the client of the `cannon-kona` game type:
+
+- the release in service, op-challenger v1.9.6, ships kona-host and treats `cannon-kona` as
+  its default trace type; the superchain registry publishes a kona prestate for release
+  "1.9.0" (`cannon64-kona` `0x03f872c2...6b0b`), built from the monorepo tag
+  `kona-client/v1.9.0` with the same Dockerfile op-challenger/v1.9.6 carries;
+- kona-client has a documented extension point for chains outside the registry
+  (`KONA_CUSTOM_CONFIGS_DIR`, merged by the `kona-registry` build script, conflicts rejected),
+  so Finchain is embedded in the client the same way a registry chain is - not handed in
+  through the preimage oracle (`--cannon-kona-l2-custom`, which the client itself labels
+  insecure outside tests);
+- kona-host reads raw RLP from the nodes, so the header-recomputation problem does not
+  exist on this path.
+
+The op-program prestate `0x03e76631...5af1` stays in the record as evidence of the build
+pipeline and the embedding method; it is superseded and nothing downstream uses it.
+
+## M4 scope: K1 to K4
+
+| Step | What is done | What may be claimed when it passes |
+| --- | --- | --- |
+| K1 | Finchain's configuration converted to the registry format kona-client embeds; merged by the registry crate's own build script; the rollup configuration the client derives compared with `rollup.json` field by field (`make kona-check`, `drill/README.md`) | the client will see the chain as op-node does. Done 2026-11-15: `manifests/evidence/kona-configs-85422-20261115T185730Z.json`, 28 of 28 fields equal |
+| K2 | Reproducible kona-client prestate with Finchain embedded, the published kona prestate reproduced first (`UPSTREAM_CHECK=1 make prestate`); then `run-trace` (`cannon-kona`) with it against a recent block of the public chain (`make run-trace`) | the prestate proves a real Finchain block in the VM that the public chain's game type would run |
+| K3 | Isolated devnet: a `CANNON_KONA` game on an invalid root, an adversary that answers every move, a real `step()` on chain, correct resolution, anchor state unchanged | the proof system executes end to end for Finchain's configuration (environment stated) |
+| K4 | Minimal integration check against Sepolia: what a Type 8 implementation needs there (prestate URL, challenger configuration, bonds), as a non-default game type if deployed at all | readiness of the public chain for a later decision; no change to what the public chain trusts |
+
+Approved: K1 to K4 as above; a Type 8 game on the devnet; a Type 8 implementation on Sepolia
+only as a non-default type. Not approved, and not part of M4: changing the respected game
+type, the withdrawal path or any permission of the public chain. Public statements about
+bridging, withdrawals or security wait for proof acceptance. Mainnet preparation
+(`docs/mainnet.md`) proceeds in parallel and does not depend on these steps.
+
 ## Levels and claims
 
 | Level | What runs | What may be claimed |
 | --- | --- | --- |
 | L0 (M1) | op-proposer creates games of the respected type; nobody challenges | output roots are published; no proof system claim |
 | L1 (M2/M4a) | resident op-challenger (`permissioned`) on host B resolves games, claims bonds, and counter-moves against a different proposer claim | permissioned challenge and resolution flow is operational |
-| L2 (M4b) | isolated devnet: full Cannon game (op-program, Cannon64) with a Finchain-embedding prestate, an adversarial driver that keeps answering until the execution-trace divergence is reached, a real `step()` transaction, resolution against the bad root | the proof system executes end to end for Finchain's configuration (environment stated) |
+| L2 (M4b, K3) | isolated devnet: full `CANNON_KONA` game (kona-client, Cannon64) with a Finchain-embedding prestate, an adversarial driver that keeps answering until the execution-trace divergence is reached, a real `step()` transaction, resolution against the bad root | the proof system executes end to end for Finchain's configuration (environment stated) |
 | L3 (M5) | the same on the public chain (new game implementation with the embedding prestate, then permissionless type) | public fault-proof capability |
 
 A game won by timeout (the bad proposer stops answering) demonstrates L1, never L2.
 
-## M4b drill: isolated environment
+## K3: isolated environment
 
 Environment: a local L1 devnet (for example the OP Stack Kurtosis devnet or the automated
 deployment example with a local L1), the same `versions.lock`, Finchain's chain id and
@@ -48,25 +102,15 @@ parameters. Funds are free there, so bonds of any size can be posted.
 
 Steps:
 
-1. Build the prestate: `make prestate` (`drill/prestate.sh`) embeds Finchain's `rollup.json`
-   and `genesis.json` into the op-program client of a current release and runs the
-   repository's reproducible Docker build, Cannon64 target - the same program and VM family
-   as the public chain's `permissioned` path, so that the drill exercises what the public
-   chain will run (a Kona prestate would exercise the `cannon-kona` path instead). The
-   record `manifests/evidence/prestate-<chainId>-<date>.json` holds the hash, the digests of
-   the embedded files and the embedding check; `UPSTREAM_CHECK=1` first reproduces the
-   published prestate of the tag bit for bit. Done 2026-11-15 for the public chain's
-   configuration: `0x03e76631...5af1` (`prestate-85422-20261115T162912Z.json`), the published
-   `0x033c0009...bb6e` reproduced first. Before the devnet, `make run-trace` (stage 2 of
-   `drill/README.md`) executes a real Finchain block inside the VM from that prestate. For the devnet the same script runs again
-   with the devnet's own `rollup.json` and `genesis.json`, since the prestate pins the L1
-   addresses and the genesis of the chain it proves.
-2. Deploy the chain on the devnet; the game implementation is then pointed at the devnet
-   prestate through the OPCM's `updatePrestate` (the owner is a test key there) - the same
-   call the public chain's upgrade will use (permissionless CANNON type for the drill; the
-   permissioned variant may be added as a second run if the driver is adapted to the
-   authorised roles).
-3. Run the resident op-challenger (`cannon`) on the B-equivalent node.
+1. Build the prestate for the devnet's chain: `make prestate` with the devnet's own
+   `rollup.json` and `genesis.json`, since the prestate pins the L1 addresses and the genesis
+   of the chain it proves (K1 and K2 run against the public chain's configuration; the devnet
+   repeats them for its own). The record `manifests/evidence/prestate-<chainId>-<date>.json`
+   holds the hash, the digests of the embedded files and the embedding check.
+2. Deploy the chain on the devnet; the `CANNON_KONA` implementation is then pointed at the
+   devnet prestate through the OPCM's `updatePrestate` (the owner is a test key there) - the
+   same call a public-chain upgrade would use.
+3. Run the resident op-challenger (`cannon-kona`) on the B-equivalent node.
 4. Adversarial driver: a second proposer posts an invalid output root and keeps responding
    to every counter-move (attack/defend at each depth) until the dispute reaches the
    execution-trace split and the first `step()`.
@@ -118,4 +162,5 @@ response is the `steady` profile (one proposal every 6 hours) and an L1 endpoint
 challenger's own with a known quota (`CHALLENGER_L1_RPC_URL`, node-b/.env), separate from
 op-node's endpoint and from `make games`; the game window stays at the upstream default of
 28 days, which covers the longest possible dispute plus the bond withdrawal delay.
-`docs/funding-model.md` section 5 has the figures.
+`docs/funding-model.md` section 5 has the figures. A `cannon-kona` challenger adds a
+requirement to that endpoint: the raw-RLP debug methods kona-host reads (above).

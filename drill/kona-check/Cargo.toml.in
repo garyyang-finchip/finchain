@@ -1,0 +1,15 @@
+# Template for the kona-check probe. drill/kona-check.sh copies the crate into drill/work/ and
+# replaces @KONA_REGISTRY@ with the path of the kona-registry crate inside the monorepo checkout
+# the prestate is built from (host path for a native cargo, /repo/... inside the rust container).
+[package]
+name = "kona-check"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+# Standalone: not a member of the monorepo workspace, so that the checkout stays untouched.
+[workspace]
+
+[dependencies]
+kona-registry = { path = "@KONA_REGISTRY@", features = ["std"] }
+serde_json = "1"

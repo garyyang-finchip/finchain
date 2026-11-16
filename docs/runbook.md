@@ -215,4 +215,8 @@ second chain's ports), `make keys CHAIN=<name>`, `make intent CHAIN=<name>`,
 `make deploy-l1 CHAIN=<name>`, `make export CHAIN=<name>`, `make secrets-a CHAIN=<name>`,
 `make up-a CHAIN=<name>`, and on host B `make install-bundle-b CHAIN=<name>` and
 `make up-b CHAIN=<name>`. Nothing in the first chain's stack is touched by any of these.
+The example env files carry Finchain Sepolia's identity, so every `CHAIN=<name>` command
+refuses to run while `.env.<name>` still has `CHAIN_ID=85422` or `CHAIN_SLUG=finchain-sepolia`
+(`scripts/common.sh`); `docs/mainnet.md` section 3 lists the isolation rules the second
+stack is checked against before it starts.
 

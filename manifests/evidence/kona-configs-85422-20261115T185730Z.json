@@ -1,0 +1,416 @@
+{
+  "schema": "finchain.kona-configs/1",
+  "acceptance": "M4 K1: Finchain configuration converted to the kona-client registry format, merged by the registry build script and found equal to rollup.json (docs/acceptance.md M4; docs/proof-plan.md K1)",
+  "environment": "build",
+  "recordedAt": "2026-11-15T18:57:30Z",
+  "chainId": 85422,
+  "source": {
+    "repository": "https://github.com/ethereum-optimism/optimism",
+    "tag": "kona-client/v1.9.0",
+    "commit": "1286a886f0853e07503b46c2d6233b6a2f623286",
+    "crate": "kona-registry 0.4.5",
+    "toolchain": "rustc 1.97.0 (2d8144b78 2026-07-07)",
+    "cargo": "native",
+    "rollupSha256": "efd60d6a7352706d946045b918f8eb03ecdc753b6ddb1f6dab98f0effab2a3ee",
+    "genesisSha256": "a40394923cb3eb1da753ca022e10d346a28b7bb6bc01b7571b592ef7c2e66df1"
+  },
+  "files": {
+    "chainList": {
+      "sha256": "d62f5b7d3194d5c209e08726c62117d3cb634098b4f65da3ccdea0c17ef60e80",
+      "content": [
+        {
+          "name": "Finchain Sepolia",
+          "identifier": "sepolia/finchain",
+          "chainId": 85422,
+          "rpc": [
+            "https://rpc.finchain.one"
+          ],
+          "explorers": [],
+          "governedByOptimism": false,
+          "dataAvailabilityType": "eth-da",
+          "parent": {
+            "type": "L2",
+            "chain": "sepolia"
+          },
+          "faultProofs": {
+            "status": "permissioned"
+          }
+        }
+      ]
+    },
+    "configs": {
+      "sha256": "ebd7790529470a0a8d0c36f9a0a6095fbba5137be80461526d34fb8986d3a2c4",
+      "content": {
+        "superchains": [
+          {
+            "name": "sepolia",
+            "config": {
+              "name": "Sepolia",
+              "l1": {
+                "chain_id": 11155111,
+                "public_rpc": "https://ethereum-sepolia-rpc.publicnode.com",
+                "explorer": "https://sepolia.etherscan.io"
+              },
+              "hardforks": {},
+              "superchain_config_addr": "0xc2be75506d5724086deb7245bd260cc9753911be",
+              "op_contracts_manager_proxy_addr": null
+            },
+            "chains": [
+              {
+                "Name": "Finchain Sepolia",
+                "PublicRPC": "https://rpc.finchain.one",
+                "SequencerRPC": "https://rpc.finchain.one",
+                "Explorer": "",
+                "GovernedByOptimism": false,
+                "SuperchainTime": null,
+                "DataAvailabilityType": "eth-da",
+                "l2_chain_id": 85422,
+                "batch_inbox_address": "0x000b11cb4ba3722dd93aa484f2219d4a1aac3b00",
+                "block_time": 2,
+                "seq_window_size": 3600,
+                "max_sequencer_drift": 600,
+                "GasPayingToken": null,
+                "hardfork_configuration": {
+                  "regolith_time": 0,
+                  "canyon_time": 0,
+                  "delta_time": 0,
+                  "ecotone_time": 0,
+                  "fjord_time": 0,
+                  "granite_time": 0,
+                  "holocene_time": 0,
+                  "isthmus_time": 0,
+                  "jovian_time": 0
+                },
+                "optimism": {
+                  "eip1559Elasticity": 6,
+                  "eip1559Denominator": 50,
+                  "eip1559DenominatorCanyon": 250
+                },
+                "alt_da": null,
+                "genesis": {
+                  "l1": {
+                    "hash": "0x10fc1193802668896d6aadc3db867c47ec3f3660ba53d940a649fb6a8aa0594b",
+                    "number": 12112920
+                  },
+                  "l2": {
+                    "hash": "0xcd6c17a0678d331d06ac2b8c8e820450bd5f2e3b91a1606289eca7b0fee631c5",
+                    "number": 0
+                  },
+                  "l2_time": 1794414672,
+                  "system_config": {
+                    "batcherAddr": "0x7487f13d57e19d8cbeac42fd1130b4311eb32157",
+                    "overhead": "0x0000000000000000000000000000000000000000000000000000000000000000",
+                    "scalar": "0x010000000000000000000000000000000000000000000000000c3c9d00000558",
+                    "gasLimit": 60000000,
+                    "eip1559Params": "0x0000000000000000",
+                    "operatorFeeParams": "0x0000000000000000000000000000000000000000000000000000000000000000",
+                    "minBaseFee": 0,
+                    "daFootprintGasScalar": 0
+                  }
+                },
+                "Roles": {
+                  "BatchSubmitter": "0x7487f13d57e19d8cbeac42fd1130b4311eb32157"
+                },
+                "Addresses": {
+                  "OptimismPortalProxy": "0xeb8fbc0732fc7719838cf73d5377320a6c086b14",
+                  "SystemConfigProxy": "0xe99755f8447984d1cbc6a86e8ae0771c6ee15402",
+                  "L1CrossDomainMessengerProxy": "0x178cc59729c1be9346f00a47b6f53fd7ff944e9c",
+                  "L1Erc721BridgeProxy": "0xf591f72353b0211a27f776ebf6265207aac2aec5",
+                  "L1StandardBridgeProxy": "0x4273ec08f893d66b1fbc525de946ca5666c27dc4",
+                  "OptimismMintableErc20FactoryProxy": "0xd45da91fa9e777187faf01b69c66ebdfea2a06fa",
+                  "SuperchainConfig": "0xc2be75506d5724086deb7245bd260cc9753911be",
+                  "AnchorStateRegistryProxy": "0x31ffb1c4a5d40c7c39a122320db733389eb9c1fb",
+                  "DelayedWethProxy": "0x3c40a4e728246f4c0456760f435be6f9788604b6",
+                  "DisputeGameFactoryProxy": "0xc752f10ab0696860b11b789a2ab9f4f93331329c",
+                  "FaultDisputeGame": "0x2dda3584b51ef5236f7726dea5a0fb6b3ca94aec",
+                  "Mips": "0xacc005dcd857b401e4732e6f7837135a22825cfa",
+                  "PermissionedDisputeGame": "0xe1dffcbe4e22b813f26d2106d943c102e7cab87e",
+                  "PreimageOracle": "0x1e1d73536a081ef2f355d29794547a9770aeb1e0"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "depsets": {
+      "sha256": "aa12fe6ae8963940d5ff92abee2e6016e2ba5d0e70866b209e0ffbf39e601dc6",
+      "content": [
+        {
+          "dependencies": {
+            "85422": {}
+          },
+          "overrideMessageExpiryWindow": null
+        }
+      ]
+    }
+  },
+  "stockRegistry": {
+    "embedded": false,
+    "registryChains": 55
+  },
+  "mergedRegistry": {
+    "embedded": true,
+    "registryChains": 56,
+    "chain": {
+      "chainId": 85422,
+      "dataAvailabilityType": "eth-da",
+      "explorers": [],
+      "faultProofs": {
+        "status": "permissioned"
+      },
+      "governedByOptimism": false,
+      "identifier": "sepolia/finchain",
+      "name": "Finchain Sepolia",
+      "parent": {
+        "chain": "sepolia",
+        "type": "L2"
+      },
+      "rpc": [
+        "https://rpc.finchain.one"
+      ]
+    },
+    "rollupConfig": {
+      "alt_da": null,
+      "batch_inbox_address": "0x000b11cb4ba3722dd93aa484f2219d4a1aac3b00",
+      "block_time": 2,
+      "canyon_time": 0,
+      "chain_op_config": {
+        "eip1559Denominator": 50,
+        "eip1559DenominatorCanyon": 250,
+        "eip1559Elasticity": 6
+      },
+      "channel_timeout": 300,
+      "delta_time": 0,
+      "deposit_contract_address": "0xeb8fbc0732fc7719838cf73d5377320a6c086b14",
+      "ecotone_time": 0,
+      "fjord_time": 0,
+      "genesis": {
+        "l1": {
+          "hash": "0x10fc1193802668896d6aadc3db867c47ec3f3660ba53d940a649fb6a8aa0594b",
+          "number": 12112920
+        },
+        "l2": {
+          "hash": "0xcd6c17a0678d331d06ac2b8c8e820450bd5f2e3b91a1606289eca7b0fee631c5",
+          "number": 0
+        },
+        "l2_time": 1794414672,
+        "system_config": {
+          "baseFeeScalar": null,
+          "batcherAddr": "0x7487f13d57e19d8cbeac42fd1130b4311eb32157",
+          "blobBaseFeeScalar": null,
+          "daFootprintGasScalar": 0,
+          "eip1559Denominator": 0,
+          "eip1559Elasticity": 0,
+          "gasLimit": 60000000,
+          "minBaseFee": 0,
+          "operatorFeeConstant": 0,
+          "operatorFeeScalar": 0,
+          "overhead": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "scalar": "0x010000000000000000000000000000000000000000000000000c3c9d00000558"
+        }
+      },
+      "granite_channel_timeout": 50,
+      "granite_time": 0,
+      "holocene_time": 0,
+      "isthmus_time": 0,
+      "jovian_time": 0,
+      "l1_chain_id": 11155111,
+      "l1_system_config_address": "0xe99755f8447984d1cbc6a86e8ae0771c6ee15402",
+      "l2_chain_id": 85422,
+      "max_sequencer_drift": 600,
+      "regolith_time": 0,
+      "seq_window_size": 3600,
+      "superchain_config_address": "0xc2be75506d5724086deb7245bd260cc9753911be"
+    },
+    "dependencySet": {
+      "dependencies": {
+        "85422": {}
+      },
+      "overrideMessageExpiryWindow": null
+    }
+  },
+  "comparison": {
+    "method": "the rollup configuration the merged registry derives for the chain id, field by field against op-node rollup.json",
+    "checks": [
+      {
+        "check": "l2_chain_id",
+        "expected": 85422,
+        "derived": 85422,
+        "result": "PASS"
+      },
+      {
+        "check": "l1_chain_id",
+        "expected": 11155111,
+        "derived": 11155111,
+        "result": "PASS"
+      },
+      {
+        "check": "block_time",
+        "expected": 2,
+        "derived": 2,
+        "result": "PASS"
+      },
+      {
+        "check": "max_sequencer_drift",
+        "expected": 600,
+        "derived": 600,
+        "result": "PASS"
+      },
+      {
+        "check": "seq_window_size",
+        "expected": 3600,
+        "derived": 3600,
+        "result": "PASS"
+      },
+      {
+        "check": "channel_timeout",
+        "expected": 300,
+        "derived": 300,
+        "result": "PASS"
+      },
+      {
+        "check": "batch_inbox_address",
+        "expected": "0x000b11cb4ba3722dd93aa484f2219d4a1aac3b00",
+        "derived": "0x000b11cb4ba3722dd93aa484f2219d4a1aac3b00",
+        "result": "PASS"
+      },
+      {
+        "check": "deposit_contract_address",
+        "expected": "0xeb8fbc0732fc7719838cf73d5377320a6c086b14",
+        "derived": "0xeb8fbc0732fc7719838cf73d5377320a6c086b14",
+        "result": "PASS"
+      },
+      {
+        "check": "l1_system_config_address",
+        "expected": "0xe99755f8447984d1cbc6a86e8ae0771c6ee15402",
+        "derived": "0xe99755f8447984d1cbc6a86e8ae0771c6ee15402",
+        "result": "PASS"
+      },
+      {
+        "check": "chain_op_config",
+        "expected": {
+          "eip1559Elasticity": 6,
+          "eip1559Denominator": 50,
+          "eip1559DenominatorCanyon": 250
+        },
+        "derived": {
+          "eip1559Denominator": 50,
+          "eip1559DenominatorCanyon": 250,
+          "eip1559Elasticity": 6
+        },
+        "result": "PASS"
+      },
+      {
+        "check": "genesis.l1.hash",
+        "expected": "0x10fc1193802668896d6aadc3db867c47ec3f3660ba53d940a649fb6a8aa0594b",
+        "derived": "0x10fc1193802668896d6aadc3db867c47ec3f3660ba53d940a649fb6a8aa0594b",
+        "result": "PASS"
+      },
+      {
+        "check": "genesis.l1.number",
+        "expected": 12112920,
+        "derived": 12112920,
+        "result": "PASS"
+      },
+      {
+        "check": "genesis.l2.hash",
+        "expected": "0xcd6c17a0678d331d06ac2b8c8e820450bd5f2e3b91a1606289eca7b0fee631c5",
+        "derived": "0xcd6c17a0678d331d06ac2b8c8e820450bd5f2e3b91a1606289eca7b0fee631c5",
+        "result": "PASS"
+      },
+      {
+        "check": "genesis.l2.number",
+        "expected": 0,
+        "derived": 0,
+        "result": "PASS"
+      },
+      {
+        "check": "genesis.l2_time",
+        "expected": 1794414672,
+        "derived": 1794414672,
+        "result": "PASS"
+      },
+      {
+        "check": "genesis.system_config.batcherAddr",
+        "expected": "0x7487f13d57e19d8cbeac42fd1130b4311eb32157",
+        "derived": "0x7487f13d57e19d8cbeac42fd1130b4311eb32157",
+        "result": "PASS"
+      },
+      {
+        "check": "genesis.system_config.overhead",
+        "expected": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "derived": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "result": "PASS"
+      },
+      {
+        "check": "genesis.system_config.scalar",
+        "expected": "0x010000000000000000000000000000000000000000000000000c3c9d00000558",
+        "derived": "0x010000000000000000000000000000000000000000000000000c3c9d00000558",
+        "result": "PASS"
+      },
+      {
+        "check": "genesis.system_config.gasLimit",
+        "expected": 60000000,
+        "derived": 60000000,
+        "result": "PASS"
+      },
+      {
+        "check": "regolith_time",
+        "expected": 0,
+        "derived": 0,
+        "result": "PASS"
+      },
+      {
+        "check": "canyon_time",
+        "expected": 0,
+        "derived": 0,
+        "result": "PASS"
+      },
+      {
+        "check": "delta_time",
+        "expected": 0,
+        "derived": 0,
+        "result": "PASS"
+      },
+      {
+        "check": "ecotone_time",
+        "expected": 0,
+        "derived": 0,
+        "result": "PASS"
+      },
+      {
+        "check": "fjord_time",
+        "expected": 0,
+        "derived": 0,
+        "result": "PASS"
+      },
+      {
+        "check": "granite_time",
+        "expected": 0,
+        "derived": 0,
+        "result": "PASS"
+      },
+      {
+        "check": "holocene_time",
+        "expected": 0,
+        "derived": 0,
+        "result": "PASS"
+      },
+      {
+        "check": "isthmus_time",
+        "expected": 0,
+        "derived": 0,
+        "result": "PASS"
+      },
+      {
+        "check": "jovian_time",
+        "expected": 0,
+        "derived": 0,
+        "result": "PASS"
+      }
+    ],
+    "failures": 0,
+    "result": "PASS"
+  }
+}

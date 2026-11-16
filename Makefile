@@ -33,7 +33,7 @@ COMPOSE_B   := $(COMPOSE_ENV) docker compose -p $(STACK)-b -f $(ROOT)/node-b/doc
         chain-id-check l1-probe intent funding-table deploy-l1 deploy-l1-calldata export verify-onchain lock fund-roles \
         up-a down-a restart-a logs-a up-b down-b restart-b logs-b status-a status-b peers-a peers-b \
         compare rebuild-b deposit set-init-bond deploy-8004 build-8004 l2-send verify-world \
-        evm-acceptance verify-evm foga-isolation world-manifest fee-lines withdraw games prestate run-trace lint
+        evm-acceptance verify-evm foga-isolation world-manifest fee-lines withdraw games kona-configs kona-check prestate run-trace l1-header lint
 
 help: ## List targets (every target takes CHAIN=<name>; the default is sepolia)
 	@grep -E '^[a-zA-Z0-9_-]+:.*?## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  %-18s %s\n", $$1, $$2}'
@@ -148,10 +148,16 @@ withdraw: ## M4: ETH withdrawal through the fault-proof path, step by step: ARGS
 	@bash $(ROOT)/scripts/withdraw.sh $(ARGS)
 games: ## M4: the dispute games on L1 and what the resident challenger did with them: L1_RPC_URL=... (default node-b/.env) LAST=all
 	@bash $(ROOT)/scripts/games.sh "$(L1_RPC_URL)" "$(LAST)"
-prestate: ## M4 (scratch host): reproducible op-program prestate with Finchain embedded: TAG=op-program/v1.9.0 UPSTREAM_CHECK=1 optional (drill/README.md)
+kona-configs: ## M4 K1 (scratch host): Finchain's configuration in the kona-client registry format (drill/work/kona-configs-<chainId>/)
+	@bash $(ROOT)/drill/kona-configs.sh "$(ROLLUP)" "$(GENESIS)"
+kona-check: ## M4 K1 (scratch host): merge the configuration into the kona-registry crate and compare the derived rollup config with rollup.json (needs cargo or docker)
+	@bash $(ROOT)/drill/kona-check.sh "$(ROLLUP)" "$(GENESIS)"
+prestate: ## M4 K2 (scratch host): reproducible kona-client prestate with Finchain embedded: PROVER=kona TAG=kona-client/v1.9.0 UPSTREAM_CHECK=1 KONA_BUILD_JOBS=1 (drill/README.md)
 	@bash $(ROOT)/drill/prestate.sh "$(TAG)" "$(ROLLUP)" "$(GENESIS)"
-run-trace: ## M4 (host B): op-challenger run-trace with the Finchain prestate against a recent block: PRESTATE=<file> HOST=b (drill/README.md)
+run-trace: ## M4 K2: op-challenger run-trace (TRACE=cannon-kona) with the Finchain prestate against a recent block: PRESTATE=<file> HOST=b (drill/README.md)
 	@bash $(ROOT)/drill/run-trace.sh "$(PRESTATE)" "$(or $(HOST),b)"
+l1-header: ## M4: record the raw L1 header the op-program route failed on (drill/out/logs/l1-header-*.json -> manifests/evidence)
+	@bash $(ROOT)/drill/l1-header-evidence.sh "$(BLOCK_HASH)"
 
 lint: ## Static checks: shellcheck, compose config, JSON/YAML validity
 	@shellcheck -x $(ROOT)/scripts/*.sh $(ROOT)/drill/*.sh

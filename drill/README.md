@@ -6,121 +6,210 @@ networks and a copy of this repository; `drill/work/` and `drill/out/` are ignor
 What they produce for the record is written to `manifests/evidence/` like every other
 acceptance item (`docs/acceptance.md` M4, `docs/proof-plan.md`).
 
-## Stages
+## Route
 
-| Stage | What | Where | Command |
+The client that runs inside the fault-proof VM is **kona-client**, and the game type that
+runs it is `cannon-kona` (8, `CANNON_KONA`). The first attempt used the Go client, op-program,
+on the `cannon` / `permissioned` path; it ended on 2026-11-15 when `run-trace` stopped at the
+L1 head with "failed to verify block hash": the op-program release recomputes L1 block hashes
+from JSON headers and does not model two fields the Sepolia nodes serve since the Amsterdam
+upgrade, and the monorepo no longer ships op-program at the op-challenger release in service.
+`docs/proof-plan.md` has the whole account; the raw header is recorded by `make l1-header`
+(below). The op-program prestate `0x03e76631...5af1` stays in the record as evidence of the
+build pipeline and is marked superseded. Nothing downstream uses it.
+
+| Step | What | Where | Command |
 | --- | --- | --- | --- |
-| 1 | Reproducible op-program prestate with Finchain's configuration embedded; hash recorded, embedding verified | scratch host | `make prestate` (`UPSTREAM_CHECK=1` reproduces the published prestate first). Done 2026-11-15: `0x03e76631...5af1`, `manifests/evidence/prestate-85422-20261115T162912Z.json` |
-| 2 | `op-challenger run-trace` with that prestate against a recent block of the public chain (trace self-check) | host B (its op-node keeps the safe-head database; the L2 debug RPC is host A's op-reth over the private network) | `make run-trace` after `make prestate` on that host |
-| 3 | Isolated devnet: a game on an invalid root, an adversary that answers every move, a real `step()`, resolution | scratch host | documented when stage 2 is done |
+| K1 | Finchain's configuration in the registry format kona-client embeds; merged by the registry crate's own build script; the derived rollup configuration equal to `rollup.json` | scratch host (or any machine with cargo) | `make kona-check` (`make kona-configs` writes the files only) |
+| K2a | Reproducible kona-client prestate with Finchain embedded; the official kona prestate reproduced first; embedding verified | scratch host | `UPSTREAM_CHECK=1 make prestate` |
+| K2b | `op-challenger run-trace` (`cannon-kona`) with that prestate against a recent block of the public chain | scratch host over the private network, or host B | `make run-trace` |
+| K3 | Isolated devnet: a `CANNON_KONA` game on an invalid root, an adversary that answers every move, a real `step()`, correct resolution | scratch host | documented when K2 is done |
+| K4 | Minimal integration check against Sepolia: what a Type 8 implementation would need there, without changing the respected game type | - | documented when K3 is done |
+
+A Type 8 implementation may be deployed on Sepolia only as a non-default game type, and only
+after K3; changing the respected game type, the withdrawal path or any permission of the
+public chain is not part of M4 and needs a decision of its own.
 
 ## Why a prestate of our own
 
-The op-program client that runs inside the fault-proof VM looks the L2 chain up by the
-chain id the dispute game contract hands it, in the superchain registry built into the
-client or in files embedded under `op-program/chainconfig/configs/`. Finchain is in
-neither. The public testnet's game implementation also carries op-deployer's default
-prestate (op-program 1.3.1, a 32-bit Cannon image) while its VM is the 64-bit MIPS of
-op-contracts/v7.0.0, so no step can be valid on that implementation whatever the chain.
-Stage 1 builds the Cannon64 image of a current op-program release with Finchain's
-`rollup.json` and `genesis.json` embedded, with the repository's own reproducible Docker
-build and no other change.
+kona-client looks the L2 chain up by the chain id the dispute game contract hands it, in the
+superchain registry compiled into it (`kona-registry`). A chain the registry does not know
+falls back to a rollup configuration handed in through the preimage oracle, which the host
+controls - fine for a test, worthless as a proof. The public testnet's game implementation
+also carries op-deployer's default prestate (op-program 1.3.1, a 32-bit Cannon image) while
+its VM is the 64-bit MIPS of op-contracts/v7.0.0, so no step can be valid on that
+implementation whatever the chain. K2a builds the kona-client Cannon64 image of a release with
+Finchain's chain in its registry, with the monorepo's own reproducible recipe and no other
+change (`KONA_CUSTOM_CONFIGS_DIR`, a documented extension point of the crate).
 
-## Host requirements (stage 1)
+## Host requirements
 
-Linux, two cores, 8 GB of memory (swap helps), 20 GB of free disk, docker with BuildKit and
-the buildx plugin (`docker buildx version` must answer), git, jq, gzip. No key, no chain
-access: the build needs only GitHub and the Go module proxy.
-
-If `docker buildx version` fails on Amazon Linux 2023:
+Linux, two cores, 8 GB of memory with 16 GB of swap (the Rust build is compiled one crate at a
+time, `KONA_BUILD_JOBS=1`, and still links with LTO), 40 GB of free disk for the caches and
+images, docker with BuildKit and the buildx plugin (`docker buildx version` must answer),
+git, jq, gzip, `just` (K2a; a static binary from its GitHub release), and for K1 either a cargo
+at the workspace's Rust version or docker (the `rust:<version>` image is used). No key. K1 and
+K2a need only GitHub, crates.io and the Docker registries; K2b needs the two RPCs below.
 
 ```bash
+# just, on Amazon Linux 2023
+V=$(curl -s https://api.github.com/repos/casey/just/releases/latest | jq -r .tag_name) \
+  && curl -fsSL "https://github.com/casey/just/releases/download/$V/just-$V-x86_64-unknown-linux-musl.tar.gz" \
+     | sudo tar -xz -C /usr/local/bin just && just --version
+# buildx, if `docker buildx version` fails
 V=$(curl -s https://api.github.com/repos/docker/buildx/releases/latest | jq -r .tag_name) \
   && sudo curl -fsSL "https://github.com/docker/buildx/releases/download/$V/buildx-$V.linux-amd64" \
        -o /usr/local/lib/docker/cli-plugins/docker-buildx \
   && sudo chmod +x /usr/local/lib/docker/cli-plugins/docker-buildx && docker buildx version
 ```
 
-## Stage 1 in detail
+## K1 in detail
 
 ```bash
-UPSTREAM_CHECK=1 make prestate        # first time: also reproduce the published prestate of the tag
-make prestate                         # later runs: Finchain variant only
-make prestate TAG=op-program/v1.9.0 ROLLUP=chain/out/rollup.json GENESIS=chain/out/genesis.json
+make kona-configs          # drill/work/kona-configs-<chainId>/{chainList,configs,depsets}.json
+make kona-check            # the same, then the merge and the comparison; the record under manifests/evidence/
 ```
 
-`drill/prestate.sh` clones the monorepo at `TAG` (shallow) into `drill/work/`, copies
-`rollup.json` as `<chainId>-rollup.json` and `genesis.json` (with `alloc` emptied; the
-client reads only `config`) as `<chainId>-genesis-l2.json` into
-`op-program/chainconfig/configs/`, and runs `docker build -f Dockerfile.repro` with the
-exact arguments of that tag's `make reproducible-prestate` (target `current`). The run
-takes 30-60 minutes on two cores, twice that with `UPSTREAM_CHECK=1`; run it under `nohup`
-or `screen` so that a dropped session does not kill it.
+`drill/kona-configs.sh` turns `rollup.json` and `genesis.json` into the three files of the
+registry format (`kona-registry/etc/`): one `Chain` entry (`sepolia/finchain`, parent L1
+Sepolia), one `ChainConfig` under the `sepolia` superchain (the registry keeps its own
+superchain config - L1 chain id, the shared SuperchainConfig address, which is also the one
+op-deployer gave Finchain - and appends the chain), and the self-only dependency set the
+registry gives every non-interop chain. The op-node genesis block and the EIP-1559 parameters
+are copied verbatim; the hardfork times are the ones `rollup.json` schedules, and a fork the
+pinned client does not model stops the conversion instead of being dropped. The two addresses
+the client derives from - `OptimismPortalProxy` and `SystemConfigProxy` - come from
+`rollup.json`; the rest of the address list is informational and comes from
+`chain/out/l1-addresses.json`.
+
+`drill/kona-check.sh` then builds `drill/kona-check/` (a twenty-line probe that prints what
+`kona_registry::ROLLUP_CONFIGS` holds for a chain id) against the `kona-registry` crate of the
+monorepo checkout at the pinned tag, twice: with the stock registry (the chain must be absent)
+and with `KONA_CUSTOM_CONFIGS=true` and `KONA_CUSTOM_CONFIGS_DIR` pointing at the generated
+files. The crate's build script merges the files and validates them exactly as the prestate
+build does, so a wrong field fails here, in minutes, instead of at the end of a long build.
+The derived rollup configuration is compared with `rollup.json` field by field (genesis,
+timing, addresses, EIP-1559 parameters, every fork time) and the record
+`manifests/evidence/kona-configs-<chainId>-<date>.json` carries the three files, both probe
+results and the comparison. Result (2026-11-15): stock registry 55 chains, merged 56, all 28
+fields equal - `kona-configs-85422-20261115T185730Z.json`.
+
+## K2a in detail
+
+```bash
+UPSTREAM_CHECK=1 make prestate        # first time: reproduce the published kona prestate of the tag, then build Finchain's
+make prestate                         # later runs: Finchain variant only (the caches make it incremental)
+make prestate TAG=kona-client/v1.9.0 ROLLUP=chain/out/rollup.json GENESIS=chain/out/genesis.json KONA_BUILD_JOBS=1
+```
+
+Run it under `nohup` or `tmux`: the first build compiles the whole Rust dependency graph for
+the MIPS64 target and takes hours on two cores. `drill/prestate.sh` clones the monorepo at
+`TAG` (shallow) into `drill/work/`, writes `jobs = 1` under `[build]` in
+`rust/.cargo/config.toml` of the checkout (the Dockerfile copies that file into the build
+stage; parallelism does not change the output, and the upstream check is the proof of that),
+and runs `just reproducible-prestate-kona` - the recipe the release prestates are built with
+(`rust/kona/docker/fpvm-prestates/cannon-repro.dockerfile`: cannon built from the same
+checkout, the client built with the pinned toolchains, Cannon state `multithreaded64-5`) -
+first without, then with `KONA_CUSTOM_CONFIGS_DIR` set to the K1 files. The build caches
+(cargo registry and target directory) are BuildKit cache mounts, so the second build
+recompiles the registry crate and what depends on it, nothing else. The recipe also builds the
+interop variant (`kona-client-int`); its hash is recorded and not used.
 
 Outputs:
 
-- `drill/out/prestates/<hash>.bin.gz` and `<hash>.json`: the prestate and its proof, named
-  as `op-challenger --prestates-url` expects them;
-- `drill/out/logs/prestate-*.log`: the full build log;
-- `manifests/evidence/prestate-<chainId>-<date>.json`: the record - tag and commit, the
-  digests of the two embedded files, the hash, the embedding check (the decompressed VM
-  memory image is searched for the L2 genesis hash, the L1 genesis hash and the chainId
-  field), the upstream reproduction when it ran.
+- `drill/out/prestates/<hash>.bin.gz` and `<hash>.json`: the prestate and its proof, named as
+  `op-challenger --prestates-url` expects them;
+- `drill/out/logs/prestate-kona-*.log`: the full build logs;
+- `manifests/evidence/prestate-<chainId>-<date>.json` (schema `finchain.prestate/2`): tag and
+  commit, the recipe, the digests of the three embedded files, the hash, the embedding check
+  (the decompressed VM memory image is searched for the chain's genesis hashes, the chain id
+  field and the identifier, which the registry embeds as text), the upstream reproduction
+  when it ran.
 
-The prestate file itself is a build artifact of another project and is not committed
-here; the record carries its hash, and the file is served from a prestates URL when stage
-2 and the public-chain upgrade (M5) need it.
+Published hashes for the upstream check (superchain-registry `standard-prestates.toml`,
+release "1.9.0"): `cannon64-kona` `0x03f872c2161174453f8841a1ebd1d22bca443a5045d53e662dd835f24e1b6b0b`,
+`cannon64-kona-interop` `0x03e5a54835d39c1d83b198314473e1f111c3539c04f65c3e8a9b8ccebe3737c9`.
+A second host that runs `make prestate` must obtain the same Finchain hash; a different hash
+means the two hosts did not build the same thing, and nothing downstream should use the file.
 
-Result (2026-11-15, on a 2-core x86_64 scratch host, 5 minutes for both builds): the
-pipeline reproduced the published op-program/v1.9.0 Cannon64 prestate
-`0x033c000916b4a88cfffeceddd6cf0f4be3897a89195941e5a7c3f8209b4dbb6e` bit for bit, and the
-same pipeline with `chain/out/rollup.json` and `genesis.json` embedded gave
-`0x03e76631d9a697212e78f495d6b610cd926272fa60e09d7c25840ac835d35af1` (19.5 MB gzip,
-embedding check PASS). The record is `manifests/evidence/prestate-85422-20261115T162912Z.json`.
-A second host that runs `make prestate` must obtain the same hash; a different hash means
-the two hosts did not build the same thing, and nothing downstream should use the file.
+The prestate file itself is a build artifact of another project and is not committed here;
+the record carries its hash, and the file is served from a prestates URL when K3 and a later
+public-chain implementation need it.
 
-## Stage 2 in detail
+## K2b in detail
 
 `op-challenger run-trace` takes a recent L2 block of the live chain - the safe head at a
-finalized L1 block, and its parent, as the host's op-node reports them - and runs op-program
-inside the Cannon VM from the given prestate until it has derived and executed that block.
-The run passes when the VM exits with the claim verified. That is one block, the same unit a
-real dispute narrows to before any `step()`, and the same program, VM and prestate family the
-public chain's `permissioned` games use; a pass with the Finchain prestate shows that prestate
-proves a real Finchain block before any game implementation is changed.
+finalized L1 block, and its parent, as the host's op-node reports them - and runs kona-client
+inside the Cannon VM from the given prestate until it has derived and executed that block. The
+run passes when the VM exits with the claim verified. That is one block, the same unit a real
+dispute narrows to before any `step()`, and the same client, VM and prestate the
+`cannon-kona` game type runs; a pass with the Finchain prestate shows that prestate proves a
+real Finchain block before any game implementation is changed.
 
 Inputs and where they come from:
 
 - the rollup RPC: an op-node with the safe-head database (`--safedb.path`), which `run-trace`
   queries by L1 block; host B's op-node keeps it, host A's does not;
-- the L2 RPC with the `debug` namespace (execution-witness path): host A's op-reth serves it
-  privately, host B's public op-reth deliberately does not - so on host B the L2 RPC is host
-  A's op-reth over the private network, the address host B already uses as `SEQUENCER_HTTP`;
-- the L1 execution and beacon endpoints of the host env; the chain's `rollup.json` and
-  `genesis.json`; the prestate file under `drill/out/prestates/`.
+- the L2 RPC with the `debug` namespace: kona-host reads raw headers and trie preimages
+  (`debug_getRawHeader`, `debug_dbGet`); host A's op-reth serves it privately, host B's public
+  op-reth deliberately does not - so on host B the L2 RPC is host A's op-reth over the private
+  network, the address host B already uses as `SEQUENCER_HTTP`;
+- the L1 execution endpoint, which for kona-host must serve `debug_getRawHeader` and
+  `debug_getRawReceipts` (it takes the RLP from the node rather than re-encoding JSON, which is
+  also why the header problem of the op-program route cannot happen to it), and the L1 beacon
+  endpoint for blobs; `drill/run-trace.sh` probes both debug methods before it starts and stops
+  with a clear message when the endpoint does not have them - the choice of L1 provider for
+  the proof work and for mainnet (`docs/mainnet.md` decision 3) has to take this into account;
+- the chain's `rollup.json` and `genesis.json` (given to kona-host, the host side; the client
+  inside the VM uses the configuration embedded in the prestate) and the prestate file under
+  `drill/out/prestates/`.
 
 ```bash
+# on the scratch host that built the prestate, once it is on the private network:
+make init-env                        # .env from the example: the L1 endpoints are enough for one run
+ROLLUP_RPC=http://<host B private IP>:8547 L2_RPC_DEBUG=http://<host A private IP>:8545 DRILL_NETWORK=host make run-trace
 # on host B (its own op-node, host A's op-reth over the private network):
 make prestate                        # the same hash as on the scratch host, or stop
 make run-trace                       # HOST=b default; PRESTATE=<file> when there are several
-# on the scratch host that built the prestate, once it is on the private network:
-make init-env                        # .env from the example: the public L1 endpoints are enough for one run
-ROLLUP_RPC=http://<host B private IP>:8547 L2_RPC_DEBUG=http://<host A private IP>:8545 DRILL_NETWORK=host make run-trace
 ```
 
-The run is one `docker run` of the pinned op-challenger image, joined to the host's compose
-network or to the host network on a scratch machine; it ends at the first verdict and
-removes the container. The image ships `cannon` and `kona-host` but not the op-program host
-that the `cannon` and `permissioned` paths use as their preimage server, so the first run
-builds that host once from the monorepo checkout of the prestate's tag, in the Go image the
-tag names (`drill/out/bin/op-program-<tag>`, a few minutes), and mounts it in. Expect a few GB of memory for the VM and from minutes to an hour on
-two cores; `RUN_TIMEOUT` (default 3h) bounds it. The scratch host is the better place when
-the production hosts have little memory to spare: it holds the prestate already, and the
-two RPCs it needs (an op-node with the safe-head database, an op-reth with `debug`) are
-read-only.
-Outputs: `drill/out/logs/run-trace-<date>.log` (the service log) and
-`manifests/evidence/run-trace-<date>.json` (prestate, image, the L1 head and L2 block used,
-the verdict). A first run with the prestate the public chain carries today
-(`--run cannon/onchain` without a file) is expected to fail inside the VM, which records the
-baseline the Finchain prestate is measured against.
+The run is one `docker run` of the pinned op-challenger image (`--trace-type cannon-kona`,
+`--cannon-kona-server /usr/local/bin/kona-host`, which the image ships, `--run
+cannon-kona/finchain/file:<prestate>`), joined to the host's compose network or to the host
+network on a scratch machine; it ends at the first verdict and removes the container. Expect a
+few GB of memory for the VM and from minutes to an hour on two cores; `RUN_TIMEOUT` (default
+3h) bounds it. Outputs: `drill/out/logs/run-trace-<date>.log` (the service log) and
+`manifests/evidence/run-trace-<date>.json` (schema `finchain.run-trace/2`: prestate, image,
+trace type, preimage server, the L1 head and L2 block used, the verdict). `TRACE=cannon` runs
+the op-program path instead, for the record; it needs the op-program checkout and builds that
+host from source.
+
+## The L1 header record
+
+The two raw answers behind the end of the op-program route are kept verbatim and turned into
+`manifests/evidence/l1-header-<number>-<date>.json`:
+
+```bash
+H=0xeb3344a2c9b178d735b8f102adeac23fb865351eff0a0d1776d7dbddac4bb605   # the L1 head of the failed run
+curl -s -X POST "$L1_RPC_URL" -H 'content-type: application/json' \
+  --data "{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"eth_getBlockByHash\",\"params\":[\"$H\",false]}" > drill/out/logs/l1-header-12141687.json
+curl -s -X POST "$L1_RPC_URL" -H 'content-type: application/json' \
+  --data '{"jsonrpc":"2.0","id":1,"method":"web3_clientVersion","params":[]}' > drill/out/logs/l1-client-version.json
+make l1-header                       # drill/l1-header-evidence.sh: the record, with the failed run's log digest when it is still there
+```
+
+The record names the header fields the op-program release does not model
+(`blockAccessListHash`, `slotNumber`), the hash it computed, the hash the node reported, the
+node's client version, and embeds the whole `eth_getBlockByHash` response.
+
+## Archived: the op-program build (stage 1 of the first route)
+
+Result (2026-11-15, on a 2-core x86_64 scratch host, 5 minutes for both builds): the pipeline
+reproduced the published op-program/v1.9.0 Cannon64 prestate
+`0x033c000916b4a88cfffeceddd6cf0f4be3897a89195941e5a7c3f8209b4dbb6e` bit for bit, and the
+same pipeline with `chain/out/rollup.json` and `genesis.json` embedded gave
+`0x03e76631d9a697212e78f495d6b610cd926272fa60e09d7c25840ac835d35af1` (19.5 MB gzip,
+embedding check PASS; `manifests/evidence/prestate-85422-20261115T162912Z.json`). It is
+evidence that the build pipeline and the embedding method work; it is superseded by the
+kona-client prestate and is not used by any later step. `PROVER=op-program make prestate`
+still builds it.

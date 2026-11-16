@@ -1,11 +1,15 @@
 #!/usr/bin/env bash
-# M4: the trace self-check (docs/acceptance.md M4, "Trace self-check (run-trace) passes for a recent game";
-# docs/proof-plan.md). `op-challenger run-trace` takes a recent L2 block of the live chain - the safe head at a
-# finalized L1 block and its parent, from the host's own op-node - and runs op-program inside the Cannon VM from the
-# given prestate until it has derived and executed that block; the run passes when the VM exits with the claim
-# verified. This is the same program, VM and prestate family the public chain's `permissioned` games use, so a pass
-# with the Finchain-embedding prestate (drill/prestate.sh) shows that prestate can prove a real Finchain block before
-# any game implementation is changed.
+# M4 K2: the trace self-check (docs/acceptance.md M4, "Trace self-check (run-trace) passes for a recent game";
+# docs/proof-plan.md K2). `op-challenger run-trace` takes a recent L2 block of the live chain - the safe head at a
+# finalized L1 block and its parent, from the host's own op-node - and runs the fault-proof client inside the Cannon
+# VM from the given prestate until it has derived and executed that block; the run passes when the VM exits with the
+# claim verified. A pass with the Finchain-embedding prestate (drill/prestate.sh) shows that prestate proves a real
+# Finchain block before any game implementation is changed.
+#
+# TRACE=cannon-kona (default): kona-client in the VM, kona-host (shipped in the op-challenger image) as the preimage
+#   server - the path of the cannon-kona game type (8, CANNON_KONA) that the devnet drill (K3) will install.
+# TRACE=cannon: op-program in the VM with the op-program host built from source; kept for the record of the first
+#   attempt (docs/proof-plan.md: that client cannot follow the current Sepolia L1).
 #
 # Two services feed it: a rollup RPC whose op-node keeps the safe-head database (--safedb.path; host B's does, it is
 # what the challenger needs) and an L2 RPC with the debug namespace (host A's op-reth serves it privately; host B's
@@ -15,11 +19,11 @@
 #
 # Usage: drill/run-trace.sh [prestate.bin.gz] [a|b]
 #   prestate: default the file in drill/out/prestates/ (name it when there are several); host: default b.
-#   Environment: ROLLUP_RPC (default http://op-node:8547 in the stack network), L2_RPC_DEBUG (default: on host b the
-#   SEQUENCER_HTTP of its env, on host a http://op-reth:8545), DRILL_NETWORK (default the host stack's compose
-#   network; `host` on a scratch machine that reaches both RPCs over the private network and runs no stack),
-#   RUN_TIMEOUT (default 3h, the VM timeout), L1_RPC_URL / L1_BEACON_URL (default the env files'), OP_PROGRAM_TAG
-#   (default op-program/v1.9.0: the monorepo checkout the host is built from) or OP_PROGRAM_BIN (a built host).
+#   Environment: TRACE (cannon-kona | cannon), ROLLUP_RPC (default http://op-node:8547 in the stack network), L2_RPC_DEBUG
+#   (default: on host b the SEQUENCER_HTTP of its env, on host a http://op-reth:8545), DRILL_NETWORK (default the host
+#   stack's compose network; `host` on a scratch machine that reaches both RPCs over the private network and runs no
+#   stack), RUN_TIMEOUT (default 3h, the VM timeout), L1_RPC_URL / L1_BEACON_URL (default the env files'); TRACE=cannon
+#   only: OP_PROGRAM_TAG (default op-program/v1.9.0, the checkout the host is built from) or OP_PROGRAM_BIN.
 #   Scratch host example: ROLLUP_RPC=http://<host B>:8547 L2_RPC_DEBUG=http://<host A>:8545 DRILL_NETWORK=host
 # Outputs: drill/out/logs/run-trace-<date>.log (the service log), manifests/evidence/run-trace-<date>.json.
 
@@ -28,6 +32,8 @@
 require_cmd docker jq openssl
 PRESTATE="${1:-}"; HOST="${2:-b}"
 case "$HOST" in a|b) ;; *) die "host must be a or b" ;; esac
+TRACE="${TRACE:-cannon-kona}"
+case "$TRACE" in cannon-kona|cannon) ;; *) die "TRACE must be cannon-kona or cannon" ;; esac
 load_standard_env
 henv="$(host_env "$HOST")"; [ -f "$henv" ] && load_env "$henv"
 ROLLUP_RPC="${ROLLUP_RPC:-http://op-node:8547}"
@@ -51,45 +57,81 @@ IMAGE="${OP_CHALLENGER_IMAGE:?OP_CHALLENGER_IMAGE missing in versions.lock}"
 RUN_TIMEOUT="${RUN_TIMEOUT:-3h}"
 LOGS="$FINCHAIN_ROOT/drill/out/logs"; mkdir -p "$LOGS" "$FINCHAIN_ROOT/drill/out/bin"
 
-# The op-program host is the preimage server of the cannon and permissioned paths. The op-challenger image ships
-# cannon and kona-host but not op-program, so the host is built once from the monorepo checkout of the prestate's
+# kona-host takes raw RLP from the nodes instead of re-encoding JSON: debug_getRawHeader and debug_getRawReceipts on
+# L1, debug_getRawHeader and debug_dbGet on L2. Probe the two endpoints from here before the long run; an endpoint that
+# cannot be reached from this shell (a compose-internal name) is skipped, one that answers "method not found" stops it.
+probe_debug() {
+  local label="$1" url="$2" block="$3" m resp err
+  for m in "${@:4}"; do
+    resp="$(rpc "$url" "$m" "[\"$block\"]" 2>/dev/null || true)"
+    if [ -z "$resp" ]; then warn "could not probe $m on the $label endpoint $(rpc_label "$url") from this shell; the run will tell"; return 0; fi
+    err="$(jq -r '.error.message // empty' <<<"$resp" 2>/dev/null || true)"
+    [ -z "$err" ] || die "the $label endpoint $(rpc_label "$url") does not serve $m ($err); the cannon-kona path needs it (drill/README.md, K2)"
+  done
+  log "$label endpoint $(rpc_label "$url") serves ${*:4}"
+}
+if [ "$TRACE" = cannon-kona ]; then
+  fin="$(rpc "$L1_RPC_URL" eth_getBlockByNumber '["finalized",false]' 2>/dev/null | jq -r '.result.hash // empty' 2>/dev/null || true)"
+  [ -z "$fin" ] || probe_debug L1 "$L1_RPC_URL" "$fin" debug_getRawHeader debug_getRawReceipts
+  l2h="$(rpc "$L2_RPC_DEBUG" eth_getBlockByNumber '["latest",false]' 2>/dev/null | jq -r '.result.hash // empty' 2>/dev/null || true)"
+  [ -z "$l2h" ] || probe_debug L2 "$L2_RPC_DEBUG" "$l2h" debug_getRawHeader
+fi
+
+# The preimage server of each path. cannon-kona: kona-host, shipped in the op-challenger image. cannon: the
+# op-program host, which the image does not ship; it is built once from the monorepo checkout of the prestate's
 # tag (the one drill/prestate.sh cloned), inside the Go image that tag names, and mounted into the run.
-OP_PROGRAM_TAG="${OP_PROGRAM_TAG:-op-program/v1.9.0}"
-tagslug="$(printf '%s' "$OP_PROGRAM_TAG" | tr '/' '-')"
-repo="$FINCHAIN_ROOT/drill/work/optimism-$tagslug"
-OPP_BIN="${OP_PROGRAM_BIN:-$FINCHAIN_ROOT/drill/out/bin/op-program-$tagslug}"
-if [ ! -x "$OPP_BIN" ]; then
-  [ -d "$repo/op-program" ] || die "monorepo checkout not found at $repo (make prestate clones it); or set OP_PROGRAM_BIN to a built op-program host"
-  go_version="$(grep -oE 'GO_VERSION=[0-9][^ ]*' "$repo/op-program/Makefile" | head -1 | cut -d= -f2)"
-  [ -n "$go_version" ] || die "GO_VERSION not found in $repo/op-program/Makefile"
-  log "building the op-program host from $OP_PROGRAM_TAG in golang:$go_version (a few minutes; log $LOGS/op-program-host-$tagslug.log)"
-  docker run --rm -v "$repo:/src:ro" -v "$FINCHAIN_ROOT/drill/out/bin:/out" -e "OUT_OWNER=$(id -u):$(id -g)" -e "OUT_NAME=op-program-$tagslug" -e GOFLAGS=-buildvcs=false \
-    "golang:$go_version" sh -c 'apk add --no-cache make gcc musl-dev linux-headers git >/dev/null && cp -r /src /app && cd /app/op-program && make op-program-host && cp bin/op-program "/out/$OUT_NAME" && chown "$OUT_OWNER" "/out/$OUT_NAME"' \
-    >"$LOGS/op-program-host-$tagslug.log" 2>&1 || die "op-program host build failed; see $LOGS/op-program-host-$tagslug.log"
-  [ -x "$OPP_BIN" ] || die "op-program host not produced at $OPP_BIN"
+server_mounts=()
+if [ "$TRACE" = cannon-kona ]; then
+  server_desc="$(docker run --rm --entrypoint /usr/local/bin/kona-host "$IMAGE" --version 2>/dev/null | head -1 || true)"
+  [ -n "$server_desc" ] || die "the image $IMAGE has no working /usr/local/bin/kona-host"
+  server_desc="$server_desc (shipped in the op-challenger image)"
+else
+  OP_PROGRAM_TAG="${OP_PROGRAM_TAG:-op-program/v1.9.0}"
+  tagslug="$(printf '%s' "$OP_PROGRAM_TAG" | tr '/' '-')"
+  repo="$FINCHAIN_ROOT/drill/work/optimism-$tagslug"
+  OPP_BIN="${OP_PROGRAM_BIN:-$FINCHAIN_ROOT/drill/out/bin/op-program-$tagslug}"
+  if [ ! -x "$OPP_BIN" ]; then
+    [ -d "$repo/op-program" ] || die "monorepo checkout not found at $repo (PROVER=op-program make prestate clones it); or set OP_PROGRAM_BIN to a built op-program host"
+    go_version="$(grep -oE 'GO_VERSION=[0-9][^ ]*' "$repo/op-program/Makefile" | head -1 | cut -d= -f2)"
+    [ -n "$go_version" ] || die "GO_VERSION not found in $repo/op-program/Makefile"
+    log "building the op-program host from $OP_PROGRAM_TAG in golang:$go_version (a few minutes; log $LOGS/op-program-host-$tagslug.log)"
+    docker run --rm -v "$repo:/src:ro" -v "$FINCHAIN_ROOT/drill/out/bin:/out" -e "OUT_OWNER=$(id -u):$(id -g)" -e "OUT_NAME=op-program-$tagslug" -e GOFLAGS=-buildvcs=false \
+      "golang:$go_version" sh -c 'apk add --no-cache make gcc musl-dev linux-headers git >/dev/null && cp -r /src /app && cd /app/op-program && make op-program-host && cp bin/op-program "/out/$OUT_NAME" && chown "$OUT_OWNER" "/out/$OUT_NAME"' \
+      >"$LOGS/op-program-host-$tagslug.log" 2>&1 || die "op-program host build failed; see $LOGS/op-program-host-$tagslug.log"
+    [ -x "$OPP_BIN" ] || die "op-program host not produced at $OPP_BIN"
+  fi
+  server_mounts=(-v "$OPP_BIN:/usr/local/bin/op-program:ro")
+  server_desc="op-program host built from $OP_PROGRAM_TAG (sha256 $(sha256_of "$OPP_BIN" | cut -c1-16)...)"
 fi
 
 stamp="$(date -u +%Y%m%dT%H%M%SZ)"
 mkdir -p "$FINCHAIN_ROOT/manifests/evidence"
 logf="$LOGS/run-trace-$stamp.log"
 name="finchain-drill-run-trace-$stamp"
+pfile="/prestates/$(basename "$PRESTATE")"
 # a throwaway signer: run-trace sends no transaction, the transaction manager only wants a key to exist.
-# --cannon-prestate names the same file as --run: the configuration check wants a prestate source before the runner
-# reads the run's own file.
+# --<trace>-prestate names the same file as --run: the configuration check wants a prestate source before the
+# runner reads the run's own file.
 throwaway="$(openssl rand -hex 32)"
+# the flags of each path; the chain's rollup.json and genesis.json are given to the host side of the VM in both
+if [ "$TRACE" = cannon-kona ]; then
+  trace_flags=(--trace-type cannon-kona --cannon-bin /usr/local/bin/cannon --cannon-kona-server /usr/local/bin/kona-host
+    --cannon-kona-rollup-config /chain/rollup.json --cannon-kona-l2-genesis /chain/genesis.json
+    --cannon-kona-prestate "$pfile" --run "cannon-kona/finchain/file:$pfile" --l2-eth-rpc "$L2_RPC_DEBUG")
+else
+  trace_flags=(--trace-type cannon --cannon-bin /usr/local/bin/cannon --cannon-server /usr/local/bin/op-program
+    --cannon-rollup-config /chain/rollup.json --cannon-l2-genesis /chain/genesis.json
+    --cannon-prestate "$pfile" --run "cannon/finchain/file:$pfile" --l2-eth-rpc "$L2_RPC_DEBUG" --l2-experimental-eth-rpc "$L2_RPC_DEBUG")
+fi
 
-log "run-trace on host $HOST: prestate $hash, network $network, rollup RPC $(rpc_label "$ROLLUP_RPC"), L2 debug RPC $(rpc_label "$L2_RPC_DEBUG")"
-log "VM timeout $RUN_TIMEOUT; log $logf"
+log "run-trace ($TRACE) on host $HOST: prestate $hash, network $network, rollup RPC $(rpc_label "$ROLLUP_RPC"), L2 debug RPC $(rpc_label "$L2_RPC_DEBUG")"
+log "preimage server: $server_desc; VM timeout $RUN_TIMEOUT; log $logf"
 started="$(date -u +%Y-%m-%dT%H:%M:%SZ)"; t0="$(date +%s)"
 docker run -d --name "$name" --network "$network" \
-  -v "$CHAIN_DIR/out:/chain:ro" -v "$(dirname "$PRESTATE"):/prestates:ro" -v "finchain-drill-run-trace:/data" -v "$OPP_BIN:/usr/local/bin/op-program:ro" \
+  -v "$CHAIN_DIR/out:/chain:ro" -v "$(dirname "$PRESTATE"):/prestates:ro" -v "finchain-drill-run-trace:/data" ${server_mounts[@]+"${server_mounts[@]}"} \
   --entrypoint op-challenger "$IMAGE" run-trace \
-  --l1-eth-rpc "$L1_RPC_URL" --l1-beacon "$L1_BEACON_URL" \
-  --rollup-rpc "$ROLLUP_RPC" --l2-eth-rpc "$L2_RPC_DEBUG" --l2-experimental-eth-rpc "$L2_RPC_DEBUG" \
-  --game-factory-address "$DGF" --datadir /data --trace-type cannon \
-  --cannon-bin /usr/local/bin/cannon --cannon-server /usr/local/bin/op-program \
-  --cannon-rollup-config /chain/rollup.json --cannon-l2-genesis /chain/genesis.json \
-  --cannon-prestate "/prestates/$(basename "$PRESTATE")" --run "cannon/finchain/file:/prestates/$(basename "$PRESTATE")" --vm-timeout "$RUN_TIMEOUT" \
+  --l1-eth-rpc "$L1_RPC_URL" --l1-beacon "$L1_BEACON_URL" --rollup-rpc "$ROLLUP_RPC" \
+  --game-factory-address "$DGF" --datadir /data "${trace_flags[@]}" --vm-timeout "$RUN_TIMEOUT" \
   --private-key "$throwaway" --log.format json --log.level info >/dev/null
 unset throwaway
 
@@ -112,20 +154,21 @@ elapsed=$(( $(date +%s) - t0 ))
 inputs="$(jq -c 'select(.msg=="Using L1 head") | {l1Head: .num, l1HeadHash: .hash, disputeL1: .disputeL1}' <"$logf" 2>/dev/null | head -1)"; [ -n "$inputs" ] || inputs=null
 l2="$(jq -c 'select(.msg=="Got sync status") | .status | {finalizedL1: .finalized_l1.number, safeL2: .safe_l2.number, finalizedL2: .finalized_l2.number}' <"$logf" 2>/dev/null | head -1)"; [ -n "$l2" ] || l2=null
 claim="$(jq -c 'select(.l2Block != null and .claim != null) | {l2Block: .l2Block, claim: .claim, l2Head: .l2, l1: .l1}' <"$logf" 2>/dev/null | head -1)"; [ -n "$claim" ] || claim=null
+if [ "$TRACE" = cannon-kona ]; then client="kona-client"; l2note=" (kona-host preimage path: eth and debug namespaces)"; else client="op-program"; l2note=" (execution-witness path)"; fi
 ev="$FINCHAIN_ROOT/manifests/evidence/run-trace-$stamp.json"
 jq -n --arg at "$started" --arg end "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --argjson secs "$elapsed" --arg host "$HOST" --arg hash "$hash" --arg file "$(basename "$PRESTATE")" \
   --arg image "$IMAGE" --arg l1 "$(rpc_label "$L1_RPC_URL")" --arg dgf "$DGF" --argjson inputs "$inputs" --argjson sync "$l2" --argjson claim "$claim" \
   --arg result "$result" --arg reason "$reason" --arg logname "drill/out/logs/run-trace-$stamp.log" --argjson cid "${CHAIN_ID:-0}" \
-  --arg rollup "$(rpc_label "$ROLLUP_RPC")" --arg l2src "$(rpc_label "$L2_RPC_DEBUG")" --arg opp "$OP_PROGRAM_TAG host built from source (sha256 $(sha256_of "$OPP_BIN" | cut -c1-16)...)" '
-  {schema: "finchain.run-trace/1",
-   acceptance: "M4: trace self-check (run-trace) passes for a recent game (docs/acceptance.md M4; docs/proof-plan.md)",
+  --arg rollup "$(rpc_label "$ROLLUP_RPC")" --arg l2src "$(rpc_label "$L2_RPC_DEBUG")$l2note" --arg server "$server_desc" --arg trace "$TRACE" --arg client "$client" '
+  {schema: "finchain.run-trace/2",
+   acceptance: "M4 K2: trace self-check (run-trace) passes for a recent block (docs/acceptance.md M4; docs/proof-plan.md K2)",
    environment: "public-testnet", chainId: $cid, host: $host, startedAt: $at, finishedAt: $end, seconds: $secs,
-   what: "op-challenger run-trace: op-program executed inside the Cannon VM from the prestate below for one recent L2 block of the live chain (the safe head at a finalized L1 block and its parent, from the host op-node); PASS = the VM exited with the claim verified",
+   what: ("op-challenger run-trace: " + $client + " executed inside the Cannon VM from the prestate below for one recent L2 block of the live chain (the safe head at a finalized L1 block and its parent, from the host op-node); PASS = the VM exited with the claim verified"),
    prestate: {hash: $hash, file: $file, source: "drill/prestate.sh (manifests/evidence/prestate-<chainId>-<date>.json)"},
-   image: $image, opProgramHost: $opp, l1: $l1, disputeGameFactory: $dgf, traceType: "cannon", rollupRpc: $rollup, l2Source: ($l2src + " (execution-witness path)"),
+   image: $image, traceType: $trace, preimageServer: $server, l1: $l1, disputeGameFactory: $dgf, rollupRpc: $rollup, l2Source: $l2src,
    inputs: {syncStatus: $sync, l1Head: $inputs, block: $claim},
    result: $result, reason: $reason, log: $logname}' > "$ev"
-echo "run-trace $result: $reason (${elapsed}s)"
+echo "run-trace ($TRACE) $result: $reason (${elapsed}s)"
 echo "record: $ev"
 echo "log:    $logf"
 [ "$result" = PASS ] || exit 3

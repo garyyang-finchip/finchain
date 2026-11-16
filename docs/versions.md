@@ -17,10 +17,13 @@ patch level was chosen, including the changes made during the first M1 run.
 | op-batcher | v1.17.2 | v1.16.13 knows the Glamsterdam header fields but still sizes calldata transactions with the pre-Amsterdam EIP-7623 floor, so every batch is refused with "intrinsic gas too low" (seen in the first M1 run). v1.17.0 added `maxFloorDataGas` (the larger of the EIP-7623 and EIP-7976 floors); v1.17.2 is the latest patch (checked 2026-11-12) |
 | op-proposer | v1.16.7 | latest v1.16 patch; Glamsterdam L1 headers since v1.16.4 |
 | op-challenger | v1.9.6 | v1.9.5 fixes VM selection during Cannon-Kona prestate conversion; v1.9.6 adds the Glamsterdam L1 header fields (the challenger computes head hashes itself, so `--l1.trustrpc` would not help it); the permissioned path registration must be re-checked on this version |
-| op-program (prestate source) | op-program/v1.9.0 | the release whose Cannon64 prestate `make prestate` rebuilds with Finchain embedded (`drill/README.md`); the hash and the embedded files' digests are recorded in `manifests/evidence/prestate-<chainId>-<date>.json`. kona-node v1.6.1 was the earlier tutorial reference and is not used: the public chain's `permissioned` path runs op-program |
+| kona-client (prestate source) | kona-client/v1.9.0 (commit 1286a886) | the monorepo tag of the superchain registry's "1.9.0" kona prestate (`cannon64-kona` `0x03f872c2...6b0b`), whose Dockerfile is the one op-challenger/v1.9.6 carries; `make prestate` rebuilds it with Finchain in its registry (`drill/README.md`, K2) and `make kona-check` validates the registry files first (K1). The hash and the embedded files' digests are recorded in `manifests/evidence/prestate-<chainId>-<date>.json`. kona-host, the preimage server of the `cannon-kona` path, ships in the op-challenger image and needs `debug_getRawHeader` and `debug_getRawReceipts` on the L1 endpoint |
+| op-program (first prestate route, superseded) | op-program/v1.9.0 | the Go client's last release; its Cannon64 prestate with Finchain embedded (`0x03e76631...5af1`, `prestate-85422-20261115T162912Z.json`) proved the build pipeline but cannot follow the current Sepolia L1: its header type lacks the Amsterdam fields `blockAccessListHash` and `slotNumber`, so `run-trace` stops at the L1 head with "failed to verify block hash" (`manifests/evidence/l1-header-12141687-<date>.json`); the monorepo has no `op-program/` at op-challenger/v1.9.6. Kept for the record only (`PROVER=op-program make prestate`) |
 
 op-geth reached end of support on 2026-05-31 and does not follow the Karst hardfork;
-op-program has also reached end of support. Neither is used.
+op-program has also reached end of support. Neither is used: the public chain runs op-reth,
+and the proof work runs kona-client (the `permissioned` type of the public chain, which is
+registered on the op-program path, never loads a prestate and is unaffected).
 
 ## Release landscape observed on 2026-11-08
 

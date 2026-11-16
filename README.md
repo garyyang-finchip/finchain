@@ -73,14 +73,19 @@ The full procedure, with expected outputs and acceptance checks, is in
 | `manifests/` | Reference-version manifest schema and template, the published manifests (`finchain-sepolia/`), the on-chain snapshot, the covenant World section, the acceptance evidence |
 | `registry/` | Draft `ethereum-lists/chains` entry |
 | `docs/` | Handbook, execution brief, runbook, funding model, proof plan, FOGA confirmation policy, covenant World design (M3), acceptance, governance, networking, versions, chain id, mainnet plan (M5) |
-| `drill/` | The M4 proof-system exercises for a scratch host: the Finchain-embedding prestate build (stage 1), then the trace self-check and the isolated-devnet dispute drill |
+| `drill/` | The M4 proof-system exercises for a scratch host: the kona-client registry files and their validation (K1), the Finchain-embedding kona-client prestate and the trace self-check (K2), then the isolated-devnet dispute drill (K3) |
 
 ## Status
 
-v0.3.0-alpha.12: M4 in progress (`make withdraw` drives the deposit -> proof -> withdrawal
+v0.3.0-alpha.13: M4 in progress on the kona-client route (`docs/proof-plan.md`: the op-program
+client cannot follow the current Sepolia L1, its prestate `0x03e76631...5af1` is superseded; `make
+kona-check` validated Finchain's registry files against the kona-registry crate on 2026-11-15, 28 of
+28 fields equal; `make prestate` builds the kona-client prestate with Finchain embedded and `make
+run-trace` runs the `cannon-kona` self-check; `make l1-header` records the raw L1 header the first
+route failed on). `make withdraw` drives the deposit -> proof -> withdrawal
 cycle step by step, with its record; every target takes `CHAIN=<name>` so that the same hosts
-run a second chain beside the first, `docs/runbook.md` section 9, the M5 preparation; the
-Finchain-embedding prestate is built and recorded, `make prestate`; `make games` reads the dispute games back from L1 - the
+run a second chain beside the first, `docs/runbook.md` section 9, the M5 preparation;
+`make games` reads the dispute games back from L1 - the
 resident challenger resolved the first ten games on 2026-11-15, 72-168 s after their clocks,
 `manifests/evidence/m4-challenger-2026-11-15.json`; the
 `steady` profile and `CHALLENGER_L1_RPC_URL` answer the L1 rate limiting that report
