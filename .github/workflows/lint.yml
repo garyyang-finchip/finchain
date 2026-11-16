@@ -16,7 +16,7 @@ jobs:
         run: |
           curl -fsSL https://github.com/koalaman/shellcheck/releases/download/v0.11.0/shellcheck-v0.11.0.linux.x86_64.tar.xz | tar -xJ -C /tmp
           /tmp/shellcheck-v0.11.0/shellcheck --version
-          /tmp/shellcheck-v0.11.0/shellcheck -x scripts/*.sh drill/*.sh
+          /tmp/shellcheck-v0.11.0/shellcheck -x scripts/*.sh drill/*.sh drill/devnet/*.sh
 
       - name: python syntax
         run: python3 -m py_compile drill/rpc-shim.py
@@ -28,6 +28,10 @@ jobs:
       - name: compose config (host B)
         working-directory: node-b
         run: docker compose --env-file ../versions.lock --env-file ../profiles/lowcost.env --env-file .env.example config -q
+
+      - name: compose config (devnet)
+        working-directory: drill/devnet
+        run: docker compose --env-file ../../versions.lock --env-file devnet.env config -q
 
       - name: json and schema
         run: |
