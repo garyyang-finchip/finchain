@@ -70,8 +70,10 @@ intent` checks it before anything is deployed.
 Host: the scratch host of K2 (two cores, 8 GB of memory with 16 GB of swap, 100 GB of disk, docker with
 compose v2.24+, buildx, `just`, git, jq, curl, openssl). The devnet is one session: the anvil
 keeps the L1 in memory, so stopping the host or the anvil is the end of that devnet (`devnet.sh
-down` and start over; `FRESH=1` deletes `drill/devnet/out/`). Plan five to eight hours on the
-small host: builds about an hour, the dispute one to two, the resolution 2.5 (the clocks).
+down` and start over; `FRESH=1` deletes `drill/devnet/out/`). Plan eight to ten hours on the
+small host: builds under half an hour from K2's caches (measured 2026-11-16: prestate 9 min,
+kona-host 12 min), the anchor bootstrap 2.5 h plus the finality delay, the dispute one to two
+hours, the resolution 2.5 h (the clocks).
 
 ```bash
 make devnet-keys           # the accounts (anvil's test mnemonic) -> out/keys/addresses.env, out/secrets/
@@ -82,6 +84,7 @@ make devnet-l2             # op-reth, op-node, op-batcher; waits for the first s
 make devnet-build          # K1 + K2 for chain 854220: kona-configs (KONA_CHECK=1 adds kona-check), prestate, kona-host (about an hour)
 make devnet-install-game   # setImplementation(8, impl, args) + setInitBond; setRespectedGameType(8) when DEVNET_GAME_RESPECTED=1
 make devnet-proof          # op-proposer (type 8) and the honest op-challenger; waits for the first game
+make devnet-anchor         # the anchor root off op-deployer's placeholder: first game resolved and closed after its clock (2.5 h + 10 min)
 make devnet-run-trace      # optional: K2b against the devnet's own endpoints (run-trace record, environment local-devnet)
 make devnet-dispute        # the attacker; ends when the honest step lands (DISPUTE_TIMEOUT=4h); the record
 make devnet-resolve        # after the clocks: resolution, credits, anchor root; the record completed
@@ -91,7 +94,19 @@ make devnet-down           # stop and delete the devnet's volumes (FRESH=1: out/
 
 Every step prints what it did and refuses to run out of order (no keys, no anvil, no
 deployment, no prestate). `devnet.sh deploy` re-renders the intent so that what was reviewed
-is what is applied. The L2 starts right after the deployment, before the hour-long build: the
+is what is applied. Plan the anchor step: op-deployer deploys every chain with a placeholder
+anchor root (`0xdead...`, L2 block 0), because the L2 genesis is generated after the L1
+contracts. A game starts its output bisection at the anchor, so a game created before the
+anchor has moved carries the placeholder as its starting root, and the honest challenger -
+which validates permissionless games, unlike permissioned ones - compares it with the real
+output root at that block and refuses the game ("output root absolute prestate does not match").
+The anchor moves when a respected game resolves for its root, waits out the finality delay and
+is closed (`closeGame()` calls `setAnchorState()`); nobody tracks the placeholder games, so
+`devnet-anchor` resolves and closes the first type-8 game by hand once its clock has run out.
+Games created before that stay untracked (the challenger keeps logging them); the dispute uses
+the proposer's next game, the first with a real starting root. The same holds for the public
+chain: a Type 8 game there is playable only once the anchor has left the placeholder, which
+the first `closeGame()` of the permissioned type does (K4 waits for it). The L2 starts right after the deployment, before the hour-long build: the
 L2 genesis time is the deployment's L1 block, and a chain whose first batches land more than
 a sequencing window (3600 L1 blocks, three hours at the devnet's block time) after their L1
 origin would have its early blocks replaced by empty ones on derivation. Sequencing during the
@@ -114,7 +129,8 @@ how long the honest side has been computing.
 
 - the devnet (anvil image and parameters, shim image, the production images), the deployment
   (chain record: genesis hash, L1 anchor, the contract addresses), the type 8 installation
-  (implementation, packed arguments, transactions, respected type before and after), the
+  (implementation, packed arguments, transactions, respected type before and after), the anchor
+  bootstrap (the game that moved the anchor, its transactions, the root before and after), the
   prestate hash and record, the kona-host digest and record, the K1 record;
 - the game (address, index, L2 block, root claim, max and split depth) and the three parties;
 - the dispute: every attacker move with its transaction, the counts of attacker and honest

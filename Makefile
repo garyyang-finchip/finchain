@@ -160,7 +160,7 @@ run-trace: ## M4 K2: op-challenger run-trace (TRACE=cannon-kona) with the Fincha
 	@bash $(ROOT)/drill/run-trace.sh "$(PRESTATE)" "$(or $(HOST),b)"
 l1-header: ## M4: record the raw L1 header the op-program route failed on (drill/out/logs/l1-header-*.json -> manifests/evidence)
 	@bash $(ROOT)/drill/l1-header-evidence.sh "$(BLOCK_HASH)"
-devnet: ## M4 K3 (scratch host): the isolated devnet, one step at a time - make devnet-keys, devnet-l1, devnet-intent, devnet-deploy, devnet-build, devnet-install-game, devnet-l2, devnet-proof, devnet-run-trace, devnet-dispute, devnet-resolve, devnet-status, devnet-down (drill/devnet/README.md)
+devnet: ## M4 K3 (scratch host): the isolated devnet, one step at a time - make devnet-keys, devnet-l1, devnet-intent, devnet-deploy, devnet-build, devnet-install-game, devnet-l2, devnet-proof, devnet-anchor, devnet-run-trace, devnet-dispute, devnet-resolve, devnet-status, devnet-down (drill/devnet/README.md)
 	@bash $(ROOT)/drill/devnet/devnet.sh
 devnet-%:
 	@bash $(ROOT)/drill/devnet/devnet.sh $*

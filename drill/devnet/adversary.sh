@@ -27,6 +27,7 @@ GEN="$OUT/generated.env"
 L1_URL="http://127.0.0.1:$DEVNET_L1_PORT"; NETWORK=finchain-devnet_default
 STEP_SELECTOR=0xd8cc1a3c       # step(uint256,bool,bytes,bytes)
 RESOLVE_SELECTOR=0x2810e1d6    # resolve()
+DEAD_ROOT=0xdead000000000000000000000000000000000000000000000000000000000000   # op-deployer's placeholder anchor (devnet.sh anchor)
 POLL="${POLL:-6}"
 IMAGE="${OP_CHALLENGER_IMAGE:?}"
 DGF=""; ADVERSARY=""; HONEST=""; PROPOSER=""
@@ -81,12 +82,28 @@ cmd_dispute() {
   stamp="$(date -u +%Y%m%dT%H%M%SZ)"; dir="$OUT/evidence/dispute-$stamp"; mkdir -p "$dir"
 
   games="$(list_games)" || die "list-games failed (is the L1 up?)"
+  local starting
   if [ -n "${GAME:-}" ]; then
     game="$(lower "$GAME")"
-    ginfo="$(jq -c --arg g "$game" '.[] | select((.game | ascii_downcase) == $g)' <<<"$games")"; [ -n "$ginfo" ] || die "game $GAME is not in the factory's list"
+    ginfo="$(jq -c --arg g "$game" '.games[] | select((.game | ascii_downcase) == $g)' <<<"$games")"; [ -n "$ginfo" ] || die "game $GAME is not in the factory's list"
+    starting="$(cast call "$game" 'startingRootHash()(bytes32)' --rpc-url "$L1_URL" | tr -d '\r\n')"
+    [ "$(lower "$starting")" != "$DEAD_ROOT" ] || die "game $GAME starts from the placeholder anchor root; the honest challenger does not play such a game (devnet.sh anchor, then a game created after it)"
   else
-    ginfo="$(jq -c --argjson gt "$DEVNET_GAME_TYPE" '[.[] | select(.gameType == $gt and .status == "In Progress" and .claimCount == 1)] | sort_by(.index) | last // empty' <<<"$games")"
-    [ -n "$ginfo" ] || die "no untouched type-$DEVNET_GAME_TYPE game in progress yet (devnet.sh status); GAME=0x... names one"
+    # the newest untouched game whose starting root is a real anchor (games created before the anchor moved keep the
+    # placeholder, and the honest challenger declines them); the proposer's next game may be minutes away
+    local cand waited=0
+    ginfo=""
+    while :; do
+      for cand in $(jq -r --argjson gt "$DEVNET_GAME_TYPE" '[.games[] | select(.gameType == $gt and .status == "In Progress" and .claimCount == 1)] | sort_by(.index) | reverse | .[].game' <<<"$games"); do
+        starting="$(cast call "$cand" 'startingRootHash()(bytes32)' --rpc-url "$L1_URL" | tr -d '\r\n')"
+        if [ "$(lower "$starting")" != "$DEAD_ROOT" ]; then ginfo="$(jq -c --arg g "$(lower "$cand")" '.games[] | select((.game | ascii_downcase) == $g)' <<<"$games")"; break; fi
+      done
+      [ -z "$ginfo" ] || break
+      [ "$waited" -lt 900 ] || die "no untouched type-$DEVNET_GAME_TYPE game with a real starting root after 15 minutes: devnet.sh anchor moves the anchor off the placeholder, and the proposer's next game (${DEVNET_PROPOSAL_INTERVAL}) is the first usable one (devnet.sh status lists them)"
+      [ "$waited" -gt 0 ] || log "no untouched game with a real starting root yet; waiting for the proposer's next game (every $DEVNET_PROPOSAL_INTERVAL)"
+      sleep 20; waited=$(( waited + 20 ))
+      games="$(list_games)" || die "list-games failed"
+    done
     game="$(lower "$(jq -r .game <<<"$ginfo")")"
   fi
   printf '%s\n' "$ginfo" > "$dir/game.json"
@@ -156,11 +173,12 @@ cmd_dispute() {
   local n_adv n_hon
   n_adv="$(jq -r --arg me "$ADVERSARY" '[.claims[] | select((.claimant | ascii_downcase) == $me)] | length' <<<"$claims")"
   n_hon="$(jq -r --arg me "$HONEST" '[.claims[] | select((.claimant | ascii_downcase) == $me)] | length' <<<"$claims")"
-  local ev="$FINCHAIN_ROOT/manifests/evidence/devnet-dispute-$DEVNET_L2_CHAIN_ID-$stamp.json"
-  jq -n --arg at "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --arg started "$(date -u -d "@$t0" +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || date -u +%Y-%m-%dT%H:%M:%SZ)" --argjson cid "$DEVNET_L2_CHAIN_ID" --argjson l1cid "$DEVNET_L1_CHAIN_ID" \
+  local ev="$FINCHAIN_ROOT/manifests/evidence/devnet-dispute-$DEVNET_L2_CHAIN_ID-$stamp.json" anchor_rec=null
+  [ ! -f "$OUT/chain/anchor.json" ] || anchor_rec="$(jq -c . "$OUT/chain/anchor.json")"
+  jq -n --arg at "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --argjson anchorboot "$anchor_rec" --arg started "$(date -u -d "@$t0" +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || date -u +%Y-%m-%dT%H:%M:%SZ)" --argjson cid "$DEVNET_L2_CHAIN_ID" --argjson l1cid "$DEVNET_L1_CHAIN_ID" \
     --slurpfile l1 "$OUT/chain/l1.json" --slurpfile rec "$OUT/chain/chain-record.json" --slurpfile g8 "$OUT/chain/game-type-$DEVNET_GAME_TYPE.json" --slurpfile ginfo "$dir/game.json" \
     --arg pre "${DEVNET_PRESTATE_HASH:-}" --arg prerec "${DEVNET_PRESTATE_RECORD:-}" --arg khsha "${DEVNET_KONA_HOST_SHA256:-}" --arg khrec "${DEVNET_KONA_HOST_RECORD:-}" --arg kcrec "${DEVNET_KONA_CONFIGS_RECORD:-}" \
-    --arg game "$game" --argjson maxd "$max_depth" --argjson splitd "$split_depth" --arg adv "$ADVERSARY" --arg hon "$HONEST" --arg prop "$PROPOSER" \
+    --arg game "$game" --argjson maxd "$max_depth" --argjson splitd "$split_depth" --arg adv "$ADVERSARY" --arg hon "$HONEST" --arg prop "$PROPOSER" --arg starting "$starting" \
     --argjson moves "$moves" --argjson nadv "$n_adv" --argjson nhon "$n_hon" --argjson txs "$(printf '%s\n' "${txs[@]+"${txs[@]}"}" | jq -cs 'map(select(. != null))')" \
     --slurpfile final "$dir/claims-final.json" --argjson step "$step_tx" --arg leaf "$leaf_idx" --arg anchor "$anchor_before" --arg dir "drill/devnet/out/evidence/dispute-$stamp" \
     --arg result "$result" --arg reason "$reason" --arg opn "${OP_NODE_IMAGE:?}" --arg opr "${OP_RETH_IMAGE:?}" --arg opb "${OP_BATCHER_IMAGE:?}" --arg opp "${OP_PROPOSER_IMAGE:?}" --arg opc "$IMAGE" '
@@ -171,8 +189,9 @@ cmd_dispute() {
      devnet: {l1: $l1[0], images: {opNode: $opn, opReth: $opr, opBatcher: $opb, opProposer: $opp, opChallenger: $opc}},
      deployment: $rec[0],
      gameTypeInstall: $g8[0],
+     anchorBootstrap: $anchorboot,
      prestate: {hash: $pre, record: $prerec}, konaHost: {sha256: $khsha, record: $khrec}, konaConfigs: {record: (if $kcrec == "" then null else $kcrec end)},
-     game: ($ginfo[0] + {address: $game, maxDepth: $maxd, splitDepth: $splitd}),
+     game: ($ginfo[0] + {address: $game, maxDepth: $maxd, splitDepth: $splitd, startingRootHash: $starting}),
      parties: {proposer: $prop, honestChallenger: $hon, attacker: $adv},
      dispute: {attackerMoves: $moves, attackerClaims: $nadv, honestClaims: $nhon, finalClaimCount: $final[0].claimCount, moves: $txs, snapshots: $dir,
                strategy: "attack every claim of the honest side with a random value (op-challenger move --attack); intermediate claims are unverified by the contract, only the bond schedule is paid"},

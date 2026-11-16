@@ -16,6 +16,8 @@
 #   install-game  the owner installs game type 8 on the factory with the devnet prestate in its arguments
 #                 (setImplementation(8, FaultDisputeGameImpl, args)); DEVNET_GAME_RESPECTED=1 also makes it respected
 #   proof         start op-proposer (type 8) and the honest op-challenger (cannon-kona); wait for the first game
+#   anchor        bootstrap the anchor root: resolve and close the first type-8 game once its clock has run out, so
+#                 that the anchor state registry leaves op-deployer's placeholder (2.5 h of waiting, see README)
 #   run-trace     K2b on the devnet: drill/run-trace.sh against the devnet's own endpoints
 #   dispute       the adversary (drill/devnet/adversary.sh): attack the newest game down to the leaf, wait for the step
 #   resolve       wait for the game to resolve; the final record
@@ -43,6 +45,9 @@ NODE_URL="http://127.0.0.1:$DEVNET_NODE_PORT"    # op-node, from this host
 NETWORK=finchain-devnet_default                  # the compose network, where the containers see anvil:8545 and rpc-shim:8550
 DET_DEPLOYER=0x4e59b44847b379578588920ca78fbf26c0b4956c
 DET_DEPLOYER_CODE=0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe03601600081602082378035828234f58015156039578182fd5b8082525050506014600cf3
+# op-deployer's placeholder starting anchor root (opcm/opchain.go PermissionedGameStartingAnchorRoot): the anchor state
+# registry starts here and moves only when a respected game is finalized and closed
+DEAD_ROOT=0xdead000000000000000000000000000000000000000000000000000000000000
 KONA_TAG="${KONA_TAG:-kona-client/v1.9.0}"
 
 compose() {
@@ -347,17 +352,83 @@ cmd_proof() {
   log "waiting for the first type-$DEVNET_GAME_TYPE game (proposal interval $DEVNET_PROPOSAL_INTERVAL; the proposer waits for a finalized L2 block)"
   local i games n
   for i in $(seq 1 60); do
-    games="$(list_games || true)"
-    n="$(jq -r --argjson gt "$DEVNET_GAME_TYPE" '[.[] | select(.gameType == $gt)] | length' <<<"${games:-[]}" 2>/dev/null || echo 0)"
+    games="$(list_games || echo '{"games":[]}')"
+    n="$(jq -r --argjson gt "$DEVNET_GAME_TYPE" '[.games[] | select(.gameType == $gt)] | length' <<<"$games" 2>/dev/null || echo 0)"
     [ "${n:-0}" -gt 0 ] && break
     sleep 10
   done
   if [ "${n:-0}" -gt 0 ]; then
     echo "proof services up; $n game(s) of type $DEVNET_GAME_TYPE so far:"
-    jq -r --argjson gt "$DEVNET_GAME_TYPE" '.[] | select(.gameType == $gt) | "  #\(.index) \(.game) L2 block \(.l2BlockNumber) \(.status) claims \(.claimCount) \(.created)"' <<<"$games"
+    jq -r --argjson gt "$DEVNET_GAME_TYPE" '.games[] | select(.gameType == $gt) | "  #\(.index) \(.game) L2 block \(.l2BlockNumber) \(.status) claims \(.claimCount) \(.created)"' <<<"$games"
   else
     warn "no type-$DEVNET_GAME_TYPE game after 10 minutes; check: docker compose -p finchain-devnet logs op-proposer"
   fi
+  local root
+  root="$(anchor_root | cut -d' ' -f1)"
+  if [ "$root" = "$DEAD_ROOT" ]; then
+    echo "anchor root: op-deployer's placeholder $DEAD_ROOT - games created now start from it and the honest challenger refuses them ('output root absolute prestate does not match'); devnet.sh anchor moves it (the first game's clock, ${DEVNET_GAME_MAX_CLOCK_DURATION}s, plus the finality delay)"
+  else
+    echo "anchor root: $(anchor_root)"
+  fi
+}
+anchor_root() { cast call "$(jq -r .AnchorStateRegistryProxy "$OUT/chain/l1-addresses.json")" 'getAnchorRoot()(bytes32,uint256)' --rpc-url "$L1_URL" | tr '\n' ' ' | sed 's/ *$//'; }
+
+###############################################################################################################
+# The anchor root. op-deployer deploys the chain with a placeholder anchor (0xdead..., L2 block 0), because the L2
+# genesis is generated after the L1 contracts. Every game starts its output bisection at the anchor, so a game created
+# before the anchor has moved carries the placeholder as its starting root; the honest challenger compares that with
+# the real output root at that block, finds them different and refuses to play the game (op-challenger validates
+# permissionless games this way, permissioned ones not at all). The anchor moves when a respected game resolves in
+# favour of its root, waits out the finality delay and is closed: closeGame() calls setAnchorState(). Nobody tracks
+# the placeholder games (the challenger declined them), so the first type-8 game is resolved and closed here, by hand,
+# once its clock has run out. The same holds for the public chain: a Type 8 game there can only be played once the
+# anchor has moved off the placeholder (the first closeGame of the permissioned type).
+cmd_anchor() {
+  [ -n "${DEVNET_DGF:-}" ] || die "no factory address yet: devnet.sh deploy"
+  local asr before root blk games ginfo game idx created l2blk rootclaim expires now left st key tx1 tx2 tx3 resolved_at after
+  asr="$(jq -r .AnchorStateRegistryProxy "$OUT/chain/l1-addresses.json")"
+  before="$(anchor_root)"; root="${before%% *}"; blk="${before##* }"
+  if [ "$root" != "$DEAD_ROOT" ]; then echo "the anchor root is already $root at L2 block $blk; nothing to do"; return 0; fi
+  games="$(list_games)" || die "list-games failed (is the L1 up?)"
+  ginfo="$(jq -c --argjson gt "$DEVNET_GAME_TYPE" '[.games[] | select(.gameType == $gt)] | sort_by(.index) | first // empty' <<<"$games")"
+  [ -n "$ginfo" ] || die "no type-$DEVNET_GAME_TYPE game yet: devnet.sh proof"
+  game="$(jq -r .game <<<"$ginfo")"; idx="$(jq -r .index <<<"$ginfo")"; created="$(jq -r .timestamp <<<"$ginfo")"; l2blk="$(jq -r .l2BlockNumber <<<"$ginfo")"; rootclaim="$(jq -r .outputRoot <<<"$ginfo")"
+  [ "$(cast call "$game" 'wasRespectedGameTypeWhenCreated()(bool)' --rpc-url "$L1_URL" | tr -d '\r\n')" = true ] || die "game #$idx was not of the respected type when created; it cannot move the anchor"
+  expires=$(( created + DEVNET_GAME_MAX_CLOCK_DURATION ))
+  log "bootstrap game #$idx $game: L2 block $l2blk, root $rootclaim, created $(date -u -d "@$created" +%H:%M:%SZ); its clock runs out at $(date -u -d "@$expires" +%H:%M:%SZ) UTC, the anchor moves ${DEVNET_GAME_FINALITY_DELAY}s after the resolution"
+  while :; do
+    now="$(date +%s)"; left=$(( expires + 6 - now ))
+    [ "$left" -gt 0 ] || break
+    if [ $(( left % 300 )) -lt 60 ]; then log "waiting for the clock: $(( left / 60 )) min left"; fi
+    sleep 60
+  done
+  key="$(owner_key)"
+  st="$(cast call "$game" 'status()(uint8)' --rpc-url "$L1_URL" | awk '{print $1}')"
+  tx1=""; tx2=""
+  if [ "$st" = 0 ]; then
+    log "resolving game #$idx (resolveClaim(0, 0), then resolve())"
+    tx1="$(cast send "$game" 'resolveClaim(uint256,uint256)' 0 0 --private-key "$key" --rpc-url "$L1_URL" --json | jq -r .transactionHash)"
+    tx2="$(cast send "$game" 'resolve()' --private-key "$key" --rpc-url "$L1_URL" --json | jq -r .transactionHash)"
+    st="$(cast call "$game" 'status()(uint8)' --rpc-url "$L1_URL" | awk '{print $1}')"
+  fi
+  [ "$st" = 2 ] || die "game #$idx has status $st after resolution, not DEFENDER_WINS (2)"
+  resolved_at="$(cast call "$game" 'resolvedAt()(uint64)' --rpc-url "$L1_URL" | awk '{print $1}')"
+  log "resolved DEFENDER_WINS at $(date -u -d "@$resolved_at" +%H:%M:%SZ) UTC; waiting out the finality delay (${DEVNET_GAME_FINALITY_DELAY}s)"
+  while [ "$(cast call "$asr" 'isGameFinalized(address)(bool)' "$game" --rpc-url "$L1_URL" | tr -d '\r\n')" != true ]; do sleep 15; done
+  log "closing game #$idx (closeGame() -> setAnchorState)"
+  tx3="$(cast send "$game" 'closeGame()' --private-key "$key" --rpc-url "$L1_URL" --json | jq -r .transactionHash)"
+  after="$(anchor_root)"
+  [ "$(printf '%s' "${after%% *}" | tr '[:upper:]' '[:lower:]')" = "$(printf '%s' "$rootclaim" | tr '[:upper:]' '[:lower:]')" ] && [ "${after##* }" = "$l2blk" ] \
+    || die "the anchor root did not move to game #$idx: before '$before', after '$after'"
+  jq -n --arg at "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --argjson g "$ginfo" --arg game "$game" --argjson created "$created" --argjson resolved "$resolved_at" \
+    --arg tx1 "$tx1" --arg tx2 "$tx2" --arg tx3 "$tx3" --arg before "$before" --arg after "$after" --arg by "$DEVNET_ADDR_DEPLOYER" '
+    {movedAt: $at, bootstrapGame: ($g + {address: $game}), createdAt: $created, resolvedAt: $resolved,
+     transactions: {resolveClaim: (if $tx1 == "" then null else $tx1 end), resolve: (if $tx2 == "" then null else $tx2 end), closeGame: $tx3}, sentBy: $by,
+     anchorRootBefore: $before, anchorRootAfter: $after,
+     why: "op-deployer deploys the chain with the placeholder anchor 0xdead... at L2 block 0; a game created before the anchor moved starts from it and the honest challenger refuses it; the anchor moves when a respected game is finalized and closed (closeGame -> setAnchorState)"}' > "$OUT/chain/anchor.json"
+  echo "anchor root moved: $before -> $after (game #$idx closed, tx $tx3)"
+  echo "record: $OUT/chain/anchor.json"
+  echo "the games created before this moment keep the placeholder as their starting root and stay untracked; the dispute uses a game the proposer creates from now on"
 }
 
 ###############################################################################################################
@@ -383,7 +454,7 @@ cmd_status() {
   else jq -r '.result | "L2: unsafe \(.unsafe_l2.number) safe \(.safe_l2.number) finalized \(.finalized_l2.number); L1 head seen \(.head_l1.number) finalized \(.finalized_l1.number)"' <<<"$st"; fi
   if [ -n "${DEVNET_DGF:-}" ] && [ -n "$head" ]; then
     echo "games (factory $DEVNET_DGF):"
-    list_games | jq -r '.[] | "  #\(.index) \(.game) type \(.gameType) L2 block \(.l2BlockNumber) \(.status) claims \(.claimCount) \(.created)"' 2>/dev/null || echo "  (list-games failed)"
+    list_games | jq -r '.games[] | "  #\(.index) \(.game) type \(.gameType) L2 block \(.l2BlockNumber) \(.status) claims \(.claimCount) \(.created)"' 2>/dev/null || echo "  (list-games failed)"
   fi
 }
 
@@ -403,10 +474,11 @@ case "${1:-}" in
   install-game) cmd_install_game ;;
   l2) cmd_l2 ;;
   proof) cmd_proof ;;
+  anchor) cmd_anchor ;;
   run-trace) cmd_run_trace ;;
   dispute) cmd_dispute ;;
   resolve) cmd_resolve ;;
   status) cmd_status ;;
   down) cmd_down ;;
-  *) sed -n '2,29p' "$0" | sed 's/^# \{0,1\}//'; exit 2 ;;
+  *) sed -n '2,31p' "$0" | sed 's/^# \{0,1\}//'; exit 2 ;;
 esac

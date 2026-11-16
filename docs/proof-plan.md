@@ -92,7 +92,7 @@ pipeline and the embedding method; it is superseded and nothing downstream uses 
 | K1 | Finchain's configuration converted to the registry format kona-client embeds; merged by the registry crate's own build script; the rollup configuration the client derives compared with `rollup.json` field by field (`make kona-check`, `drill/README.md`) | the client will see the chain as op-node does. Done 2026-11-15: `manifests/evidence/kona-configs-85422-20261115T185730Z.json`, 28 of 28 fields equal |
 | K2 | Reproducible kona-client prestate with Finchain embedded, the published kona prestate reproduced first (`UPSTREAM_CHECK=1 make prestate`); then `run-trace` (`cannon-kona`) with it against a recent block of the public chain (`make run-trace`), the client booting from the embedded configuration the way the game contract boots it (a kona-host that knows the chain, `make kona-host`, behind `drill/kona-host-wrapper.sh`) | the prestate proves a real Finchain block in the VM that the public chain's game type would run. K2a done 2026-11-16: `0x038b60ac...d9fb`, the published `0x03f872c2...6b0b` reproduced first (`prestate-85422-20261116T012620Z.json`). K2b done 2026-11-16: `run-trace-20261116T080811Z.json`, L2 block 200126 verified in 542 s with the embedded kona-host (`kona-host-85422-20261116T055801Z.json`) and `clientBoot.embeddedConfigUsed: true`; a first run the same day (`run-trace-20261116T045749Z.json`, 502 s) had verified the claim with the client on the oracle-supplied configuration (chain id 0) and is kept as what it is |
 | K3 | Isolated devnet: a `CANNON_KONA` game on an honest root attacked down to the leaf by a dishonest challenger, the honest challenger's real `step()` on chain, resolution for the honest root (`drill/devnet/`, `make devnet-<step>`) | the proof system executes end to end for Finchain's configuration (environment stated). Tooling delivered 2026-11-16 (alpha.16); not run yet |
-| K4 | Minimal integration check against Sepolia: what a Type 8 implementation needs there (prestate URL, challenger configuration, bonds), as a non-default game type if deployed at all. K3 rehearses the installing transaction: `setImplementation(8, FaultDisputeGameImpl, args)` from the owner, the prestate being an argument of the factory in op-contracts/v7.0.0 | readiness of the public chain for a later decision; no change to what the public chain trusts |
+| K4 | Minimal integration check against Sepolia: what a Type 8 implementation needs there (prestate URL, challenger configuration, bonds), as a non-default game type if deployed at all. K3 rehearses the installing transaction: `setImplementation(8, FaultDisputeGameImpl, args)` from the owner, the prestate being an argument of the factory in op-contracts/v7.0.0. K3 also showed the precondition: the anchor state registry must have left op-deployer's placeholder root (the first `closeGame()` of the permissioned type, 2026-11-18 at the earliest on Sepolia) before a Type 8 game can be played at all | readiness of the public chain for a later decision; no change to what the public chain trusts |
 
 Approved: K1 to K4 as above; a Type 8 game on the devnet; a Type 8 implementation on Sepolia
 only as a non-default type. Not approved, and not part of M4: changing the respected game
@@ -180,8 +180,14 @@ Steps (`drill/devnet/README.md` has the commands and the durations):
 2. `devnet-build`: the devnet kona prestate and kona-host (the K1 comparison and the embedding
    checks run exactly as for the public chain; `KONA_CHECK=1` adds the K1 probe).
 3. `devnet-install-game`: type 8 installed as above; the read-back and the transactions recorded.
-4. `devnet-proof`: the proof services up; the proposer's first games created and, in time,
-   resolved by the challenger without a dispute (the devnet's L0/L1).
+4. `devnet-proof`: the proof services up; the proposer's first games created. `devnet-anchor`:
+   the first of them resolved and closed by hand once its clock has run out, which moves the
+   anchor state registry off op-deployer's placeholder root (`0xdead...` at L2 block 0, set at
+   every deployment because the L2 genesis is generated after the L1 contracts). Found on the
+   first run (2026-11-16): a permissionless game created before the anchor has moved carries the
+   placeholder as its starting root and the honest challenger refuses it ("output root absolute
+   prestate does not match"); permissioned games are not validated, which is why the public
+   chain's resident challenger never saw it. The dispute uses the proposer's next game.
 5. `devnet-run-trace` (optional): K2b against the devnet.
 6. `devnet-dispute`: the adversary, one game, driven to the honest `step()`; the record.
 7. `devnet-resolve`: the clocks run out; resolution for the honest root; the record completed.
