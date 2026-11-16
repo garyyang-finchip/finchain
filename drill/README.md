@@ -22,7 +22,7 @@ build pipeline and is marked superseded. Nothing downstream uses it.
 | --- | --- | --- | --- |
 | K1 | Finchain's configuration in the registry format kona-client embeds; merged by the registry crate's own build script; the derived rollup configuration equal to `rollup.json` | scratch host (or any machine with cargo) | `make kona-check` (`make kona-configs` writes the files only) |
 | K2a | Reproducible kona-client prestate with Finchain embedded; the official kona prestate reproduced first; embedding verified | scratch host | `UPSTREAM_CHECK=1 make prestate` |
-| K2b | `op-challenger run-trace` (`cannon-kona`) with that prestate against a recent block of the public chain | scratch host over the private network, or host B | `make run-trace` |
+| K2b | `op-challenger run-trace` (`cannon-kona`) with that prestate and a kona-host that knows the chain, against a recent block of the public chain; the client must boot from the embedded configuration | scratch host over the private network, or host B | `make kona-host`, then `make run-trace` |
 | K3 | Isolated devnet: a `CANNON_KONA` game on an invalid root, an adversary that answers every move, a real `step()`, correct resolution | scratch host | documented when K2 is done |
 | K4 | Minimal integration check against Sepolia: what a Type 8 implementation would need there, without changing the respected game type | - | documented when K3 is done |
 
@@ -144,7 +144,39 @@ inside the Cannon VM from the given prestate until it has derived and executed t
 run passes when the VM exits with the claim verified. That is one block, the same unit a real
 dispute narrows to before any `step()`, and the same client, VM and prestate the
 `cannon-kona` game type runs; a pass with the Finchain prestate shows that prestate proves a
-real Finchain block before any game implementation is changed.
+real Finchain block before any game implementation is changed - provided the client booted the
+way the game contract would boot it (next paragraph).
+
+The chain id and the host (`make kona-host`). The client inside the VM does not read a
+configuration file: it asks the preimage oracle for the L2 chain id (local key 5) and looks
+that id up in the registry compiled into it. On chain that key is answered by the game
+contract from its own `L2_CHAIN_ID`, so the client reads the configuration embedded in the
+prestate; a key the contract does not serve (the oracle-supplied rollup configuration, local
+key 6) cannot be part of a valid step. Off chain, kona-host answers the key, and kona-host
+takes either `--l2-chain-id` or `--rollup-config-path`, never both. op-challenger gives it
+`--rollup-config-path` for any chain outside its own list, which is every chain outside the
+superchain registry - Finchain included - and kona-host then reports chain id 0, so the client,
+finding no chain 0, falls back to the configuration the host feeds it through the oracle and
+says so on its stdout ("No rollup config found for chain ID 0, falling back to preimage
+oracle. This is insecure in production without additional validation!"). The first K2b run
+(2026-11-16, `run-trace-20261116T045749Z.json`) passed that way: the claim was verified, the
+boot path was not the one a dispute uses, and the record is kept as what it is. The run that
+counts uses the same pair a `cannon-kona` challenger for this chain needs:
+
+- a kona-host built from the same checkout with the same K1 files in its registry
+  (`drill/kona-host-build.sh`, `make kona-host`; the image's own recipe with the release
+  profile; checked by running it inside the op-challenger image and by finding the registry
+  text in the binary; record `manifests/evidence/kona-host-<chainId>-<date>.json`);
+- `drill/kona-host-wrapper.sh` as `--cannon-kona-server`: it drops `--rollup-config-path` from
+  what op-challenger passes and appends `--l2-chain-id <chain id>`, then runs that kona-host.
+
+`drill/run-trace.sh` mounts both when `drill/out/bin/kona-host-finchain-<tag>` exists, reads
+the guest's stdout afterwards, and reports a run whose client fell back to the oracle as
+`PASS-WITH-ORACLE-CONFIG` (exit 3) with the chain id the client saw; the record carries
+`konaHost` (embedded or not, binary digest) and `clientBoot` (which configuration the client
+used). Only `PASS` closes K2b. A resident Type 8 challenger on Sepolia (K4) needs the same
+wrapper and host, or an upstream op-challenger that can pass `--l2-chain-id` for a chain it
+does not know by name.
 
 Inputs and where they come from:
 
@@ -186,6 +218,7 @@ Inputs and where they come from:
 ```bash
 # on the scratch host that built the prestate, once it is on the private network:
 make init-env                        # .env from the example: the L1 endpoints are enough for one run
+make kona-host                       # once: the host side with the chain in its registry (20-40 minutes)
 ROLLUP_RPC=http://<host B private IP>:8547 L2_RPC_DEBUG=http://<host A private IP>:8545 \
   L2_PROOF_RPC=http://<host B private IP>:8545 L1_RPC_URL=<L1 endpoint> DRILL_NETWORK=host make run-trace
 # on host B (its own op-node, host A's op-reth over the private network):

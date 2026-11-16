@@ -359,11 +359,14 @@ def make_handler(upstream: Upstream, stats: Stats, logf, synth_enabled=False, ro
             return self._send(404, b"not found")
 
         def _send(self, code, payload: bytes):
-            self.send_response(code)
-            self.send_header("content-type", "application/json")
-            self.send_header("content-length", str(len(payload)))
-            self.end_headers()
-            self.wfile.write(payload)
+            try:
+                self.send_response(code)
+                self.send_header("content-type", "application/json")
+                self.send_header("content-length", str(len(payload)))
+                self.end_headers()
+                self.wfile.write(payload)
+            except (BrokenPipeError, ConnectionResetError):
+                log("client went away before the answer was written (%d bytes)" % len(payload))
 
     return Handler
 

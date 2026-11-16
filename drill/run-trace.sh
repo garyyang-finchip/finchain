@@ -150,14 +150,35 @@ if [ "$TRACE" = cannon-kona ]; then
   fi
 fi
 
-# The preimage server of each path. cannon-kona: kona-host, shipped in the op-challenger image. cannon: the
-# op-program host, which the image does not ship; it is built once from the monorepo checkout of the prestate's
-# tag (the one drill/prestate.sh cloned), inside the Go image that tag names, and mounted into the run.
-server_mounts=()
+# The preimage server of each path.
+# cannon-kona: kona-host built with the chain in its registry (drill/kona-host-build.sh), run through
+#   drill/kona-host-wrapper.sh so that the client gets the chain id the game contract would give it and looks the
+#   chain up in the registry embedded in the prestate. The kona-host shipped in the image knows only registry chains:
+#   with it the client boots with chain id 0 and the oracle-supplied configuration, which the run reports and which
+#   does not count (result PASS-WITH-ORACLE-CONFIG).
+# cannon: the op-program host, which the image does not ship; built once from the monorepo checkout of the
+#   prestate's tag inside the Go image that tag names, and mounted into the run.
+server_args=(); kona_server=/usr/local/bin/kona-host; embedded_host=false; kona_host_sha=""
 if [ "$TRACE" = cannon-kona ]; then
-  server_desc="$(docker run --rm --entrypoint /usr/local/bin/kona-host "$IMAGE" --version 2>/dev/null | head -1 || true)"
-  [ -n "$server_desc" ] || die "the image $IMAGE has no working /usr/local/bin/kona-host"
-  server_desc="$server_desc (shipped in the op-challenger image)"
+  KONA_TAG="${KONA_TAG:-kona-client/v1.9.0}"
+  KONA_HOST_BIN="${KONA_HOST_BIN:-$FINCHAIN_ROOT/drill/out/bin/kona-host-finchain-$(printf '%s' "$KONA_TAG" | tr '/' '-')}"
+  l2_chain_id="$(jq -r '.l2_chain_id' "$CHAIN_DIR/out/rollup.json")"
+  if [ -s "$KONA_HOST_BIN" ]; then
+    wrapper="$FINCHAIN_ROOT/drill/out/bin/kona-host-wrapper.sh"
+    cp "$FINCHAIN_ROOT/drill/kona-host-wrapper.sh" "$wrapper"; chmod +x "$wrapper" "$KONA_HOST_BIN"
+    ver="$(docker run --rm -v "$KONA_HOST_BIN:/usr/local/bin/kona-host-finchain-bin:ro" --entrypoint /usr/local/bin/kona-host-finchain-bin "$IMAGE" --version 2>/dev/null | head -1 || true)"
+    [ -n "$ver" ] || die "the embedded kona-host $KONA_HOST_BIN does not run inside $IMAGE"
+    kona_host_sha="$(sha256_of "$KONA_HOST_BIN")"
+    server_args=(-v "$KONA_HOST_BIN:/usr/local/bin/kona-host-finchain-bin:ro" -v "$wrapper:/usr/local/bin/kona-host-finchain:ro" -e "KONA_L2_CHAIN_ID=$l2_chain_id")
+    kona_server=/usr/local/bin/kona-host-finchain
+    server_desc="$ver built from $KONA_TAG with chain $l2_chain_id in its registry (sha256 ${kona_host_sha:0:16}...), through drill/kona-host-wrapper.sh: --l2-chain-id $l2_chain_id instead of --rollup-config-path"
+    embedded_host=true
+  else
+    server_desc="$(docker run --rm --entrypoint /usr/local/bin/kona-host "$IMAGE" --version 2>/dev/null | head -1 || true)"
+    [ -n "$server_desc" ] || die "the image $IMAGE has no working /usr/local/bin/kona-host"
+    server_desc="$server_desc (shipped in the op-challenger image; it hands the client chain id 0, so the client uses the oracle-supplied configuration)"
+    warn "no embedded kona-host at $KONA_HOST_BIN (make kona-host builds it): the image's kona-host will give the client chain id 0 and the oracle-supplied configuration; such a run is reported as PASS-WITH-ORACLE-CONFIG and does not count for K2"
+  fi
 else
   OP_PROGRAM_TAG="${OP_PROGRAM_TAG:-op-program/v1.9.0}"
   tagslug="$(printf '%s' "$OP_PROGRAM_TAG" | tr '/' '-')"
@@ -173,7 +194,7 @@ else
       >"$LOGS/op-program-host-$tagslug.log" 2>&1 || die "op-program host build failed; see $LOGS/op-program-host-$tagslug.log"
     [ -x "$OPP_BIN" ] || die "op-program host not produced at $OPP_BIN"
   fi
-  server_mounts=(-v "$OPP_BIN:/usr/local/bin/op-program:ro")
+  server_args=(-v "$OPP_BIN:/usr/local/bin/op-program:ro")
   server_desc="op-program host built from $OP_PROGRAM_TAG (sha256 $(sha256_of "$OPP_BIN" | cut -c1-16)...)"
 fi
 
@@ -186,7 +207,7 @@ pfile="/prestates/$(basename "$PRESTATE")"
 throwaway="$(openssl rand -hex 32)"
 # the flags of each path; the chain's rollup.json and genesis.json are given to the host side of the VM in both
 if [ "$TRACE" = cannon-kona ]; then
-  trace_flags=(--trace-type cannon-kona --cannon-bin /usr/local/bin/cannon --cannon-kona-server /usr/local/bin/kona-host
+  trace_flags=(--trace-type cannon-kona --cannon-bin /usr/local/bin/cannon --cannon-kona-server "$kona_server"
     --cannon-kona-rollup-config /chain/rollup.json --cannon-kona-l2-genesis /chain/genesis.json
     --cannon-kona-prestate "$pfile" --run "cannon-kona/finchain/file:$pfile" --l2-eth-rpc "$L2_FOR_CONTAINER")
 else
@@ -199,7 +220,7 @@ log "run-trace ($TRACE) on host $HOST: prestate $hash, network $network, rollup 
 log "preimage server: $server_desc; VM timeout $RUN_TIMEOUT; log $logf"
 started="$(date -u +%Y-%m-%dT%H:%M:%SZ)"; t0="$(date +%s)"
 docker run -d --name "$name" --network "$network" \
-  -v "$CHAIN_DIR/out:/chain:ro" -v "$(dirname "$PRESTATE"):/prestates:ro" -v "finchain-drill-run-trace:/data" ${server_mounts[@]+"${server_mounts[@]}"} \
+  -v "$CHAIN_DIR/out:/chain:ro" -v "$(dirname "$PRESTATE"):/prestates:ro" -v "finchain-drill-run-trace:/data" ${server_args[@]+"${server_args[@]}"} \
   --entrypoint op-challenger "$IMAGE" run-trace \
   --l1-eth-rpc "$L1_FOR_CONTAINER" --l1-beacon "$L1_BEACON_URL" --rollup-rpc "$ROLLUP_RPC" \
   --game-factory-address "$DGF" --datadir /data "${trace_flags[@]}" --vm-timeout "$RUN_TIMEOUT" \
@@ -232,17 +253,30 @@ inputs="$(first_line 'select(.msg=="Using L1 head") | {l1Head: .num, l1HeadHash:
 l2="$(first_line 'select(.msg=="Got sync status") | .status | {finalizedL1: .finalized_l1.number, safeL2: .safe_l2.number, finalizedL2: .finalized_l2.number}')"; [ -n "$l2" ] || l2=null
 claim="$(first_line 'select(.l2Block != null and .claim != null) | {l2Block: .l2Block, claim: .claim, l2Head: .l2, l1: .l1}')"; [ -n "$claim" ] || claim=null
 if [ "$TRACE" = cannon-kona ]; then client="kona-client"; l2note=" (kona-host preimage path: eth and debug namespaces)"; else client="op-program"; l2note=" (execution-witness path)"; fi
+# the client's boot path, from the guest's own stdout: a chain id its registry does not hold makes it fall back to the
+# oracle-supplied configuration, which is not what the game contract would put it on; such a pass does not count
+boot_line="$(first_line 'select(.msg | test("boot_loader: No rollup config found for chain ID")) | .msg' | jq -r . 2>/dev/null | sed -E 's/.*(boot_loader: [^"\\]*).*/\1/' | head -c 300 || true)"
+boot_chain=""; embedded_used=true
+if [ -n "$boot_line" ]; then embedded_used=false; boot_chain="$(sed -nE 's/.*chain ID ([0-9]+).*/\1/p' <<<"$boot_line")"; fi
+if [ "$result" = PASS ] && [ "$embedded_used" = false ]; then
+  result="PASS-WITH-ORACLE-CONFIG"; reason="VM exited with the claim verified, but the client booted with chain id ${boot_chain:-?} and the oracle-supplied rollup configuration, not the one embedded in the prestate (the kona-host in front of it does not know the chain); not acceptable for K2"
+fi
 ev="$FINCHAIN_ROOT/manifests/evidence/run-trace-$stamp.json"
 jq -n --arg at "$started" --arg end "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --argjson secs "$elapsed" --arg host "$HOST" --arg hash "$hash" --arg file "$(basename "$PRESTATE")" \
   --arg image "$IMAGE" --arg l1 "$(rpc_label "$L1_UPSTREAM")" --argjson shims "$shims_json" --arg l2proof "$( [ -n "$L2_PROOF_USED" ] && rpc_label "$L2_PROOF_USED" || echo "")" --arg dgf "$DGF" --argjson inputs "$inputs" --argjson sync "$l2" --argjson claim "$claim" \
   --arg result "$result" --arg reason "$reason" --arg logname "drill/out/logs/run-trace-$stamp.log" --argjson cid "${CHAIN_ID:-0}" \
-  --arg rollup "$(rpc_label "$ROLLUP_RPC")" --arg l2src "$(rpc_label "$L2_RPC_DEBUG")$l2note" --arg server "$server_desc" --arg trace "$TRACE" --arg client "$client" '
+  --arg rollup "$(rpc_label "$ROLLUP_RPC")" --arg l2src "$(rpc_label "$L2_RPC_DEBUG")$l2note" --arg server "$server_desc" --arg trace "$TRACE" --arg client "$client" \
+  --argjson emb_host "$embedded_host" --arg khsha "$kona_host_sha" --argjson emb_used "$embedded_used" --arg bootline "$boot_line" --arg bootchain "$boot_chain" '
   {schema: "finchain.run-trace/2",
    acceptance: "M4 K2: trace self-check (run-trace) passes for a recent block (docs/acceptance.md M4; docs/proof-plan.md K2)",
    environment: "public-testnet", chainId: $cid, host: $host, startedAt: $at, finishedAt: $end, seconds: $secs,
    what: ("op-challenger run-trace: " + $client + " executed inside the Cannon VM from the prestate below for one recent L2 block of the live chain (the safe head at a finalized L1 block and its parent, from the host op-node); PASS = the VM exited with the claim verified"),
    prestate: {hash: $hash, file: $file, source: "drill/prestate.sh (manifests/evidence/prestate-<chainId>-<date>.json)"},
-   image: $image, traceType: $trace, preimageServer: $server, l1: $l1, disputeGameFactory: $dgf, rollupRpc: $rollup, l2Source: $l2src,
+   image: $image, traceType: $trace, preimageServer: $server,
+   konaHost: (if $trace == "cannon-kona" then {embeddedRegistry: $emb_host, binarySha256: (if $khsha == "" then null else $khsha end), record: (if $emb_host then "manifests/evidence/kona-host-<chainId>-<date>.json" else null end)} else null end),
+   clientBoot: (if $trace == "cannon-kona" then {embeddedConfigUsed: $emb_used, chainIdSeenByClient: (if $bootchain == "" then null else ($bootchain | tonumber) end), guestLine: (if $bootline == "" then null else $bootline end),
+                 meaning: "on chain the game contract gives the client its L2 chain id (local preimage key 5) and the client reads the configuration embedded in the prestate; a client that fell back to the oracle-supplied configuration ran a different boot path"} else null end),
+   l1: $l1, disputeGameFactory: $dgf, rollupRpc: $rollup, l2Source: $l2src,
    l2ProofSource: (if $l2proof == "" then null else ($l2proof + " (eth_getProof routed there by the shim: host A answers proofs only at its head)") end),
    rpcShims: {what: "drill/rpc-shim.py between op-challenger/kona-host and the endpoints; synthesised = raw methods built from standard ones and verified against the header before being served; routes = methods sent to another endpoint", instances: $shims},
    inputs: {syncStatus: $sync, l1Head: $inputs, block: $claim},

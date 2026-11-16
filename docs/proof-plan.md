@@ -65,6 +65,19 @@ The route is therefore kona-client, the client of the `cannon-kona` game type:
 - kona-host reads raw RLP from the nodes, so the header-recomputation problem does not
   exist on this path.
 
+Two things the tooling does not do for a chain outside the registry, found while running K2b
+and handled in `drill/` (`drill/README.md`, K2b): public L1 endpoints do not serve the raw
+methods kona-host reads, and the hosts' op-reth settings do not all allow `eth_getProof` at a
+past block (`drill/rpc-shim.py` fills both for the drill; a resident challenger needs real
+endpoints); and op-challenger drives kona-host with `--rollup-config-path` for such a chain,
+which makes kona-host hand the client chain id 0 and the client fall back to the
+oracle-supplied configuration - not the boot path of a dispute, where the game contract gives
+the client its chain id and the client reads the embedded registry. The run that counts
+therefore uses a kona-host built with the chain in its registry (`make kona-host`) behind a
+wrapper that passes `--l2-chain-id`, and `run-trace` rejects a pass whose client fell back.
+The same pair is a prerequisite for any `cannon-kona` challenger of this chain (K4), until
+op-challenger can pass the chain id for a chain it does not know by name.
+
 The op-program prestate `0x03e76631...5af1` stays in the record as evidence of the build
 pipeline and the embedding method; it is superseded and nothing downstream uses it.
 
@@ -73,7 +86,7 @@ pipeline and the embedding method; it is superseded and nothing downstream uses 
 | Step | What is done | What may be claimed when it passes |
 | --- | --- | --- |
 | K1 | Finchain's configuration converted to the registry format kona-client embeds; merged by the registry crate's own build script; the rollup configuration the client derives compared with `rollup.json` field by field (`make kona-check`, `drill/README.md`) | the client will see the chain as op-node does. Done 2026-11-15: `manifests/evidence/kona-configs-85422-20261115T185730Z.json`, 28 of 28 fields equal |
-| K2 | Reproducible kona-client prestate with Finchain embedded, the published kona prestate reproduced first (`UPSTREAM_CHECK=1 make prestate`); then `run-trace` (`cannon-kona`) with it against a recent block of the public chain (`make run-trace`) | the prestate proves a real Finchain block in the VM that the public chain's game type would run |
+| K2 | Reproducible kona-client prestate with Finchain embedded, the published kona prestate reproduced first (`UPSTREAM_CHECK=1 make prestate`); then `run-trace` (`cannon-kona`) with it against a recent block of the public chain (`make run-trace`), the client booting from the embedded configuration the way the game contract boots it (a kona-host that knows the chain, `make kona-host`, behind `drill/kona-host-wrapper.sh`) | the prestate proves a real Finchain block in the VM that the public chain's game type would run. K2a done 2026-11-16: `0x038b60ac...d9fb`, the published `0x03f872c2...6b0b` reproduced first (`prestate-85422-20261116T012620Z.json`). K2b: a first run verified the claim in 502 s but with the client on the oracle-supplied configuration (chain id 0; `run-trace-20261116T045749Z.json`, kept as what it is); the run with the embedded boot path is the one that closes the step |
 | K3 | Isolated devnet: a `CANNON_KONA` game on an invalid root, an adversary that answers every move, a real `step()` on chain, correct resolution, anchor state unchanged | the proof system executes end to end for Finchain's configuration (environment stated) |
 | K4 | Minimal integration check against Sepolia: what a Type 8 implementation needs there (prestate URL, challenger configuration, bonds), as a non-default game type if deployed at all | readiness of the public chain for a later decision; no change to what the public chain trusts |
 

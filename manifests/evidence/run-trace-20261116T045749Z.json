@@ -1,0 +1,83 @@
+{
+  "schema": "finchain.run-trace/2",
+  "acceptance": "M4 K2: trace self-check (run-trace) passes for a recent block (docs/acceptance.md M4; docs/proof-plan.md K2)",
+  "environment": "public-testnet",
+  "chainId": 85422,
+  "host": "b",
+  "startedAt": "2026-11-16T04:57:56Z",
+  "finishedAt": "2026-11-16T05:06:18Z",
+  "seconds": 502,
+  "what": "op-challenger run-trace: kona-client executed inside the Cannon VM from the prestate below for one recent L2 block of the live chain (the safe head at a finalized L1 block and its parent, from the host op-node); PASS = the VM exited with the claim verified",
+  "prestate": {
+    "hash": "0x038b60ac8db81e83cb87229ef9119b500c5723767806cb93a639d70618cad9fb",
+    "file": "0x038b60ac8db81e83cb87229ef9119b500c5723767806cb93a639d70618cad9fb.bin.gz",
+    "source": "drill/prestate.sh (manifests/evidence/prestate-<chainId>-<date>.json)"
+  },
+  "image": "us-docker.pkg.dev/oplabs-tools-artifacts/images/op-challenger:v1.9.6@sha256:4f01ba7d5f4e58d771534522e5624ab3e6e200d8be619a17e1b04c47548bdb93",
+  "traceType": "cannon-kona",
+  "preimageServer": "kona-host 1.0.2 (shipped in the op-challenger image)",
+  "l1": "https://ethereum-sepolia-rpc.publicnode.com",
+  "disputeGameFactory": "0xc752f10ab0696860b11b789a2ab9f4f93331329c",
+  "rollupRpc": "http://100.120.188.50:8547",
+  "l2Source": "http://100.89.247.8:8545 (kona-host preimage path: eth and debug namespaces)",
+  "l2ProofSource": "http://100.120.188.50:8545 (eth_getProof routed there by the shim: host A answers proofs only at its head)",
+  "rpcShims": {
+    "what": "drill/rpc-shim.py between op-challenger/kona-host and the endpoints; synthesised = raw methods built from standard ones and verified against the header before being served; routes = methods sent to another endpoint",
+    "instances": [
+      {
+        "upstream": "ethereum-sepolia-rpc.publicnode.com",
+        "synthesised": [
+          "debug_getRawHeader",
+          "debug_getRawReceipts"
+        ],
+        "routes": {},
+        "counts": {
+          "forwarded": 58,
+          "routed": 0,
+          "headers": 185,
+          "receipts": 58,
+          "failed": 0
+        },
+        "log": "drill/out/logs/rpc-shim-l1-20261116T045749Z.log",
+        "logSha256": "3b3b2e811941e83f946d15d54b97b10b917e1ee9f4d0726d8f918f7d1f40ed1a"
+      },
+      {
+        "upstream": "100.89.247.8:8545",
+        "synthesised": [],
+        "routes": {
+          "eth_getProof": "100.120.188.50:8545"
+        },
+        "counts": {
+          "forwarded": 622,
+          "routed": 61,
+          "headers": 0,
+          "receipts": 0,
+          "failed": 0
+        },
+        "log": "drill/out/logs/rpc-shim-l2-20261116T045749Z.log",
+        "logSha256": "7c05bb8f9a7be027b2981e2c3e419ccd5e5a2e334408d4d0b533a075e7f7296e"
+      }
+    ]
+  },
+  "inputs": {
+    "syncStatus": {
+      "finalizedL1": 12145029,
+      "safeL2": 195162,
+      "finalizedL2": 194694
+    },
+    "l1Head": {
+      "l1Head": 12145029,
+      "l1HeadHash": "0x026baeb9ea1db0367b461263481ba2c3e3719d80265fa6fddd0acb9eb33ddbb6",
+      "disputeL1": 12145029
+    },
+    "block": {
+      "l2Block": "194520",
+      "claim": "0x7637606c24b292867ec85cb0e3a1a0f5d165a778a8fc94705d4f497d097a9537",
+      "l2Head": "0x8eb34d702fa8ac8b113d9b991b874b688e395d28e056c36598e1e5ef08e2d375",
+      "l1": "0x026baeb9ea1db0367b461263481ba2c3e3719d80265fa6fddd0acb9eb33ddbb6"
+    }
+  },
+  "result": "PASS",
+  "reason": "VM exited with the claim verified",
+  "log": "drill/out/logs/run-trace-20261116T045749Z.log"
+}
