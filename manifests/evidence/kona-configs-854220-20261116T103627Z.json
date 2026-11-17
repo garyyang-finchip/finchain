@@ -1,0 +1,416 @@
+{
+  "schema": "finchain.kona-configs/1",
+  "acceptance": "M4 K1: Finchain configuration converted to the kona-client registry format, merged by the registry build script and found equal to rollup.json (docs/acceptance.md M4; docs/proof-plan.md K1)",
+  "environment": "build",
+  "recordedAt": "2026-11-16T10:36:27Z",
+  "chainId": 854220,
+  "source": {
+    "repository": "https://github.com/ethereum-optimism/optimism",
+    "tag": "kona-client/v1.9.0",
+    "commit": "1286a886f0853e07503b46c2d6233b6a2f623286",
+    "crate": "kona-registry 0.4.5",
+    "toolchain": "rust:1.95 (docker)",
+    "cargo": "docker",
+    "rollupSha256": "9338a2bc4dfa9b8377881e62ef9151304ef032c1b867ecf8d7225043eecd8dfb",
+    "genesisSha256": "17e79a21314bd7cf991bd9b684557648b71a2a2fceecbf9f9d855d87253c6d84"
+  },
+  "files": {
+    "chainList": {
+      "sha256": "15a431f52871435641a538c198ddeff4aa91d81a213e73c9484d836aea04c5f1",
+      "content": [
+        {
+          "name": "Finchain devnet",
+          "identifier": "finchain-devnet/devnet",
+          "chainId": 854220,
+          "rpc": [
+            "http://op-reth:8545"
+          ],
+          "explorers": [],
+          "governedByOptimism": false,
+          "dataAvailabilityType": "eth-da",
+          "parent": {
+            "type": "L2",
+            "chain": "finchain-devnet"
+          },
+          "faultProofs": {
+            "status": "permissionless"
+          }
+        }
+      ]
+    },
+    "configs": {
+      "sha256": "1dd0fa6f017527d2462beca85d371333cbc002701e70bf61d2bc96da6b85a580",
+      "content": {
+        "superchains": [
+          {
+            "name": "finchain-devnet",
+            "config": {
+              "name": "Finchain-devnet",
+              "l1": {
+                "chain_id": 11155111,
+                "public_rpc": "http://anvil:8545",
+                "explorer": ""
+              },
+              "hardforks": {},
+              "superchain_config_addr": "0xcf7ed3acca5a467e9e704c703e8d87f634fb0fc9",
+              "op_contracts_manager_proxy_addr": null
+            },
+            "chains": [
+              {
+                "Name": "Finchain devnet",
+                "PublicRPC": "http://op-reth:8545",
+                "SequencerRPC": "http://op-reth:8545",
+                "Explorer": "",
+                "GovernedByOptimism": false,
+                "SuperchainTime": null,
+                "DataAvailabilityType": "eth-da",
+                "l2_chain_id": 854220,
+                "batch_inbox_address": "0x00cae424717462fd2cf7d032d75daafba9e66728",
+                "block_time": 2,
+                "seq_window_size": 3600,
+                "max_sequencer_drift": 600,
+                "GasPayingToken": null,
+                "hardfork_configuration": {
+                  "regolith_time": 0,
+                  "canyon_time": 0,
+                  "delta_time": 0,
+                  "ecotone_time": 0,
+                  "fjord_time": 0,
+                  "granite_time": 0,
+                  "holocene_time": 0,
+                  "isthmus_time": 0,
+                  "jovian_time": 0
+                },
+                "optimism": {
+                  "eip1559Elasticity": 6,
+                  "eip1559Denominator": 50,
+                  "eip1559DenominatorCanyon": 250
+                },
+                "alt_da": null,
+                "genesis": {
+                  "l1": {
+                    "hash": "0x805355fd22d8324bc002426c03d0247e58553616b6b8549b5716f13c20273de2",
+                    "number": 30
+                  },
+                  "l2": {
+                    "hash": "0x7b49e0571d7736a085ee4b9bf1b08d5a3295090e81087697003ecf1afeff713a",
+                    "number": 0
+                  },
+                  "l2_time": 1794825049,
+                  "system_config": {
+                    "batcherAddr": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+                    "overhead": "0x0000000000000000000000000000000000000000000000000000000000000000",
+                    "scalar": "0x010000000000000000000000000000000000000000000000000c3c9d00000558",
+                    "gasLimit": 60000000,
+                    "eip1559Params": "0x0000000000000000",
+                    "operatorFeeParams": "0x0000000000000000000000000000000000000000000000000000000000000000",
+                    "minBaseFee": 0,
+                    "daFootprintGasScalar": 0
+                  }
+                },
+                "Roles": {
+                  "BatchSubmitter": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8"
+                },
+                "Addresses": {
+                  "OptimismPortalProxy": "0x24a3c28042b4d5a3cdf76dbb4f599a1d9bc4027a",
+                  "SystemConfigProxy": "0xcac14da6c461e4cdd942d3891952b42bb9188df6",
+                  "L1CrossDomainMessengerProxy": "0xfb4dbc341c116cf1c5a5f7fb343eaf922c8f821b",
+                  "L1Erc721BridgeProxy": "0x388893795e207a86b1dd924ba0f6b3ad174f7941",
+                  "L1StandardBridgeProxy": "0xc39d6927e75908bfd787b1fa9b0721e665a4a95a",
+                  "OptimismMintableErc20FactoryProxy": "0x2ec1407715ce94309dedb77543c82350b3c80238",
+                  "SuperchainConfig": "0xcf7ed3acca5a467e9e704c703e8d87f634fb0fc9",
+                  "AnchorStateRegistryProxy": "0x5cca1c967eb0dde08f3927190c4268f1071c826f",
+                  "DelayedWethProxy": "0x1ec2d06469a88c528e9c761487d3f041302f23f0",
+                  "DisputeGameFactoryProxy": "0x57f52ecd76596574239ee5b70d41fa7db936f216",
+                  "FaultDisputeGame": "0x39e1a508b33d436a080ff2a70f8255b8b1b018f7",
+                  "Mips": "0x36720c28155393780261bb767fc6be31e4e38a92",
+                  "PermissionedDisputeGame": "0xb973292a76f16966d5aaf2e996a4eb9bdb206a16",
+                  "PreimageOracle": "0x3388157b661a082d7202fb6f2648858de56c0450"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "depsets": {
+      "sha256": "289073d78c4286c4b1aa94667278a2b553e3294caa3a522addc509b42239cf12",
+      "content": [
+        {
+          "dependencies": {
+            "854220": {}
+          },
+          "overrideMessageExpiryWindow": null
+        }
+      ]
+    }
+  },
+  "stockRegistry": {
+    "embedded": false,
+    "registryChains": 55
+  },
+  "mergedRegistry": {
+    "embedded": true,
+    "registryChains": 56,
+    "chain": {
+      "chainId": 854220,
+      "dataAvailabilityType": "eth-da",
+      "explorers": [],
+      "faultProofs": {
+        "status": "permissionless"
+      },
+      "governedByOptimism": false,
+      "identifier": "finchain-devnet/devnet",
+      "name": "Finchain devnet",
+      "parent": {
+        "chain": "finchain-devnet",
+        "type": "L2"
+      },
+      "rpc": [
+        "http://op-reth:8545"
+      ]
+    },
+    "rollupConfig": {
+      "alt_da": null,
+      "batch_inbox_address": "0x00cae424717462fd2cf7d032d75daafba9e66728",
+      "block_time": 2,
+      "canyon_time": 0,
+      "chain_op_config": {
+        "eip1559Denominator": 50,
+        "eip1559DenominatorCanyon": 250,
+        "eip1559Elasticity": 6
+      },
+      "channel_timeout": 300,
+      "delta_time": 0,
+      "deposit_contract_address": "0x24a3c28042b4d5a3cdf76dbb4f599a1d9bc4027a",
+      "ecotone_time": 0,
+      "fjord_time": 0,
+      "genesis": {
+        "l1": {
+          "hash": "0x805355fd22d8324bc002426c03d0247e58553616b6b8549b5716f13c20273de2",
+          "number": 30
+        },
+        "l2": {
+          "hash": "0x7b49e0571d7736a085ee4b9bf1b08d5a3295090e81087697003ecf1afeff713a",
+          "number": 0
+        },
+        "l2_time": 1794825049,
+        "system_config": {
+          "baseFeeScalar": null,
+          "batcherAddr": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+          "blobBaseFeeScalar": null,
+          "daFootprintGasScalar": 0,
+          "eip1559Denominator": 0,
+          "eip1559Elasticity": 0,
+          "gasLimit": 60000000,
+          "minBaseFee": 0,
+          "operatorFeeConstant": 0,
+          "operatorFeeScalar": 0,
+          "overhead": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "scalar": "0x010000000000000000000000000000000000000000000000000c3c9d00000558"
+        }
+      },
+      "granite_channel_timeout": 50,
+      "granite_time": 0,
+      "holocene_time": 0,
+      "isthmus_time": 0,
+      "jovian_time": 0,
+      "l1_chain_id": 11155111,
+      "l1_system_config_address": "0xcac14da6c461e4cdd942d3891952b42bb9188df6",
+      "l2_chain_id": 854220,
+      "max_sequencer_drift": 600,
+      "regolith_time": 0,
+      "seq_window_size": 3600,
+      "superchain_config_address": "0xcf7ed3acca5a467e9e704c703e8d87f634fb0fc9"
+    },
+    "dependencySet": {
+      "dependencies": {
+        "854220": {}
+      },
+      "overrideMessageExpiryWindow": null
+    }
+  },
+  "comparison": {
+    "method": "the rollup configuration the merged registry derives for the chain id, field by field against op-node rollup.json",
+    "checks": [
+      {
+        "check": "l2_chain_id",
+        "expected": 854220,
+        "derived": 854220,
+        "result": "PASS"
+      },
+      {
+        "check": "l1_chain_id",
+        "expected": 11155111,
+        "derived": 11155111,
+        "result": "PASS"
+      },
+      {
+        "check": "block_time",
+        "expected": 2,
+        "derived": 2,
+        "result": "PASS"
+      },
+      {
+        "check": "max_sequencer_drift",
+        "expected": 600,
+        "derived": 600,
+        "result": "PASS"
+      },
+      {
+        "check": "seq_window_size",
+        "expected": 3600,
+        "derived": 3600,
+        "result": "PASS"
+      },
+      {
+        "check": "channel_timeout",
+        "expected": 300,
+        "derived": 300,
+        "result": "PASS"
+      },
+      {
+        "check": "batch_inbox_address",
+        "expected": "0x00cae424717462fd2cf7d032d75daafba9e66728",
+        "derived": "0x00cae424717462fd2cf7d032d75daafba9e66728",
+        "result": "PASS"
+      },
+      {
+        "check": "deposit_contract_address",
+        "expected": "0x24a3c28042b4d5a3cdf76dbb4f599a1d9bc4027a",
+        "derived": "0x24a3c28042b4d5a3cdf76dbb4f599a1d9bc4027a",
+        "result": "PASS"
+      },
+      {
+        "check": "l1_system_config_address",
+        "expected": "0xcac14da6c461e4cdd942d3891952b42bb9188df6",
+        "derived": "0xcac14da6c461e4cdd942d3891952b42bb9188df6",
+        "result": "PASS"
+      },
+      {
+        "check": "chain_op_config",
+        "expected": {
+          "eip1559Elasticity": 6,
+          "eip1559Denominator": 50,
+          "eip1559DenominatorCanyon": 250
+        },
+        "derived": {
+          "eip1559Denominator": 50,
+          "eip1559DenominatorCanyon": 250,
+          "eip1559Elasticity": 6
+        },
+        "result": "PASS"
+      },
+      {
+        "check": "genesis.l1.hash",
+        "expected": "0x805355fd22d8324bc002426c03d0247e58553616b6b8549b5716f13c20273de2",
+        "derived": "0x805355fd22d8324bc002426c03d0247e58553616b6b8549b5716f13c20273de2",
+        "result": "PASS"
+      },
+      {
+        "check": "genesis.l1.number",
+        "expected": 30,
+        "derived": 30,
+        "result": "PASS"
+      },
+      {
+        "check": "genesis.l2.hash",
+        "expected": "0x7b49e0571d7736a085ee4b9bf1b08d5a3295090e81087697003ecf1afeff713a",
+        "derived": "0x7b49e0571d7736a085ee4b9bf1b08d5a3295090e81087697003ecf1afeff713a",
+        "result": "PASS"
+      },
+      {
+        "check": "genesis.l2.number",
+        "expected": 0,
+        "derived": 0,
+        "result": "PASS"
+      },
+      {
+        "check": "genesis.l2_time",
+        "expected": 1794825049,
+        "derived": 1794825049,
+        "result": "PASS"
+      },
+      {
+        "check": "genesis.system_config.batcherAddr",
+        "expected": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+        "derived": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+        "result": "PASS"
+      },
+      {
+        "check": "genesis.system_config.overhead",
+        "expected": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "derived": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "result": "PASS"
+      },
+      {
+        "check": "genesis.system_config.scalar",
+        "expected": "0x010000000000000000000000000000000000000000000000000c3c9d00000558",
+        "derived": "0x010000000000000000000000000000000000000000000000000c3c9d00000558",
+        "result": "PASS"
+      },
+      {
+        "check": "genesis.system_config.gasLimit",
+        "expected": 60000000,
+        "derived": 60000000,
+        "result": "PASS"
+      },
+      {
+        "check": "regolith_time",
+        "expected": 0,
+        "derived": 0,
+        "result": "PASS"
+      },
+      {
+        "check": "canyon_time",
+        "expected": 0,
+        "derived": 0,
+        "result": "PASS"
+      },
+      {
+        "check": "delta_time",
+        "expected": 0,
+        "derived": 0,
+        "result": "PASS"
+      },
+      {
+        "check": "ecotone_time",
+        "expected": 0,
+        "derived": 0,
+        "result": "PASS"
+      },
+      {
+        "check": "fjord_time",
+        "expected": 0,
+        "derived": 0,
+        "result": "PASS"
+      },
+      {
+        "check": "granite_time",
+        "expected": 0,
+        "derived": 0,
+        "result": "PASS"
+      },
+      {
+        "check": "holocene_time",
+        "expected": 0,
+        "derived": 0,
+        "result": "PASS"
+      },
+      {
+        "check": "isthmus_time",
+        "expected": 0,
+        "derived": 0,
+        "result": "PASS"
+      },
+      {
+        "check": "jovian_time",
+        "expected": 0,
+        "derived": 0,
+        "result": "PASS"
+      }
+    ],
+    "failures": 0,
+    "result": "PASS"
+  }
+}

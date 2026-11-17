@@ -77,7 +77,7 @@ The full procedure, with expected outputs and acceptance checks, is in
 
 ## Status
 
-v0.3.0-alpha.16: M4 in progress on the kona-client route (`docs/proof-plan.md`: the op-program
+v0.3.0-alpha.20: M4 in progress on the kona-client route (`docs/proof-plan.md`: the op-program
 client cannot follow the current Sepolia L1, its prestate `0x03e76631...5af1` is superseded; `make
 kona-check` validated Finchain's registry files against the kona-registry crate, 28 of 28 fields
 equal, on two hosts; `make prestate` built the kona-client prestate with Finchain embedded on
@@ -86,10 +86,12 @@ run-trace` ran the `cannon-kona` self-check against a live block and passed on 2
 the client booting from the prestate's own registry, through the kona-host that `make kona-host`
 builds with the chain embedded - K2 closed, `drill/README.md` K2b; `make l1-header` records the
 raw L1 header the first route failed on). K3, the isolated-devnet dispute with a real `step()`,
-has its tooling under `drill/devnet/` (`make devnet-<step>`, `drill/devnet/README.md`: an anvil
-L1, op-deployer against it, the devnet's own prestate and kona-host, game type 8 installed with
-the factory's game arguments, a dishonest challenger driven to the honest challenger's `step()`)
-and has not run yet. `make withdraw` drives the deposit -> proof -> withdrawal
+ran on 2026-11-16 and passed (`drill/devnet/`, `make devnet-<step>`, `drill/devnet/README.md`: an
+anvil L1, op-deployer against it, the devnet's own prestate and kona-host, game type 8 installed
+with the factory's game arguments, a dishonest challenger driven through all 73 depths; the honest
+op-challenger answered every claim, countered the attacker's leaf with `step()` on chain and
+resolved the game `DEFENDER_WINS` - `manifests/evidence/devnet-dispute-854220-20261116T161502Z.json`;
+the step verified trace index 0, `docs/proof-plan.md` "Result"). `make withdraw` drives the deposit -> proof -> withdrawal
 cycle step by step, with its record; every target takes `CHAIN=<name>` so that the same hosts
 run a second chain beside the first, `docs/runbook.md` section 9, the M5 preparation;
 `make games` reads the dispute games back from L1 - the

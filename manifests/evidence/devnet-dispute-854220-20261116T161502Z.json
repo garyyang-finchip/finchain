@@ -1,0 +1,756 @@
+{
+  "schema": "finchain.devnet-dispute/1",
+  "acceptance": "M4 K3: isolated devnet - a CANNON_KONA game on Finchain configuration defended down to a real step() on chain (docs/acceptance.md M4; docs/proof-plan.md K3)",
+  "environment": "local-devnet",
+  "chainId": 854220,
+  "l1ChainId": 11155111,
+  "startedAt": "2026-11-16T16:15:05Z",
+  "recordedAt": "2026-11-16T16:16:26Z",
+  "what": "the honest op-proposer posted a correct root as a type-8 game; drill/devnet/adversary.sh attacked it and every honest reply with arbitrary claims; the resident op-challenger (cannon-kona, the devnet prestate, the embedded kona-host) answered each; at the max depth the leaf of the attacker could only be countered by step(), which the honest challenger executed on chain",
+  "devnet": {
+    "l1": {
+      "startedAt": "2026-11-16T10:29:20Z",
+      "chainId": 11155111,
+      "blockTime": 3,
+      "hardfork": "prague",
+      "slotsInAnEpoch": 1,
+      "anvilImage": "ghcr.io/foundry-rs/foundry@sha256:043752653d5be351c71709091b3db97c4421c907eb40ea294195e7f532aadf46",
+      "shimImage": "python@sha256:c5ba3deef00c7758561a0f03c26f44f10589263d40e732b8748e0d1f38f6dd89",
+      "deterministicDeployer": {
+        "address": "0x4e59b44847b379578588920ca78fbf26c0b4956c",
+        "placedWith": "anvil_setCode, the canonical runtime code"
+      },
+      "beaconStub": {
+        "genesisTime": 1794824959
+      },
+      "checkedBlock": "0x7533e281f96c4451eecb969fc96c096737c6360261033a4b27c33fc7b5fe46d9"
+    },
+    "images": {
+      "opNode": "us-docker.pkg.dev/oplabs-tools-artifacts/images/op-node:v1.19.11@sha256:e9eb72b7f13847a953fcf7d798814f128e2fdaa9edbc83bcffa0b7e6e9427c00",
+      "opReth": "us-docker.pkg.dev/oplabs-tools-artifacts/images/op-reth:v2.4.2@sha256:01b4c25938cb08753e0a7ff7415d627cb566465eb618620d0586f0943fbeaf68",
+      "opBatcher": "us-docker.pkg.dev/oplabs-tools-artifacts/images/op-batcher:v1.17.2@sha256:80234d8cc116ca0574148e2e9a927d5b24f0ec18d74f48807982eb099eec7335",
+      "opProposer": "us-docker.pkg.dev/oplabs-tools-artifacts/images/op-proposer:v1.16.7@sha256:e56f448fd12d5a076805841fc9e24cb9c465a9a700ca37cef0fdc9a2518db90a",
+      "opChallenger": "us-docker.pkg.dev/oplabs-tools-artifacts/images/op-challenger:v1.9.6@sha256:4f01ba7d5f4e58d771534522e5624ab3e6e200d8be619a17e1b04c47548bdb93"
+    }
+  },
+  "deployment": {
+    "chainId": 854220,
+    "name": "Finchain devnet",
+    "environment": "local-devnet",
+    "opDeployerVersion": "0.7.1-75254822-2026-05-27T13:58:19Z",
+    "l2GenesisHash": "0x7b49e0571d7736a085ee4b9bf1b08d5a3295090e81087697003ecf1afeff713a",
+    "l1Anchor": {
+      "hash": "0x805355fd22d8324bc002426c03d0247e58553616b6b8549b5716f13c20273de2",
+      "number": 30
+    },
+    "rollupConfigSha256": "7d97153fde5ab3ce2976871bdd8a94471ea8468e7ad200cb989415a8756d99bb",
+    "l1": {
+      "DisputeGameFactoryProxy": "0x57f52ecd76596574239ee5b70d41fa7db936f216",
+      "OptimismPortalProxy": "0x24a3c28042b4d5a3cdf76dbb4f599a1d9bc4027a",
+      "SystemConfigProxy": "0xcac14da6c461e4cdd942d3891952b42bb9188df6",
+      "AnchorStateRegistryProxy": "0x5cca1c967eb0dde08f3927190c4268f1071c826f",
+      "L1StandardBridgeProxy": "0xc39d6927e75908bfd787b1fa9b0721e665a4a95a",
+      "PermissionedDisputeGame": "0xb973292a76f16966d5aaf2e996a4eb9bdb206a16",
+      "FaultDisputeGameImpl": "0x39e1a508b33d436a080ff2a70f8255b8b1b018f7",
+      "MipsImpl": "0x36720c28155393780261bb767fc6be31e4e38a92",
+      "PreimageOracleImpl": "0x3388157b661a082d7202fb6f2648858de56c0450",
+      "DelayedWethPermissionlessGameProxy": "0x1ec2d06469a88c528e9c761487d3f041302f23f0",
+      "SuperchainConfigProxy": "0xcf7ed3acca5a467e9e704c703e8d87f634fb0fc9"
+    }
+  },
+  "gameTypeInstall": {
+    "installedAt": "2026-11-16T12:02:56Z",
+    "gameType": 8,
+    "factory": "0x57f52ecd76596574239ee5b70d41fa7db936f216",
+    "owner": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+    "implementation": {
+      "address": "0x39e1a508b33d436a080ff2a70f8255b8b1b018f7",
+      "version": "2.4.2",
+      "maxGameDepth": 73,
+      "splitDepth": 30,
+      "clockExtension": 600,
+      "maxClockDuration": 9000,
+      "note": "the shared FaultDisputeGame implementation of the chain; the game type is defined by the arguments the factory stores for it"
+    },
+    "gameArgs": {
+      "packed": "0x03918a9964ffdc3ec296d956409e0b70ea5b45dfdab938dba56bbf2f2437b07236720c28155393780261bb767fc6be31e4e38a925cca1c967eb0dde08f3927190c4268f1071c826f1ec2d06469a88c528e9c761487d3f041302f23f000000000000000000000000000000000000000000000000000000000000d08cc",
+      "layout": "absolutePrestate(32) vm(20) anchorStateRegistry(20) weth(20) l2ChainId(32) - op-challenger gameargs.PackPermissionless",
+      "absolutePrestate": "0x03918a9964ffdc3ec296d956409e0b70ea5b45dfdab938dba56bbf2f2437b072",
+      "vm": {
+        "address": "0x36720c28155393780261bb767fc6be31e4e38a92",
+        "stateVersion": 8
+      },
+      "anchorStateRegistry": "0x5cca1c967eb0dde08f3927190c4268f1071c826f",
+      "weth": "0x1ec2d06469a88c528e9c761487d3f041302f23f0",
+      "l2ChainId": 854220
+    },
+    "preimageOracle": {
+      "address": "0x3388157b661a082d7202fb6f2648858de56c0450",
+      "challengePeriod": 600
+    },
+    "transactions": {
+      "setImplementation": "0xd5e3b2d9c0d18ae9d87c1b7963b9a2c3f4fd275bfe69ab267967ca2f886f38c1",
+      "setInitBond": "0xd106714d8203d81063da37ae142c007970aeb4217826419a65fdf633d2c7a377",
+      "setRespectedGameType": "0xe3bb3876834611a0fc8e6936364ceba44766e074bd86282f0be1a1f8773d3d36"
+    },
+    "respectedGameType": {
+      "before": 1,
+      "after": 8
+    },
+    "anchorRootBefore": "0xdead000000000000000000000000000000000000000000000000000000000000 0 "
+  },
+  "anchorBootstrap": {
+    "movedAt": "2026-11-16T14:49:10Z",
+    "bootstrapGame": {
+      "index": 0,
+      "game": "0x1A146BdbDf28827Ffc4aF939962c966E57f9aD84",
+      "gameType": 8,
+      "timestamp": 1794830911,
+      "created": "2026-11-16T12:08:31Z",
+      "l2BlockNumber": 2914,
+      "outputRoot": "0x5f8ba5b28021268341a5c159cfffc920e53354ec1e80c9616e12d5812b98f0e9",
+      "claimCount": 1,
+      "status": "In Progress",
+      "address": "0x1A146BdbDf28827Ffc4aF939962c966E57f9aD84"
+    },
+    "createdAt": 1794830911,
+    "resolvedAt": 1794839944,
+    "transactions": {
+      "resolveClaim": "0xe6d7aa02e04d35f934123f38c30024c13ef3a90586da6582d6da28e186d46d15",
+      "resolve": "0x8432e3ae6b810d6321ecfbc8a8995495acbdfe751ce5a783635af4e0b602c5bd",
+      "closeGame": "0x0a0efc049235504061071c647d51bf1e702ef74b8e23c9f1458343b84ea692ff"
+    },
+    "sentBy": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+    "anchorRootBefore": "0xdead000000000000000000000000000000000000000000000000000000000000 0",
+    "anchorRootAfter": "0x5f8ba5b28021268341a5c159cfffc920e53354ec1e80c9616e12d5812b98f0e9 2914",
+    "why": "op-deployer deploys the chain with the placeholder anchor 0xdead... at L2 block 0; a game created before the anchor moved starts from it and the honest challenger refuses it; the anchor moves when a respected game is finalized and closed (closeGame -> setAnchorState)"
+  },
+  "prestate": {
+    "hash": "0x03918a9964ffdc3ec296d956409e0b70ea5b45dfdab938dba56bbf2f2437b072",
+    "record": "manifests/evidence/prestate-854220-20261116T103627Z.json"
+  },
+  "konaHost": {
+    "sha256": "020a41edeabaac9b493884db45569775ba030ab0de1cb3780ce1c7cfc25da4db",
+    "record": "manifests/evidence/kona-host-854220-20261116T104521Z.json"
+  },
+  "konaConfigs": {
+    "record": "manifests/evidence/kona-configs-854220-20261116T103627Z.json"
+  },
+  "game": {
+    "index": 26,
+    "game": "0x82fD4fea3Dd5B1A6156368466DCb8A187614bae0",
+    "gameType": 8,
+    "timestamp": 1794840934,
+    "created": "2026-11-16T14:55:34Z",
+    "l2BlockNumber": 7910,
+    "outputRoot": "0x76e53fe81957c9fe8f646de7c993b6944cc4fb4b7b05f1907bb9a2e20f162333",
+    "claimCount": 71,
+    "status": "In Progress",
+    "address": "0x82fd4fea3dd5b1a6156368466dcb8a187614bae0",
+    "maxDepth": 73,
+    "splitDepth": 30,
+    "startingRootHash": "0x5f8ba5b28021268341a5c159cfffc920e53354ec1e80c9616e12d5812b98f0e9"
+  },
+  "parties": {
+    "proposer": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
+    "honestChallenger": "0x90f79bf6eb2c4f870365e785982e1f101e93b906",
+    "attacker": "0x15d34aaf54267db7d7c367839aaf71a00a2c6a65"
+  },
+  "dispute": {
+    "attackerMoves": 2,
+    "attackerClaims": 37,
+    "honestClaims": 36,
+    "finalClaimCount": 74,
+    "moves": [
+      {
+        "move": 1,
+        "attackOn": 70,
+        "claim": "0xa47a02be27c8ee762b38e508f594b99ba8b2f9b5da88a5dc4cf8ec54ddf64439",
+        "tx": "0x99c2c2c47c6b7a723128335464c13366e40a2ae5fb281e9a2a914fe7a7678dbf",
+        "at": "2026-11-16T16:15:19Z"
+      },
+      {
+        "move": 2,
+        "attackOn": 72,
+        "claim": "0x5d3541d09533db5b94b5739d307720c3a49420b72459d906205477333d2d5191",
+        "tx": "0x3df9e1cbc694e36d928a78c3c503dd691a00d39044ee72221502df491bc03b43",
+        "at": "2026-11-16T16:15:41Z"
+      }
+    ],
+    "snapshots": "drill/devnet/out/evidence/dispute-20261116T161502Z",
+    "strategy": "attack every claim of the honest side with a random value (op-challenger move --attack); intermediate claims are unverified by the contract, only the bond schedule is paid"
+  },
+  "step": {
+    "transaction": {
+      "hash": "0x3f77d64ea74719e49ef7401e51b7e992fbfebfe9779f44a7a67a19d4a5b32477",
+      "block": 6940,
+      "from": "0x90f79bf6eb2c4f870365e785982e1f101e93b906",
+      "to": "0x82fd4fea3dd5b1a6156368466dcb8a187614bae0",
+      "inputBytes": 6500,
+      "status": "0x1",
+      "gasUsed": 339839
+    },
+    "leafClaimIndex": 73,
+    "leaf": {
+      "index": 73,
+      "move": "Attack",
+      "parentIndex": 72,
+      "depth": 73,
+      "traceIndex": "0",
+      "value": "0x5d3541d09533db5b94b5739d307720c3a49420b72459d906205477333d2d5191",
+      "claimant": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+      "bondWei": "59999999800000000000",
+      "bondEth": "60.000000",
+      "timestamp": 1794845731,
+      "time": "2026-11-16T16:15:31Z",
+      "clockUsedSeconds": 2673,
+      "counteredBy": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+      "resolved": false
+    },
+    "meaning": "step(claimIndex, isAttack, stateData, proof): the MIPS contract executes one instruction of the kona-client trace from the prestate above with the preimage oracle and finds the leaf claim wrong; counteredBy is the honest challenger"
+  },
+  "resolution": {
+    "status": "DEFENDER_WINS",
+    "statusCode": 2,
+    "resolvedAt": 1794853810,
+    "resolveTransaction": {
+      "hash": "0x84372514ce49527ed3d838dfa65a6f06c0625f241537f93739db41edea8dfbdb",
+      "block": 9617,
+      "from": "0x90f79bf6eb2c4f870365e785982e1f101e93b906",
+      "to": "0x82fd4fea3dd5b1a6156368466dcb8a187614bae0",
+      "inputBytes": 4,
+      "status": "0x1",
+      "gasUsed": 37258
+    },
+    "creditWei": {
+      "attacker": "0",
+      "honestChallenger": "691154694000000000000",
+      "proposer": "0"
+    },
+    "anchorRootBefore": "0x5f8ba5b28021268341a5c159cfffc920e53354ec1e80c9616e12d5812b98f0e9 2914",
+    "anchorRootAfter": "0xd589f46bef9e1cfa11783aa0ff8bc5b47e5111242c1ee19403dfcb64c83b8dc7 9057",
+    "claims": [
+      {
+        "index": 0,
+        "depth": 0,
+        "claimant": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+        "counteredBy": "",
+        "resolved": true
+      },
+      {
+        "index": 1,
+        "depth": 1,
+        "claimant": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+        "counteredBy": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "resolved": true
+      },
+      {
+        "index": 2,
+        "depth": 2,
+        "claimant": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "counteredBy": "",
+        "resolved": true
+      },
+      {
+        "index": 3,
+        "depth": 3,
+        "claimant": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+        "counteredBy": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "resolved": true
+      },
+      {
+        "index": 4,
+        "depth": 4,
+        "claimant": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "counteredBy": "",
+        "resolved": true
+      },
+      {
+        "index": 5,
+        "depth": 5,
+        "claimant": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+        "counteredBy": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "resolved": true
+      },
+      {
+        "index": 6,
+        "depth": 6,
+        "claimant": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "counteredBy": "",
+        "resolved": true
+      },
+      {
+        "index": 7,
+        "depth": 7,
+        "claimant": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+        "counteredBy": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "resolved": true
+      },
+      {
+        "index": 8,
+        "depth": 8,
+        "claimant": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "counteredBy": "",
+        "resolved": true
+      },
+      {
+        "index": 9,
+        "depth": 9,
+        "claimant": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+        "counteredBy": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "resolved": true
+      },
+      {
+        "index": 10,
+        "depth": 10,
+        "claimant": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "counteredBy": "",
+        "resolved": true
+      },
+      {
+        "index": 11,
+        "depth": 11,
+        "claimant": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+        "counteredBy": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "resolved": true
+      },
+      {
+        "index": 12,
+        "depth": 12,
+        "claimant": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "counteredBy": "",
+        "resolved": true
+      },
+      {
+        "index": 13,
+        "depth": 13,
+        "claimant": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+        "counteredBy": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "resolved": true
+      },
+      {
+        "index": 14,
+        "depth": 14,
+        "claimant": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "counteredBy": "",
+        "resolved": true
+      },
+      {
+        "index": 15,
+        "depth": 15,
+        "claimant": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+        "counteredBy": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "resolved": true
+      },
+      {
+        "index": 16,
+        "depth": 16,
+        "claimant": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "counteredBy": "",
+        "resolved": true
+      },
+      {
+        "index": 17,
+        "depth": 17,
+        "claimant": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+        "counteredBy": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "resolved": true
+      },
+      {
+        "index": 18,
+        "depth": 18,
+        "claimant": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "counteredBy": "",
+        "resolved": true
+      },
+      {
+        "index": 19,
+        "depth": 19,
+        "claimant": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+        "counteredBy": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "resolved": true
+      },
+      {
+        "index": 20,
+        "depth": 20,
+        "claimant": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "counteredBy": "",
+        "resolved": true
+      },
+      {
+        "index": 21,
+        "depth": 21,
+        "claimant": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+        "counteredBy": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "resolved": true
+      },
+      {
+        "index": 22,
+        "depth": 22,
+        "claimant": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "counteredBy": "",
+        "resolved": true
+      },
+      {
+        "index": 23,
+        "depth": 23,
+        "claimant": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+        "counteredBy": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "resolved": true
+      },
+      {
+        "index": 24,
+        "depth": 24,
+        "claimant": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "counteredBy": "",
+        "resolved": true
+      },
+      {
+        "index": 25,
+        "depth": 25,
+        "claimant": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+        "counteredBy": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "resolved": true
+      },
+      {
+        "index": 26,
+        "depth": 26,
+        "claimant": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "counteredBy": "",
+        "resolved": true
+      },
+      {
+        "index": 27,
+        "depth": 27,
+        "claimant": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+        "counteredBy": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "resolved": true
+      },
+      {
+        "index": 28,
+        "depth": 28,
+        "claimant": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "counteredBy": "",
+        "resolved": true
+      },
+      {
+        "index": 29,
+        "depth": 29,
+        "claimant": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+        "counteredBy": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "resolved": true
+      },
+      {
+        "index": 30,
+        "depth": 30,
+        "claimant": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "counteredBy": "",
+        "resolved": true
+      },
+      {
+        "index": 31,
+        "depth": 31,
+        "claimant": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+        "counteredBy": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "resolved": true
+      },
+      {
+        "index": 32,
+        "depth": 32,
+        "claimant": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "counteredBy": "",
+        "resolved": true
+      },
+      {
+        "index": 33,
+        "depth": 33,
+        "claimant": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+        "counteredBy": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "resolved": true
+      },
+      {
+        "index": 34,
+        "depth": 34,
+        "claimant": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "counteredBy": "",
+        "resolved": true
+      },
+      {
+        "index": 35,
+        "depth": 35,
+        "claimant": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+        "counteredBy": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "resolved": true
+      },
+      {
+        "index": 36,
+        "depth": 36,
+        "claimant": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "counteredBy": "",
+        "resolved": true
+      },
+      {
+        "index": 37,
+        "depth": 37,
+        "claimant": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+        "counteredBy": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "resolved": true
+      },
+      {
+        "index": 38,
+        "depth": 38,
+        "claimant": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "counteredBy": "",
+        "resolved": true
+      },
+      {
+        "index": 39,
+        "depth": 39,
+        "claimant": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+        "counteredBy": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "resolved": true
+      },
+      {
+        "index": 40,
+        "depth": 40,
+        "claimant": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "counteredBy": "",
+        "resolved": true
+      },
+      {
+        "index": 41,
+        "depth": 41,
+        "claimant": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+        "counteredBy": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "resolved": true
+      },
+      {
+        "index": 42,
+        "depth": 42,
+        "claimant": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "counteredBy": "",
+        "resolved": true
+      },
+      {
+        "index": 43,
+        "depth": 43,
+        "claimant": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+        "counteredBy": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "resolved": true
+      },
+      {
+        "index": 44,
+        "depth": 44,
+        "claimant": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "counteredBy": "",
+        "resolved": true
+      },
+      {
+        "index": 45,
+        "depth": 45,
+        "claimant": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+        "counteredBy": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "resolved": true
+      },
+      {
+        "index": 46,
+        "depth": 46,
+        "claimant": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "counteredBy": "",
+        "resolved": true
+      },
+      {
+        "index": 47,
+        "depth": 47,
+        "claimant": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+        "counteredBy": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "resolved": true
+      },
+      {
+        "index": 48,
+        "depth": 48,
+        "claimant": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "counteredBy": "",
+        "resolved": true
+      },
+      {
+        "index": 49,
+        "depth": 49,
+        "claimant": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+        "counteredBy": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "resolved": true
+      },
+      {
+        "index": 50,
+        "depth": 50,
+        "claimant": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "counteredBy": "",
+        "resolved": true
+      },
+      {
+        "index": 51,
+        "depth": 51,
+        "claimant": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+        "counteredBy": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "resolved": true
+      },
+      {
+        "index": 52,
+        "depth": 52,
+        "claimant": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "counteredBy": "",
+        "resolved": true
+      },
+      {
+        "index": 53,
+        "depth": 53,
+        "claimant": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+        "counteredBy": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "resolved": true
+      },
+      {
+        "index": 54,
+        "depth": 54,
+        "claimant": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "counteredBy": "",
+        "resolved": true
+      },
+      {
+        "index": 55,
+        "depth": 55,
+        "claimant": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+        "counteredBy": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "resolved": true
+      },
+      {
+        "index": 56,
+        "depth": 56,
+        "claimant": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "counteredBy": "",
+        "resolved": true
+      },
+      {
+        "index": 57,
+        "depth": 57,
+        "claimant": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+        "counteredBy": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "resolved": true
+      },
+      {
+        "index": 58,
+        "depth": 58,
+        "claimant": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "counteredBy": "",
+        "resolved": true
+      },
+      {
+        "index": 59,
+        "depth": 59,
+        "claimant": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+        "counteredBy": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "resolved": true
+      },
+      {
+        "index": 60,
+        "depth": 60,
+        "claimant": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "counteredBy": "",
+        "resolved": true
+      },
+      {
+        "index": 61,
+        "depth": 61,
+        "claimant": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+        "counteredBy": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "resolved": true
+      },
+      {
+        "index": 62,
+        "depth": 62,
+        "claimant": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "counteredBy": "",
+        "resolved": true
+      },
+      {
+        "index": 63,
+        "depth": 63,
+        "claimant": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+        "counteredBy": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "resolved": true
+      },
+      {
+        "index": 64,
+        "depth": 64,
+        "claimant": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "counteredBy": "",
+        "resolved": true
+      },
+      {
+        "index": 65,
+        "depth": 65,
+        "claimant": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+        "counteredBy": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "resolved": true
+      },
+      {
+        "index": 66,
+        "depth": 66,
+        "claimant": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "counteredBy": "",
+        "resolved": true
+      },
+      {
+        "index": 67,
+        "depth": 67,
+        "claimant": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+        "counteredBy": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "resolved": true
+      },
+      {
+        "index": 68,
+        "depth": 68,
+        "claimant": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "counteredBy": "",
+        "resolved": true
+      },
+      {
+        "index": 69,
+        "depth": 69,
+        "claimant": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+        "counteredBy": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "resolved": true
+      },
+      {
+        "index": 70,
+        "depth": 70,
+        "claimant": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "counteredBy": "",
+        "resolved": true
+      },
+      {
+        "index": 71,
+        "depth": 71,
+        "claimant": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+        "counteredBy": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "resolved": true
+      },
+      {
+        "index": 72,
+        "depth": 72,
+        "claimant": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "counteredBy": "",
+        "resolved": true
+      },
+      {
+        "index": 73,
+        "depth": 73,
+        "claimant": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+        "counteredBy": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "resolved": true
+      }
+    ],
+    "recordedAt": "2026-11-16T18:31:02Z"
+  },
+  "result": "PASS",
+  "reason": "the attacker's leaf claim #73 at depth 73 was countered on chain by 0x90F79bf6EB2c4f870365E785982E1f101E93b906; resolution: DEFENDER_WINS: the honest root stood, the attacker's claims lost"
+}

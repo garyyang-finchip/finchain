@@ -57,9 +57,13 @@ bonds below are unaffected.
 
 Every move inside a dispute posts `getRequiredBond(position)`, which grows with depth. The
 OP Stack documentation gives, for standard parameters, a worst-case liquidity need of about
-315.6 ETH for one side walking a maximum-depth path. Finchain's exact figures depend on the
-deployed game parameters and are measured on the isolated devnet during the M4 drill
-(`docs/proof-plan.md`). The full path is not budgeted on public Sepolia in v0.1.
+315.6 ETH for one side walking a maximum-depth path. Measured on the isolated devnet during
+the M4 drill (K3, 2026-11-16, `manifests/evidence/devnet-dispute-854220-20261116T161502Z.json`;
+the schedule depends on the max game depth, 73 on the devnet as on Finchain Sepolia): 0.088 ETH
+at depth 1, 1.33 ETH at depth 31, 60 ETH at depth 73; the honest side of one full-depth game
+posted 36 claims and had 329.9 ETH locked until resolution, the attacker 37 claims and 361.3
+ETH; at resolution every bond of the game, 691.15 ETH, was credited to the honest challenger.
+The full path is not budgeted on public Sepolia in v0.1.
 
 ## 4. ETH deposited into L2
 

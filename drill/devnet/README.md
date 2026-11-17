@@ -63,9 +63,9 @@ The clocks (`devnet.env`): depths 73/30 as on the public chain, so that the game
 shape (73 moves, the standard bond schedule, 60 ETH per move near the leaf, paid from accounts
 with a million ETH); clock extension 600 s and max clock duration 9000 s instead of 3 h and
 3.5 days, because the honest challenger's chess clock has to cover its own cannon runs (the
-first one, at the split depth, is a full trace of the disputed block - about ten minutes on two
-cores by K2b's measure - and every later one runs from the nearest snapshot,
-`DEVNET_SNAPSHOT_FREQ`); PreimageOracle challenge period, DelayedWETH delay, proof maturity and
+first one, at the split depth, is a full trace of the disputed block - 6 min 8 s on two cores
+on the first run, about ten minutes by K2b's measure - and every later one runs from the
+nearest snapshot or the prestate, `DEVNET_SNAPSHOT_FREQ`); PreimageOracle challenge period, DelayedWETH delay, proof maturity and
 game finality delay 600 s each. The constructor requires `max(2e, e + p) <= d`; `devnet.sh
 intent` checks it before anything is deployed.
 
@@ -75,9 +75,10 @@ Host: the scratch host of K2 (two cores, 8 GB of memory with 16 GB of swap, 100 
 compose v2.24+, buildx, `just`, git, jq, curl, openssl). The devnet is one session: the anvil
 keeps the L1 in memory, so stopping the host or the anvil is the end of that devnet (`devnet.sh
 down` and start over; `FRESH=1` deletes `drill/devnet/out/`). Plan eight to ten hours on the
-small host: builds under half an hour from K2's caches (measured 2026-11-16: prestate 9 min,
-kona-host 12 min), the anchor bootstrap 2.5 h plus the finality delay, the dispute one to two
-hours, the resolution 2.5 h (the clocks).
+small host; the first run (2026-11-16, below) took eight: deployment and L2 up in minutes, the
+build 15 min from K2's caches (kona-configs, prestate 9 min, kona-host 5 min), the anchor
+bootstrap 2.5 h plus the finality delay, the dispute 80 min with two stops (about 40 min of
+play), the resolution 2 h 15 min after the leaf (the clocks).
 
 ```bash
 make devnet-keys           # the accounts (anvil's test mnemonic) -> out/keys/addresses.env, out/secrets/
@@ -148,6 +149,42 @@ how long the honest side has been computing.
 `result` is `PASS` only with a step by the honest challenger and `DEFENDER_WINS`. A game won on
 the clock without a step is not a K3 result; the attacker reports it as `FAIL` with the depth it
 reached.
+
+## After the first run
+
+The first run (2026-11-16, `manifests/evidence/devnet-dispute-854220-20261116T161502Z.json`,
+`PASS`; the timeline is in `docs/proof-plan.md`, "Result") left these facts for the next one.
+
+- Three corrections of the driver came out of it and are in the tooling: `list-games --format
+  json` wraps the games in `{"games": [...]}` (alpha.17); the first execution-trace claim has to
+  carry the VM status byte INVALID or PANIC (alpha.18, above); op-challenger's `move` can exit
+  non-zero after the move was published, so the driver re-reads the claims before it declares a
+  move failed and keeps each move's CLI output as `move-NNNN.log` in the snapshots directory
+  (alpha.19). `GAME=<address> make devnet-dispute` resumes an interrupted game; the records the
+  interrupted runs wrote are superseded by the final one (same game) and are moved out of
+  `manifests/evidence/` by hand.
+- The honest challenger's own log lines for the game belong beside the record: `docker compose
+  -p finchain-devnet logs op-challenger`, filtered for the game address and the messages
+  `Performing action`, `Generating trace`, `VM execution complete`, `Resolving claim`,
+  `Resolving claims`, `Resolving game`, `Game resolved` - 249 lines on the first run, saved as
+  `manifests/evidence/devnet-challenger-log-854220-20261116T161502Z.jsonl`. The cannon command
+  lines in it show the wrapper's `--rollup-config-path` argument; the wrapper passes the binary
+  `--l2-chain-id` (`drill/kona-host-wrapper.sh`).
+- The leaf of an attacker that always attacks is trace index 0: the step verified the first
+  instruction of kona-client from the absolute prestate and needed no oracle data; the claims
+  that cover the rest of the trace were the honest side's and were never put to a step. The
+  kona-client run of the disputed block took between 2^29 and 2^30 MIPS steps (the honest
+  claims for positions beyond that carry the exited status byte `0x00`, the ones inside the
+  trace `0x03`), in an execution sub-tree of 2^42 positions. A second game that puts a step in
+  the middle of the trace therefore needs an attacker that defends (`move --defend`) when the
+  honest claim shows an unfinished VM and attacks when it shows an exited one, choosing at random
+  where both keep it inside the trace, and always attacks at the split depth (the status-byte
+  rule). That strategy is not in `adversary.sh` yet (`ATTACK_STRATEGY=inside`, to be added before
+  the second game); its step would carry the honest challenger's preimage uploads to the
+  PreimageOracle, longer and dearer than the first run's.
+- Bonds: the standard schedule held - 0.088 ETH at depth 1, 1.33 ETH at depth 31, 60 ETH at
+  depth 73; the honest side locked 329.9 ETH over its 36 claims, the attacker 361.3 ETH over 37,
+  and the whole 691.15 ETH was credited to the honest challenger at resolution.
 
 ## Limits, stated
 

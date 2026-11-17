@@ -87,8 +87,14 @@ No mainnet container is started until that record exists for the dry run.
 
 - The Sepolia withdrawal cycle finalized end to end (M4, due 2026-11-21): the exit path works.
 - `make prestate` reproduces the published kona prestate and the Finchain kona-client prestate
-  passes `run-trace` against Sepolia (M4, K2); the devnet drill done (K3): the replacement
-  implementation is known to work before mainnet receives one.
+  passes `run-trace` against Sepolia (M4, K2; done 2026-11-16); the devnet drill done (K3; done
+  2026-11-16, `manifests/evidence/devnet-dispute-854220-20261116T161502Z.json`, a real `step()`
+  and `DEFENDER_WINS` on the devnet): the replacement implementation is known to work before
+  mainnet receives one. Two things K3 adds to this plan: a Type 8 game on a fresh op-deployer
+  chain is playable only once the anchor state registry has left the placeholder root, which the
+  first `closeGame()` of the permissioned type does (the chain runs with the default type until
+  then anyway, decision 6); and the standard bond schedule asks the honest side of one
+  full-depth game for about 330 ETH until resolution (decision 2's bond line, `docs/funding-model.md`).
 - The two-chain layout proven on the Sepolia hosts without touching the first chain (the
   non-interference record above).
 - The Safe in place as owner; the funding table funded, including the bond cycle and the

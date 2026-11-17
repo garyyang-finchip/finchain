@@ -91,8 +91,8 @@ pipeline and the embedding method; it is superseded and nothing downstream uses 
 | --- | --- | --- |
 | K1 | Finchain's configuration converted to the registry format kona-client embeds; merged by the registry crate's own build script; the rollup configuration the client derives compared with `rollup.json` field by field (`make kona-check`, `drill/README.md`) | the client will see the chain as op-node does. Done 2026-11-15: `manifests/evidence/kona-configs-85422-20261115T185730Z.json`, 28 of 28 fields equal |
 | K2 | Reproducible kona-client prestate with Finchain embedded, the published kona prestate reproduced first (`UPSTREAM_CHECK=1 make prestate`); then `run-trace` (`cannon-kona`) with it against a recent block of the public chain (`make run-trace`), the client booting from the embedded configuration the way the game contract boots it (a kona-host that knows the chain, `make kona-host`, behind `drill/kona-host-wrapper.sh`) | the prestate proves a real Finchain block in the VM that the public chain's game type would run. K2a done 2026-11-16: `0x038b60ac...d9fb`, the published `0x03f872c2...6b0b` reproduced first (`prestate-85422-20261116T012620Z.json`). K2b done 2026-11-16: `run-trace-20261116T080811Z.json`, L2 block 200126 verified in 542 s with the embedded kona-host (`kona-host-85422-20261116T055801Z.json`) and `clientBoot.embeddedConfigUsed: true`; a first run the same day (`run-trace-20261116T045749Z.json`, 502 s) had verified the claim with the client on the oracle-supplied configuration (chain id 0) and is kept as what it is |
-| K3 | Isolated devnet: a `CANNON_KONA` game on an honest root attacked down to the leaf by a dishonest challenger, the honest challenger's real `step()` on chain, resolution for the honest root (`drill/devnet/`, `make devnet-<step>`) | the proof system executes end to end for Finchain's configuration (environment stated). Tooling delivered 2026-11-16 (alpha.16); not run yet |
-| K4 | Minimal integration check against Sepolia: what a Type 8 implementation needs there (prestate URL, challenger configuration, bonds), as a non-default game type if deployed at all. K3 rehearses the installing transaction: `setImplementation(8, FaultDisputeGameImpl, args)` from the owner, the prestate being an argument of the factory in op-contracts/v7.0.0. K3 also showed the precondition: the anchor state registry must have left op-deployer's placeholder root (the first `closeGame()` of the permissioned type, 2026-11-18 at the earliest on Sepolia) before a Type 8 game can be played at all | readiness of the public chain for a later decision; no change to what the public chain trusts |
+| K3 | Isolated devnet: a `CANNON_KONA` game on an honest root attacked down to the leaf by a dishonest challenger, the honest challenger's real `step()` on chain, resolution for the honest root (`drill/devnet/`, `make devnet-<step>`) | the proof system executes end to end for Finchain's configuration (environment stated). Done 2026-11-16: `manifests/evidence/devnet-dispute-854220-20261116T161502Z.json`, `PASS` - 73 depths, 37 attacker claims all countered, the honest `step()` at L1 block 6940 (339,839 gas), `DEFENDER_WINS` by the honest challenger; the step verified trace index 0 (below, "Result") |
+| K4 | Minimal integration check against Sepolia: what a Type 8 implementation needs there (prestate URL, challenger configuration, bonds), as a non-default game type if deployed at all. K3 rehearsed the installing transaction: `setImplementation(8, FaultDisputeGameImpl, args)` from the owner, the prestate being an argument of the factory in op-contracts/v7.0.0. K3 also showed the precondition: the anchor state registry must have left op-deployer's placeholder root (the first `closeGame()` of the permissioned type, 2026-11-18 at the earliest on Sepolia) before a Type 8 game can be played at all; and it measured the standard bond schedule a full-depth game asks of the honest side (about 330 ETH locked until resolution, 60 ETH for the last claim) | readiness of the public chain for a later decision; no change to what the public chain trusts |
 
 Approved: K1 to K4 as above; a Type 8 game on the devnet; a Type 8 implementation on Sepolia
 only as a non-default type. Not approved, and not part of M4: changing the respected game
@@ -207,6 +207,52 @@ Evidence (`manifests/evidence/devnet-dispute-854220-<date>.json`, schema
 A game won on the clock without a step is reported as `FAIL`; only a step by the honest
 challenger followed by `DEFENDER_WINS` is a K3 result. The public-chain repetition (L3) is a
 separate acceptance entry that stays `not-run` until done.
+
+### Result (2026-11-16)
+
+The drill ran once, on the scratch host (two cores, 7 GB of memory, 16 GB of swap), in one
+session of eight hours. The record is
+`manifests/evidence/devnet-dispute-854220-20261116T161502Z.json` (`PASS`); beside it the
+devnet's own K1/K2 records, `kona-configs-854220-20261116T103627Z.json` (28 of 28 fields
+equal), `prestate-854220-20261116T103627Z.json` (`0x03918a99...b072`, embedding check passed)
+and `kona-host-854220-20261116T104521Z.json` (`020a41ed...da4db`), and the honest challenger's
+own log lines for the game, `devnet-challenger-log-854220-20261116T161502Z.jsonl` (its 36 moves,
+31 VM runs, the step and the 74 claim resolutions).
+
+| When (UTC) | What |
+| --- | --- |
+| 10:29 - 10:36 | anvil up (chain id 11155111, 3 s blocks), the CREATE2 deployer placed, the shim checked; op-deployer v0.7.1 applied the custom intent (factory `0x57f52ecd...f216`, L2 genesis `0x7b49e057...713a`, L1 anchor block 30, forks regolith to jovian at genesis); op-reth, op-node and op-batcher up, the first safe block within minutes |
+| 10:36 - 10:51 | `devnet-build` from the K2 caches: kona-configs, prestate (9 min), kona-host (5 min) |
+| 12:03 | type 8 installed: `setImplementation(8, 0x39e1a508...18f7, args)`, `setInitBond(8, 0)`, `setRespectedGameType(8)` (respected type 1 to 8); `FaultDisputeGame` 2.4.2, MIPS64 state version 8, oracle challenge period 600 s; the factory read back |
+| 12:08 - 14:49 | the anchor bootstrap: game 0 (L2 block 2914) created by op-proposer, resolved by hand after its 9000 s clock (14:39), closed after the 600 s finality delay; the anchor `0xdead... 0` to `0x5f8ba5b2... 2914`. Every game created before that carried the placeholder as its starting root and the honest challenger refused it |
+| 14:55 | game 26 created (L2 block 7910, root `0x76e53fe8...2333`, starting root `0x5f8ba5b2...f0e9`); the adversary attacks its root claim at 14:56 |
+| 14:56 - 15:11 | output bisection, depths 1-30: the honest challenger answers each attack within 48-72 s from op-node's `optimism_outputAtBlock` |
+| 15:11 - 15:28 | the driver stopped at depth 31 (`UnexpectedRootClaim`: the first execution-trace claim has to carry the VM status byte INVALID or PANIC, the one check the contract makes on an intermediate claim, `_verifyExecBisectionRoot`); corrected (alpha.18) and resumed on the same game. The honest reply to the depth-31 claim is the full kona-client run of L2 block 2915 in Cannon64: 6 min 8 s, 67 MB, proof at step 2^42 - 1 |
+| 15:28 - 15:45 | execution bisection, depths 32-70: the honest claims for positions beyond the end of the trace (the program had exited; the run of block 2915 took between 2^29 and 2^30 MIPS steps) from the final state, the others after a cannon run from the nearest snapshot or from the prestate, 3-16 s each |
+| 15:45 - 16:15 | the driver stopped at depth 69 although its transaction had succeeded (op-challenger's `move` can exit non-zero after publishing); corrected (alpha.19: the chain is re-read before a move is declared failed) and resumed |
+| 16:15 | the attacker's claims at depths 71 and 73 (the leaf: trace index 0, bond 60 ETH) |
+| 16:16:17 | `step()` by the honest challenger: `0x3f77d64e...3477`, L1 block 6940, status 1, 339,839 gas, 6,500 bytes of input; `list-claims` shows claim 73 `counteredBy` the honest challenger; the driver stops |
+| 18:10 - 18:30 | the clocks run out; the honest challenger resolves the 74 claims bottom-up, one transaction each, and the game: `DEFENDER_WINS` (`0x84372514...dbdb`), credit 691.15 ETH to the honest challenger - every bond of the game, the attacker's 37 forfeited and its own 36 returned - 0 to the attacker and the proposer |
+
+What the record shows, and what it does not. The attacker took the leftmost position at every
+depth, so its leaf is trace index 0 and the instruction verified on chain is the first
+instruction of the kona-client program, executed by the MIPS64 contract from the absolute
+prestate; that step needed no preimage-oracle data. The rest of the trace entered the game as
+the honest challenger's claims - 36 of them, computed by cannon from the devnet prestate through
+the embedded kona-host (31 VM runs in the log) - which the attacker contested with random values
+only, so none of them was put to a step. K3 therefore shows the machinery end to end on
+Finchain's configuration: the installation, the bisection on both levels, the VM runs and
+snapshots, a single-step proof accepted by the contract, resolution and bonds, the anchor. A
+step in the middle of the trace, where the oracle takes part, is a second game with a
+different attack strategy (`drill/devnet/README.md`, "After the first run"); it has not run.
+
+The bond schedule was the standard one (depths 73/30): 0.088 ETH at depth 1, 1.33 ETH at depth
+31, 60 ETH at depth 73; the honest side's 36 claims locked 329.9 ETH until resolution, the
+attacker's 37 claims 361.3 ETH. Those are the figures a resident challenger on a chain with
+this schedule has to be able to post to answer one full-depth attack (`docs/funding-model.md`).
+The honest challenger's log shows the kona-host wrapper's command line (`--rollup-config-path`);
+the wrapper hands the binary `--l2-chain-id 854220` (`drill/kona-host-wrapper.sh`, the K2b
+finding), and the record's `konaHost` names the binary and its digest.
 
 ## Resident service on the public testnet
 
