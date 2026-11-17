@@ -193,15 +193,17 @@ Steps (`drill/devnet/README.md` has the commands and the durations):
 7. `devnet-resolve`: the clocks run out; resolution for the honest root; the record completed.
 
 Evidence (`manifests/evidence/devnet-dispute-854220-<date>.json`, schema
-`finchain.devnet-dispute/1`, `environment: local-devnet`):
+`finchain.devnet-dispute/1` for the first run, `/2` from alpha.21 on, `environment: local-devnet`):
 
 - the devnet (anvil parameters and image, shim image, the production images), the deployment
   (chain record and addresses), the type 8 installation (implementation, packed arguments,
   transactions, respected type before and after);
 - prestate hash and record, kona-host digest and record, the K1 record of the devnet;
 - game address, index, L2 block, root claim, depths; the three parties;
-- the sequence of attack transactions and the final depth;
-- the `step()` transaction (hash, block, sender, status, gas) and the leaf claim it disproved;
+- the sequence of the attacker's moves (attack or defend, `/2`) with their transactions, the
+  strategy and its seed (`/2`), and the final depth;
+- the `step()` transaction (hash, block, sender, status, gas), the leaf claim it disproved with
+  its trace index, and (`/2`) the disputed L2 block and the preimage uploads before the step;
 - resolution status, resolving transaction, credit per party, anchor root before and after.
 
 A game won on the clock without a step is reported as `FAIL`; only a step by the honest
@@ -243,8 +245,13 @@ the embedded kona-host (31 VM runs in the log) - which the attacker contested wi
 only, so none of them was put to a step. K3 therefore shows the machinery end to end on
 Finchain's configuration: the installation, the bisection on both levels, the VM runs and
 snapshots, a single-step proof accepted by the contract, resolution and bonds, the anchor. A
-step in the middle of the trace, where the oracle takes part, is a second game with a
-different attack strategy (`drill/devnet/README.md`, "After the first run"); it has not run.
+step in the middle of a trace is the second game: the attacker of alpha.21
+(`ATTACK_STRATEGY=inside`, `drill/devnet/README.md`, "After the first run") attacks or defends
+at random while the position stays inside the chain and the trace, so the leaf lands on an
+arbitrary instruction of an arbitrary block of the game and the honest step proves it from the
+honest claim before it, uploading the preimages that instruction reads, if any, first. Its
+record (schema `finchain.devnet-dispute/2`) adds the kind of each move, the strategy and seed,
+the disputed block, and the preimage uploads before the step. It has not run yet.
 
 The bond schedule was the standard one (depths 73/30): 0.088 ETH at depth 1, 1.33 ETH at depth
 31, 60 ETH at depth 73; the honest side's 36 claims locked 329.9 ETH until resolution, the

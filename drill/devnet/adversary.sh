@@ -4,7 +4,7 @@
 #
 # The honest op-proposer posts correct roots as type-8 games; the resident op-challenger (cannon-kona, the devnet
 # prestate) defends them. This script plays the attacker with op-challenger's own `move` subcommand: it attacks the
-# root claim of one game with an arbitrary value and then attacks every claim the honest challenger posts in reply,
+# root claim of one game with an arbitrary value and then answers every claim the honest challenger posts in reply,
 # all the way down the tree. The contract verifies nothing about intermediate claims; the attacker only pays the
 # bond of each depth. At the max game depth the attacker's leaf claim can only be answered by `step()`: the honest
 # challenger executes one MIPS instruction on chain from the agreed pre-state and shows the leaf wrong - the
@@ -12,11 +12,25 @@
 # standard odd max depth the dishonest leaf sits at the max depth only when the root is honest, so the scenario
 # here is the one that forces the real step (and the realistic one for a chain with an honest proposer).
 #
+# Two attack strategies (ATTACK_STRATEGY):
+#   left    attack every honest claim (the first run, 2026-11-16): the leaf is trace index 0 of the first block
+#           after the anchor, and the step executes the first instruction of kona-client from the absolute prestate.
+#   inside  attack or defend at random while the position stays inside the chain and the trace: at the output level
+#           a honest claim equal to the root's output root marks a position past the claimed block (op-challenger
+#           clamps there), so the attacker attacks it; below the split depth the honest claim's VM status byte says
+#           whether the trace is still running there (0x03) or has exited (0x00), and the attacker defends only an
+#           unfinished one. The root claim and the claim at the split depth are always attacked (the contract allows
+#           no defence of a sub-game root, and the first execution claim must carry the INVALID or PANIC status
+#           byte). The leaf then sits at an arbitrary instruction of a random block's trace; the honest challenger's
+#           step proves that instruction, with whatever preimage uploads it needs first. ATTACK_SEED seeds the
+#           choices (recorded) so that a run can be repeated.
+#
 # Usage: drill/devnet/adversary.sh dispute | resolve   (devnet.sh dispute / resolve; make devnet-dispute / devnet-resolve)
-#   dispute  pick the newest untouched type-8 game (GAME=0x... to choose), attack until the honest step lands,
+#   dispute  pick the newest untouched type-8 game (GAME=0x... to choose), play until the honest step lands,
 #            write manifests/evidence/devnet-dispute-<chainId>-<date>.json (resolution pending)
 #   resolve  wait for the game to resolve after the clocks, read the outcome back, complete the record
-# Environment: GAME, DISPUTE_TIMEOUT (default 4h), RESOLVE_TIMEOUT (default max clock duration + 1h), POLL (default 6s)
+# Environment: GAME, ATTACK_STRATEGY (left | inside, default left), ATTACK_SEED (default: the start time),
+#              DISPUTE_TIMEOUT (default 4h), RESOLVE_TIMEOUT (default max clock duration + 1h), POLL (default 6s)
 
 # shellcheck source=scripts/common.sh
 . "$(dirname "${BASH_SOURCE[0]}")/../../scripts/common.sh"
@@ -27,10 +41,16 @@ GEN="$OUT/generated.env"
 L1_URL="http://127.0.0.1:$DEVNET_L1_PORT"; NETWORK=finchain-devnet_default
 STEP_SELECTOR=0xd8cc1a3c       # step(uint256,bool,bytes,bytes)
 RESOLVE_SELECTOR=0x2810e1d6    # resolve()
+ADD_LOCAL_DATA_SELECTOR=0xf8f43ff6   # FaultDisputeGame.addLocalData(uint256,uint256,uint256): a local preimage, loaded through the game
 DEAD_ROOT=0xdead000000000000000000000000000000000000000000000000000000000000   # op-deployer's placeholder anchor (devnet.sh anchor)
 POLL="${POLL:-6}"
 IMAGE="${OP_CHALLENGER_IMAGE:?}"
-DGF=""; ADVERSARY=""; HONEST=""; PROPOSER=""
+STRATEGY="${ATTACK_STRATEGY:-left}"
+case "$STRATEGY" in left|inside) ;; *) die "ATTACK_STRATEGY must be left or inside, not '$STRATEGY'" ;; esac
+SEED="${ATTACK_SEED:-$(date +%s)}"
+case "$SEED" in ''|*[!0-9]*) die "ATTACK_SEED must be a decimal number" ;; esac
+RANDOM="$SEED"
+DGF=""; ADVERSARY=""; HONEST=""; PROPOSER=""; ORACLE=""
 # what a running devnet has written into out/generated.env
 require_devnet() {
   [ -f "$GEN" ] || die "no devnet yet (out/generated.env missing): devnet.sh keys, l1, deploy, build, install-game, l2, proof first"
@@ -40,6 +60,10 @@ require_devnet() {
   HONEST="$(printf '%s' "${DEVNET_ADDR_CHALLENGER:?}" | tr '[:upper:]' '[:lower:]')"
   PROPOSER="$(printf '%s' "${DEVNET_ADDR_PROPOSER:?}" | tr '[:upper:]' '[:lower:]')"
   DEVNET_ASR="$(jq -r .AnchorStateRegistryProxy "$OUT/chain/l1-addresses.json")"; export DEVNET_ASR
+  # the PreimageOracle the installed VM uses (devnet.sh install-game read it back from the MIPS contract)
+  ORACLE="$(jq -r '.preimageOracle.address // empty' "$OUT/chain/game-type-$DEVNET_GAME_TYPE.json" 2>/dev/null || true)"
+  [ -n "$ORACLE" ] || ORACLE="$(jq -r '.PreimageOracleImpl // empty' "$OUT/chain/l1-addresses.json")"
+  ORACLE="$(lower "$ORACLE")"
 }
 
 l1_rpc() { rpc "$L1_URL" "$@"; }
@@ -70,6 +94,27 @@ find_tx() {
     fi
   done
   return 1
+}
+
+# find_txs <from> <to-list (comma-separated)> <from block> <to block> -> JSON array of the transactions sent by <from> to any
+# of the addresses in those blocks, each with its selector and receipt (the preimage uploads before a step)
+find_txs() {
+  local from tos b0 b1 n blk acc='[]' tx hashes h rcpt
+  from="$(lower "$1")"; tos="$(lower "$2")"; b0="$3"; b1="$4"
+  for n in $(seq "$b0" "$b1"); do
+    blk="$(l1_rpc eth_getBlockByNumber "[\"$(printf '0x%x' "$n")\",true]")"
+    hashes="$(jq -r --arg from "$from" --arg tos "$tos" '($tos | split(",")) as $t | .result.transactions[] | select((.from | ascii_downcase) == $from and (((.to // "") | ascii_downcase) as $to | $t | index($to) != null)) | .hash' <<<"$blk")"
+    for h in $hashes; do
+      tx="$(jq -c --arg h "$h" '.result.transactions[] | select(.hash == $h)' <<<"$blk")"
+      rcpt="$(l1_rpc eth_getTransactionReceipt "[\"$h\"]" | jq -c .result)"
+      acc="$(jq -cn --argjson acc "$acc" --argjson tx "$tx" --argjson r "$rcpt" --argjson n "$n" '$acc + [{hash: $tx.hash, block: $n, from: $tx.from, to: $tx.to, selector: ($tx.input[0:10]),
+        inputBytes: ((($tx.input | length) - 2) / 2), status: $r.status, gasUsed: ($r.gasUsed | ltrimstr("0x") | ascii_downcase | explode | map(if . >= 97 then . - 87 else . - 48 end) | reduce .[] as $d (0; . * 16 + $d))}]')"
+    done
+  done
+  # the preimage-upload functions of FaultDisputeGame 2.4.2 and PreimageOracle 1.1.5, by selector
+  jq -c 'map(. + {function: ({"0xf8f43ff6": "addLocalData", "0x52f0f3ad": "loadLocalData", "0xe1592611": "loadKeccak256PreimagePart",
+                             "0x8dc4be11": "loadSha256PreimagePart", "0x9d7e8769": "loadBlobPreimagePart", "0xea713950": "loadPrecompilePreimagePart",
+                             "0xfaf37bc7": "initLPP", "0x7917de1d": "addLeavesLPP", "0xa6fce84f": "squeezeLPP"}[.selector] // "other")})' <<<"$acc"
 }
 
 ###############################################################################################################
@@ -115,10 +160,12 @@ cmd_dispute() {
   [ "$root_claimant" = "$PROPOSER" ] || die "the root claim of $game is by $root_claimant, not the devnet proposer $PROPOSER: this scenario needs an honest root"
   log "game $game (index $(jq -r .index <<<"$ginfo"), type $(jq -r .gameType <<<"$ginfo"), L2 block $(jq -r .l2BlockNumber <<<"$ginfo"), root $(jq -r .outputRoot <<<"$ginfo") by the proposer)"
   log "max depth $max_depth, split depth $split_depth; attacker $ADVERSARY, honest challenger $HONEST; timeout ${timeout}s; snapshots in $dir"
-  local anchor_before
+  log "strategy $STRATEGY (seed $SEED)"
+  local anchor_before root_value
   anchor_before="$(anchor_root)"
+  root_value="$(lower "$(jq -r '.claims[0].value' <<<"$claims")")"
 
-  local t0 moves=0 snap=0 last_move_at step_block=0 txs=() waiting_since=0 result="" reason="" leaf_idx="" depth_reached=0
+  local t0 moves=0 snap=0 last_move_at step_block=0 txs=() waiting_since=0 result="" reason="" leaf_idx="" depth_reached=0 defends=0
   t0="$(date +%s)"; last_move_at="$t0"
   while :; do
     claims="$(list_claims "$game")" || { warn "list-claims failed; retrying"; sleep "$POLL"; continue; }
@@ -133,19 +180,35 @@ cmd_dispute() {
       .claims as $all | [ $all[] | . as $c | select((($c.claimant | ascii_downcase) != $me) and ($c.depth < $d) and (($c.counteredBy // "") == "")
                           and (([$all[] | select(.parentIndex == $c.index and (.claimant | ascii_downcase) == $me)] | length) == 0)) | .index ]' <<<"$claims")"
     if [ "$(jq length <<<"$targets")" -gt 0 ]; then
-      local idx value out hash pd
+      local idx value out hash pd pv kind why
       for idx in $(jq -r '.[]' <<<"$targets"); do
         pd="$(jq -r --argjson i "$idx" '.claims[] | select(.index == $i) | .depth' <<<"$claims")"
+        pv="$(lower "$(jq -r --argjson i "$idx" '.claims[] | select(.index == $i) | .value' <<<"$claims")")"
+        # attack or defend. The root claim cannot be defended (CannotDefendRootClaim), nor can the move at the split
+        # depth be anything but an attack here: the first execution-trace claim is the root of that sub-game and the
+        # contract checks its status byte - an attacker must claim the VM found the disputed output INVALID (0x01) or
+        # PANIC (0x02), anything else reverts with UnexpectedRootClaim (FaultDisputeGame._verifyExecBisectionRoot).
+        kind=attack; why=""
+        if [ "$STRATEGY" = inside ] && [ "$idx" != 0 ] && [ "$pd" != "$split_depth" ]; then
+          local inside=0
+          if [ "$pd" -lt "$split_depth" ]; then
+            # output bisection: a honest claim equal to the root's output root is a position past the claimed block
+            [ "$pv" = "$root_value" ] || inside=1
+            why="$([ "$inside" = 1 ] && echo "inside the chain" || echo "past the claimed block")"
+          else
+            # execution bisection: the VM status byte of the honest claim - 0x03 unfinished (inside the trace), 0x00 exited
+            [ "${pv:0:4}" != "0x03" ] || inside=1
+            why="$([ "$inside" = 1 ] && echo "VM unfinished there" || echo "VM exited there")"
+          fi
+          if [ "$inside" = 1 ] && [ $(( RANDOM % 2 )) -eq 1 ]; then kind=defend; fi
+        fi
         if [ "$pd" = "$split_depth" ]; then
-          # the first execution-trace claim is the root of that sub-game and the contract checks its status byte:
-          # an attacker must claim the VM found the disputed output INVALID (0x01) or PANIC (0x02), anything else
-          # reverts with UnexpectedRootClaim (FaultDisputeGame._verifyExecBisectionRoot)
           value="0x01$(openssl rand -hex 31)"
         else
           value="0x$(openssl rand -hex 32)"
         fi
         local rc=0 landed
-        out="$(cli_signed move --l1-eth-rpc http://anvil:8545 --game-address "$game" --attack --parent-index "$idx" --claim "$value" 2>&1)" || rc=$?
+        out="$(cli_signed move --l1-eth-rpc http://anvil:8545 --game-address "$game" "--$kind" --parent-index "$idx" --claim "$value" 2>&1)" || rc=$?
         printf '%s\n' "$out" > "$dir/move-$(printf '%04d' $(( moves + 1 ))).log"
         hash="$(printf '%s' "$out" | sed -nE 's/.*hash: (0x[0-9a-fA-F]+).*/\1/p' | tail -1)"
         [ -n "$hash" ] || hash="$(printf '%s' "$out" | sed -nE 's/.*Publishing transaction.* tx=(0x[0-9a-fA-F]+).*/\1/p' | tail -1)"
@@ -156,13 +219,15 @@ cmd_dispute() {
           if [ -n "$landed" ]; then
             warn "the move CLI exited $rc after publishing, but claim #$landed is on chain (move-$(printf '%04d' $(( moves + 1 ))).log); continuing"
           else
-            result=FAIL; reason="move against claim #$idx (depth $pd) failed: $( { printf '%s' "$out" | grep -o 'execution reverted[^"]*' | tail -1; } || printf '%s' "$out" | grep -E 'lvl=(error|crit)|err=' | tail -n 2 | tr '\n' ' ' | cut -c1-400)"; break 2
+            result=FAIL; reason="$kind against claim #$idx (depth $pd) failed: $( { printf '%s' "$out" | grep -o 'execution reverted[^"]*' | tail -1; } || printf '%s' "$out" | grep -E 'lvl=(error|crit)|err=' | tail -n 2 | tr '\n' ' ' | cut -c1-400)"; break 2
           fi
         fi
         moves=$(( moves + 1 )); last_move_at="$(date +%s)"; waiting_since=0
-        txs+=("$(jq -cn --argjson parent "$idx" --arg claim "$value" --arg tx "$hash" --argjson n "$moves" --arg at "$(date -u +%Y-%m-%dT%H:%M:%SZ)" '{move: $n, attackOn: $parent, claim: $claim, tx: $tx, at: $at}')")
+        [ "$kind" != defend ] || defends=$(( defends + 1 ))
+        txs+=("$(jq -cn --argjson parent "$idx" --argjson pd "$pd" --arg kind "$kind" --arg why "$why" --arg claim "$value" --arg tx "$hash" --argjson n "$moves" --arg at "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+          '{move: $n, kind: $kind, parent: $parent, depth: ($pd + 1), claim: $claim, tx: $tx, at: $at} + (if $why == "" then {} else {because: $why} end)')")
         depth_reached=$(( pd + 1 ))
-        log "move $moves: attacked claim #$idx (depth $pd) -> depth $depth_reached, tx $hash"
+        log "move $moves: $kind on claim #$idx (depth $pd${why:+, $why}) -> depth $depth_reached, tx $hash"
       done
       snap=$(( snap + 1 )); list_claims "$game" > "$dir/claims-$(printf '%04d' "$snap").json" 2>/dev/null || true
       step_block="$(hexdec "$(l1_rpc eth_blockNumber | jq -r .result)")"
@@ -180,15 +245,27 @@ cmd_dispute() {
   snap=$(( snap + 1 )); printf '%s\n' "$claims" > "$dir/claims-final.json"
   log "$result: $reason"
 
-  # the step transaction and the honest challenger's own account of it
-  local step_tx honest_log
+  # the step transaction, the preimage uploads before it, and the honest challenger's own account of it
+  local step_tx honest_log oracle_txs='[]' oracle_min oracle_period disputed_block honest_proof_at
   step_tx=null
   if [ "$result" = PASS ]; then
-    step_tx="$(find_tx "$game" "$STEP_SELECTOR" "$(( step_block > 0 ? step_block : 1 ))" || echo null)"
-    [ "$step_tx" != null ] || warn "the step transaction was not found by scanning the L1 blocks from $step_block; the claim list still shows the leaf countered"
+    step_tx="$(find_tx "$game" "$STEP_SELECTOR" "$(( step_block > 2 ? step_block - 2 : 1 ))" || echo null)"
+    if [ "$step_tx" != null ]; then
+      # what the honest challenger sent to the game (addLocalData) or to the PreimageOracle between the attacker's leaf and
+      # the step: the preimage parts that step needed, if any (a step on an instruction that reads no preimage needs none)
+      oracle_txs="$(find_txs "$HONEST" "$game,$ORACLE" "$(( step_block > 2 ? step_block - 2 : 1 ))" "$(jq -r .block <<<"$step_tx")" \
+        | jq -c --arg game "$game" --arg sel "$ADD_LOCAL_DATA_SELECTOR" '[.[] | select(((.to | ascii_downcase) != $game) or (.selector == $sel))]')"
+    else
+      warn "the step transaction was not found by scanning the L1 blocks from $step_block; the claim list still shows the leaf countered"
+    fi
   fi
+  oracle_min="$(cast call "$ORACLE" 'minProposalSize()(uint256)' --rpc-url "$L1_URL" 2>/dev/null | awk '{print $1}' || true)"
+  oracle_period="$(cast call "$ORACLE" 'challengePeriod()(uint256)' --rpc-url "$L1_URL" 2>/dev/null | awk '{print $1}' || true)"
   honest_log="$dir/honest-challenger.log"
   docker logs "$(docker ps --format '{{.Names}}' | grep '^finchain-devnet-op-challenger-' | head -1)" 2>&1 | grep -i -- "$game" | tail -n 400 > "$honest_log" || true
+  # the honest side's own account: the L2 block its cannon runs disputed and the trace index its last run proved
+  disputed_block="$(grep -o 'claimed-l2-block-number, [0-9]*' "$honest_log" | tail -1 | awk '{print $2}')"
+  honest_proof_at="$(grep -o 'proof-at, =[0-9]*' "$honest_log" | tail -1 | sed 's/.*=//')"
   local n_adv n_hon
   n_adv="$(jq -r --arg me "$ADVERSARY" '[.claims[] | select((.claimant | ascii_downcase) == $me)] | length' <<<"$claims")"
   n_hon="$(jq -r --arg me "$HONEST" '[.claims[] | select((.claimant | ascii_downcase) == $me)] | length' <<<"$claims")"
@@ -198,13 +275,18 @@ cmd_dispute() {
     --slurpfile l1 "$OUT/chain/l1.json" --slurpfile rec "$OUT/chain/chain-record.json" --slurpfile g8 "$OUT/chain/game-type-$DEVNET_GAME_TYPE.json" --slurpfile ginfo "$dir/game.json" \
     --arg pre "${DEVNET_PRESTATE_HASH:-}" --arg prerec "${DEVNET_PRESTATE_RECORD:-}" --arg khsha "${DEVNET_KONA_HOST_SHA256:-}" --arg khrec "${DEVNET_KONA_HOST_RECORD:-}" --arg kcrec "${DEVNET_KONA_CONFIGS_RECORD:-}" \
     --arg game "$game" --argjson maxd "$max_depth" --argjson splitd "$split_depth" --arg adv "$ADVERSARY" --arg hon "$HONEST" --arg prop "$PROPOSER" --arg starting "$starting" \
-    --argjson moves "$moves" --argjson nadv "$n_adv" --argjson nhon "$n_hon" --argjson txs "$(printf '%s\n' "${txs[@]+"${txs[@]}"}" | jq -cs 'map(select(. != null))')" \
+    --argjson moves "$moves" --argjson defends "$defends" --argjson nadv "$n_adv" --argjson nhon "$n_hon" --argjson txs "$(printf '%s\n' "${txs[@]+"${txs[@]}"}" | jq -cs 'map(select(. != null))')" \
+    --arg strategy "$STRATEGY" --argjson seed "$SEED" --argjson oracletxs "$oracle_txs" --arg oracle "$ORACLE" --arg omin "$oracle_min" --arg operiod "$oracle_period" \
+    --arg dblock "$disputed_block" --arg hproof "$honest_proof_at" \
     --slurpfile final "$dir/claims-final.json" --argjson step "$step_tx" --arg leaf "$leaf_idx" --arg anchor "$anchor_before" --arg dir "drill/devnet/out/evidence/dispute-$stamp" \
     --arg result "$result" --arg reason "$reason" --arg opn "${OP_NODE_IMAGE:?}" --arg opr "${OP_RETH_IMAGE:?}" --arg opb "${OP_BATCHER_IMAGE:?}" --arg opp "${OP_PROPOSER_IMAGE:?}" --arg opc "$IMAGE" '
-    {schema: "finchain.devnet-dispute/1",
+    def num: if . == "" then null else tonumber end;
+    {schema: "finchain.devnet-dispute/2",
      acceptance: "M4 K3: isolated devnet - a CANNON_KONA game on Finchain configuration defended down to a real step() on chain (docs/acceptance.md M4; docs/proof-plan.md K3)",
      environment: "local-devnet", chainId: $cid, l1ChainId: $l1cid, startedAt: $started, recordedAt: $at,
-     what: "the honest op-proposer posted a correct root as a type-8 game; drill/devnet/adversary.sh attacked it and every honest reply with arbitrary claims; the resident op-challenger (cannon-kona, the devnet prestate, the embedded kona-host) answered each; at the max depth the leaf of the attacker could only be countered by step(), which the honest challenger executed on chain",
+     what: ("the honest op-proposer posted a correct root as a type-8 game; drill/devnet/adversary.sh attacked it and "
+            + (if $strategy == "inside" then "answered every honest reply with an arbitrary claim, attacking or defending at random while the position stayed inside the chain and the trace" else "attacked every honest reply with an arbitrary claim" end)
+            + "; the resident op-challenger (cannon-kona, the devnet prestate, the embedded kona-host) answered each; at the max depth the leaf of the attacker could only be countered by step(), which the honest challenger executed on chain"),
      devnet: {l1: $l1[0], images: {opNode: $opn, opReth: $opr, opBatcher: $opb, opProposer: $opp, opChallenger: $opc}},
      deployment: $rec[0],
      gameTypeInstall: $g8[0],
@@ -212,11 +294,17 @@ cmd_dispute() {
      prestate: {hash: $pre, record: $prerec}, konaHost: {sha256: $khsha, record: $khrec}, konaConfigs: {record: (if $kcrec == "" then null else $kcrec end)},
      game: ($ginfo[0] + {address: $game, maxDepth: $maxd, splitDepth: $splitd, startingRootHash: $starting}),
      parties: {proposer: $prop, honestChallenger: $hon, attacker: $adv},
-     dispute: {attackerMoves: $moves, attackerClaims: $nadv, honestClaims: $nhon, finalClaimCount: $final[0].claimCount, moves: $txs, snapshots: $dir,
-               strategy: "attack every claim of the honest side with a random value (op-challenger move --attack); intermediate claims are unverified by the contract, only the bond schedule is paid"},
-     step: {transaction: $step, leafClaimIndex: (if $leaf == "" then null else ($leaf | tonumber) end),
+     dispute: {attackerMoves: $moves, attackerDefends: $defends, attackerClaims: $nadv, honestClaims: $nhon, finalClaimCount: $final[0].claimCount, moves: $txs, snapshots: $dir,
+               strategy: {name: $strategy, seed: $seed,
+                          description: (if $strategy == "inside"
+                                        then "attack or defend each honest claim at random with a random value (op-challenger move --attack / --defend), defending only where the position stays inside the chain (the honest output claim differs from the root claim) and inside the trace (the honest claim carries VM status 0x03, unfinished); the root and the split-depth claim are always attacked; intermediate claims are unverified by the contract, only the bond schedule is paid"
+                                        else "attack every claim of the honest side with a random value (op-challenger move --attack); intermediate claims are unverified by the contract, only the bond schedule is paid" end)}},
+     step: {transaction: $step, leafClaimIndex: ($leaf | num),
             leaf: (if $leaf == "" then null else ($final[0].claims[] | select(.index == ($leaf | tonumber))) end),
-            meaning: "step(claimIndex, isAttack, stateData, proof): the MIPS contract executes one instruction of the kona-client trace from the prestate above with the preimage oracle and finds the leaf claim wrong; counteredBy is the honest challenger"},
+            disputedL2Block: ($dblock | num), honestProofAt: ($hproof | num),
+            oracle: {address: $oracle, minProposalSize: ($omin | num), challengePeriod: ($operiod | num), uploadsBeforeStep: $oracletxs,
+                     note: "the honest challenger loads the preimage parts a step reads before it steps: local data through the game (addLocalData), global preimages into the PreimageOracle (loadKeccak256PreimagePart and the others; a large one through initLPP, addLeavesLPP, squeezeLPP after the challenge period); an instruction that reads no preimage needs no upload"},
+            meaning: "step(claimIndex, isAttack, stateData, proof): the MIPS contract executes one instruction of the kona-client trace from the agreed pre-state (the absolute prestate at trace index 0, the honest claim just before the leaf otherwise) with the preimage oracle and finds the leaf claim wrong; counteredBy is the honest challenger"},
      resolution: {status: "IN_PROGRESS", anchorRootBefore: $anchor, note: "the clocks run out after the last move; drill/devnet/adversary.sh resolve completes this record"},
      result: $result, reason: $reason}' > "$ev"
   printf 'DEVNET_DISPUTE_RECORD=%s\nDEVNET_DISPUTE_GAME=%s\nDEVNET_DISPUTE_DIR=%s\n' "manifests/evidence/$(basename "$ev")" "$game" "$dir" >> "$GEN"

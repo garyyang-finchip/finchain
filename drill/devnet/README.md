@@ -29,13 +29,15 @@ are), or an L1 with a consensus layer. The environment is stated in every record
 | Prestate and host | `make prestate` and `make kona-host` through `devnet.sh build`, with the devnet's `rollup.json` and `genesis.json` | K1 and K2a repeated for the devnet chain: the same scripts, this chain's files; the embedding checks run exactly as for the public chain. The caches of the K2 build make it a rebuild of the registry crate and what depends on it |
 | Game type 8 | `DisputeGameFactory.setImplementation(8, FaultDisputeGameImpl, args)` by the owner, `args` = `absolutePrestate(32) vm(20) anchorStateRegistry(20) weth(20) l2ChainId(32)` with the devnet prestate; `setInitBond(8, 0)`; `DEVNET_GAME_RESPECTED=1` adds `AnchorStateRegistry.setRespectedGameType(8)` by the guardian | in op-contracts/v7.0.0 the factory holds one shared `FaultDisputeGame` implementation and per-type arguments (`DisputeGameFactory` 1.6.1, `gameArgs`); the prestate is an argument, not a new contract. This is exactly the transaction a Type 8 game on the public chain would take (K4), from the owner key |
 | Chain | op-reth, op-node (sequencer, no p2p), op-batcher (calldata), op-proposer (`--game-type 8`), the honest op-challenger (`--trace-type cannon-kona`, the devnet prestate, the devnet kona-host behind `drill/kona-host-wrapper.sh`) | the production images; flags follow `node-a/` and `node-b/` where the devnet does the same thing |
-| Adversary | `drill/devnet/adversary.sh`: op-challenger's own `move` subcommand with the attacker account | the simplest dishonest player; the contract verifies nothing about intermediate claims, so arbitrary values suffice and only the bond schedule is paid |
+| Adversary | `drill/devnet/adversary.sh`: op-challenger's own `move` subcommand with the attacker account; `ATTACK_STRATEGY=left` attacks every honest claim, `inside` attacks or defends at random while the position stays inside the chain and the trace | the simplest dishonest player; the contract verifies nothing about intermediate claims, so arbitrary values suffice and only the bond schedule is paid. `left` reaches trace index 0, `inside` an arbitrary instruction of an arbitrary block |
 
 ## The scenario, and why the root is honest
 
 The honest op-proposer posts correct output roots as type-8 games every two minutes. The
-attacker picks one, attacks its root claim with an arbitrary value, and then attacks every
-claim the honest challenger posts in reply, down the whole tree: output-root bisection above
+attacker picks one, attacks its root claim with an arbitrary value, and then answers every
+claim the honest challenger posts in reply, down the whole tree (attacking each one with
+`ATTACK_STRATEGY=left`, attacking or defending at random with `inside`, "After the first run"):
+output-root bisection above
 the split depth (the honest side answers from op-node's `optimism_outputAtBlock`), execution
 trace bisection below it (the honest side answers with Cannon states of the kona-client run,
 one `cannon run` per move from the nearest snapshot). At the max game depth the attacker's leaf
@@ -91,7 +93,7 @@ make devnet-install-game   # setImplementation(8, impl, args) + setInitBond; set
 make devnet-proof          # op-proposer (type 8) and the honest op-challenger; waits for the first game
 make devnet-anchor         # the anchor root off op-deployer's placeholder: first game resolved and closed after its clock (2.5 h + 10 min)
 make devnet-run-trace      # optional: K2b against the devnet's own endpoints (run-trace record, environment local-devnet)
-make devnet-dispute        # the attacker; ends when the honest step lands (DISPUTE_TIMEOUT=4h); the record
+make devnet-dispute        # the attacker; ends when the honest step lands (DISPUTE_TIMEOUT=4h); the record. ATTACK_STRATEGY=inside for the second game (below)
 make devnet-resolve        # after the clocks: resolution, credits, anchor root; the record completed
 make devnet-status         # containers, heads, games
 make devnet-down           # stop and delete the devnet's volumes (FRESH=1: out/ too; drill/out/prestates/ is kept)
@@ -129,8 +131,9 @@ how long the honest side has been computing.
 
 ## The record
 
-`manifests/evidence/devnet-dispute-854220-<date>.json` (schema `finchain.devnet-dispute/1`,
-`environment: local-devnet`), written by `devnet-dispute` and completed by `devnet-resolve`:
+`manifests/evidence/devnet-dispute-854220-<date>.json` (schema `finchain.devnet-dispute/2`;
+the first run's record is `/1`, which lacks the fields marked below; `environment: local-devnet`),
+written by `devnet-dispute` and completed by `devnet-resolve`:
 
 - the devnet (anvil image and parameters, shim image, the production images), the deployment
   (chain record: genesis hash, L1 anchor, the contract addresses), the type 8 installation
@@ -138,10 +141,16 @@ how long the honest side has been computing.
   bootstrap (the game that moved the anchor, its transactions, the root before and after), the
   prestate hash and record, the kona-host digest and record, the K1 record;
 - the game (address, index, L2 block, root claim, max and split depth) and the three parties;
-- the dispute: every attacker move with its transaction, the counts of attacker and honest
-  claims, the final claim list, the snapshots directory;
-- the step: the transaction (hash, block, sender, status, gas), the leaf claim it countered,
-  `counteredBy` = the honest challenger;
+- the dispute: every attacker move with its transaction (`/2`: `kind` attack or defend, the
+  parent claim, the depth reached and, for the `inside` strategy, why the move was allowed), the
+  counts of attacker and honest claims (`/2`: and of defends), the strategy and its seed (`/2`),
+  the final claim list, the snapshots directory;
+- the step: the transaction (hash, block, sender, status, gas), the leaf claim it countered with
+  its trace index, `counteredBy` = the honest challenger; `/2`: the L2 block the honest side's
+  cannon runs disputed and the trace index its last run proved (from its log), and the preimage
+  uploads it sent between the attacker's leaf and the step - `addLocalData` to the game, the
+  `load*PreimagePart` calls to the PreimageOracle - with the oracle's address, minimum
+  large-preimage size and challenge period; an instruction that reads no preimage needs none;
 - the resolution: status (`DEFENDER_WINS`), the resolving transaction, the credit of each party,
   the anchor root before and after (it moves to the defended root once the game is finalized if
   type 8 is respected; the record states both values and the respected type).
@@ -175,13 +184,24 @@ The first run (2026-11-16, `manifests/evidence/devnet-dispute-854220-20261116T16
   that cover the rest of the trace were the honest side's and were never put to a step. The
   kona-client run of the disputed block took between 2^29 and 2^30 MIPS steps (the honest
   claims for positions beyond that carry the exited status byte `0x00`, the ones inside the
-  trace `0x03`), in an execution sub-tree of 2^42 positions. A second game that puts a step in
-  the middle of the trace therefore needs an attacker that defends (`move --defend`) when the
-  honest claim shows an unfinished VM and attacks when it shows an exited one, choosing at random
-  where both keep it inside the trace, and always attacks at the split depth (the status-byte
-  rule). That strategy is not in `adversary.sh` yet (`ATTACK_STRATEGY=inside`, to be added before
-  the second game); its step would carry the honest challenger's preimage uploads to the
-  PreimageOracle, longer and dearer than the first run's.
+  trace `0x03`), in an execution sub-tree of 2^42 positions. The second game puts the step in
+  the middle of a trace: `ATTACK_STRATEGY=inside make devnet-dispute` (alpha.21) makes the
+  attacker answer each honest claim with an attack or a defence (`move --defend`) chosen at
+  random, defending only where the position stays inside the chain - at the output level the
+  honest claim differs from the root's output root, which op-challenger repeats for every
+  position past the claimed block - and inside the trace - below the split depth the honest
+  claim carries the unfinished status byte. The root is always attacked (the contract allows no
+  defence of a sub-game root) and so is the claim at the split depth (the status-byte rule). A
+  defence of a left-child claim moves the dispute to the right half of the parent's range
+  (`LibPosition.move`: the left child of the right sibling), so the disputed block becomes an
+  arbitrary block of the game's range and the leaf an arbitrary instruction of its trace, with
+  the honest claim just before it as the agreed pre-state (`step()` finds it with
+  `_findTraceAncestor`; an attack keeps its parent's left bound and the only defences in the
+  game are the attacker's, each made on a honest claim, so every left bound - and that pre-state
+  - is a claim of the honest side). Whether the stepped instruction reads a preimage is luck -
+  a trace of some hundred million steps holds some tens of thousands of preimage reads - and the
+  record says: `step.oracle.uploadsBeforeStep` lists what the honest challenger loaded before
+  stepping. `ATTACK_SEED=<number>` fixes the random choices; the seed is in the record.
 - Bonds: the standard schedule held - 0.088 ETH at depth 1, 1.33 ETH at depth 31, 60 ETH at
   depth 73; the honest side locked 329.9 ETH over its 36 claims, the attacker 361.3 ETH over 37,
   and the whole 691.15 ETH was credited to the honest challenger at resolution.

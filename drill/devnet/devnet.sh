@@ -19,12 +19,13 @@
 #   anchor        bootstrap the anchor root: resolve and close the first type-8 game once its clock has run out, so
 #                 that the anchor state registry leaves op-deployer's placeholder (2.5 h of waiting, see README)
 #   run-trace     K2b on the devnet: drill/run-trace.sh against the devnet's own endpoints
-#   dispute       the adversary (drill/devnet/adversary.sh): attack the newest game down to the leaf, wait for the step
+#   dispute       the adversary (drill/devnet/adversary.sh): play the newest game down to the leaf, wait for the step
 #   resolve       wait for the game to resolve; the final record
 #   status        containers, heads, games
 #   down          stop the devnet and delete its data (the shared prestate store under drill/out/ is kept)
 # Environment: KONA_TAG (default kona-client/v1.9.0), KONA_BUILD_JOBS / BUILD_JOBS / CARGO_MODE as for the K2 scripts,
-#   GAME=0x... (dispute: a game other than the newest), DISPUTE_TIMEOUT (default 4h), FRESH=1 (down: also delete out/),
+#   GAME=0x... (dispute: a game other than the newest), ATTACK_STRATEGY=left|inside and ATTACK_SEED (dispute: how the
+#   attacker plays, adversary.sh), DISPUTE_TIMEOUT (default 4h), FRESH=1 (down: also delete out/),
 #   OP_DEPLOYER_BIN (a binary other than the release scripts/get-op-deployer.sh fetches).
 # Host: docker (compose v2.24+), git, jq, curl, openssl, python3 is not needed on the host (the shim runs in a
 # container), just and docker buildx for the prestate build; the op-deployer binary is downloaded by scripts/.
