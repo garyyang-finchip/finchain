@@ -28,6 +28,9 @@ jobs:
       - name: compose config (host B)
         working-directory: node-b
         run: docker compose --env-file ../versions.lock --env-file ../profiles/lowcost.env --env-file .env.example config -q
+      - name: compose config (host B with the kona override)
+        working-directory: node-b
+        run: docker compose -f docker-compose.yml -f docker-compose.kona.yml --env-file ../versions.lock --env-file ../profiles/lowcost.env --env-file .env.example config -q
 
       - name: compose config (devnet)
         working-directory: drill/devnet
