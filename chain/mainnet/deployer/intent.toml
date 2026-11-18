@@ -1,0 +1,34 @@
+configType = "standard-overrides"
+opDeployerVersion = "0.7.1-75254822-2026-05-27T13:58:19Z"
+l1ChainID = 1
+opcmAddress = "0x9ce712ff84e02659846dc6450bb9b7642fe8be5d"
+fundDevAccounts = false
+l1ContractsLocator = "embedded"
+l2ContractsLocator = "embedded"
+useInterop = false
+
+[[chains]]
+  id = "0x0000000000000000000000000000000000000000000000000000000000002106"
+  baseFeeVaultRecipient = "0xF8D8846e505E5478C60B57182D39f61b066cA8E2"
+  l1FeeVaultRecipient = "0xF8D8846e505E5478C60B57182D39f61b066cA8E2"
+  sequencerFeeVaultRecipient = "0xF8D8846e505E5478C60B57182D39f61b066cA8E2"
+  operatorFeeVaultRecipient = "0xF8D8846e505E5478C60B57182D39f61b066cA8E2"
+  eip1559DenominatorCanyon = 250
+  eip1559Denominator = 50
+  eip1559Elasticity = 6
+  gasLimit = 60000000
+  operatorFeeScalar = 0
+  operatorFeeConstant = 0
+  minBaseFee = 0
+  daFootprintGasScalar = 0
+  [chains.roles]
+    l1ProxyAdminOwner = "0xF8D8846e505E5478C60B57182D39f61b066cA8E2"
+    l2ProxyAdminOwner = "0xF8D8846e505E5478C60B57182D39f61b066cA8E2"
+    systemConfigOwner = "0xF8D8846e505E5478C60B57182D39f61b066cA8E2"
+    unsafeBlockSigner = "0x4Ba4b8d96d4d2b27e8b76079Aa83bB992230E38D"
+    batcher = "0xaEBc426e48370992437956C3EFbA4A8572397968"
+    proposer = "0x7c2b388303cEBAE84aD3448057e074f2b2A65bbB"
+    challenger = "0xc666b76dAa39016bf4eeAa213deB58E612a92Dc7"
+  [chains.customGasToken]
+    liquidityControllerOwner = "0x0000000000000000000000000000000000000000"
+

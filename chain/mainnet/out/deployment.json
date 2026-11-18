@@ -1,0 +1,14 @@
+{
+  "chainId": 8454,
+  "l1ChainId": 1,
+  "deployer": "0xA562e36379c94880224D8005D003033e815FBe81",
+  "contractsRelease": "op-contracts/v7.0.0",
+  "opDeployerVersion": "v0.7.1",
+  "mode": "live",
+  "startedAt": "2026-11-18T17:18:33Z",
+  "l1BlockRange": {
+    "from": 26443394,
+    "to": 26443400
+  },
+  "deployerSpentEth": 0.012082
+}

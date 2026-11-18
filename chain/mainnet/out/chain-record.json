@@ -1,0 +1,18 @@
+{
+  "chainId": 8454,
+  "name": "Finchain",
+  "l2GenesisHash": "0xd678465005d9ba96c23dd4ff112630e5fdfac42d540d4967b77d581bc708497d",
+  "l1Anchor": {
+    "hash": "0x0580a495ceb198f880da6baed65ad87ae98eb88faf70b94e8332b00393c32ec5",
+    "number": 26443400
+  },
+  "rollupConfigSha256": "f0021191defc7d7a28a26e653a816b3d6f32d3443f7f4f4912d5a91b4097de0d",
+  "l1": {
+    "DisputeGameFactoryProxy": "0x4aa400aa71f9658dc010dcc9cd7229bd4467536e",
+    "OptimismPortalProxy": "0x54ee6b884b1f7b0ef2ae3bb4805ab3dc6667aabb",
+    "SystemConfigProxy": "0xf0961551c451a6c9b7037223f50b213e012d195f",
+    "AnchorStateRegistryProxy": "0x97e63e52da892c8ae335c2af75ce56a3c03ebf01",
+    "L1StandardBridgeProxy": "0x1d51684ff5840b1613bd6ac5a6bd5839654071b7",
+    "PermissionedDisputeGame": "0xe1dffcbe4e22b813f26d2106d943c102e7cab87e"
+  }
+}
