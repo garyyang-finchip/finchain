@@ -76,7 +76,8 @@ list_games() { cli list-games --l1-eth-rpc http://anvil:8545 --game-factory-addr
 list_claims() { cli list-claims --l1-eth-rpc http://anvil:8545 --game-address "$1" --format json 2>/dev/null; }
 game_status() { cast call "$1" 'status()(uint8)' --rpc-url "$L1_URL" | awk '{print $1}'; }   # 0 IN_PROGRESS, 1 CHALLENGER_WINS, 2 DEFENDER_WINS
 status_name() { case "$1" in 0) echo IN_PROGRESS ;; 1) echo CHALLENGER_WINS ;; 2) echo DEFENDER_WINS ;; *) echo "status $1" ;; esac; }
-anchor_root() { cast call "${DEVNET_ASR:?}" 'getAnchorRoot()(bytes32,uint256)' --rpc-url "$L1_URL" | tr '\n' ' ' | sed 's/ *$//'; }
+# "<root> <l2 block>"; cast annotates numbers of five or more digits with a scientific-notation hint in brackets, dropped here
+anchor_root() { cast call "${DEVNET_ASR:?}" 'getAnchorRoot()(bytes32,uint256)' --rpc-url "$L1_URL" | tr '\n' ' ' | sed -E 's/ *\[[^]]*\]//g; s/ *$//'; }
 
 # find_tx <to> <selector> <from block> -> JSON of the first transaction to <to> whose input starts with <selector>, with its receipt
 find_tx() {

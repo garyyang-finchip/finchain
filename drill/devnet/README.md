@@ -80,7 +80,8 @@ down` and start over; `FRESH=1` deletes `drill/devnet/out/`). Plan eight to ten 
 small host; the first run (2026-11-16, below) took eight: deployment and L2 up in minutes, the
 build 15 min from K2's caches (kona-configs, prestate 9 min, kona-host 5 min), the anchor
 bootstrap 2.5 h plus the finality delay, the dispute 80 min with two stops (about 40 min of
-play), the resolution 2 h 15 min after the leaf (the clocks).
+play), the resolution 2 h 15 min after the leaf (the clocks). The second game, on the same
+devnet the next morning: 40 min of play without a stop, the resolution 2 h 43 min after the leaf.
 
 ```bash
 make devnet-keys           # the accounts (anvil's test mnemonic) -> out/keys/addresses.env, out/secrets/
@@ -202,6 +203,16 @@ The first run (2026-11-16, `manifests/evidence/devnet-dispute-854220-20261116T16
   a trace of some hundred million steps holds some tens of thousands of preimage reads - and the
   record says: `step.oracle.uploadsBeforeStep` lists what the honest challenger loaded before
   stepping. `ATTACK_SEED=<number>` fixes the random choices; the seed is in the record.
+- The second game ran on 2026-11-17 with that strategy and seed 20261117
+  (`manifests/evidence/devnet-dispute-854220-20261117T070418Z.json`, `PASS`, and the log
+  `devnet-challenger-log-854220-20261117T070418Z.jsonl`; the timeline is in `docs/proof-plan.md`,
+  "Second game"): game 177, 37 attacker claims of which 8 defences, the leaf at trace index
+  178,268,704 of block 31907's run, the honest `step()` at L1 block 25512 (347,727 gas) proving
+  that instruction from the honest claim before it, no preimage upload needed, `DEFENDER_WINS`.
+  The disputed block was the first after the anchor again: the six choices at the output level
+  all came out as attacks for this seed - bash's `RANDOM` sequence for 20261117 starts with six
+  even values - and the record states each choice and its reason; another seed picks another
+  block. One uninterrupted run: 40 minutes from the first move to the step.
 - Bonds: the standard schedule held - 0.088 ETH at depth 1, 1.33 ETH at depth 31, 60 ETH at
   depth 73; the honest side locked 329.9 ETH over its 36 claims, the attacker 361.3 ETH over 37,
   and the whole 691.15 ETH was credited to the honest challenger at resolution.

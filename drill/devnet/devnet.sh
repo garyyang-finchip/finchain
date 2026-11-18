@@ -291,7 +291,7 @@ cmd_install_game() {
   local args anchor_before
   args="$(cast abi-encode --packed 'f(bytes32,address,address,address,uint256)' "$DEVNET_PRESTATE_HASH" "$mips" "$asr" "$weth" "$DEVNET_L2_CHAIN_ID" | tr -d '\r\n')"
   [ "${#args}" -eq $(( 2 + 124 * 2 )) ] || die "packed game args have ${#args} characters, expected $(( 2 + 124 * 2 ))"
-  anchor_before="$(cast call "$asr" 'getAnchorRoot()(bytes32,uint256)' --rpc-url "$L1_URL" | tr '\n' ' ')"
+  anchor_before="$(cast call "$asr" 'getAnchorRoot()(bytes32,uint256)' --rpc-url "$L1_URL" | tr '\n' ' ' | sed -E 's/ *\[[^]]*\]//g; s/ *$//')"
   local tx1 tx2 tx3="" respected_before respected_after
   respected_before="$(cast call "$asr" 'respectedGameType()(uint32)' --rpc-url "$L1_URL" | awk '{print $1}')"
   log "setImplementation($gt, $fdg, args) with prestate $DEVNET_PRESTATE_HASH"
@@ -372,7 +372,8 @@ cmd_proof() {
     echo "anchor root: $(anchor_root)"
   fi
 }
-anchor_root() { cast call "$(jq -r .AnchorStateRegistryProxy "$OUT/chain/l1-addresses.json")" 'getAnchorRoot()(bytes32,uint256)' --rpc-url "$L1_URL" | tr '\n' ' ' | sed 's/ *$//'; }
+# "<root> <l2 block>"; cast annotates numbers of five or more digits with a scientific-notation hint in brackets, dropped here
+anchor_root() { cast call "$(jq -r .AnchorStateRegistryProxy "$OUT/chain/l1-addresses.json")" 'getAnchorRoot()(bytes32,uint256)' --rpc-url "$L1_URL" | tr '\n' ' ' | sed -E 's/ *\[[^]]*\]//g; s/ *$//'; }
 
 ###############################################################################################################
 # The anchor root. op-deployer deploys the chain with a placeholder anchor (0xdead..., L2 block 0), because the L2

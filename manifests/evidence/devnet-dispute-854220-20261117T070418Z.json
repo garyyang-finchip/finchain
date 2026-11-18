@@ -1,0 +1,1124 @@
+{
+  "schema": "finchain.devnet-dispute/2",
+  "acceptance": "M4 K3: isolated devnet - a CANNON_KONA game on Finchain configuration defended down to a real step() on chain (docs/acceptance.md M4; docs/proof-plan.md K3)",
+  "environment": "local-devnet",
+  "chainId": 854220,
+  "l1ChainId": 11155111,
+  "startedAt": "2026-11-17T07:04:22Z",
+  "recordedAt": "2026-11-17T07:45:02Z",
+  "what": "the honest op-proposer posted a correct root as a type-8 game; drill/devnet/adversary.sh attacked it and answered every honest reply with an arbitrary claim, attacking or defending at random while the position stayed inside the chain and the trace; the resident op-challenger (cannon-kona, the devnet prestate, the embedded kona-host) answered each; at the max depth the leaf of the attacker could only be countered by step(), which the honest challenger executed on chain",
+  "devnet": {
+    "l1": {
+      "startedAt": "2026-11-16T10:29:20Z",
+      "chainId": 11155111,
+      "blockTime": 3,
+      "hardfork": "prague",
+      "slotsInAnEpoch": 1,
+      "anvilImage": "ghcr.io/foundry-rs/foundry@sha256:043752653d5be351c71709091b3db97c4421c907eb40ea294195e7f532aadf46",
+      "shimImage": "python@sha256:c5ba3deef00c7758561a0f03c26f44f10589263d40e732b8748e0d1f38f6dd89",
+      "deterministicDeployer": {
+        "address": "0x4e59b44847b379578588920ca78fbf26c0b4956c",
+        "placedWith": "anvil_setCode, the canonical runtime code"
+      },
+      "beaconStub": {
+        "genesisTime": 1794824959
+      },
+      "checkedBlock": "0x7533e281f96c4451eecb969fc96c096737c6360261033a4b27c33fc7b5fe46d9"
+    },
+    "images": {
+      "opNode": "us-docker.pkg.dev/oplabs-tools-artifacts/images/op-node:v1.19.11@sha256:e9eb72b7f13847a953fcf7d798814f128e2fdaa9edbc83bcffa0b7e6e9427c00",
+      "opReth": "us-docker.pkg.dev/oplabs-tools-artifacts/images/op-reth:v2.4.2@sha256:01b4c25938cb08753e0a7ff7415d627cb566465eb618620d0586f0943fbeaf68",
+      "opBatcher": "us-docker.pkg.dev/oplabs-tools-artifacts/images/op-batcher:v1.17.2@sha256:80234d8cc116ca0574148e2e9a927d5b24f0ec18d74f48807982eb099eec7335",
+      "opProposer": "us-docker.pkg.dev/oplabs-tools-artifacts/images/op-proposer:v1.16.7@sha256:e56f448fd12d5a076805841fc9e24cb9c465a9a700ca37cef0fdc9a2518db90a",
+      "opChallenger": "us-docker.pkg.dev/oplabs-tools-artifacts/images/op-challenger:v1.9.6@sha256:4f01ba7d5f4e58d771534522e5624ab3e6e200d8be619a17e1b04c47548bdb93"
+    }
+  },
+  "deployment": {
+    "chainId": 854220,
+    "name": "Finchain devnet",
+    "environment": "local-devnet",
+    "opDeployerVersion": "0.7.1-75254822-2026-05-27T13:58:19Z",
+    "l2GenesisHash": "0x7b49e0571d7736a085ee4b9bf1b08d5a3295090e81087697003ecf1afeff713a",
+    "l1Anchor": {
+      "hash": "0x805355fd22d8324bc002426c03d0247e58553616b6b8549b5716f13c20273de2",
+      "number": 30
+    },
+    "rollupConfigSha256": "7d97153fde5ab3ce2976871bdd8a94471ea8468e7ad200cb989415a8756d99bb",
+    "l1": {
+      "DisputeGameFactoryProxy": "0x57f52ecd76596574239ee5b70d41fa7db936f216",
+      "OptimismPortalProxy": "0x24a3c28042b4d5a3cdf76dbb4f599a1d9bc4027a",
+      "SystemConfigProxy": "0xcac14da6c461e4cdd942d3891952b42bb9188df6",
+      "AnchorStateRegistryProxy": "0x5cca1c967eb0dde08f3927190c4268f1071c826f",
+      "L1StandardBridgeProxy": "0xc39d6927e75908bfd787b1fa9b0721e665a4a95a",
+      "PermissionedDisputeGame": "0xb973292a76f16966d5aaf2e996a4eb9bdb206a16",
+      "FaultDisputeGameImpl": "0x39e1a508b33d436a080ff2a70f8255b8b1b018f7",
+      "MipsImpl": "0x36720c28155393780261bb767fc6be31e4e38a92",
+      "PreimageOracleImpl": "0x3388157b661a082d7202fb6f2648858de56c0450",
+      "DelayedWethPermissionlessGameProxy": "0x1ec2d06469a88c528e9c761487d3f041302f23f0",
+      "SuperchainConfigProxy": "0xcf7ed3acca5a467e9e704c703e8d87f634fb0fc9"
+    }
+  },
+  "gameTypeInstall": {
+    "installedAt": "2026-11-16T12:02:56Z",
+    "gameType": 8,
+    "factory": "0x57f52ecd76596574239ee5b70d41fa7db936f216",
+    "owner": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+    "implementation": {
+      "address": "0x39e1a508b33d436a080ff2a70f8255b8b1b018f7",
+      "version": "2.4.2",
+      "maxGameDepth": 73,
+      "splitDepth": 30,
+      "clockExtension": 600,
+      "maxClockDuration": 9000,
+      "note": "the shared FaultDisputeGame implementation of the chain; the game type is defined by the arguments the factory stores for it"
+    },
+    "gameArgs": {
+      "packed": "0x03918a9964ffdc3ec296d956409e0b70ea5b45dfdab938dba56bbf2f2437b07236720c28155393780261bb767fc6be31e4e38a925cca1c967eb0dde08f3927190c4268f1071c826f1ec2d06469a88c528e9c761487d3f041302f23f000000000000000000000000000000000000000000000000000000000000d08cc",
+      "layout": "absolutePrestate(32) vm(20) anchorStateRegistry(20) weth(20) l2ChainId(32) - op-challenger gameargs.PackPermissionless",
+      "absolutePrestate": "0x03918a9964ffdc3ec296d956409e0b70ea5b45dfdab938dba56bbf2f2437b072",
+      "vm": {
+        "address": "0x36720c28155393780261bb767fc6be31e4e38a92",
+        "stateVersion": 8
+      },
+      "anchorStateRegistry": "0x5cca1c967eb0dde08f3927190c4268f1071c826f",
+      "weth": "0x1ec2d06469a88c528e9c761487d3f041302f23f0",
+      "l2ChainId": 854220
+    },
+    "preimageOracle": {
+      "address": "0x3388157b661a082d7202fb6f2648858de56c0450",
+      "challengePeriod": 600
+    },
+    "transactions": {
+      "setImplementation": "0xd5e3b2d9c0d18ae9d87c1b7963b9a2c3f4fd275bfe69ab267967ca2f886f38c1",
+      "setInitBond": "0xd106714d8203d81063da37ae142c007970aeb4217826419a65fdf633d2c7a377",
+      "setRespectedGameType": "0xe3bb3876834611a0fc8e6936364ceba44766e074bd86282f0be1a1f8773d3d36"
+    },
+    "respectedGameType": {
+      "before": 1,
+      "after": 8
+    },
+    "anchorRootBefore": "0xdead000000000000000000000000000000000000000000000000000000000000 0 "
+  },
+  "anchorBootstrap": {
+    "movedAt": "2026-11-16T14:49:10Z",
+    "bootstrapGame": {
+      "index": 0,
+      "game": "0x1A146BdbDf28827Ffc4aF939962c966E57f9aD84",
+      "gameType": 8,
+      "timestamp": 1794830911,
+      "created": "2026-11-16T12:08:31Z",
+      "l2BlockNumber": 2914,
+      "outputRoot": "0x5f8ba5b28021268341a5c159cfffc920e53354ec1e80c9616e12d5812b98f0e9",
+      "claimCount": 1,
+      "status": "In Progress",
+      "address": "0x1A146BdbDf28827Ffc4aF939962c966E57f9aD84"
+    },
+    "createdAt": 1794830911,
+    "resolvedAt": 1794839944,
+    "transactions": {
+      "resolveClaim": "0xe6d7aa02e04d35f934123f38c30024c13ef3a90586da6582d6da28e186d46d15",
+      "resolve": "0x8432e3ae6b810d6321ecfbc8a8995495acbdfe751ce5a783635af4e0b602c5bd",
+      "closeGame": "0x0a0efc049235504061071c647d51bf1e702ef74b8e23c9f1458343b84ea692ff"
+    },
+    "sentBy": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+    "anchorRootBefore": "0xdead000000000000000000000000000000000000000000000000000000000000 0",
+    "anchorRootAfter": "0x5f8ba5b28021268341a5c159cfffc920e53354ec1e80c9616e12d5812b98f0e9 2914",
+    "why": "op-deployer deploys the chain with the placeholder anchor 0xdead... at L2 block 0; a game created before the anchor moved starts from it and the honest challenger refuses it; the anchor moves when a respected game is finalized and closed (closeGame -> setAnchorState)"
+  },
+  "prestate": {
+    "hash": "0x03918a9964ffdc3ec296d956409e0b70ea5b45dfdab938dba56bbf2f2437b072",
+    "record": "manifests/evidence/prestate-854220-20261116T103627Z.json"
+  },
+  "konaHost": {
+    "sha256": "020a41edeabaac9b493884db45569775ba030ab0de1cb3780ce1c7cfc25da4db",
+    "record": "manifests/evidence/kona-host-854220-20261116T104521Z.json"
+  },
+  "konaConfigs": {
+    "record": "manifests/evidence/kona-configs-854220-20261116T103627Z.json"
+  },
+  "game": {
+    "index": 177,
+    "game": "0x5997C29e960d1f1851372c9B457eae342e3FDB70",
+    "gameType": 8,
+    "timestamp": 1794898888,
+    "created": "2026-11-17T07:01:28Z",
+    "l2BlockNumber": 36902,
+    "outputRoot": "0x07bbef3a278c2f1dfe30e2f98233e76270b4b1131fd12a2cbea50e7f7e1cd420",
+    "claimCount": 1,
+    "status": "In Progress",
+    "address": "0x5997c29e960d1f1851372c9b457eae342e3fdb70",
+    "maxDepth": 73,
+    "splitDepth": 30,
+    "startingRootHash": "0xe27deef481fc3bfc3677e34d8ba9ef394d410bd837b387709b026a2e6d92275d"
+  },
+  "parties": {
+    "proposer": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
+    "honestChallenger": "0x90f79bf6eb2c4f870365e785982e1f101e93b906",
+    "attacker": "0x15d34aaf54267db7d7c367839aaf71a00a2c6a65"
+  },
+  "dispute": {
+    "attackerMoves": 37,
+    "attackerDefends": 8,
+    "attackerClaims": 37,
+    "honestClaims": 36,
+    "finalClaimCount": 74,
+    "moves": [
+      {
+        "move": 1,
+        "kind": "attack",
+        "parent": 0,
+        "depth": 1,
+        "claim": "0xafb33804fbf5662710c7e2358e6982639f8ed6546fb9ffe61fdae0d2c258883b",
+        "tx": "0x85e364ce940eaaaf97da4abf3fd8bbfe3198812eb2d446d6596e5795b614c81d",
+        "at": "2026-11-17T07:04:36Z"
+      },
+      {
+        "move": 2,
+        "kind": "attack",
+        "parent": 2,
+        "depth": 3,
+        "claim": "0xe3663f9b1ad9448fc8600a983a4e3437242e860e2c57ba5b501fd3efc9f00efc",
+        "tx": "0x2af2eaf23a6e23bc41f80a3de48eebefdda4819c8b1e858986e05f16164c4f7f",
+        "at": "2026-11-17T07:04:51Z",
+        "because": "past the claimed block"
+      },
+      {
+        "move": 3,
+        "kind": "attack",
+        "parent": 4,
+        "depth": 5,
+        "claim": "0x9c05e93bc4fe273a6ae1cc49446a1a43f2b1a36ff85169450ddb8015df8c7178",
+        "tx": "0x58a7248080415a0bfce8e712adb7ad0bcc3d20426cb412e36fbff9f6dbcfb673",
+        "at": "2026-11-17T07:05:42Z",
+        "because": "past the claimed block"
+      },
+      {
+        "move": 4,
+        "kind": "attack",
+        "parent": 6,
+        "depth": 7,
+        "claim": "0xd3d0581a5bb97478872d555820ba4ebd23904a2f5fb4e5d295eb027f2119b7d2",
+        "tx": "0xcb5ec80e37421994293bef935d8dd0dd12452536d934c459f7cd01f9f0e02cf9",
+        "at": "2026-11-17T07:06:26Z",
+        "because": "past the claimed block"
+      },
+      {
+        "move": 5,
+        "kind": "attack",
+        "parent": 8,
+        "depth": 9,
+        "claim": "0x9788cbb23e0f50959140780889698779d21aea4b2eac75fa5615c1c20baad9df",
+        "tx": "0xa8d2357fb9d8d55a0e622e34eb22018465af9c4c263ad610c97c8adfb88ae1db",
+        "at": "2026-11-17T07:07:09Z",
+        "because": "past the claimed block"
+      },
+      {
+        "move": 6,
+        "kind": "attack",
+        "parent": 10,
+        "depth": 11,
+        "claim": "0x7ed2b8bccc0ae00a41875665b4f1a2e27410358f0803b63d43c4e99b84c4888a",
+        "tx": "0x39aae6b4d08e64f217d893de03e822f3e8e7473798c3837119a0d4c8c3e1999c",
+        "at": "2026-11-17T07:07:45Z",
+        "because": "past the claimed block"
+      },
+      {
+        "move": 7,
+        "kind": "attack",
+        "parent": 12,
+        "depth": 13,
+        "claim": "0x582d5e7872948d41a2a52decc8aa4809a467a16fcc1601df83eea6df79efa479",
+        "tx": "0x3ebb69650a228766de353092e81e83cb01d82fa63583088e609f5af253c714c5",
+        "at": "2026-11-17T07:08:36Z",
+        "because": "past the claimed block"
+      },
+      {
+        "move": 8,
+        "kind": "attack",
+        "parent": 14,
+        "depth": 15,
+        "claim": "0x443b8e37f7fac204c1757d8c7ac5729bdd213d1c8675a1f885db3046bf295d92",
+        "tx": "0xb88868f39f246d46dd89028489ff87a5efc5c63794d617cfd736e028c41d9524",
+        "at": "2026-11-17T07:09:13Z",
+        "because": "past the claimed block"
+      },
+      {
+        "move": 9,
+        "kind": "attack",
+        "parent": 16,
+        "depth": 17,
+        "claim": "0xde6763568e4daf350e5093f62d292cc7239911582f052fae96a5c5c5b8d5eb72",
+        "tx": "0x01ac9a54443cd490ad1a3263827f5e4ed751c2cdf24687c730bd18c278dcdaad",
+        "at": "2026-11-17T07:10:03Z",
+        "because": "past the claimed block"
+      },
+      {
+        "move": 10,
+        "kind": "attack",
+        "parent": 18,
+        "depth": 19,
+        "claim": "0x4ae902a63e07e868f8e93acd33bd80529b76e927441d4d358e4e42d3d8b97eaf",
+        "tx": "0x32e75837a3ae19b370a294a27c10f89e1197c073b02971b77e914580d330a59b",
+        "at": "2026-11-17T07:10:39Z",
+        "because": "inside the chain"
+      },
+      {
+        "move": 11,
+        "kind": "attack",
+        "parent": 20,
+        "depth": 21,
+        "claim": "0xcb6575752dd95cff76809f44450d8ac520be2be3919849f18f3c37af4c5744e4",
+        "tx": "0x62ce8cc5a3868c4f343d0a5b6f5d61820e4fa17d28572c9be2614579e37d6f1a",
+        "at": "2026-11-17T07:11:30Z",
+        "because": "inside the chain"
+      },
+      {
+        "move": 12,
+        "kind": "attack",
+        "parent": 22,
+        "depth": 23,
+        "claim": "0x12eda33fe5d59cb6981acacdec5766711a754a8bbd0a014a22765f812cf62fdd",
+        "tx": "0x5da7e8da8eaf828737287a60692099e09d32b7fe4eeb122dea71a65727a81c9d",
+        "at": "2026-11-17T07:12:06Z",
+        "because": "inside the chain"
+      },
+      {
+        "move": 13,
+        "kind": "attack",
+        "parent": 24,
+        "depth": 25,
+        "claim": "0x78e16b30ea9a24513784a76564f68f4f1c1be763a80d59cb9f6b2ce803f5f196",
+        "tx": "0xc76d47865c53054629ae474062b35b8423784a277e412662455208b9652f918a",
+        "at": "2026-11-17T07:12:57Z",
+        "because": "inside the chain"
+      },
+      {
+        "move": 14,
+        "kind": "attack",
+        "parent": 26,
+        "depth": 27,
+        "claim": "0x2810eacbe4524fe1016d162749ca282d03af195ac4396d596e3a0390ce18b22c",
+        "tx": "0xa087157f6482e7a5bf2eeee7cfd7171547c8c3ddf2141207b220f14ce6f996c8",
+        "at": "2026-11-17T07:13:40Z",
+        "because": "inside the chain"
+      },
+      {
+        "move": 15,
+        "kind": "attack",
+        "parent": 28,
+        "depth": 29,
+        "claim": "0xa58fc4b107cc7647aeea3fae111c3ca8625c6160f52b8dd70e56cf461d50dff1",
+        "tx": "0xe738dedb488dd6b67da3fd1131f1f3b2248da1fcae42a904cf6b0ed3ed8a05ca",
+        "at": "2026-11-17T07:14:24Z",
+        "because": "inside the chain"
+      },
+      {
+        "move": 16,
+        "kind": "attack",
+        "parent": 30,
+        "depth": 31,
+        "claim": "0x01ee1e2449093de99da27e13ab7d47a66a5113bdfee546a81d4a748e9880d7ec",
+        "tx": "0x0e6172425eccbeb0467dcb09d471e5d0435583a8ed0a9ea674c1f64d07dc3dbd",
+        "at": "2026-11-17T07:15:00Z"
+      },
+      {
+        "move": 17,
+        "kind": "attack",
+        "parent": 32,
+        "depth": 33,
+        "claim": "0x5456d816468304e0bd81758fff7e69411ee37dc307c61f217c2d49e1fe2a24b3",
+        "tx": "0x5ea16ec50408ca6d4a4594aa34a07aec25abcb464ce74c42e136f56150e609d5",
+        "at": "2026-11-17T07:21:48Z",
+        "because": "VM exited there"
+      },
+      {
+        "move": 18,
+        "kind": "attack",
+        "parent": 34,
+        "depth": 35,
+        "claim": "0xd8670dc05fb6d74c7ce17f1c9a5ddc0a742538e8ad2fa441de2923f7e51c9e80",
+        "tx": "0x2a346a0b2b134f05b5f8099a1534566a87839059d5ae366f668418f3121c05aa",
+        "at": "2026-11-17T07:22:31Z",
+        "because": "VM exited there"
+      },
+      {
+        "move": 19,
+        "kind": "attack",
+        "parent": 36,
+        "depth": 37,
+        "claim": "0xc572c918e1895a206dafc5d62c59636dc4833f783d35536de8590dc0e84c08b7",
+        "tx": "0x7803f2e30c075e718fb612b33000db2d0fa396e915807960adacdab200847d2d",
+        "at": "2026-11-17T07:23:21Z",
+        "because": "VM exited there"
+      },
+      {
+        "move": 20,
+        "kind": "attack",
+        "parent": 38,
+        "depth": 39,
+        "claim": "0xc25b6c5fa4b9c8c84b376196ac47f49508bca46f3698eb6aa35b2205107e99e6",
+        "tx": "0xee1144216cccae2a4722b1f60d7d486944d065b86acc1ed8029d9681c7bce62a",
+        "at": "2026-11-17T07:23:57Z",
+        "because": "VM exited there"
+      },
+      {
+        "move": 21,
+        "kind": "attack",
+        "parent": 40,
+        "depth": 41,
+        "claim": "0x1c77733bcef07c4b9c6e3677ebb4127b347d260979b42b7cd5dd1f5cd1ea41b4",
+        "tx": "0xf8d267bb6e55fe54cc037745185b5a116a4ecee20bf54e6772982fa97254c8e6",
+        "at": "2026-11-17T07:24:48Z",
+        "because": "VM exited there"
+      },
+      {
+        "move": 22,
+        "kind": "attack",
+        "parent": 42,
+        "depth": 43,
+        "claim": "0xe3706ef182fb47d559151cee5e629e73dab8566214f4d440347730eb6fc5d770",
+        "tx": "0x3694715423577e87c472db6955536602a3af742e735afba9cc3261ea8b85a865",
+        "at": "2026-11-17T07:25:31Z",
+        "because": "VM exited there"
+      },
+      {
+        "move": 23,
+        "kind": "attack",
+        "parent": 44,
+        "depth": 45,
+        "claim": "0x2d870b3535f6eea99ced1e41b135b32a0fd6b51b935a6ef12dfc8eb433a3b2ff",
+        "tx": "0xcdb297b37c4bf90ebbbc964f9c9a97f7db14b59064a56cc34c3d4404df6e2625",
+        "at": "2026-11-17T07:26:21Z",
+        "because": "VM unfinished there"
+      },
+      {
+        "move": 24,
+        "kind": "defend",
+        "parent": 46,
+        "depth": 47,
+        "claim": "0x31a589bc1279dfecde6736d76cde0a4032eec0e26a81326ef6b1347acf8667a3",
+        "tx": "0xea421045294fb280633275dcf43a205626de70e69c8460bd2e408872f7c96b86",
+        "at": "2026-11-17T07:27:33Z",
+        "because": "VM unfinished there"
+      },
+      {
+        "move": 25,
+        "kind": "defend",
+        "parent": 48,
+        "depth": 49,
+        "claim": "0x19b8af9a2f629e6498dffef21b57474b9f954ae05e9ab23fdf54d41c41507288",
+        "tx": "0x615f913660e3d11b89bb5c1327c3a5422857849139d02aedd24255a6dd8895da",
+        "at": "2026-11-17T07:28:38Z",
+        "because": "VM unfinished there"
+      },
+      {
+        "move": 26,
+        "kind": "defend",
+        "parent": 50,
+        "depth": 51,
+        "claim": "0x788dbc0926a0e37d4e8c640eef9be6ebafc26c23c6de6c3ee4cd1cd821c942d2",
+        "tx": "0x5b865e3f071a73d318a2a1ab84b55f9cc85f1cbec3da3ba2a674fb39852a893f",
+        "at": "2026-11-17T07:29:57Z",
+        "because": "VM unfinished there"
+      },
+      {
+        "move": 27,
+        "kind": "defend",
+        "parent": 52,
+        "depth": 53,
+        "claim": "0x2ebded29a3c9c27c2083d0f37fbe0b31db211d2e29a4aed23d6694c53d77d51c",
+        "tx": "0x1ba02cb4bb4bcfe1ee10b6b0d65c638aa4ab9f9522c3170191ffb5b5bececedd",
+        "at": "2026-11-17T07:31:09Z",
+        "because": "VM unfinished there"
+      },
+      {
+        "move": 28,
+        "kind": "attack",
+        "parent": 54,
+        "depth": 55,
+        "claim": "0xc0c9b5acf2152627b0ea9912781c4faed954607b7368b860b6933f941f4ae6cc",
+        "tx": "0xfe67a0d34cbffd1aa853edb36842c24e0ac332f807c6f8c1fef1732c28338c7a",
+        "at": "2026-11-17T07:32:28Z",
+        "because": "VM unfinished there"
+      },
+      {
+        "move": 29,
+        "kind": "attack",
+        "parent": 56,
+        "depth": 57,
+        "claim": "0xd21163c01d7d76e5bdaae6c29124bad3fbf551eb5d952364b26ee631df86ba43",
+        "tx": "0x84bbc84f08c72caac9d9a5ab9b819d0a8ab0b083fb10fb57ea28b9adf27596b6",
+        "at": "2026-11-17T07:33:47Z",
+        "because": "VM unfinished there"
+      },
+      {
+        "move": 30,
+        "kind": "attack",
+        "parent": 58,
+        "depth": 59,
+        "claim": "0x7085eb259790e27a1c31b93736be079d410c7ed63b6766c8165ff03b20a0eb3c",
+        "tx": "0x669419fed13a7ebb579d94bb9877a21a3b0dc13d1b6c650a8e31cc20a86cd918",
+        "at": "2026-11-17T07:35:06Z",
+        "because": "VM unfinished there"
+      },
+      {
+        "move": 31,
+        "kind": "defend",
+        "parent": 60,
+        "depth": 61,
+        "claim": "0x6c9d11a653d533ba6c54ac63f25ebe61e35b0348098eb2c79ef44737d24f36b9",
+        "tx": "0xeaa9bb092cbf21a7c5f126d7f068ce431665e04909eb5559a9425b28ecca0802",
+        "at": "2026-11-17T07:36:19Z",
+        "because": "VM unfinished there"
+      },
+      {
+        "move": 32,
+        "kind": "defend",
+        "parent": 62,
+        "depth": 63,
+        "claim": "0x9106f4b3b8e00134fd5f09583fea1df7a428ceb9c662a1668bde9e13aa1cc1d5",
+        "tx": "0xfbac3419b4d3d1d14d5553c46104876fe507f0c75c3104dd1f2ea7d78243b328",
+        "at": "2026-11-17T07:37:39Z",
+        "because": "VM unfinished there"
+      },
+      {
+        "move": 33,
+        "kind": "defend",
+        "parent": 64,
+        "depth": 65,
+        "claim": "0x59d8ebb6619899255e9dc38d86bf52916dc1c4d49f671b8edc5ea709d0b16422",
+        "tx": "0xdf3a93b3e22307c6ddd8528bd46383d993f247ac05b919c8cee78bd476f7222a",
+        "at": "2026-11-17T07:38:58Z",
+        "because": "VM unfinished there"
+      },
+      {
+        "move": 34,
+        "kind": "attack",
+        "parent": 66,
+        "depth": 67,
+        "claim": "0x51737c569ae5b7a331b5603c7c477905b0176a4f8fa4e7207fae8bc4c613d286",
+        "tx": "0x7518a25ad7e844b02510934a67971da49e2a5396ce8349f302715ab2bd84c12f",
+        "at": "2026-11-17T07:40:17Z",
+        "because": "VM unfinished there"
+      },
+      {
+        "move": 35,
+        "kind": "defend",
+        "parent": 68,
+        "depth": 69,
+        "claim": "0xceb6dfc129f80484290dfa37d4206aa0c48044b1dfccaeeee69459a266e5145e",
+        "tx": "0xf5d5e4da6d038ecf0e971a93ed1465df0a09beb5cb7901043d942c92da9abd1a",
+        "at": "2026-11-17T07:41:36Z",
+        "because": "VM unfinished there"
+      },
+      {
+        "move": 36,
+        "kind": "attack",
+        "parent": 70,
+        "depth": 71,
+        "claim": "0xce4b4bca5f1cd4b3b5ac523cb038115b87e012a7e406dd9e75d029ec9e5e4545",
+        "tx": "0x3e5ca5540dff6c7e6ec5813fb392e12cb889f7846bf0691c948d5c9a8ad07742",
+        "at": "2026-11-17T07:42:48Z",
+        "because": "VM unfinished there"
+      },
+      {
+        "move": 37,
+        "kind": "attack",
+        "parent": 72,
+        "depth": 73,
+        "claim": "0xf683005cf16d2f1ff6884e48e66d97ef3a2b0646c99015bec758c695fe97b27b",
+        "tx": "0x8ba3b9e3b7d7dc396c124a86a7abcf4b123cf58bac3d93780819c128437b22a2",
+        "at": "2026-11-17T07:44:07Z",
+        "because": "VM unfinished there"
+      }
+    ],
+    "snapshots": "drill/devnet/out/evidence/dispute-20261117T070418Z",
+    "strategy": {
+      "name": "inside",
+      "seed": 20261117,
+      "description": "attack or defend each honest claim at random with a random value (op-challenger move --attack / --defend), defending only where the position stays inside the chain (the honest output claim differs from the root claim) and inside the trace (the honest claim carries VM status 0x03, unfinished); the root and the split-depth claim are always attacked; intermediate claims are unverified by the contract, only the bond schedule is paid"
+    }
+  },
+  "step": {
+    "transaction": {
+      "hash": "0x5c229216041a9492a90ad6d75d85c38dac42f6d16b414e6e934bea8945f51c69",
+      "block": 25512,
+      "from": "0x90f79bf6eb2c4f870365e785982e1f101e93b906",
+      "to": "0x5997c29e960d1f1851372c9b457eae342e3fdb70",
+      "inputBytes": 6500,
+      "status": "0x1",
+      "gasUsed": 347727
+    },
+    "leafClaimIndex": 73,
+    "leaf": {
+      "index": 73,
+      "move": "Attack",
+      "parentIndex": 72,
+      "depth": 73,
+      "traceIndex": "178268704",
+      "value": "0xf683005cf16d2f1ff6884e48e66d97ef3a2b0646c99015bec758c695fe97b27b",
+      "claimant": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+      "bondWei": "59999999800000000000",
+      "bondEth": "60.000000",
+      "timestamp": 1794901435,
+      "time": "2026-11-17T07:43:55Z",
+      "clockUsedSeconds": 387,
+      "counteredBy": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+      "resolved": false
+    },
+    "disputedL2Block": 31907,
+    "honestProofAt": 178268704,
+    "oracle": {
+      "address": "0x3388157b661a082d7202fb6f2648858de56c0450",
+      "minProposalSize": 126000,
+      "challengePeriod": 600,
+      "uploadsBeforeStep": [],
+      "note": "the honest challenger loads the preimage parts a step reads before it steps: local data through the game (addLocalData), global preimages into the PreimageOracle (loadKeccak256PreimagePart and the others; a large one through initLPP, addLeavesLPP, squeezeLPP after the challenge period); an instruction that reads no preimage needs no upload"
+    },
+    "meaning": "step(claimIndex, isAttack, stateData, proof): the MIPS contract executes one instruction of the kona-client trace from the agreed pre-state (the absolute prestate at trace index 0, the honest claim just before the leaf otherwise) with the preimage oracle and finds the leaf claim wrong; counteredBy is the honest challenger"
+  },
+  "resolution": {
+    "status": "DEFENDER_WINS",
+    "statusCode": 2,
+    "resolvedAt": 1794911266,
+    "resolveTransaction": {
+      "hash": "0x41fff4a9b93ac87603328fd19dc7021c979bcf9a69c8ff51383c4050b1f09149",
+      "block": 28769,
+      "from": "0x90f79bf6eb2c4f870365e785982e1f101e93b906",
+      "to": "0x5997c29e960d1f1851372c9b457eae342e3fdb70",
+      "inputBytes": 4,
+      "status": "0x1",
+      "gasUsed": 37258
+    },
+    "creditWei": {
+      "attacker": "0",
+      "honestChallenger": "691154694000000000000",
+      "proposer": "0"
+    },
+    "anchorRootBefore": "0xa2d970339b6efff91366438df036957069f7920ef90bc79888e5249dc3218b6f 32098 [3.209e4]",
+    "anchorRootAfter": "0x75bbbb410c2504be34bf44fb4e73588049fd1227dd68a97c5c3f60ccc718295a 37857 [3.785e4]",
+    "claims": [
+      {
+        "index": 0,
+        "depth": 0,
+        "claimant": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+        "counteredBy": "",
+        "resolved": true
+      },
+      {
+        "index": 1,
+        "depth": 1,
+        "claimant": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+        "counteredBy": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "resolved": true
+      },
+      {
+        "index": 2,
+        "depth": 2,
+        "claimant": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "counteredBy": "",
+        "resolved": true
+      },
+      {
+        "index": 3,
+        "depth": 3,
+        "claimant": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+        "counteredBy": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "resolved": true
+      },
+      {
+        "index": 4,
+        "depth": 4,
+        "claimant": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "counteredBy": "",
+        "resolved": true
+      },
+      {
+        "index": 5,
+        "depth": 5,
+        "claimant": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+        "counteredBy": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "resolved": true
+      },
+      {
+        "index": 6,
+        "depth": 6,
+        "claimant": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "counteredBy": "",
+        "resolved": true
+      },
+      {
+        "index": 7,
+        "depth": 7,
+        "claimant": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+        "counteredBy": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "resolved": true
+      },
+      {
+        "index": 8,
+        "depth": 8,
+        "claimant": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "counteredBy": "",
+        "resolved": true
+      },
+      {
+        "index": 9,
+        "depth": 9,
+        "claimant": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+        "counteredBy": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "resolved": true
+      },
+      {
+        "index": 10,
+        "depth": 10,
+        "claimant": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "counteredBy": "",
+        "resolved": true
+      },
+      {
+        "index": 11,
+        "depth": 11,
+        "claimant": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+        "counteredBy": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "resolved": true
+      },
+      {
+        "index": 12,
+        "depth": 12,
+        "claimant": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "counteredBy": "",
+        "resolved": true
+      },
+      {
+        "index": 13,
+        "depth": 13,
+        "claimant": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+        "counteredBy": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "resolved": true
+      },
+      {
+        "index": 14,
+        "depth": 14,
+        "claimant": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "counteredBy": "",
+        "resolved": true
+      },
+      {
+        "index": 15,
+        "depth": 15,
+        "claimant": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+        "counteredBy": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "resolved": true
+      },
+      {
+        "index": 16,
+        "depth": 16,
+        "claimant": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "counteredBy": "",
+        "resolved": true
+      },
+      {
+        "index": 17,
+        "depth": 17,
+        "claimant": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+        "counteredBy": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "resolved": true
+      },
+      {
+        "index": 18,
+        "depth": 18,
+        "claimant": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "counteredBy": "",
+        "resolved": true
+      },
+      {
+        "index": 19,
+        "depth": 19,
+        "claimant": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+        "counteredBy": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "resolved": true
+      },
+      {
+        "index": 20,
+        "depth": 20,
+        "claimant": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "counteredBy": "",
+        "resolved": true
+      },
+      {
+        "index": 21,
+        "depth": 21,
+        "claimant": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+        "counteredBy": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "resolved": true
+      },
+      {
+        "index": 22,
+        "depth": 22,
+        "claimant": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "counteredBy": "",
+        "resolved": true
+      },
+      {
+        "index": 23,
+        "depth": 23,
+        "claimant": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+        "counteredBy": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "resolved": true
+      },
+      {
+        "index": 24,
+        "depth": 24,
+        "claimant": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "counteredBy": "",
+        "resolved": true
+      },
+      {
+        "index": 25,
+        "depth": 25,
+        "claimant": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+        "counteredBy": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "resolved": true
+      },
+      {
+        "index": 26,
+        "depth": 26,
+        "claimant": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "counteredBy": "",
+        "resolved": true
+      },
+      {
+        "index": 27,
+        "depth": 27,
+        "claimant": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+        "counteredBy": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "resolved": true
+      },
+      {
+        "index": 28,
+        "depth": 28,
+        "claimant": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "counteredBy": "",
+        "resolved": true
+      },
+      {
+        "index": 29,
+        "depth": 29,
+        "claimant": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+        "counteredBy": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "resolved": true
+      },
+      {
+        "index": 30,
+        "depth": 30,
+        "claimant": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "counteredBy": "",
+        "resolved": true
+      },
+      {
+        "index": 31,
+        "depth": 31,
+        "claimant": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+        "counteredBy": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "resolved": true
+      },
+      {
+        "index": 32,
+        "depth": 32,
+        "claimant": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "counteredBy": "",
+        "resolved": true
+      },
+      {
+        "index": 33,
+        "depth": 33,
+        "claimant": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+        "counteredBy": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "resolved": true
+      },
+      {
+        "index": 34,
+        "depth": 34,
+        "claimant": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "counteredBy": "",
+        "resolved": true
+      },
+      {
+        "index": 35,
+        "depth": 35,
+        "claimant": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+        "counteredBy": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "resolved": true
+      },
+      {
+        "index": 36,
+        "depth": 36,
+        "claimant": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "counteredBy": "",
+        "resolved": true
+      },
+      {
+        "index": 37,
+        "depth": 37,
+        "claimant": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+        "counteredBy": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "resolved": true
+      },
+      {
+        "index": 38,
+        "depth": 38,
+        "claimant": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "counteredBy": "",
+        "resolved": true
+      },
+      {
+        "index": 39,
+        "depth": 39,
+        "claimant": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+        "counteredBy": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "resolved": true
+      },
+      {
+        "index": 40,
+        "depth": 40,
+        "claimant": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "counteredBy": "",
+        "resolved": true
+      },
+      {
+        "index": 41,
+        "depth": 41,
+        "claimant": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+        "counteredBy": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "resolved": true
+      },
+      {
+        "index": 42,
+        "depth": 42,
+        "claimant": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "counteredBy": "",
+        "resolved": true
+      },
+      {
+        "index": 43,
+        "depth": 43,
+        "claimant": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+        "counteredBy": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "resolved": true
+      },
+      {
+        "index": 44,
+        "depth": 44,
+        "claimant": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "counteredBy": "",
+        "resolved": true
+      },
+      {
+        "index": 45,
+        "depth": 45,
+        "claimant": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+        "counteredBy": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "resolved": true
+      },
+      {
+        "index": 46,
+        "depth": 46,
+        "claimant": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "counteredBy": "",
+        "resolved": true
+      },
+      {
+        "index": 47,
+        "depth": 47,
+        "claimant": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+        "counteredBy": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "resolved": true
+      },
+      {
+        "index": 48,
+        "depth": 48,
+        "claimant": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "counteredBy": "",
+        "resolved": true
+      },
+      {
+        "index": 49,
+        "depth": 49,
+        "claimant": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+        "counteredBy": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "resolved": true
+      },
+      {
+        "index": 50,
+        "depth": 50,
+        "claimant": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "counteredBy": "",
+        "resolved": true
+      },
+      {
+        "index": 51,
+        "depth": 51,
+        "claimant": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+        "counteredBy": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "resolved": true
+      },
+      {
+        "index": 52,
+        "depth": 52,
+        "claimant": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "counteredBy": "",
+        "resolved": true
+      },
+      {
+        "index": 53,
+        "depth": 53,
+        "claimant": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+        "counteredBy": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "resolved": true
+      },
+      {
+        "index": 54,
+        "depth": 54,
+        "claimant": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "counteredBy": "",
+        "resolved": true
+      },
+      {
+        "index": 55,
+        "depth": 55,
+        "claimant": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+        "counteredBy": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "resolved": true
+      },
+      {
+        "index": 56,
+        "depth": 56,
+        "claimant": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "counteredBy": "",
+        "resolved": true
+      },
+      {
+        "index": 57,
+        "depth": 57,
+        "claimant": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+        "counteredBy": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "resolved": true
+      },
+      {
+        "index": 58,
+        "depth": 58,
+        "claimant": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "counteredBy": "",
+        "resolved": true
+      },
+      {
+        "index": 59,
+        "depth": 59,
+        "claimant": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+        "counteredBy": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "resolved": true
+      },
+      {
+        "index": 60,
+        "depth": 60,
+        "claimant": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "counteredBy": "",
+        "resolved": true
+      },
+      {
+        "index": 61,
+        "depth": 61,
+        "claimant": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+        "counteredBy": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "resolved": true
+      },
+      {
+        "index": 62,
+        "depth": 62,
+        "claimant": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "counteredBy": "",
+        "resolved": true
+      },
+      {
+        "index": 63,
+        "depth": 63,
+        "claimant": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+        "counteredBy": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "resolved": true
+      },
+      {
+        "index": 64,
+        "depth": 64,
+        "claimant": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "counteredBy": "",
+        "resolved": true
+      },
+      {
+        "index": 65,
+        "depth": 65,
+        "claimant": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+        "counteredBy": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "resolved": true
+      },
+      {
+        "index": 66,
+        "depth": 66,
+        "claimant": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "counteredBy": "",
+        "resolved": true
+      },
+      {
+        "index": 67,
+        "depth": 67,
+        "claimant": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+        "counteredBy": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "resolved": true
+      },
+      {
+        "index": 68,
+        "depth": 68,
+        "claimant": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "counteredBy": "",
+        "resolved": true
+      },
+      {
+        "index": 69,
+        "depth": 69,
+        "claimant": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+        "counteredBy": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "resolved": true
+      },
+      {
+        "index": 70,
+        "depth": 70,
+        "claimant": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "counteredBy": "",
+        "resolved": true
+      },
+      {
+        "index": 71,
+        "depth": 71,
+        "claimant": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+        "counteredBy": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "resolved": true
+      },
+      {
+        "index": 72,
+        "depth": 72,
+        "claimant": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "counteredBy": "",
+        "resolved": true
+      },
+      {
+        "index": 73,
+        "depth": 73,
+        "claimant": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+        "counteredBy": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+        "resolved": true
+      }
+    ],
+    "recordedAt": "2026-11-17T10:29:03Z"
+  },
+  "result": "PASS",
+  "reason": "the attacker's leaf claim #73 at depth 73 was countered on chain by 0x90F79bf6EB2c4f870365E785982E1f101E93b906; resolution: DEFENDER_WINS: the honest root stood, the attacker's claims lost"
+}
