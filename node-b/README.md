@@ -16,6 +16,14 @@ Inputs:
   `SEQUENCER_HTTP` (host A's execution RPC over the private network), L1 endpoints
   (a different provider than host A), `DISPUTE_GAME_FACTORY`, hostnames, `ACME_EMAIL`
 
+M4 K4: `docker-compose.kona.yml` adds the `cannon-kona` trace type to the challenger (`make up-b
+KONA=1`, `restart-b KONA=1`, `logs-b KONA=1`), so that it also plays games of the Type 8
+(`CANNON_KONA`) implementation with kona-client in Cannon64. It needs the K2 artifacts on this host
+(`make prestate`, `make kona-host`; `make k4-readiness` says what is present and whether the
+challenger's L1 endpoint serves the raw-RLP debug methods a dispute would need; `docs/proof-plan.md`,
+"K4"). The override does not change what the chain trusts: the respected game type is the anchor
+state registry's setting, not the challenger's.
+
 Independence: own data volumes, own L1 provider, derivation from L1. The p2p link to A
 only delivers unsafe blocks early. `scripts/rebuild-from-l1.sh` is the acceptance test
 that this host can rebuild the chain from public inputs and L1 alone.

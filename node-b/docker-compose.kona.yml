@@ -1,0 +1,40 @@
+# Host B: the cannon-kona trace type for the resident challenger (M4 K4; docs/proof-plan.md "K4", drill/README.md).
+# An override on top of docker-compose.yml, applied with KONA=1 (make up-b KONA=1, restart-b KONA=1, logs-b KONA=1), once
+# this host holds the Finchain-embedding kona prestate and the embedded kona-host (make prestate, make kona-host - both
+# reproducible, their digests in the K2 records; make k4-readiness checks what is present). The challenger then plays the
+# permissioned type as before and, in addition, games of the Type 8 (CANNON_KONA) implementation: kona-client in Cannon64
+# from that prestate, with kona-host behind drill/kona-host-wrapper.sh (--l2-chain-id instead of --rollup-config-path,
+# the K2b finding). Tracking a Type 8 game needs the prestate alone; answering a dispute on one needs kona-host and an L1
+# endpoint that serves debug_getRawHeader / debug_getRawReceipts (CHALLENGER_L1_RPC_URL; public endpoints do not).
+# Nothing here changes what the public chain trusts: which game type is respected is the anchor state registry's setting.
+services:
+  op-challenger:
+    environment:
+      # the chain id the wrapper hands kona-host (--l2-chain-id), the one the game contract gives the client
+      KONA_L2_CHAIN_ID: ${KONA_L2_CHAIN_ID:-85422}
+    volumes:
+      - ${KONA_PRESTATES_DIR:-../drill/out/prestates}:/prestates:ro
+      - ${KONA_HOST_BIN:-../drill/out/bin/kona-host-finchain-kona-client-v1.9.0}:/usr/local/bin/kona-host-finchain-bin:ro
+      - ${KONA_HOST_WRAPPER:-../drill/out/bin/kona-host-wrapper.sh}:/usr/local/bin/kona-host-finchain:ro
+    # compose replaces the command as a whole, so the base command is repeated here with the kona additions
+    command:
+      - op-challenger
+      - --trace-type=permissioned
+      - --trace-type=cannon-kona
+      - --l1-eth-rpc=${CHALLENGER_L1_RPC_URL:-${L1_RPC_URL}}
+      - --l1-beacon=${L1_BEACON_URL}
+      - --l2-eth-rpc=http://op-reth:8545
+      - --rollup-rpc=http://op-node:8547
+      - --game-factory-address=${DISPUTE_GAME_FACTORY}
+      - --datadir=/data
+      - --cannon-rollup-config=/chain/rollup.json
+      - --cannon-l2-genesis=/chain/genesis.json
+      - --cannon-bin=/usr/local/bin/cannon
+      - --cannon-kona-server=/usr/local/bin/kona-host-finchain
+      - --cannon-kona-rollup-config=/chain/rollup.json
+      - --cannon-kona-l2-genesis=/chain/genesis.json
+      - --cannon-kona-prestate=/prestates/${KONA_PRESTATE_FILE:-0x038b60ac8db81e83cb87229ef9119b500c5723767806cb93a639d70618cad9fb.bin.gz}
+      # a Cannon snapshot every N VM steps during a dispute (the devnet used the same value; drill/devnet/devnet.env)
+      - --cannon-snapshot-freq=${KONA_SNAPSHOT_FREQ:-100000000}
+      - --log.level=info
+      - --log.format=json

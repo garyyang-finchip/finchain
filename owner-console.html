@@ -105,6 +105,33 @@
   </section>
 
   <section>
+    <h2>Install a game type (setImplementation)</h2>
+    <p class="hint" style="margin:0 0 12px">M4 K4: a game type is the shared FaultDisputeGame implementation plus the arguments the factory stores for it - the absolute prestate among them (<code>docs/proof-plan.md</code>, K4). The defaults are Finchain Sepolia's: game type 8 (<code>CANNON_KONA</code>), the deployed implementation, the Finchain-embedding kona prestate of K2, the MIPS64 VM, the anchor state registry and the permissionless DelayedWETH. <code>make k4-readiness</code> prints the same arguments and calldata for comparison. This does not change the respected game type.</p>
+    <div class="fields">
+      <label>Game type <input id="itype" value="8" inputmode="numeric"></label>
+      <label>Implementation <input id="iimpl" value="0x2dda3584b51ef5236f7726dea5a0fb6b3ca94aec"></label>
+      <label>Absolute prestate <input id="ipre" value="0x038b60ac8db81e83cb87229ef9119b500c5723767806cb93a639d70618cad9fb"></label>
+      <label>VM (MIPS64) <input id="ivm" value="0xacc005dcd857b401e4732e6f7837135a22825cfa"></label>
+      <label>Anchor state registry <input id="iasr" value="0x31ffb1c4a5d40c7c39a122320db733389eb9c1fb"></label>
+      <label>DelayedWETH <input id="iweth" value="0x3c40a4e728246f4c0456760f435be6f9788604b6"></label>
+      <label>L2 chain id <input id="icid" value="85422" inputmode="numeric"></label>
+    </div>
+    <dl>
+      <dt>On chain now</dt><dd id="inow">-</dd>
+      <dt>Anchor root</dt><dd id="ianchor">-</dd>
+      <dt>Call</dt><dd id="icalltext"></dd>
+      <dt>Arguments</dt><dd id="iargs"></dd>
+      <dt>Calldata</dt><dd id="icalldata"></dd>
+    </dl>
+    <div class="row" style="margin-top:14px">
+      <button id="iread" type="button" class="secondary">Read game type and anchor</button>
+      <button id="isend" type="button" disabled>Send from the owner account</button>
+      <span id="isendwhy" class="hint" style="margin:0"></span>
+    </div>
+    <p class="hint">After the implementation, set the initial bond of the new type below (setInitBond); the standard is 0.08 ETH. A game of a type installed before the anchor root has left op-deployer's placeholder is refused by the honest challenger (drill/devnet/README.md).</p>
+  </section>
+
+  <section>
     <h2>Set init bond</h2>
     <div class="fields">
       <label>Game type <input id="gtype" value="1" inputmode="numeric"></label>
@@ -130,7 +157,9 @@
 (function () {
   const DGF = '0xc752f10ab0696860b11b789a2ab9f4f93331329c';
   const SEPOLIA = '0xaa36a7';
-  const SEL = { setInitBond: '0x1e334240', initBonds: '0x6593dc6e', owner: '0x8da5cb5b' };
+  const ASR = '0x31ffb1c4a5d40c7c39a122320db733389eb9c1fb';
+  const SEL = { setInitBond: '0x1e334240', initBonds: '0x6593dc6e', owner: '0x8da5cb5b', setImplementation: '0xb1070957', gameImpls: '0x1b685b9e', gameArgs: '0x74cc86ac', getAnchorRoot: '0xd83ef267' };
+  const DEAD = '0xdead000000000000000000000000000000000000000000000000000000000000';
   const $ = (id) => document.getElementById(id);
   let provider = null, account = null, chainId = null, owner = null;
 
@@ -159,14 +188,50 @@
     catch (e) { $('calltext').textContent = e.message; $('calldata').textContent = ''; }
     gate();
   }
+  // setImplementation(uint32,address,bytes): the packed arguments are absolutePrestate(32) vm(20) anchorStateRegistry(20)
+  // weth(20) l2ChainId(32), 124 bytes (op-challenger gameargs.PackPermissionless) - the layout FaultDisputeGame 2.4.2 reads.
+  function hexAddr(id, what) {
+    const v = $(id).value.trim().toLowerCase(); if (!/^0x[0-9a-f]{40}$/.test(v)) throw new Error(what + ' must be a 20-byte hex address'); return v;
+  }
+  function installArgs() {
+    const t = BigInt($('itype').value.trim() || '0'); if (t < 0n || t > 0xffffffffn) throw new Error('game type must fit uint32');
+    const impl = hexAddr('iimpl', 'implementation');
+    const pre = $('ipre').value.trim().toLowerCase(); if (!/^0x[0-9a-f]{64}$/.test(pre)) throw new Error('absolute prestate must be a 32-byte hex hash');
+    const vm = hexAddr('ivm', 'VM'), asr = hexAddr('iasr', 'anchor state registry'), weth = hexAddr('iweth', 'DelayedWETH');
+    const cid = BigInt($('icid').value.trim() || '0'); if (cid <= 0n) throw new Error('L2 chain id must be a positive number');
+    const args = pre.slice(2) + vm.slice(2) + asr.slice(2) + weth.slice(2) + pad32(cid.toString(16));
+    const data = SEL.setImplementation + pad32(t.toString(16)) + pad32(impl) + pad32('60') + pad32((args.length / 2).toString(16)) + args + '00000000';
+    return { t, impl, args: '0x' + args, data };
+  }
+  function renderInstall() {
+    try { const c = installArgs(); $('icalltext').textContent = 'setImplementation(' + c.t + ', ' + c.impl + ', 124 bytes)'; $('iargs').textContent = c.args; $('icalldata').textContent = c.data; }
+    catch (e) { $('icalltext').textContent = e.message; $('iargs').textContent = ''; $('icalldata').textContent = ''; }
+    gate();
+  }
+  async function readInstall() {
+    if (!provider) { log('Connect the wallet first; reads go through it.', 'warn'); return; }
+    try {
+      const t = BigInt($('itype').value.trim() || '8');
+      const impl = await rpc('eth_call', [{ to: DGF, data: SEL.gameImpls + pad32(t.toString(16)) }, 'latest']);
+      const argsRaw = await rpc('eth_call', [{ to: DGF, data: SEL.gameArgs + pad32(t.toString(16)) }, 'latest']);
+      const len = parseInt(argsRaw.slice(2 + 64, 2 + 128), 16); const args = argsRaw.slice(2 + 128, 2 + 128 + len * 2);
+      const implAddr = '0x' + impl.slice(-40);
+      $('inow').textContent = (/^0x0{40}$/.test(implAddr) ? 'game type ' + t + ': no implementation (not installed)' : 'game type ' + t + ': implementation ' + implAddr + ', ' + len + ' bytes of arguments' + (len >= 32 ? ', prestate 0x' + args.slice(0, 64) : ''));
+      const anchor = await rpc('eth_call', [{ to: ASR, data: SEL.getAnchorRoot }, 'latest']);
+      const root = anchor.slice(0, 66), blk = parseInt(anchor.slice(66, 130), 16);
+      $('ianchor').innerHTML = root + ' at L2 block ' + blk + (root.toLowerCase() === DEAD ? ' <span class="pill warn">placeholder: Type 8 games not playable yet</span>' : ' <span class="pill ok">off the placeholder</span>');
+      log('Read game type ' + t + ' and the anchor root.');
+    } catch (e) { log('Read failed: ' + (e.message || e), 'bad'); }
+    gate();
+  }
   function gate() {
     let why = '';
     if (!provider || !account) why = 'connect the wallet first';
     else if (chainId !== SEPOLIA) why = 'switch the wallet to Sepolia';
     else if (!owner) why = 'read the factory owner first';
     else if (owner.toLowerCase() !== account.toLowerCase()) why = 'connected account is not the factory owner';
-    else if (!$('calldata').textContent) why = 'fix the inputs';
-    $('send').disabled = !!why; $('sendwhy').textContent = why;
+    $('send').disabled = !!(why || !$('calldata').textContent); $('sendwhy').textContent = why || (!$('calldata').textContent ? 'fix the inputs' : '');
+    $('isend').disabled = !!(why || !$('icalldata').textContent); $('isendwhy').textContent = why || (!$('icalldata').textContent ? 'fix the inputs' : '');
   }
 
   function discover() {
@@ -221,17 +286,24 @@
   }
   async function send() {
     let c; try { c = calldata(); } catch (e) { log(e.message, 'bad'); return; }
-    $('send').disabled = true;
+    await sendTx('setInitBond(' + c.t + ', ' + c.b + ' wei)', c.data, 'send');
+  }
+  async function sendInstall() {
+    let c; try { c = installArgs(); } catch (e) { log(e.message, 'bad'); return; }
+    await sendTx('setImplementation(' + c.t + ', ' + c.impl + ', args)', c.data, 'isend');
+  }
+  async function sendTx(label, data, button) {
+    $(button).disabled = true;
     try {
-      log('Asking the wallet to sign setInitBond(' + c.t + ', ' + c.b + ' wei) to ' + DGF + ' ...');
-      const hash = await rpc('eth_sendTransaction', [{ from: account, to: DGF, value: '0x0', data: c.data }]);
+      log('Asking the wallet to sign ' + label + ' to ' + DGF + ' ...');
+      const hash = await rpc('eth_sendTransaction', [{ from: account, to: DGF, value: '0x0', data: data }]);
       const link = document.createElement('div'); link.className = 'warn';
       link.innerHTML = 'Sent: <a href="https://sepolia.etherscan.io/tx/' + hash + '" target="_blank" rel="noopener">' + hash + '</a> (waiting for the receipt)';
       $('log').prepend(link);
       let receipt = null;
       for (let i = 0; i < 60 && !receipt; i++) { await new Promise((r) => setTimeout(r, 6000)); receipt = await rpc('eth_getTransactionReceipt', [hash]); }
       if (!receipt) { log('No receipt after 6 minutes; check the explorer link above.', 'warn'); }
-      else if (parseInt(receipt.status, 16) === 1) { log('Confirmed in block ' + parseInt(receipt.blockNumber, 16) + ', gas used ' + parseInt(receipt.gasUsed, 16) + '.', 'ok'); await refresh(); }
+      else if (parseInt(receipt.status, 16) === 1) { log('Confirmed in block ' + parseInt(receipt.blockNumber, 16) + ', gas used ' + parseInt(receipt.gasUsed, 16) + '.', 'ok'); await refresh(); if (button === 'isend') await readInstall(); }
       else { log('Transaction reverted (status 0) in block ' + parseInt(receipt.blockNumber, 16) + '. The account was probably not the owner, or the calldata was altered.', 'bad'); }
     } catch (e) { log('Not sent: ' + (e.message || e), 'bad'); }
     gate();
@@ -243,7 +315,10 @@
   $('send').addEventListener('click', send);
   $('gtype').addEventListener('input', renderCall);
   $('gbond').addEventListener('input', renderCall);
-  renderCall();
+  $('iread').addEventListener('click', readInstall);
+  $('isend').addEventListener('click', sendInstall);
+  for (const id of ['itype', 'iimpl', 'ipre', 'ivm', 'iasr', 'iweth', 'icid']) $(id).addEventListener('input', renderInstall);
+  renderCall(); renderInstall();
 })();
 </script>
 </body>

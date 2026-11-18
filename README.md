@@ -77,7 +77,7 @@ The full procedure, with expected outputs and acceptance checks, is in
 
 ## Status
 
-v0.3.0-alpha.22: M4 in progress on the kona-client route (`docs/proof-plan.md`: the op-program
+v0.3.0-alpha.23: M4 in progress on the kona-client route (`docs/proof-plan.md`: the op-program
 client cannot follow the current Sepolia L1, its prestate `0x03e76631...5af1` is superseded; `make
 kona-check` validated Finchain's registry files against the kona-registry crate, 28 of 28 fields
 equal, on two hosts; `make prestate` built the kona-client prestate with Finchain embedded on
@@ -93,7 +93,10 @@ op-challenger answered every claim, countered the attacker's leaf with `step()` 
 resolved the game `DEFENDER_WINS` - `manifests/evidence/devnet-dispute-854220-20261116T161502Z.json`;
 the step verified trace index 0, `docs/proof-plan.md` "Result"; a second game on 2026-11-17 with
 the attacker defending at random put the step in the middle of the trace, index 178,268,704 -
-`devnet-dispute-854220-20261117T070418Z.json`). `make withdraw` drives the deposit -> proof -> withdrawal
+`devnet-dispute-854220-20261117T070418Z.json`). K4, the Sepolia integration check, has its tooling
+(`make k4-readiness`, the owner console's "Install a game type", `node-b/docker-compose.kona.yml`
+with `KONA=1`, `make k4-create-game`, `make games EXTRA_TYPES=8`; `docs/proof-plan.md` "K4") and
+starts once the anchor root has left op-deployer's placeholder (2026-11-18 at the earliest). `make withdraw` drives the deposit -> proof -> withdrawal
 cycle step by step, with its record; every target takes `CHAIN=<name>` so that the same hosts
 run a second chain beside the first, `docs/runbook.md` section 9, the M5 preparation;
 `make games` reads the dispute games back from L1 - the

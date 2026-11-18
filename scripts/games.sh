@@ -10,6 +10,9 @@
 #   The L1 RPC: the argument, else L1_RPC_URL in the environment, else node-b/.env, else .env. This is op-node's
 #   endpoint on host B, not the challenger's own (CHALLENGER_L1_RPC_URL), so the reads here do not compete with the
 #   service; the report and the terminal name the endpoint by scheme and host only.
+#   EXTRA_TYPES=8 (comma-separated) also reads games of other types - the Type 8 (CANNON_KONA) games of K4 - with the
+#   fields a permissionless game has: creator, prestate, VM, starting root, status, resolution, credit of creator and
+#   challenger. Other types stay listed as "not read".
 # Reads the chain only (curl + jq; no key, no docker, no cast): plain eth_call with the selectors below.
 
 # shellcheck source=scripts/common.sh
@@ -44,6 +47,12 @@ SEL_CREDIT=0xd5d44d80          # credit(address)
 SEL_PROPOSER=0xa8e4fb90        # proposer() (permissioned game)
 SEL_CHALLENGER=0x534db0e2      # challenger() (permissioned game)
 SEL_MAX_CLOCK=0xdabd396d       # maxClockDuration()
+SEL_CREATOR=0x37b1b229         # gameCreator()
+SEL_PRESTATE=0x8d450a95        # absolutePrestate()
+SEL_VM=0x3a768463              # vm()
+SEL_STARTING_ROOT=0x25fc2ace   # startingRootHash()
+SEL_STARTING_BLOCK=0x70872aa5  # startingBlockNumber()
+EXTRA_TYPES="${EXTRA_TYPES:-}"
 TOPIC_RESOLVED=0x5e186f09b9c93491f14e277eea7faa5de6a2d4bda75a79af7a3684fbfb42da60   # Resolved(GameStatus indexed)
 
 # ecall <to> <data> -> the raw hex result. A public endpoint drops or rate-limits a burst of requests, so an error or an
@@ -128,6 +137,37 @@ while [ "$i" -lt "$count" ]; do
   type="$(word_n "$r" 0)"; created="$(word_n "$r" 1)"; proxy="$(word_addr "$r" 2)"
   if [ "$type" != "$respected" ]; then
     other_type=$((other_type + 1))
+    if printf ',%s,' "$EXTRA_TYPES" | grep -q ",$type,"; then
+      # a game of another type (K4: the Type 8 implementation) read with the fields a permissionless game has
+      xstatus="$(word_n "$(ecall "$proxy" "$SEL_STATUS")" 0)"; xresolved_at="$(word_n "$(ecall "$proxy" "$SEL_RESOLVED_AT")" 0)"
+      xroot="$(word_hex "$(ecall "$proxy" "$SEL_ROOT_CLAIM")" 0)"; xl2b="$(word_n "$(ecall "$proxy" "$SEL_EXTRA_DATA")" 2)"
+      xclaims="$(word_n "$(ecall "$proxy" "$SEL_CLAIM_LEN")" 0)"; xcreator="$(word_addr "$(ecall "$proxy" "$SEL_CREATOR")" 0)"
+      xpre="$(word_hex "$(ecall "$proxy" "$SEL_PRESTATE")" 0)"; xvm="$(word_addr "$(ecall "$proxy" "$SEL_VM")" 0)"
+      xsroot="$(word_hex "$(ecall "$proxy" "$SEL_STARTING_ROOT")" 0)"; xsblock="$(word_n "$(ecall "$proxy" "$SEL_STARTING_BLOCK")" 0)"
+      xmax_clock="$(word_n "$(ecall "$proxy" "$SEL_MAX_CLOCK")" 0)"
+      xcredit_cr="$(word_n "$(ecall "$proxy" "${SEL_CREDIT}$(pad_a "$xcreator")")" 0)"
+      xcredit_c=""; [ -z "$challenger_addr" ] || xcredit_c="$(word_n "$(ecall "$proxy" "${SEL_CREDIT}$(pad_a "$challenger_addr")")" 0)"
+      xres=null
+      if [ "$xstatus" != "0" ]; then
+        resolved=$((resolved + 1))
+        xlg="$(resolved_log "$proxy" "$xresolved_at" || true)"
+        if [ -n "$xlg" ]; then
+          xrtx="$(jq -r .transactionHash <<<"$xlg")"; xrblock=$(( $(jq -r .blockNumber <<<"$xlg") ))
+          xrfrom="$(rpcq eth_getTransactionByHash "[\"$xrtx\"]" | jq -r '.from // ""')"
+          [ "$(sender_role "$xrfrom")" = "challenger" ] && by_challenger=$((by_challenger + 1))
+          xres="$(jq -cn --arg tx "$xrtx" --argjson b "$xrblock" --arg from "$xrfrom" --arg at "$(iso_of "$(block_ts "$xrblock")")" --arg who "$(sender_role "$xrfrom")" '{tx: $tx, l1Block: $b, from: $from, sender: $who, at: $at}')"
+        fi
+      else
+        in_progress=$((in_progress + 1))
+      fi
+      printf '  #%-3s %s  type %s  L2 %-7s created %s  %-15s claims %s  creator %s  prestate %s...  credit creator %s\n' "$i" "$proxy" "$type" "$xl2b" "$(iso_of "$created")" "$(status_name "$xstatus")" "$xclaims" "$xcreator" "${xpre:0:18}" "$(hex_to_eth "$(printf '0x%x' "$xcredit_cr")")"
+      games="$(jq -cn --argjson g "$games" --argjson i "$i" --argjson t "$type" --arg p "$proxy" --argjson c "$created" --arg cs "$(iso_of "$created")" --argjson l2 "$xl2b" --arg root "$xroot" \
+        --argjson st "$xstatus" --arg stn "$(status_name "$xstatus")" --argjson ra "$xresolved_at" --argjson claims "$xclaims" --argjson res "$xres" --arg creator "$xcreator" --arg pre "$xpre" --arg vm "$xvm" \
+        --arg sroot "$xsroot" --argjson sblock "$xsblock" --argjson ce "$((created + xmax_clock))" --arg ccr "$xcredit_cr" --arg cc "$xcredit_c" \
+        '$g + [{index: $i, type: $t, proxy: $p, createdAt: $c, created: $cs, l2Block: $l2, rootClaim: $root, startingRootHash: $sroot, startingBlockNumber: $sblock, creator: $creator, absolutePrestate: $pre, vm: $vm,
+                status: $st, statusName: $stn, resolvedAt: $ra, claims: $claims, moves: ($claims - 1), clockEndsAt: $ce, resolution: $res, creditWei: {creator: $ccr, challenger: (if $cc == "" then null else $cc end)}}]')"
+      i=$((i + 1)); sleep 0.3; continue
+    fi
     games="$(jq -cn --argjson g "$games" --argjson i "$i" --argjson t "$type" --arg p "$proxy" --argjson c "$created" '$g + [{index: $i, type: $t, proxy: $p, createdAt: $c, note: "not the respected type; not read"}]')"
     i=$((i + 1)); continue
   fi
@@ -173,11 +213,11 @@ out="$FINCHAIN_ROOT/manifests/evidence/games-$(date -u +%Y%m%dT%H%M%SZ).json"
 mkdir -p "$(dirname "$out")"
 jq -n --arg l1 "$L1_LABEL" --arg dgf "$DGF" --arg portal "$PORTAL" --argjson count "$count" --argjson first "$first" --argjson respected "$respected" --arg bond "$init_bond" \
   --arg challenger "$challenger_addr" --arg proposer "$proposer_addr" --argjson maxClock "${max_clock:-0}" --argjson games "$games" \
-  --argjson resolved "$resolved" --argjson byc "$by_challenger" --argjson inprog "$in_progress" --argjson other "$other_type" --arg at "$(date -u +%Y-%m-%dT%H:%M:%SZ)" '
+  --argjson resolved "$resolved" --argjson byc "$by_challenger" --argjson inprog "$in_progress" --argjson other "$other_type" --arg extra "$EXTRA_TYPES" --arg at "$(date -u +%Y-%m-%dT%H:%M:%SZ)" '
   {schema: "finchain.games/1", acceptance: "M4: resident challenger on host B against the public chain - games resolved and bonds claimed (docs/acceptance.md M4; docs/proof-plan.md level L1)",
    environment: "public-testnet", recordedAt: $at, l1Rpc: $l1, disputeGameFactory: $dgf, optimismPortal: $portal, respectedGameType: $respected, initBondWei: $bond,
    roles: {proposer: $proposer, challenger: $challenger, maxClockDurationSeconds: $maxClock},
-   gameCount: $count, gamesRead: {from: $first, to: ($count - 1)},
+   gameCount: $count, gamesRead: {from: $first, to: ($count - 1), extraTypes: (if $extra == "" then [] else ($extra | split(",") | map(tonumber)) end)},
    summary: {resolved: $resolved, resolvedByChallenger: $byc, inProgress: $inprog, notRespectedType: $other,
              note: "a game of the permissioned type with one claim and no moves resolves in favour of the root after maxClockDuration; the sender of the resolving transaction says who runs the resolver. Credit is what a party may claim after resolution (the proposer bond returns to the proposer; the challenger holds credit only where it moved); claimCredit calls come from the challenger service and show in its log."},
    games: $games}' > "$out"

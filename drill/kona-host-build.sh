@@ -82,6 +82,9 @@ case "$mode" in
 esac
 chmod +x "$out"
 [ -s "$out" ] || die "no binary at $out"
+# the executable copy of the wrapper that run-trace, the devnet and node-b/docker-compose.kona.yml mount beside the binary
+# (the repository copy loses its executable bit on the hosts, which pull a web-UI upload)
+cp "$FINCHAIN_ROOT/drill/kona-host-wrapper.sh" "$(dirname "$out")/kona-host-wrapper.sh"; chmod +x "$(dirname "$out")/kona-host-wrapper.sh"
 
 # the binary must run where it will serve, inside the op-challenger image (this host's glibc may be older than the
 # build image's, so a native run is tried only as a bonus)

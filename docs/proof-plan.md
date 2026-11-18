@@ -92,7 +92,7 @@ pipeline and the embedding method; it is superseded and nothing downstream uses 
 | K1 | Finchain's configuration converted to the registry format kona-client embeds; merged by the registry crate's own build script; the rollup configuration the client derives compared with `rollup.json` field by field (`make kona-check`, `drill/README.md`) | the client will see the chain as op-node does. Done 2026-11-15: `manifests/evidence/kona-configs-85422-20261115T185730Z.json`, 28 of 28 fields equal |
 | K2 | Reproducible kona-client prestate with Finchain embedded, the published kona prestate reproduced first (`UPSTREAM_CHECK=1 make prestate`); then `run-trace` (`cannon-kona`) with it against a recent block of the public chain (`make run-trace`), the client booting from the embedded configuration the way the game contract boots it (a kona-host that knows the chain, `make kona-host`, behind `drill/kona-host-wrapper.sh`) | the prestate proves a real Finchain block in the VM that the public chain's game type would run. K2a done 2026-11-16: `0x038b60ac...d9fb`, the published `0x03f872c2...6b0b` reproduced first (`prestate-85422-20261116T012620Z.json`). K2b done 2026-11-16: `run-trace-20261116T080811Z.json`, L2 block 200126 verified in 542 s with the embedded kona-host (`kona-host-85422-20261116T055801Z.json`) and `clientBoot.embeddedConfigUsed: true`; a first run the same day (`run-trace-20261116T045749Z.json`, 502 s) had verified the claim with the client on the oracle-supplied configuration (chain id 0) and is kept as what it is |
 | K3 | Isolated devnet: a `CANNON_KONA` game on an honest root attacked down to the leaf by a dishonest challenger, the honest challenger's real `step()` on chain, resolution for the honest root (`drill/devnet/`, `make devnet-<step>`) | the proof system executes end to end for Finchain's configuration (environment stated). Done 2026-11-16: `manifests/evidence/devnet-dispute-854220-20261116T161502Z.json`, `PASS` - 73 depths, 37 attacker claims all countered, the honest `step()` at L1 block 6940 (339,839 gas), `DEFENDER_WINS` by the honest challenger; the step verified trace index 0. Second game 2026-11-17 with the attacker defending at random: `devnet-dispute-854220-20261117T070418Z.json`, `PASS`, the step at trace index 178,268,704 of the disputed block's run (L1 block 25512, 347,727 gas), `DEFENDER_WINS` (below, "Result") |
-| K4 | Minimal integration check against Sepolia: what a Type 8 implementation needs there (prestate URL, challenger configuration, bonds), as a non-default game type if deployed at all. K3 rehearsed the installing transaction: `setImplementation(8, FaultDisputeGameImpl, args)` from the owner, the prestate being an argument of the factory in op-contracts/v7.0.0. K3 also showed the precondition: the anchor state registry must have left op-deployer's placeholder root (the first `closeGame()` of the permissioned type, 2026-11-18 at the earliest on Sepolia) before a Type 8 game can be played at all; and it measured the standard bond schedule a full-depth game asks of the honest side (about 330 ETH locked until resolution, 60 ETH for the last claim) | readiness of the public chain for a later decision; no change to what the public chain trusts |
+| K4 | Minimal integration check against Sepolia, in four steps (below, "K4"): the readiness record (`make k4-readiness`: the factory, the anchor, the VM and oracle, the K2 artifacts on the challenger host, the challenger's endpoints, the exact owner calldata); the installation of the Type 8 implementation with the Finchain-embedding prestate as a non-default type (owner, `owner-console.html`); host B's challenger with the `cannon-kona` trace type beside `permissioned` (`KONA=1`, the reproduced prestate and kona-host); one Type 8 game with an honest root (`make k4-create-game` on host A) tracked and, after its clock, resolved by that challenger (`make games EXTRA_TYPES=8`). K3 rehearsed the installing transaction and found the precondition (the anchor off the placeholder) and the bond schedule (about 330 ETH for the honest side of a full-depth game) | the public chain carries a game type whose arguments embed Finchain's configuration, the resident challenger can play it, and nothing the chain trusts has changed (the respected type stays 1) |
 
 Approved: K1 to K4 as above; a Type 8 game on the devnet; a Type 8 implementation on Sepolia
 only as a non-default type. Not approved, and not part of M4: changing the respected game
@@ -285,6 +285,54 @@ this schedule has to be able to post to answer one full-depth attack (`docs/fund
 The honest challenger's log shows the kona-host wrapper's command line (`--rollup-config-path`);
 the wrapper hands the binary `--l2-chain-id 854220` (`drill/kona-host-wrapper.sh`, the K2b
 finding), and the record's `konaHost` names the binary and its digest.
+
+## K4: Sepolia readiness and the Type 8 installation
+
+K4 is the smallest set of steps that puts what K1-K3 built in front of the public chain without
+changing what the chain trusts: the respected game type stays 1 (permissioned), withdrawals keep
+settling through it, and the new type is one more implementation in the factory that nobody is
+obliged to use. Everything below is an owner transaction signed in the browser wallet or a read.
+
+The pieces, and where each runs:
+
+| Step | Where | Command | Record |
+| --- | --- | --- | --- |
+| 1. Readiness | host B (or any host with the repo and the L1 endpoint) | `make k4-readiness` | `manifests/evidence/k4-readiness-<date>.json` (`finchain.k4-readiness/1`): factory owner, game count, the implementation and packed arguments of types 1 and 8, initial bonds; the anchor root and whether it has left op-deployer's placeholder; the shared implementation's depths and clocks; the MIPS64 VM (state version 8) and its PreimageOracle (challenge period, minimum large-preimage size); the DelayedWETH delay; the K2 prestate and kona-host and whether their files are on this host; on host B the challenger's L1 endpoint (does it serve `debug_getRawHeader` / `debug_getRawReceipts`), op-reth's `eth_getProof` at an old block, the trace types in service; the two owner transactions as calldata; a verdict per item |
+| 2. Installation | the owner, `owner-console.html` ("Install a game type") | `setImplementation(8, FaultDisputeGameImpl, args)` then `setInitBond(8, 0.08 ETH)` | the readiness record run again: `gameTypeTarget.installed` and `argsMatchPlan` true |
+| 3. Challenger | host B | `make prestate` and `make kona-host` (or the files copied from the scratch host, digests checked against the K2 records), then `make restart-b KONA=1` | the readiness record run on B: prestate and kona-host present and matching, trace types `permissioned` and `cannon-kona`; the challenger's log (`make logs-b KONA=1 SVC=op-challenger`) |
+| 4. One game | host A (the proposer key) | `make k4-create-game` | `manifests/evidence/k4-game-<date>.json` (`finchain.k4-game/1`); `make games EXTRA_TYPES=8` reads the game back (creator, prestate, VM, starting root, status, resolution, credit); the challenger's log lines for the game address on host B |
+
+The arguments of the Type 8 game type (`gameargs.PackPermissionless`, 124 bytes, the layout
+`FaultDisputeGame` 2.4.2 reads from its clone arguments at offset 120): the K2 prestate
+`0x038b60ac...d9fb`, the MIPS64 VM `0xacc005dc...5cfa`, the AnchorStateRegistry proxy
+`0x31ffb1c4...c1fb`, the DelayedWETH proxy `0x3c40a4e7...04b6` (the deployment has one DelayedWETH
+for both game kinds) and the chain id 85422. `make k4-readiness` and the console compute the same
+calldata from the same inputs; the readiness record carries it so that what the owner signs can be
+compared with what was planned before and after.
+
+Preconditions and their reasons. The anchor root must have left op-deployer's placeholder
+(`0xdead...` at L2 block 0): a Type 8 game created before that starts from the placeholder and the
+honest challenger refuses it (the K3 finding); on Sepolia the first `closeGame()` of the
+permissioned type moves it, 2026-11-18 at the earliest. The initial bond of the new type is the
+standard 0.08 ETH, not 0 as for type 1: a type nobody proposes with should not be free to spam, and
+the proposer account pays it once for the K4 game. The challenger host needs the prestate to track
+a Type 8 game (op-challenger validates the game's prestate against the local file) and kona-host
+plus an L1 endpoint serving the raw-RLP debug methods to answer a dispute on one; the readiness
+record says which of these are in place, and K4 does not wait for the endpoint (the one dispute
+K4 could afford to play on Sepolia is none: the bond schedule, 0.088 ETH at depth 1 to 60 ETH at
+the leaf, is the devnet's measured figure in testnet ETH).
+
+What K4 does not do: it does not change the respected game type, the withdrawal path or any
+permission (not approved, not part of M4); it does not play a dispute on Sepolia (no bonds of that
+size in testnet ETH, and the raw-RLP endpoint is a mainnet decision, `docs/mainnet.md` decision
+3); it does not touch host A's op-reth (the `--rpc.eth-proof-window` change there waits for a
+maintenance window and is not needed for a challenger that runs on host B).
+
+Done when: the readiness record shows the type installed with the K2 prestate on the moved
+anchor, host B's challenger runs both trace types and its log shows the K4 game tracked without a
+validation error, and `make games EXTRA_TYPES=8` shows that game resolved `DEFENDER_WINS` by the
+challenger after its clock (3.5 days). The acceptance entry "game implementation on the public
+chain carries a Finchain-embedding prestate" closes with step 2.
 
 ## Resident service on the public testnet
 

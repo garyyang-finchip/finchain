@@ -27,13 +27,14 @@ ENV_COMMON  := --env-file $(ROOT)/versions.lock --env-file $(ROOT)/profiles/$(PR
 B_SCALE     := $(if $(filter sepolia,$(CHAIN)),,--scale caddy=0)
 COMPOSE_ENV := CHAIN_OUT=$(CHAIN_DIR)/out SECRETS_DIR=./secrets$(SUFFIX)
 COMPOSE_A   := $(COMPOSE_ENV) docker compose -p $(STACK)-a -f $(ROOT)/node-a/docker-compose.yml $(ENV_COMMON) --env-file $(ROOT)/node-a/.env$(SUFFIX)
-COMPOSE_B   := $(COMPOSE_ENV) docker compose -p $(STACK)-b -f $(ROOT)/node-b/docker-compose.yml $(ENV_COMMON) --env-file $(ROOT)/node-b/.env$(SUFFIX)
+# KONA=1 adds the cannon-kona trace type to host B's challenger (node-b/docker-compose.kona.yml; M4 K4)
+COMPOSE_B   := $(COMPOSE_ENV) docker compose -p $(STACK)-b -f $(ROOT)/node-b/docker-compose.yml $(if $(KONA),-f $(ROOT)/node-b/docker-compose.kona.yml,) $(ENV_COMMON) --env-file $(ROOT)/node-b/.env$(SUFFIX)
 
 .PHONY: help init-env preflight-a preflight-b op-deployer keys secrets-a secrets-b bundle-b install-bundle-b \
         chain-id-check l1-probe intent funding-table deploy-l1 deploy-l1-calldata export verify-onchain lock fund-roles \
         up-a down-a restart-a logs-a up-b down-b restart-b logs-b status-a status-b peers-a peers-b \
         compare rebuild-b deposit set-init-bond deploy-8004 build-8004 l2-send verify-world \
-        evm-acceptance verify-evm foga-isolation world-manifest fee-lines withdraw games kona-configs kona-check prestate kona-host run-trace l1-header devnet lint
+        evm-acceptance verify-evm foga-isolation world-manifest fee-lines withdraw games k4-readiness k4-create-game kona-configs kona-check prestate kona-host run-trace l1-header devnet lint
 
 help: ## List targets (every target takes CHAIN=<name>; the default is sepolia)
 	@grep -E '^[a-zA-Z0-9_-]+:.*?## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  %-18s %s\n", $$1, $$2}'
@@ -146,7 +147,11 @@ fee-lines: ## M3: the four funding lines from receipts (three fee components) an
 	@bash $(ROOT)/scripts/fee-lines.sh "$(L2_RPC)" "$(LOOP)"
 withdraw: ## M4: ETH withdrawal through the fault-proof path, step by step: ARGS="initiate 0.01" | "status <record>" | "prove <record>" | "finalize <record>" (L2_RPC, YES=1, DEPOSIT_TX=0x... in the environment)
 	@bash $(ROOT)/scripts/withdraw.sh $(ARGS)
-games: ## M4: the dispute games on L1 and what the resident challenger did with them: L1_RPC_URL=... (default node-b/.env) LAST=all
+k4-readiness: ## M4 K4: what a Type 8 implementation needs on Sepolia, read from the chain and this host; the install calldata (manifests/evidence/k4-readiness-<date>.json)
+	@bash $(ROOT)/scripts/k4-readiness.sh $(L1_RPC_URL)
+k4-create-game: ## M4 K4 (host A, after the installation): one Type 8 game with an honest root from op-node, created with the proposer key; GAME_TYPE=8
+	@bash $(ROOT)/scripts/k4-create-game.sh
+games: ## M4: the dispute games on L1 and what the resident challenger did with them: L1_RPC_URL=... (default node-b/.env) LAST=all EXTRA_TYPES=8
 	@bash $(ROOT)/scripts/games.sh "$(L1_RPC_URL)" "$(LAST)"
 kona-configs: ## M4 K1 (scratch host): Finchain's configuration in the kona-client registry format (drill/work/kona-configs-<chainId>/)
 	@bash $(ROOT)/drill/kona-configs.sh "$(ROLLUP)" "$(GENESIS)"
@@ -169,6 +174,7 @@ lint: ## Static checks: shellcheck, compose config, JSON/YAML validity
 	@shellcheck -x $(ROOT)/scripts/*.sh $(ROOT)/drill/*.sh $(ROOT)/drill/devnet/*.sh
 	@cd $(ROOT)/node-a && docker compose $(ENV_COMMON) --env-file .env.example config -q
 	@cd $(ROOT)/node-b && docker compose $(ENV_COMMON) --env-file .env.example config -q
+	@cd $(ROOT)/node-b && docker compose -f docker-compose.yml -f docker-compose.kona.yml $(ENV_COMMON) --env-file .env.example config -q
 	@cd $(ROOT)/drill/devnet && docker compose --env-file $(ROOT)/versions.lock --env-file devnet.env config -q
 	@for f in $(ROOT)/manifests/*.json $(ROOT)/registry/*.json; do jq empty $$f || exit 1; done
 	@echo "lint passed"
