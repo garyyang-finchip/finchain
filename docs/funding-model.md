@@ -74,20 +74,35 @@ and the faucet need on L2 (`PLANNED_L2_DEPOSIT_ETH`).
 
 ## 5. L1 RPC capacity (not ETH)
 
-The resident challenger on host B reads every game of the respected type on every L1 block:
-about ten `eth_call` per game in progress (claims, status, credit, the challenged-block flag)
-and, for the bond claimer, three per game inside its window (28 days by default,
-`--game-window`, kept at the upstream default). With 48 hourly games on 2026-11-13 that was
-roughly 50 requests per second against the free public endpoint host B shared with op-node;
-the endpoint answered a steady 1,400-1,600 `429 Too Many Requests` per hour through the day,
-and even the L1 head poll was hit. Every failure is retried on the next L1 block, so the
-service kept tracking all games, but the volume grows with the games in flight. Two measures
-follow. The `steady` profile creates four games a day instead of 24, which cuts the games in
-flight (and the proposer's gas) to a sixth. `CHALLENGER_L1_RPC_URL` (node-b/.env) gives the
-challenger an endpoint with a known quota, separate from op-node's endpoint and from the ad hoc
-reads of `make games`; a metered provider counts each call inside a batch, so size the plan
-from the figures above. An operator's own L1 node removes the quota question and is the
-planning assumption for mainnet (M5).
+The resident challenger on host B runs an update cycle on every L1 head it sees (one per L1
+block, 12 s, at the upstream defaults). A cycle re-reads the whole game list inside its window
+(`--game-window`, 28 days upstream) and, for every game in it, the bond claimer's reads - credit
+and status, whether the game is closed, and a `closeGame()` simulation until it is closed,
+about five `eth_call` per game whether the game is resolved or not - plus about ten per game in
+progress (claims, status, credit, the challenged-block flag). With 48 hourly games on
+2026-11-13 that was roughly 50 requests per second against the free public endpoint host B
+shared with op-node; the endpoint answered a steady 1,400-1,600 `429 Too Many Requests` per
+hour through the day, and even the L1 head poll was hit. On 2026-11-18, with 72 games in the
+window and four a day being added, 66 cycles an hour still failed on the same endpoint. Every
+failure is retried on the next cycle, so the service kept tracking all games, but the volume
+grows with the games in the window. Four measures follow. The `steady` profile creates four
+games a day instead of 24, which cuts the games in flight (and the proposer's gas) to a sixth.
+`--min-update-interval` (`CHALLENGER_MIN_UPDATE_INTERVAL`, node-b/.env, 60s since
+v0.3.0-alpha.24) runs one cycle per minute of L1 time instead of one per block, a fifth of the
+reads; a move, a resolution or a claim is at most a minute later than it could be, against
+clocks of 3.5 days and a 3-hour clock extension. `--game-window` (`CHALLENGER_GAME_WINDOW`,
+336h since the same version) tracks 14 days instead of 28: two full chess clocks (7 days) plus
+the 3.5-day finality and withdrawal delays, plus 3.5 days of margin; at four games a day that
+is 56 games in the window at steady state instead of 112, and any older game's bond stays
+claimable by hand. `CHALLENGER_L1_RPC_URL` gives the challenger an endpoint with a known
+quota, separate from op-node's endpoint and from the ad hoc reads of `make games`; a metered
+provider counts each call inside a batch, so size the plan from the figures above - the free
+tiers of the metered providers checked on 2026-11-18 allow on the order of a million calls a
+month (Alchemy: 30M compute units, 26 per `eth_call`), less than the challenger read in a day
+at the upstream defaults, and a tier that is used up stops answering, which is worse than a
+public endpoint that rate-limits; such a tier fits only after the two settings above and with
+the usage watched. An operator's own L1 node removes the quota question and is the planning
+assumption for mainnet (M5, `docs/mainnet.md` decision 3).
 
 ## Sources of Sepolia ETH
 

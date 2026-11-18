@@ -12,8 +12,8 @@
 #   - the K2 records: the Finchain-embedding kona-client prestate and the embedded kona-host, and whether their files are
 #     present on this host (the challenger host needs both for a real dispute, the prestate alone to track a game);
 #   - the challenger host, when this runs on it (node-b/.env present): whether the challenger's L1 endpoint serves the
-#     raw-RLP debug methods kona-host reads, whether the local op-reth answers eth_getProof at an old block, and which
-#     trace types the compose files configure.
+#     raw-RLP debug methods kona-host reads, whether the local op-reth answers eth_getProof at an old block, and the
+#     trace types, update interval and game window of the running challenger (else the compose files' defaults).
 # What is written: manifests/evidence/k4-readiness-<date>.json (schema finchain.k4-readiness/1, environment public-testnet),
 # with the packed game arguments and the calldata of setImplementation(8, impl, args) and setInitBond(8, bond), and a
 # verdict per item (ready / pending / missing). Endpoints are recorded by scheme and host only.
@@ -143,7 +143,7 @@ installed=false; args_match=false
 anchor_moved=true; [ "$(lower "$anchor_root")" != "$DEAD_ROOT" ] || anchor_moved=false
 
 # the challenger host, when this runs on it
-benv="$(host_env b)"; on_b=false; chall_l1=""; chall_l1_label=""; raw_header=unknown; raw_receipts=unknown; l2_proof=unknown; trace_types="[]"; proof_window=""
+benv="$(host_env b)"; on_b=false; chall_l1=""; chall_l1_label=""; raw_header=unknown; raw_receipts=unknown; l2_proof=unknown; trace_types="[]"; proof_window=""; update_interval=""; game_window=""
 if [ -f "$benv" ]; then
   on_b=true
   chall_l1="$(envval "$benv" CHALLENGER_L1_RPC_URL)"; [ -n "$chall_l1" ] || chall_l1="$(envval "$benv" L1_RPC_URL)"
@@ -161,13 +161,21 @@ if [ -f "$benv" ]; then
   else
     l2_proof="op-reth not reachable at $l2_url from here"
   fi
-  # the trace types of the running challenger (its container arguments), else of the compose files
-  trace_types=""
+  # the trace types, update interval and game window of the running challenger (its container arguments), else of
+  # the compose files (the defaults there; .env may override the last two)
+  trace_types=""; cargs=""
   if command -v docker >/dev/null 2>&1; then
     cname="$(docker ps --format '{{.Names}}' 2>/dev/null | grep -E '^finchain(-[a-z0-9]+)?-b-op-challenger-' | head -1 || true)"
-    [ -z "$cname" ] || trace_types="$(docker inspect "$cname" --format '{{join .Args "\n"}}' 2>/dev/null | grep -o -- '--trace-type=[a-z,-]*' | sed 's/--trace-type=//' | tr ',' '\n' | jq -R . | jq -cs . || true)"
+    [ -z "$cname" ] || cargs="$(docker inspect "$cname" --format '{{join .Args "\n"}}' 2>/dev/null || true)"
+    [ -z "$cargs" ] || trace_types="$(grep -o -- '--trace-type=[a-z,-]*' <<<"$cargs" | sed 's/--trace-type=//' | tr ',' '\n' | jq -R . | jq -cs . || true)"
   fi
   [ -n "$trace_types" ] && [ "$trace_types" != "[]" ] || trace_types="$(grep -ho -- '--trace-type=[a-z,-]*' "$FINCHAIN_ROOT/node-b/docker-compose.yml" | sed 's/--trace-type=//' | tr ',' '\n' | jq -R . | jq -cs .)"
+  update_interval="$(grep -o -- '--min-update-interval=[0-9a-z]*' <<<"$cargs" | sed 's/.*=//' | head -1 || true)"
+  game_window="$(grep -o -- '--game-window=[0-9a-z]*' <<<"$cargs" | sed 's/.*=//' | head -1 || true)"
+  [ -n "$update_interval" ] || update_interval="$(grep -ho -- '--min-update-interval=[^}]*:-[0-9a-z]*}' "$FINCHAIN_ROOT/node-b/docker-compose.yml" | sed 's/.*:-//; s/}//' | head -1 || true)"
+  [ -n "$game_window" ] || game_window="$(grep -ho -- '--game-window=[^}]*:-[0-9a-z]*}' "$FINCHAIN_ROOT/node-b/docker-compose.yml" | sed 's/.*:-//; s/}//' | head -1 || true)"
+  [ -n "$update_interval" ] || update_interval="upstream default (every L1 block)"
+  [ -n "$game_window" ] || game_window="upstream default (672h)"
   proof_window="$(grep -ho -- '--rpc.eth-proof-window=[0-9]*' "$FINCHAIN_ROOT/node-b/docker-compose.yml" | sed 's/.*=//' | head -1)"
 fi
 # room for the K2 builds on this host (the prestate build needs about 15 GB free, the kona-host build about 10 GB)
@@ -206,7 +214,7 @@ jq -n --arg at "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --arg l1 "$L1_LABEL" --argjson c
   --argjson prepresent "$prestate_present" --arg presha "$prestate_sha" --argjson proofpresent "$proof_present" \
   --arg khrec "${konahost_rec#"$FINCHAIN_ROOT"/}" --arg khfile "$konahost_file" --arg khsha "$konahost_sha" --argjson khpresent "$konahost_present" --arg khnow "$konahost_sha_now" --argjson khmatch "$konahost_match" --argjson wrapper "$wrapper_present" \
   --arg argsnew "$args_new" --arg cimpl "$calldata_impl" --arg cbond "$calldata_bond" --arg bondwei "$INIT_BOND_WEI" --argjson installed "$installed" --argjson argsmatch "$args_match" \
-  --arg challl1 "$chall_l1_label" --arg rawh "$raw_header" --arg rawr "$raw_receipts" --arg l2p "$l2_proof" --argjson tt "$trace_types" --arg pw "$proof_window" \
+  --arg challl1 "$chall_l1_label" --arg rawh "$raw_header" --arg rawr "$raw_receipts" --arg l2p "$l2_proof" --argjson tt "$trace_types" --arg pw "$proof_window" --arg ui "$update_interval" --arg gw "$game_window" \
   --arg freegb "$free_gb" --arg cores "$cores" --arg memgb "$mem_gb" \
   --argjson items "$items" --argjson open "$summary" '
   def num: if . == "" then null else tonumber end;
@@ -229,7 +237,7 @@ jq -n --arg at "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --arg l1 "$L1_LABEL" --argjson c
                             {call: ("setInitBond(" + ($gt|tostring) + ", " + $bondwei + ")"), to: $dgf, value: "0", calldata: $cbond}],
              sender: "the factory owner, signed in the browser wallet (owner-console.html); the respected game type is not touched",
              initBondWei: $bondwei},
-   challengerHostChecks: (if $onb then {challengerL1Rpc: $challl1, debugGetRawHeader: $rawh, debugGetRawReceipts: $rawr, ethGetProofOldBlock: $l2p, traceTypesConfigured: $tt, rethProofWindow: ($pw | num)} else null end),
+   challengerHostChecks: (if $onb then {challengerL1Rpc: $challl1, debugGetRawHeader: $rawh, debugGetRawReceipts: $rawr, ethGetProofOldBlock: $l2p, traceTypesConfigured: $tt, minUpdateInterval: $ui, gameWindow: $gw, rethProofWindow: ($pw | num)} else null end),
    verdict: {items: $items, open: $open, summary: (if $open == 0 then "ready" else (($open|tostring) + " item(s) not ready") end)}}' > "$out"
 
 echo "K4 readiness for chain $L2_CHAIN_ID through $L1_LABEL (record $out)"
@@ -238,6 +246,6 @@ echo "  anchor root $anchor_root at L2 block $anchor_block $([ "$anchor_moved" =
 echo "  implementation $IMPL v$impl_version (depths $max_depth/$split_depth, clocks $clock_ext/$max_clock); MIPS $MIPS v$mips_version state version $state_version; oracle $oracle v$oracle_version (challenge $challenge_period s, min proposal $min_proposal B); WETH delay $weth_delay s"
 echo "  type $GAME_TYPE: implementation $implN$([ "$installed" = true ] && echo " (installed$([ "$args_match" = true ] && echo ', arguments as planned' || echo ', OTHER arguments'))" || echo ' (not installed)'), init bond $bondN wei"
 echo "  prestate $prestate_hash: file $([ "$prestate_present" = true ] && echo present || echo MISSING) on this host; kona-host $([ "$konahost_present" = true ] && echo "present$([ "$konahost_match" = true ] && echo ', digest matches the record' || echo ', DIGEST DIFFERS')" || echo MISSING)"
-if [ "$on_b" = true ]; then echo "  challenger host: L1 $chall_l1_label debug_getRawHeader: $raw_header; debug_getRawReceipts: $raw_receipts; eth_getProof: $l2_proof; trace types $trace_types"; fi
+if [ "$on_b" = true ]; then echo "  challenger host: L1 $chall_l1_label debug_getRawHeader: $raw_header; debug_getRawReceipts: $raw_receipts; eth_getProof: $l2_proof; trace types $trace_types; update interval $update_interval; game window $game_window"; fi
 echo "  verdict: $(jq -r '.verdict.summary' "$out")"
 jq -r '.verdict.items[] | "    - \(.item): \(.status)"' "$out"

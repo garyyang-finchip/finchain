@@ -297,9 +297,9 @@ The pieces, and where each runs:
 
 | Step | Where | Command | Record |
 | --- | --- | --- | --- |
-| 1. Readiness | host B (or any host with the repo and the L1 endpoint) | `make k4-readiness` | `manifests/evidence/k4-readiness-<date>.json` (`finchain.k4-readiness/1`): factory owner, game count, the implementation and packed arguments of types 1 and 8, initial bonds; the anchor root and whether it has left op-deployer's placeholder; the shared implementation's depths and clocks; the MIPS64 VM (state version 8) and its PreimageOracle (challenge period, minimum large-preimage size); the DelayedWETH delay; the K2 prestate and kona-host and whether their files are on this host; on host B the challenger's L1 endpoint (does it serve `debug_getRawHeader` / `debug_getRawReceipts`), op-reth's `eth_getProof` at an old block, the trace types in service; the two owner transactions as calldata; a verdict per item |
+| 1. Readiness | host B (or any host with the repo and the L1 endpoint) | `make k4-readiness` | `manifests/evidence/k4-readiness-<date>.json` (`finchain.k4-readiness/1`): factory owner, game count, the implementation and packed arguments of types 1 and 8, initial bonds; the anchor root and whether it has left op-deployer's placeholder; the shared implementation's depths and clocks; the MIPS64 VM (state version 8) and its PreimageOracle (challenge period, minimum large-preimage size); the DelayedWETH delay; the K2 prestate and kona-host and whether their files are on this host; on host B the challenger's L1 endpoint (does it serve `debug_getRawHeader` / `debug_getRawReceipts`), op-reth's `eth_getProof` at an old block, the trace types, update interval and game window in service; the two owner transactions as calldata; a verdict per item |
 | 2. Installation | the owner, `owner-console.html` ("Install a game type") | `setImplementation(8, FaultDisputeGameImpl, args)` then `setInitBond(8, 0.08 ETH)` | the readiness record run again: `gameTypeTarget.installed` and `argsMatchPlan` true |
-| 3. Challenger | host B | `make prestate` and `make kona-host` (or the files copied from the scratch host, digests checked against the K2 records), then `make restart-b KONA=1` | the readiness record run on B: prestate and kona-host present and matching, trace types `permissioned` and `cannon-kona`; the challenger's log (`make logs-b KONA=1 SVC=op-challenger`) |
+| 3. Challenger | host B | `make prestate` and `make kona-host` (or the files copied from the scratch host, digests checked against the K2 records), then `make restart-b KONA=1 SVC=op-challenger` (the challenger alone; op-reth and op-node keep running) | the readiness record run on B: prestate and kona-host present and matching, trace types `permissioned` and `cannon-kona`; the challenger's log (`make logs-b KONA=1 SVC=op-challenger`) |
 | 4. One game | host A (the proposer key) | `make k4-create-game` | `manifests/evidence/k4-game-<date>.json` (`finchain.k4-game/1`); `make games EXTRA_TYPES=8` reads the game back (creator, prestate, VM, starting root, status, resolution, credit); the challenger's log lines for the game address on host B |
 
 The arguments of the Type 8 game type (`gameargs.PackPermissionless`, 124 bytes, the layout
@@ -361,11 +361,16 @@ operational on the public chain.
 Operational finding (2026-11-13): with 48 games in flight the challenger's reads exceeded the
 quota of the free public L1 endpoint on host B - a steady 1,400-1,600 `429 Too Many
 Requests` per hour through the whole day, hitting the claim and status reads, the bond
-claimer and the L1 head poll alike. Every failure is retried on the next L1 block and the
-service kept tracking all 48 games, but the volume grows with the games in flight. The
-response is the `steady` profile (one proposal every 6 hours) and an L1 endpoint of the
-challenger's own with a known quota (`CHALLENGER_L1_RPC_URL`, node-b/.env), separate from
-op-node's endpoint and from `make games`; the game window stays at the upstream default of
-28 days, which covers the longest possible dispute plus the bond withdrawal delay.
-`docs/funding-model.md` section 5 has the figures. A `cannon-kona` challenger adds a
-requirement to that endpoint: the raw-RLP debug methods kona-host reads (above).
+claimer and the L1 head poll alike. Every failure is retried on the next cycle and the
+service kept tracking all 48 games, but the volume grows with the games in the window
+(2026-11-18: 72 games, 66 failed cycles an hour). The response is the `steady` profile (one
+proposal every 6 hours), then the challenger's own cadence and horizon since v0.3.0-alpha.24:
+one update cycle per minute of L1 time instead of one per L1 block
+(`--min-update-interval`, `CHALLENGER_MIN_UPDATE_INTERVAL`) and a game window of 14 days
+instead of 28 (`--game-window`, `CHALLENGER_GAME_WINDOW`: two chess clocks plus the finality
+and withdrawal delays, plus 3.5 days of margin), a tenth of the reads at steady state; and an
+L1 endpoint of the challenger's own with a known quota (`CHALLENGER_L1_RPC_URL`, node-b/.env),
+separate from op-node's endpoint and from `make games`, once a tier that carries the volume
+is chosen. `docs/funding-model.md` section 5 has the figures. A `cannon-kona` challenger adds
+a requirement to that endpoint: the raw-RLP debug methods kona-host reads (above), needed
+the moment a Type 8 game is disputed, not to track or resolve an undisputed one.

@@ -104,8 +104,8 @@ up-b: ## Start host B stack (a second chain starts without Caddy)
 	@$(COMPOSE_B) up -d $(B_SCALE)
 down-b: ## Stop host B stack (data kept)
 	@$(COMPOSE_B) down
-restart-b: ## Recreate host B containers with current env
-	@$(COMPOSE_B) up -d --force-recreate $(B_SCALE)
+restart-b: ## Recreate host B containers with current env (SVC=op-challenger: that service alone, the others keep running)
+	@$(COMPOSE_B) up -d --force-recreate $(if $(SVC),--no-deps,) $(B_SCALE) $(SVC)
 logs-b: ## Follow host B logs (SVC=op-challenger optional)
 	@$(COMPOSE_B) logs -f --tail=200 $(SVC)
 

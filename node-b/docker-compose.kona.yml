@@ -1,7 +1,8 @@
 # Host B: the cannon-kona trace type for the resident challenger (M4 K4; docs/proof-plan.md "K4", drill/README.md).
-# An override on top of docker-compose.yml, applied with KONA=1 (make up-b KONA=1, restart-b KONA=1, logs-b KONA=1), once
-# this host holds the Finchain-embedding kona prestate and the embedded kona-host (make prestate, make kona-host - both
-# reproducible, their digests in the K2 records; make k4-readiness checks what is present). The challenger then plays the
+# An override on top of docker-compose.yml, applied with KONA=1 (make up-b KONA=1, restart-b KONA=1 SVC=op-challenger -
+# the challenger alone, op-reth and op-node keep running -, logs-b KONA=1 SVC=op-challenger), once this host holds the
+# Finchain-embedding kona prestate and the embedded kona-host (make prestate, make kona-host - both reproducible, their
+# digests in the K2 records; make k4-readiness checks what is present). The challenger then plays the
 # permissioned type as before and, in addition, games of the Type 8 (CANNON_KONA) implementation: kona-client in Cannon64
 # from that prestate, with kona-host behind drill/kona-host-wrapper.sh (--l2-chain-id instead of --rollup-config-path,
 # the K2b finding). Tracking a Type 8 game needs the prestate alone; answering a dispute on one needs kona-host and an L1
@@ -27,6 +28,9 @@ services:
       - --rollup-rpc=http://op-node:8547
       - --game-factory-address=${DISPUTE_GAME_FACTORY}
       - --datadir=/data
+      # the read cadence and horizon of the base file (docs/funding-model.md section 5)
+      - --min-update-interval=${CHALLENGER_MIN_UPDATE_INTERVAL:-60s}
+      - --game-window=${CHALLENGER_GAME_WINDOW:-336h}
       - --cannon-rollup-config=/chain/rollup.json
       - --cannon-l2-genesis=/chain/genesis.json
       - --cannon-bin=/usr/local/bin/cannon

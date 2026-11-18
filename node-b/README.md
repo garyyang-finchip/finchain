@@ -5,7 +5,10 @@ Services: `op-reth` (archive execution client), `op-node` (verifier), `op-challe
 and `ws.finchain.one`). Started with `make up-b` (a profile sets batcher and proposer
 parameters and does not change this host; `CHAIN=<name>` starts a second chain's stack without
 Caddy, `docs/runbook.md` section 9). `CHALLENGER_L1_RPC_URL` in `.env` gives
-op-challenger an L1 endpoint of its own (see `.env.example`).
+op-challenger an L1 endpoint of its own; `CHALLENGER_MIN_UPDATE_INTERVAL` (default 60s) and
+`CHALLENGER_GAME_WINDOW` (default 336h) set how often it re-reads its games and how far back it
+looks (see `.env.example`, `docs/funding-model.md` section 5). `make restart-b SVC=op-challenger`
+recreates the challenger alone after a change to these; op-reth and op-node keep running.
 
 Inputs:
 
@@ -17,7 +20,7 @@ Inputs:
   (a different provider than host A), `DISPUTE_GAME_FACTORY`, hostnames, `ACME_EMAIL`
 
 M4 K4: `docker-compose.kona.yml` adds the `cannon-kona` trace type to the challenger (`make up-b
-KONA=1`, `restart-b KONA=1`, `logs-b KONA=1`), so that it also plays games of the Type 8
+KONA=1`, `restart-b KONA=1 SVC=op-challenger`, `logs-b KONA=1 SVC=op-challenger`), so that it also plays games of the Type 8
 (`CANNON_KONA`) implementation with kona-client in Cannon64. It needs the K2 artifacts on this host
 (`make prestate`, `make kona-host`; `make k4-readiness` says what is present and whether the
 challenger's L1 endpoint serves the raw-RLP debug methods a dispute would need; `docs/proof-plan.md`,

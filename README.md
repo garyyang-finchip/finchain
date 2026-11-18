@@ -77,7 +77,7 @@ The full procedure, with expected outputs and acceptance checks, is in
 
 ## Status
 
-v0.3.0-alpha.23: M4 in progress on the kona-client route (`docs/proof-plan.md`: the op-program
+v0.3.0-alpha.24: M4 in progress on the kona-client route (`docs/proof-plan.md`: the op-program
 client cannot follow the current Sepolia L1, its prestate `0x03e76631...5af1` is superseded; `make
 kona-check` validated Finchain's registry files against the kona-registry crate, 28 of 28 fields
 equal, on two hosts; `make prestate` built the kona-client prestate with Finchain embedded on
@@ -102,8 +102,10 @@ run a second chain beside the first, `docs/runbook.md` section 9, the M5 prepara
 `make games` reads the dispute games back from L1 - the
 resident challenger resolved the first ten games on 2026-11-15, 72-168 s after their clocks,
 `manifests/evidence/m4-challenger-2026-11-15.json`; the
-`steady` profile and `CHALLENGER_L1_RPC_URL` answer the L1 rate limiting that report
-uncovered, `docs/funding-model.md` section 5). v0.2.0
+`steady` profile, the challenger's own cadence and horizon since alpha.24 (one update cycle a
+minute, a 14-day game window; `CHALLENGER_MIN_UPDATE_INTERVAL`, `CHALLENGER_GAME_WINDOW`) and
+`CHALLENGER_L1_RPC_URL` answer the L1 rate limiting that report uncovered,
+`docs/funding-model.md` section 5). v0.2.0
 (2026-11-13) closed M3: the reference-version
 manifest `manifests/finchain-sepolia/2026.11-rc1.json` is published with status `candidate`
 (M1, M2 and the three M3 acceptances passed on public-testnet, M4 and M5 not run).

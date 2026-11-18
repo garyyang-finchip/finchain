@@ -11,7 +11,9 @@
 #   p2p-node-key.txt    op-node peer identity (hex, 32 bytes)
 #   op-challenger.env   OP_CHALLENGER_PRIVATE_KEY=<challenger private key>
 #
-# Optional in ./.env: CHALLENGER_L1_RPC_URL, a separate L1 endpoint for op-challenger (empty: L1_RPC_URL).
+# Optional in ./.env: CHALLENGER_L1_RPC_URL, a separate L1 endpoint for op-challenger (empty: L1_RPC_URL);
+# CHALLENGER_MIN_UPDATE_INTERVAL and CHALLENGER_GAME_WINDOW, the challenger's read cadence and horizon (defaults 60s
+# and 336h; docs/funding-model.md section 5).
 #
 # Independence rules (docs/acceptance.md): this host uses its own L1 provider, its own
 # data volumes and derives from L1. The p2p link to host A only delivers unsafe blocks
@@ -132,14 +134,21 @@ services:
     command:
       - op-challenger
       - --trace-type=permissioned
-      # The challenger reads every game of the respected type on every L1 block; give it its own
-      # endpoint (CHALLENGER_L1_RPC_URL in .env) when op-node's public endpoint rate-limits that volume.
+      # The challenger re-reads every game inside its window on every update cycle (about five eth_call per
+      # game for the bond claimer, ten more per game in progress, plus the game list). Give it its own endpoint
+      # (CHALLENGER_L1_RPC_URL in .env) when op-node's endpoint rate-limits that volume.
       - --l1-eth-rpc=${CHALLENGER_L1_RPC_URL:-${L1_RPC_URL}}
       - --l1-beacon=${L1_BEACON_URL}
       - --l2-eth-rpc=http://op-reth:8545
       - --rollup-rpc=http://op-node:8547
       - --game-factory-address=${DISPUTE_GAME_FACTORY}
       - --datadir=/data
+      # One update cycle per 60 s of L1 time instead of one per L1 block (12 s), and games of the last 14 days
+      # instead of 28: two clocks (7 d) plus the 3.5-day finality and withdrawal delays, plus 3.5 d of margin.
+      # A response is at most a minute later than it could be, against clocks of 3.5 days (docs/funding-model.md
+      # section 5). Both values can be changed in .env.
+      - --min-update-interval=${CHALLENGER_MIN_UPDATE_INTERVAL:-60s}
+      - --game-window=${CHALLENGER_GAME_WINDOW:-336h}
       - --cannon-rollup-config=/chain/rollup.json
       - --cannon-l2-genesis=/chain/genesis.json
       - --log.level=info
