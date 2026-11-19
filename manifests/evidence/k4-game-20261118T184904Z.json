@@ -1,0 +1,26 @@
+{
+  "schema": "finchain.k4-game/1",
+  "acceptance": "M4 K4: one game of the Type 8 (CANNON_KONA) implementation on the public testnet, an honest root created by the proposer account, for host B's cannon-kona challenger to track and resolve (docs/acceptance.md M4; docs/proof-plan.md K4)",
+  "environment": "public-testnet",
+  "chainId": 85422,
+  "createdAt": "2026-11-18T18:49:04Z",
+  "l1Rpc": "https://ethereum-sepolia-rpc.publicnode.com",
+  "disputeGameFactory": "0xc752f10ab0696860b11b789a2ab9f4f93331329c",
+  "game": {
+    "gameType": 8,
+    "implementation": "0x2dda3584b51ef5236f7726dea5a0fb6b3ca94aec",
+    "absolutePrestate": "0x038b60ac8db81e83cb87229ef9119b500c5723767806cb93a639d70618cad9fb",
+    "address": "0x48e0b14e6DB1Cfaa4C3565c64C7d508DAfA07655",
+    "index": 74,
+    "creationTx": "0x2c2d79b9432f8650c1791bd47878e5154b6c3955da3346837eab3dd31ced975a",
+    "l2BlockNumber": 305862,
+    "rootClaim": "0xf6ed971427f5c9795135743484a8687213205550be65b5b521c7a27b5de8706e",
+    "opNodeFinalizedAtCreation": 305862,
+    "initBondWei": "80000000000000000"
+  },
+  "anchorAtCreation": {
+    "root": "0x449f80942870b4bceb6d55569c8ec31fa9dda575f1585f0f78567ff3083f4b5d",
+    "l2Block": 3492
+  },
+  "note": "not the respected game type: it moves no anchor and settles no withdrawal; make games EXTRA_TYPES=8 reads it back; the honest challenger on host B resolves it after maxClockDuration"
+}
