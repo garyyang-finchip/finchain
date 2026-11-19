@@ -126,10 +126,10 @@ initiate)
   fi
   jq -n --argjson chainId "$CHAIN_ID" --argjson l1ChainId "$((l1_chain_hex))" --arg l2rpc "$(rpc_label "$L2_RPC")" --arg portal "$PORTAL" --arg dgf "$DGF" --arg passer "$PASSER" \
     --arg nonce "$nonce" --arg sender "$sender" --arg target "$target" --arg value "$value" --arg gas "$gas_limit" --arg data "$data" --arg hash "$ev_hash" \
-    --arg tx "$tx" --argjson block "$block" --arg at "$(iso_of "$ts")" --argjson tsn "$ts" --arg amount "$AMOUNT" --arg role "$ROLE" --argjson deposit "$deposit" --arg now "$(now_utc)" '
+    --arg tx "$tx" --argjson block "$block" --arg at "$(iso_of "$ts")" --argjson tsn "$ts" --arg amount "$AMOUNT" --arg role "$ROLE" --argjson deposit "$deposit" --arg now "$(now_utc)" --arg env "$ENVIRONMENT" '
     {schema: "finchain.withdrawal/1",
      acceptance: "M4: deposit -> proof -> withdrawal end to end with the actual waiting periods (docs/acceptance.md M4; docs/proof-plan.md)",
-     environment: "public-testnet", chainId: $chainId, l1ChainId: $l1ChainId, l2Rpc: $l2rpc,
+     environment: $env, chainId: $chainId, l1ChainId: $l1ChainId, l2Rpc: $l2rpc,
      contracts: {optimismPortal: $portal, disputeGameFactory: $dgf, l2ToL1MessagePasser: $passer},
      path: "L2ToL1MessagePasser.initiateWithdrawal -> an output proposal (a dispute game of the respected type) covering the L2 block -> OptimismPortal2.proveWithdrawalTransaction against that game -> proof maturity delay, the game resolved and past its finality delay -> OptimismPortal2.finalizeWithdrawalTransaction",
      deposit: $deposit,
@@ -220,8 +220,8 @@ prove)
   tx="$(jq -r .transactionHash <<<"$r")"; l1b=$(( $(jq -r .blockNumber <<<"$r") ))
   { read -r pgame; read -r pts; } < <(l1call "$PORTAL" "provenWithdrawals(bytes32,address)(address,uint64)" "$whash" "$from")
   pts="$(first_word <<<"$pts")"
-  # shellcheck disable=SC2016  # a jq filter: $p is jq's, not the shell's
-  record_set "$RECORD" '.steps.prove = $p | .status = "proven"' --argjson p "$(jq -cn \
+  # shellcheck disable=SC2016  # a jq filter: $p and $env are jq's, not the shell's
+  record_set "$RECORD" '.steps.prove = $p | .status = "proven" | .environment = $env' --arg env "$ENVIRONMENT" --argjson p "$(jq -cn \
     --argjson gi "$gi" --arg gproxy "$gproxy" --argjson gl2 "$gl2" --argjson gts "$gts" --arg gcreated "$(iso_of "$gts")" --argjson gtype "$respected" --arg root "$root_claim" \
     --arg sr "$state_root" --arg mr "$storage_root" --arg bh "$block_hash" --arg or "$output_root" --argjson nodes "$(jq -r '.result.storageProof[0].proof | length' <<<"$proofr")" --arg slot "$slot" \
     --arg tx "$tx" --argjson l1b "$l1b" --arg at "$(iso_of "$pts")" --argjson pts "$pts" --arg submitter "$from" --arg matures "$(iso_of $((pts + maturity)))" --argjson maturity "$maturity" --argjson finality "$finality" --arg now "$(now_utc)" \
@@ -254,8 +254,8 @@ finalize)
   [ "$(l1call "$PORTAL" "finalizedWithdrawals(bytes32)(bool)" "$whash")" = "true" ] || { echo "finalizedWithdrawals is still false after $tx"; exit 3; }
   after="$(rpc "$L1_RPC_URL" eth_getBalance "[\"$target\",\"latest\"]" | jq -r .result)"
   its="$(jq -r .steps.initiate.l2BlockTimestamp "$RECORD")"; pts="$(jq -r .steps.prove.provenAt "$RECORD")"; gts="$(jq -r .steps.prove.game.createdAt "$RECORD")"
-  # shellcheck disable=SC2016  # a jq filter: $f and $t are jq's, not the shell's
-  record_set "$RECORD" '.steps.finalize = $f | .timeline = $t | .status = "finalized"' \
+  # shellcheck disable=SC2016  # a jq filter: $f, $t and $env are jq's, not the shell's
+  record_set "$RECORD" '.steps.finalize = $f | .timeline = $t | .status = "finalized" | .environment = $env' --arg env "$ENVIRONMENT" \
     --argjson f "$(jq -cn --arg tx "$tx" --argjson l1b "$l1b" --argjson fts "$fts" --arg at "$(iso_of "$fts")" --arg before "$before" --arg after "$after" --argjson gstatus "$gstatus" --argjson gresolved "$gresolved" --arg now "$(now_utc)" \
        '{l1Tx: $tx, l1Block: $l1b, finalizedAt: $fts, at: $at, targetBalanceBeforeWei: $before, targetBalanceAfterWei: $after, gameStatus: $gstatus, gameResolvedAt: $gresolved, recordedAt: $now}')" \
     --argjson t "$(jq -cn --argjson i "$its" --argjson g "$gts" --argjson p "$pts" --argjson r "$gresolved" --argjson f "$fts" \

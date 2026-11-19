@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# M4 K4: what a Type 8 (CANNON_KONA) game implementation needs on Finchain Sepolia, read back from the chain and from
-# the host this runs on, and the exact owner transactions that would install it (docs/proof-plan.md, "K4"; docs/acceptance.md
+# M4 K4: what a Type 8 (CANNON_KONA) game implementation needs on the chain CHAIN selects (Finchain Sepolia by
+# default), read back from the chain and from the host this runs on, and the exact owner transactions that would install it (docs/proof-plan.md, "K4"; docs/acceptance.md
 # M4). Nothing here changes the chain: the installation itself is an owner transaction signed in the browser wallet
 # (owner-console.html), and the respected game type is never touched.
 #
@@ -14,7 +14,7 @@
 #   - the challenger host, when this runs on it (node-b/.env present): whether the challenger's L1 endpoint serves the
 #     raw-RLP debug methods kona-host reads, whether the local op-reth answers eth_getProof at an old block, and the
 #     trace types, update interval and game window of the running challenger (else the compose files' defaults).
-# What is written: manifests/evidence/k4-readiness-<date>.json (schema finchain.k4-readiness/1, environment public-testnet),
+# What is written: manifests/evidence/k4-readiness-<date>.json (schema finchain.k4-readiness/1, the chain's environment),
 # with the packed game arguments and the calldata of setImplementation(8, impl, args) and setInitBond(8, bond), and a
 # verdict per item (ready / pending / missing). Endpoints are recorded by scheme and host only.
 #
@@ -95,7 +95,7 @@ decode_args() {
     + (if $n >= 164 then {proposer: ("0x" + $a[248:288]), challenger: ("0x" + $a[288:328])} else {} end)'
 }
 
-log "reading Finchain Sepolia (chain id $L2_CHAIN_ID) through $L1_LABEL"
+log "reading Finchain (chain id $L2_CHAIN_ID, CHAIN=$CHAIN) through $L1_LABEL"
 owner="$(word_addr "$(ecall "$DGF" "$S_OWNER")" 0)"
 count="$(word_n "$(ecall "$DGF" "$S_GAME_COUNT")" 0)"
 dgf_version="$(str_ret "$(ecall "$DGF" "$S_VERSION")")"
@@ -169,11 +169,12 @@ if [ -f "$benv" ]; then
   else
     l2_proof="op-reth not reachable at $l2_url from here"
   fi
-  # the trace types, update interval and game window of the running challenger (its container arguments), else of
-  # the compose files (the defaults there; .env may override the last two)
+  # the trace types, update interval and game window of this chain's running challenger (its container arguments; the
+  # stack's name keeps a second chain's challenger apart), else of the compose files (the defaults there; .env may
+  # override the last two)
   trace_types=""; cargs=""
   if command -v docker >/dev/null 2>&1; then
-    cname="$(docker ps --format '{{.Names}}' 2>/dev/null | grep -E '^finchain(-[a-z0-9]+)?-b-op-challenger-' | head -1 || true)"
+    cname="$(docker ps --format '{{.Names}}' 2>/dev/null | grep -E "^$STACK-b-op-challenger-" | head -1 || true)"
     [ -z "$cname" ] || cargs="$(docker inspect "$cname" --format '{{join .Args "\n"}}' 2>/dev/null || true)"
     [ -z "$cargs" ] || trace_types="$(grep -o -- '--trace-type=[a-z,-]*' <<<"$cargs" | sed 's/--trace-type=//' | tr ',' '\n' | jq -R . | jq -cs . || true)"
   fi
@@ -210,7 +211,7 @@ items="$(jq -cn \
 summary="$(jq -r '[.[] | select(.status != "ready")] | length' <<<"$items")"
 
 out="$FINCHAIN_ROOT/manifests/evidence/k4-readiness-$(date -u +%Y%m%dT%H%M%SZ).json"
-jq -n --arg at "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --arg l1 "$L1_LABEL" --argjson cid "$L2_CHAIN_ID" --arg host "$(hostname)" --argjson onb "$on_b" \
+jq -n --arg at "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --arg l1 "$L1_LABEL" --argjson cid "$L2_CHAIN_ID" --arg host "$(hostname)" --argjson onb "$on_b" --arg env "$ENVIRONMENT" \
   --arg dgf "$DGF" --arg dgfv "$dgf_version" --arg owner "$owner" --argjson count "$count" --argjson gt "$GAME_TYPE" \
   --arg impl1 "$impl1" --arg implN "$implN" --argjson args1 "$args1_dec" --argjson argsN "$argsN_dec" --arg args1raw "$args1" --arg argsNraw "$argsN" --arg bond1 "$bond1" --arg bondN "$bondN" \
   --arg asr "$ASR" --arg asrv "$asr_version" --argjson rasr "$respected_asr" --argjson rportal "$respected_portal" --arg aroot "$anchor_root" --argjson ablock "$anchor_block" --argjson amoved "$anchor_moved" \
@@ -227,8 +228,8 @@ jq -n --arg at "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --arg l1 "$L1_LABEL" --argjson c
   --argjson items "$items" --argjson open "$summary" '
   def num: if . == "" then null else tonumber end;
   {schema: "finchain.k4-readiness/1",
-   acceptance: "M4 K4: minimal integration check against Sepolia - what a Type 8 (CANNON_KONA) implementation needs there, read back from the chain and the challenger host; the respected game type unchanged (docs/acceptance.md M4; docs/proof-plan.md K4)",
-   environment: "public-testnet", chainId: $cid, recordedAt: $at, l1Rpc: $l1, host: {name: $host, challengerHost: $onb, cores: ($cores | num), memoryGb: ($memgb | num), freeDiskGb: ($freegb | num)},
+   acceptance: "M4 K4: minimal integration check against the public chain - what a Type 8 (CANNON_KONA) implementation needs there, read back from the chain and the challenger host; the respected game type unchanged (docs/acceptance.md M4; docs/proof-plan.md K4)",
+   environment: $env, chainId: $cid, recordedAt: $at, l1Rpc: $l1, host: {name: $host, challengerHost: $onb, cores: ($cores | num), memoryGb: ($memgb | num), freeDiskGb: ($freegb | num)},
    factory: {address: $dgf, version: $dgfv, owner: $owner, gameCount: $count,
              gameType1: {implementation: $impl1, initBondWei: $bond1, args: $args1, argsHex: ("0x" + $args1raw)},
              gameTypeTarget: {gameType: $gt, implementation: $implN, initBondWei: $bondN, args: $argsN, argsHex: (if $argsNraw == "" then null else "0x" + $argsNraw end), installed: $installed, argsMatchPlan: $argsmatch}},

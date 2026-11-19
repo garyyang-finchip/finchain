@@ -70,11 +70,11 @@ tx="$(printf '%s' "$cli_out" | sed -nE 's/.*(hash: |tx=)(0x[0-9a-fA-F]{64}).*/\2
 [ -n "$game" ] || { printf '%s\n' "$cli_out" | sed "s#$L1#$L1_LABEL#g" | tail -n 20; die "no game address in the CLI output"; }
 count="$(word_n "$(ecall "$DGF" "0x4d1975b4")" 0)"
 rec="$FINCHAIN_ROOT/manifests/evidence/k4-game-$(date -u +%Y%m%dT%H%M%SZ).json"
-jq -n --arg at "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --arg l1 "$L1_LABEL" --argjson cid "$L2_CHAIN_ID" --arg dgf "$DGF" --argjson gt "$GAME_TYPE" --arg impl "$impl" --arg pre "$installed_prestate" \
+jq -n --arg at "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --arg l1 "$L1_LABEL" --argjson cid "$L2_CHAIN_ID" --arg dgf "$DGF" --argjson gt "$GAME_TYPE" --arg impl "$impl" --arg pre "$installed_prestate" --arg env "$ENVIRONMENT" \
   --arg game "$game" --arg tx "$tx" --argjson idx "$((count - 1))" --argjson l2 "$L2_BLOCK" --arg root "$root" --argjson fin "$finalized" --arg aroot "$anchor_root" --argjson ablock "$anchor_block" --arg bond "$bond" '
   {schema: "finchain.k4-game/1",
-   acceptance: "M4 K4: one game of the Type 8 (CANNON_KONA) implementation on the public testnet, an honest root created by the proposer account, for host B'"'"'s cannon-kona challenger to track and resolve (docs/acceptance.md M4; docs/proof-plan.md K4)",
-   environment: "public-testnet", chainId: $cid, createdAt: $at, l1Rpc: $l1, disputeGameFactory: $dgf,
+   acceptance: "M4 K4: one game of the Type 8 (CANNON_KONA) implementation on the public chain, an honest root created by the proposer account, for host B'"'"'s cannon-kona challenger to track and resolve (docs/acceptance.md M4; docs/proof-plan.md K4)",
+   environment: $env, chainId: $cid, createdAt: $at, l1Rpc: $l1, disputeGameFactory: $dgf,
    game: {gameType: $gt, implementation: $impl, absolutePrestate: $pre, address: $game, index: $idx, creationTx: (if $tx == "" then null else $tx end), l2BlockNumber: $l2, rootClaim: $root, opNodeFinalizedAtCreation: $fin, initBondWei: $bond},
    anchorAtCreation: {root: $aroot, l2Block: $ablock},
    note: "not the respected game type: it moves no anchor and settles no withdrawal; make games EXTRA_TYPES=8 reads it back; the honest challenger on host B resolves it after maxClockDuration"}' > "$rec"

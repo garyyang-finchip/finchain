@@ -219,11 +219,11 @@ done
 
 out="$FINCHAIN_ROOT/manifests/evidence/games-$(date -u +%Y%m%dT%H%M%SZ).json"
 mkdir -p "$(dirname "$out")"
-jq -n --arg l1 "$L1_LABEL" --arg dgf "$DGF" --arg portal "$PORTAL" --argjson count "$count" --argjson first "$first" --argjson respected "$respected" --arg bond "$init_bond" \
+jq -n --arg l1 "$L1_LABEL" --arg dgf "$DGF" --arg portal "$PORTAL" --argjson count "$count" --argjson first "$first" --argjson respected "$respected" --arg bond "$init_bond" --arg env "$ENVIRONMENT" \
   --arg challenger "$challenger_addr" --arg proposer "$proposer_addr" --argjson maxClock "${max_clock:-0}" --argjson games "$games" \
   --argjson resolved "$resolved" --argjson byc "$by_challenger" --argjson inprog "$in_progress" --argjson other "$other_type" --arg extra "$EXTRA_TYPES" --arg at "$(date -u +%Y-%m-%dT%H:%M:%SZ)" '
   {schema: "finchain.games/1", acceptance: "M4: resident challenger on host B against the public chain - games resolved and bonds claimed (docs/acceptance.md M4; docs/proof-plan.md level L1)",
-   environment: "public-testnet", recordedAt: $at, l1Rpc: $l1, disputeGameFactory: $dgf, optimismPortal: $portal, respectedGameType: $respected, initBondWei: $bond,
+   environment: $env, recordedAt: $at, l1Rpc: $l1, disputeGameFactory: $dgf, optimismPortal: $portal, respectedGameType: $respected, initBondWei: $bond,
    roles: {proposer: $proposer, challenger: $challenger, maxClockDurationSeconds: $maxClock},
    gameCount: $count, gamesRead: {from: $first, to: ($count - 1), extraTypes: (if $extra == "" then [] else ($extra | split(",") | map(tonumber)) end)},
    summary: {resolved: $resolved, resolvedByChallenger: $byc, inProgress: $inprog, notRespectedType: $other,

@@ -20,6 +20,9 @@ case "$CHAIN" in
 esac
 CHAIN_DIR="$FINCHAIN_ROOT/$CHAIN_REL"; KEYS_DIR="$FINCHAIN_ROOT/$KEYS_REL"
 export CHAIN CHAIN_REL CHAIN_DIR ENV_SUFFIX KEYS_REL KEYS_DIR STACK
+# the environment label the chain's records carry (docs/acceptance.md: local-devnet, public-testnet, mainnet)
+ENVIRONMENT="${ENVIRONMENT:-$([ "$CHAIN" = mainnet ] && echo mainnet || echo public-testnet)}"
+export ENVIRONMENT
 # host_env <a|b> -> the host env file of this chain; secrets_dir <a|b> -> its secrets directory
 host_env() { echo "$FINCHAIN_ROOT/node-$1/.env$ENV_SUFFIX"; }
 secrets_dir() { echo "$FINCHAIN_ROOT/node-$1/secrets$ENV_SUFFIX"; }
