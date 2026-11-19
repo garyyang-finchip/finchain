@@ -27,6 +27,10 @@ challenger's L1 endpoint serves the raw-RLP debug methods a dispute would need; 
 "K4"). The override does not change what the chain trusts: the respected game type is the anchor
 state registry's setting, not the challenger's.
 
+A second chain on this host (`CHAIN=<name>`, `docs/runbook.md` section 9) runs without a Caddy
+of its own; its public hostnames are served by this stack's Caddy from a site file in
+`caddy-sites/` (`caddy-sites/README.md`; Finchain mainnet's example is there).
+
 Independence: own data volumes, own L1 provider, derivation from L1. The p2p link to A
 only delivers unsafe blocks early. `scripts/rebuild-from-l1.sh` is the acceptance test
 that this host can rebuild the chain from public inputs and L1 alone.

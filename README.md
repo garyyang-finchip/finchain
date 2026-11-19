@@ -5,8 +5,9 @@ It is the reference chain for the twelve Finch agent-economy ERCs
 (ERC-8338, 8414, 8419, 8434, 8436, 8444, 8447, 8454, 8468, 8471, 8489, 8490) and the
 native runtime environment for FOGA (Finch OG Agent).
 
-The first public network is **Finchain Sepolia**, settled on Ethereum Sepolia.
-Mainnet is a separate, later deployment with its own genesis. `docs/handbook.md` is the
+The first public network is **Finchain Sepolia**, settled on Ethereum Sepolia. **Finchain
+mainnet** (chain id 8454) is a separate deployment with its own genesis on Ethereum mainnet,
+running since 2026-11-18 and not yet announced as live (`docs/mainnet.md`). `docs/handbook.md` is the
 reader's entry point: chain facts, wallet and developer use, running a verifier node,
 how the chain was built.
 
@@ -65,10 +66,10 @@ The full procedure, with expected outputs and acceptance checks, is in
 | Path | Content |
 | --- | --- |
 | `versions.lock` | Candidate version set and image references; digests filled by `make lock` |
-| `chain/` | Chain parameters, op-deployer workdir (`chain/deployer/`), exported artifacts and acceptance records (`chain/out/`), pinned contract builds (`chain/contracts/erc8004/`, `chain/contracts/probe/`), the FOGA world configuration and address book for Finchain (`chain/world/`); a second chain lives in `chain/<name>/` and is selected with `CHAIN=<name>` (`docs/runbook.md` section 9) |
+| `chain/` | Chain parameters, op-deployer workdir (`chain/deployer/`), exported artifacts and acceptance records (`chain/out/`), pinned contract builds (`chain/contracts/erc8004/`, `chain/contracts/probe/`), the FOGA world configuration and address book for Finchain (`chain/world/`); a second chain lives in `chain/<name>/` and is selected with `CHAIN=<name>` (`docs/runbook.md` section 9) - `chain/mainnet/` is Finchain mainnet's record |
 | `keys/` | Key material (git-ignored) and the key policy |
 | `node-a/`, `node-b/` | Docker Compose stacks for the two hosts |
-| `profiles/` | Runtime profiles: `steady` (fast batches, one proposal every 6 hours; the default), `demo` (hourly proposals) and `lowcost` (low L1 spend) |
+| `profiles/` | Runtime profiles: `steady` (fast batches, one proposal every 6 hours; the default), `demo` (hourly proposals), `lowcost` (low L1 spend) and `mainnet` (steady batching, one proposal a day) |
 | `scripts/` | Preflight, key generation, intent rendering, deployment, export, verification, funding table |
 | `manifests/` | Reference-version manifest schema and template, the published manifests (`finchain-sepolia/`), the on-chain snapshot, the covenant World section, the acceptance evidence |
 | `registry/` | Draft `ethereum-lists/chains` entry |
@@ -77,62 +78,58 @@ The full procedure, with expected outputs and acceptance checks, is in
 
 ## Status
 
-v0.3.0-alpha.24: M4 in progress on the kona-client route (`docs/proof-plan.md`: the op-program
-client cannot follow the current Sepolia L1, its prestate `0x03e76631...5af1` is superseded; `make
-kona-check` validated Finchain's registry files against the kona-registry crate, 28 of 28 fields
-equal, on two hosts; `make prestate` built the kona-client prestate with Finchain embedded on
-2026-11-16, `0x038b60ac...d9fb`, the published kona prestate reproduced bit for bit first; `make
-run-trace` ran the `cannon-kona` self-check against a live block and passed on 2026-11-16 with
-the client booting from the prestate's own registry, through the kona-host that `make kona-host`
-builds with the chain embedded - K2 closed, `drill/README.md` K2b; `make l1-header` records the
-raw L1 header the first route failed on). K3, the isolated-devnet dispute with a real `step()`,
-ran on 2026-11-16 and passed (`drill/devnet/`, `make devnet-<step>`, `drill/devnet/README.md`: an
-anvil L1, op-deployer against it, the devnet's own prestate and kona-host, game type 8 installed
-with the factory's game arguments, a dishonest challenger driven through all 73 depths; the honest
-op-challenger answered every claim, countered the attacker's leaf with `step()` on chain and
-resolved the game `DEFENDER_WINS` - `manifests/evidence/devnet-dispute-854220-20261116T161502Z.json`;
-the step verified trace index 0, `docs/proof-plan.md` "Result"; a second game on 2026-11-17 with
-the attacker defending at random put the step in the middle of the trace, index 178,268,704 -
-`devnet-dispute-854220-20261117T070418Z.json`). K4, the Sepolia integration check, has its tooling
-(`make k4-readiness`, the owner console's "Install a game type", `node-b/docker-compose.kona.yml`
-with `KONA=1`, `make k4-create-game`, `make games EXTRA_TYPES=8`; `docs/proof-plan.md` "K4") and
-starts once the anchor root has left op-deployer's placeholder (2026-11-18 at the earliest). `make withdraw` drives the deposit -> proof -> withdrawal
-cycle step by step, with its record; every target takes `CHAIN=<name>` so that the same hosts
-run a second chain beside the first, `docs/runbook.md` section 9, the M5 preparation;
-`make games` reads the dispute games back from L1 - the
-resident challenger resolved the first ten games on 2026-11-15, 72-168 s after their clocks,
-`manifests/evidence/m4-challenger-2026-11-15.json`; the
-`steady` profile, the challenger's own cadence and horizon since alpha.24 (one update cycle a
-minute, a 14-day game window; `CHALLENGER_MIN_UPDATE_INTERVAL`, `CHALLENGER_GAME_WINDOW`) and
-`CHALLENGER_L1_RPC_URL` answer the L1 rate limiting that report uncovered,
-`docs/funding-model.md` section 5). v0.2.0
-(2026-11-13) closed M3: the reference-version
-manifest `manifests/finchain-sepolia/2026.11-rc1.json` is published with status `candidate`
-(M1, M2 and the three M3 acceptances passed on public-testnet, M4 and M5 not run).
-Finchain Sepolia (chain id 85422) is live: L1 contracts
-deployed 2026-11-11 at Sepolia block 12112920 (`chain/out/`), host A sequencing since the
-same day, host B verifying independently; M1 and M2 acceptance records are in
-`manifests/evidence/`; `versions.lock` is frozen (digests, 2026-11-12). The ERC-8004
-identity root is deployed and owned (2026-11-12, `chain/out/erc8004.json`). M3 is three
-acceptances (`docs/acceptance.md`, design in `docs/world.md`): Finchain on its own
-(`make evm-acceptance`, `make verify-evm`; passed 2026-11-12,
+v0.3.0-alpha.25: **Finchain mainnet (chain id 8454) is deployed on Ethereum mainnet and running on
+host A** since 2026-11-18 (`docs/mainnet.md`: L1 contracts in one transaction at block 26443400,
+0.012 ETH; L2 genesis `0xd678...497d`; `chain/mainnet/` is the chain record,
+`manifests/onchain-mainnet-26443627.json` the first snapshot; `make up-a CHAIN=mainnet
+PROFILE=mainnet` sequences, batches and proposes once a day). Host B's mainnet stack, the public
+RPC `rpc.mainnet.finchain.one` (`node-b/caddy-sites/`), the Safe, the paid L1 providers and the
+Finchain-embedding prestate follow; until then the mainnet is not announced as live and nothing
+should be bridged to it. M4 on Sepolia: K1-K4 done on the kona-client route (`docs/proof-plan.md`:
+the op-program client cannot follow the current Sepolia L1, its prestate `0x03e76631...5af1` is
+superseded; `make kona-check` validated Finchain's registry files against the kona-registry crate
+on two hosts (K1); `make prestate` built the kona-client prestate with Finchain embedded on
+2026-11-16, `0x038b60ac...d9fb`, and `make run-trace` passed the `cannon-kona` self-check against a
+live block the same day (K2, `drill/README.md`); K3, the isolated-devnet dispute with a real
+`step()`, passed on 2026-11-16 and again on 2026-11-17 with the step in the middle of the trace
+(`drill/devnet/`, `manifests/evidence/devnet-dispute-854220-*.json`); K4, the Sepolia integration
+check, closed on 2026-11-19: the Type 8 (`CANNON_KONA`) implementation installed by the owner as a
+non-default type with the K2 prestate and a 0.08 ETH bond (`owner-console.html`, `make
+k4-readiness`), game #74 created by host A's proposer with `make k4-create-game` the moment the
+anchor root left op-deployer's placeholder, tracked by host B's `cannon-kona` challenger
+(`node-b/docker-compose.kona.yml`, `KONA=1`) without a validation error, its resolution due
+2026-11-22. `make withdraw` drives the deposit -> proof -> withdrawal cycle step by step; the
+withdrawal proven on 2026-11-14 finalizes on 2026-11-21 and closes M4. Every target takes
+`CHAIN=<name>` so that the same hosts run a second chain beside the first (`docs/runbook.md`
+section 9), which is how the mainnet runs. `make games` reads the dispute games back from L1 -
+the resident challenger resolved the first ten games on 2026-11-15, 72-168 s after their clocks,
+`manifests/evidence/m4-challenger-2026-11-15.json`; the `steady` profile, the challenger's own
+cadence and horizon since alpha.24 (one update cycle a minute, a 14-day game window;
+`CHALLENGER_MIN_UPDATE_INTERVAL`, `CHALLENGER_GAME_WINDOW`) and `CHALLENGER_L1_RPC_URL` answer the
+L1 rate limiting that report uncovered, `docs/funding-model.md` section 5. v0.2.0 (2026-11-13)
+closed M3: the reference-version manifest `manifests/finchain-sepolia/2026.11-rc1.json` is
+published with status `candidate` (M1, M2 and the three M3 acceptances passed on public-testnet,
+M4 and M5 not run). Finchain Sepolia (chain id 85422) is live: L1 contracts deployed 2026-11-11 at
+Sepolia block 12112920 (`chain/out/`), host A sequencing since the same day, host B verifying
+independently; M1 and M2 acceptance records are in `manifests/evidence/`; `versions.lock` is
+frozen (digests, 2026-11-12). The ERC-8004 identity root is deployed and owned (2026-11-12,
+`chain/out/erc8004.json`). M3 is three acceptances (`docs/acceptance.md`, design in
+`docs/world.md`): Finchain on its own (`make evm-acceptance`, `make verify-evm`; passed 2026-11-12,
 `manifests/evidence/m3a-2026-11-12.json`), FOGA on its own (`make foga-isolation`; passed
-2026-11-12 for the released 1.0.7, `manifests/evidence/m3b-2026-11-12.json`), and FOGA on
-Finchain as an optional, explicit deployment with the released FOGA package and a world
-configuration kept here (`chain/world/`; the reference World was deployed by 1.0.7 on
-2026-11-13, verified by host B at a finalized block, and ran the genesis T0-T9 with both
-ZK paths and the doctor; the Finch OG Agent lives on the chain since the same day as a cell
-of its own at `https://og.finchain.one`, `docs/world.md` section 5.4; the two-cell business
-loop ran at its integration stage on 2026-11-13 - the OG minting a tender, a second cell
-joined from the registry's 1.0.9 by this repository's address book at its URL taking it,
-accepted and paid, `manifests/evidence/business-loop-2026-11-13.json`; the four funding
-lines read from the receipts, `make fee-lines`; the M3-C summary is
-`manifests/evidence/m3c-2026-11-13.json`; the run by another operator stays open). Finchain
-is usable without FOGA; FOGA runs
-without Finchain; no Finchain milestone requires a FOGA release. The road to the chain went
-through Sepolia's Glamsterdam rules (EIP-8037 state gas, new L1 header fields, EIP-7976
-calldata floor); the adaptations are recorded in `docs/versions.md`. Public RPC:
-`https://rpc.finchain.one`.
+2026-11-12 for the released 1.0.7, `manifests/evidence/m3b-2026-11-12.json`), and FOGA on Finchain
+as an optional, explicit deployment with the released FOGA package and a world configuration kept
+here (`chain/world/`; the reference World was deployed by 1.0.7 on 2026-11-13, verified by host B
+at a finalized block, and ran the genesis T0-T9 with both ZK paths and the doctor; the Finch OG
+Agent lives on the chain since the same day as a cell of its own at `https://og.finchain.one`,
+`docs/world.md` section 5.4; the two-cell business loop ran at its integration stage on
+2026-11-13 - the OG minting a tender, a second cell joined from the registry's 1.0.9 by this
+repository's address book at its URL taking it, accepted and paid,
+`manifests/evidence/business-loop-2026-11-13.json`; the four funding lines read from the
+receipts, `make fee-lines`; the M3-C summary is `manifests/evidence/m3c-2026-11-13.json`; the run
+by another operator stays open). Finchain is usable without FOGA; FOGA runs without Finchain; no
+Finchain milestone requires a FOGA release. The road to the chain went through Sepolia's
+Glamsterdam rules (EIP-8037 state gas, new L1 header fields, EIP-7976 calldata floor); the
+adaptations are recorded in `docs/versions.md`. Public RPC: `https://rpc.finchain.one`.
 
 ## License
 

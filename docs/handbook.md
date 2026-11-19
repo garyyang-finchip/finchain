@@ -35,9 +35,11 @@ The twelve covenants:
 | 8490 | Agent Meditation Mechanism | self-maintenance |
 
 The first public network is **Finchain Sepolia** (chain id 85422), settled on Ethereum
-Sepolia, live since 2026-11-11. Mainnet (chain id 8454, `docs/chain-id.md`) is a later,
-separate deployment with its own genesis: configuration and contract versions validated on
-Sepolia are reused, state is not.
+Sepolia, live since 2026-11-11. **Finchain mainnet** (chain id 8454, `docs/chain-id.md`) is a
+separate deployment with its own genesis on Ethereum mainnet, running since 2026-11-18
+(section 2b): configuration and contract versions validated on Sepolia are reused, state is
+not. The mainnet is not yet announced as live: its second node, public RPC and the gates of
+`docs/mainnet.md` section 4 come first; do not bridge value to it until then.
 
 ## 2. Chain facts
 
@@ -82,6 +84,50 @@ Proof configuration as read from L1 (`manifests/onchain-12112920.json`, later sn
 clock extension 3 h, max clock duration 3.5 days, DelayedWETH delay 3.5 days, proof maturity
 delay 7 days, dispute game finality delay 3.5 days. The initial bond was lowered from
 0.08 ETH to 0 by the owner on 2026-11-11 (testnet cost control, `docs/funding-model.md`).
+
+### 2b. Finchain mainnet (chain id 8454)
+
+Deployed on 2026-11-18 (`docs/mainnet.md`); one node (host A) at the time of writing, the
+second node, the public RPC and the Safe to follow. Facts from `chain/mainnet/out/`:
+
+| Parameter | Value |
+| --- | --- |
+| Network name | Finchain |
+| Chain id | 8454 |
+| Settlement layer | Ethereum mainnet (chain id 1) |
+| Public RPC | `https://rpc.mainnet.finchain.one` and `wss://ws.mainnet.finchain.one`, served once host B's mainnet stack is up (decision 1 of `docs/mainnet.md`) |
+| Native currency | ETH, bridged from Ethereum; nothing minted at genesis |
+| Block time, gas limit, fee market, hardforks | as Sepolia: 2 s, 60,000,000, EIP-1559 (elasticity 6, denominator 50, minimum base fee 0), Isthmus and Jovian from genesis |
+| Data availability | L1 calldata (batch inbox `0x00b9e9fa990d849b5cc7296e5728a78b7c0c71a2`) |
+| L2 genesis hash | `0xd678465005d9ba96c23dd4ff112630e5fdfac42d540d4967b77d581bc708497d` |
+| L1 anchor | mainnet block 26443400, `0x0580a495ceb198f880da6baed65ad87ae98eb88faf70b94e8332b00393c32ec5` (2026-11-18 17:19:35 UTC) |
+| Rollup config sha256 | `f0021191defc7d7a28a26e653a816b3d6f32d3443f7f4f4912d5a91b4097de0d` |
+| Sequencer window, channel timeout | 3600 L1 blocks, 300 L1 blocks |
+| Active profile | `mainnet`: a batch about every 3 minutes, an output proposal every 24 hours |
+| Contracts release, software | op-contracts/v7.0.0 with op-deployer v0.7.1 (`standard-overrides`, OPCM `0x9ce712ff84e02659846dc6450bb9b7642fe8be5d`); the same `versions.lock` as Sepolia |
+| Deployment | one transaction `0x7d8fa9b46355958ce4d663f7eef6c7f6cb4457db14acc590b8e0b64bb3a611c5`, 0.012082 ETH (`chain/mainnet/out/deployment.json`) |
+
+L1 contracts on Ethereum mainnet (`chain/mainnet/out/l1-addresses.json`):
+
+| Contract | Address |
+| --- | --- |
+| OptimismPortal (deposits, withdrawals) | `0x54ee6b884b1f7b0ef2ae3bb4805ab3dc6667aabb` |
+| L1StandardBridge | `0x1d51684ff5840b1613bd6ac5a6bd5839654071b7` |
+| L1CrossDomainMessenger | `0xa29d68e7a5073e7fa9bd7c7882158f686ffce645` |
+| SystemConfig | `0xf0961551c451a6c9b7037223f50b213e012d195f` |
+| DisputeGameFactory | `0x4aa400aa71f9658dc010dcc9cd7229bd4467536e` |
+| AnchorStateRegistry | `0x97e63e52da892c8ae335c2af75ce56a3c03ebf01` |
+| PermissionedDisputeGame implementation | `0xe1dffcbe4e22b813f26d2106d943c102e7cab87e` |
+| DelayedWETH (permissioned game) | `0x2922fc246c5d5a69576ffdfe5688937b655b8019` |
+| SuperchainConfig (shared, mainnet) | `0x95703e0982140d16f8eba6d158fccede42f04a4c` |
+
+Proof configuration as read from L1 (`manifests/onchain-mainnet-26443627.json`): respected
+game type 1 (permissioned), initial bond 0.08 ETH, proof maturity delay 7 days, dispute game
+finality delay 3.5 days, prestate op-deployer's default (`0x038512e0...d54c`) until the
+Finchain-embedding prestate is installed (`docs/mainnet.md` decision 6). Roles: owner
+`0xF8D8846e505E5478C60B57182D39f61b066cA8E2` (the same account as on Sepolia), unsafe block
+signer `0x4Ba4...E38D`, batcher `0xaEBc...7968`, proposer `0x7c2b...5bbB`, challenger
+`0xc666...2Dc7`.
 
 ## 3. Using the chain
 
@@ -320,8 +366,8 @@ op-challenger to the patch levels in `versions.lock`. The whole account is in
 | M3-B FOGA on its own: the released package run from the registry with `finchain.one` refused: help, chain table (default Sepolia), local quickstart, local genesis T0-T9, Sepolia World read; every leg passing, zero under `finchain.one` - 1.0.7 (63 connections) as the baseline, 1.0.8 (50 connections) as the version the OG on Finchain was born with, 1.0.9 (50 connections) as the version both OG services and the business loop's cells run | done 2026-11-12 (1.0.7), 2026-11-13 (1.0.8, 1.0.9) | `manifests/evidence/m3b-2026-11-12.json`, `manifests/evidence/foga-isolation-1.0.7-20261112T151124Z.json`, `manifests/evidence/foga-isolation-1.0.8-20261113T073041Z.json`, `manifests/evidence/foga-isolation-1.0.9-20261113T141222Z.json` |
 | M3-C FOGA on Finchain (optional, explicit): twelve reference implementations deployed by the released FOGA 1.0.7 from this repository's world configuration (reference World `finchain-sepolia-85422-20261113T023727Z`, completion block 61548), address book verified by host B at `finalized` (59 contracts MATCH at 61794), genesis T0-T9 on Finchain with both ZK paths (197 of 197 checks, cells as agents 3, 4 and 5), doctor all twelve covenants Pass, the OG living on Finchain as its own cell (born on 1.0.8, serving on 1.0.9 since the same day, account `0x9F76...7aD1`, agent 6, `https://og.finchain.one`) beside the unchanged Sepolia OG; the two-cell business loop at its integration stage (the OG minting tender 5, `cell-b` - joined from the registry's 1.0.9 by this repository's address book at its URL, account `0x2Dd0...15BB`, agent 7 - finding it, running the skill, submitting, accepted by the hashlock verifier, settled and paid; six transactions); the four funding lines read from 292 receipts with three fee components each and the loop's receipts FINAL at 83370 (`make fee-lines`); the run by another operator open | C-1 to C-5 done 2026-11-13 (C-4c at the integration stage); the other operator open | `manifests/evidence/m3c-2026-11-13.json`, `chain/world/finchain-sepolia.json`, `manifests/covenant-world-finchain-sepolia.json`, `manifests/evidence/world-verify-61794.json`, `manifests/evidence/foga-genesis-finchain-sepolia.json`, `manifests/evidence/foga-doctor-finchain-sepolia.json`, `manifests/evidence/og-finchain-2026-11-13.json`, `manifests/evidence/business-loop-2026-11-13.json`, `manifests/evidence/fee-lines-20261113T151307Z.json` |
 | M3 close: the reference-version manifest `finchain-sepolia/2026.11-rc1` (status `candidate`: chain, software digests, roles and shared authority, the covenant World with its 55 contracts and both blocks, the FOGA versions, the acceptance list) and finchain 0.2.0 | done 2026-11-13 | `manifests/finchain-sepolia/2026.11-rc1.json` |
-| M4 proofs and assets: resident challenger exercised, full VM dispute drill on an isolated devnet, deposit -> proof -> withdrawal end to end | next | `docs/proof-plan.md` |
-| M5 mainnet readiness: permissionless proofs, sequencer HA, Safe for the owner roles, chain id 8454 | planned | `docs/execution-brief.md` |
+| M4 proofs and assets: resident challenger exercised (2026-11-15), the kona-client prestate with Finchain embedded (K2, 2026-11-16), full VM dispute drill on an isolated devnet (K3, 2026-11-16 and -17), a Type 8 game type installed on Sepolia and one game tracked by host B's `cannon-kona` challenger (K4, 2026-11-19), deposit -> proof -> withdrawal end to end (finalize due 2026-11-21) | K1-K4 done; the withdrawal's finalize on 2026-11-21 closes M4 | `docs/proof-plan.md`, `docs/acceptance.md` |
+| M5 mainnet: L1 contracts deployed 2026-11-18, host A sequencing since; host B, public RPC, the Safe, the providers and the Finchain prestate follow (`docs/mainnet.md`) | running on one node, not announced | `docs/mainnet.md`, `chain/mainnet/`, `manifests/onchain-mainnet-26443627.json` |
 
 ### 5.5 Funding
 

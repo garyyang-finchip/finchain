@@ -1,0 +1,25 @@
+# Public JSON-RPC of Finchain mainnet (chain id 8454), served by the first stack's Caddy on host B.
+# Copy to mainnet.caddy, set the upstream to the mainnet stack's op-reth as bound on this host
+# (node-b/.env.mainnet: B_BIND_IP and B_RPC_PORT / B_WS_PORT, e.g. 100.120.188.50:18545 and :18546;
+# the container reaches the host's tailnet address), point the DNS A records at this host, then
+# reload Caddy (see ../Caddyfile). docs/mainnet.md, decision 1.
+
+rpc.mainnet.finchain.one {
+	encode gzip
+	@rpc {
+		method POST
+		path /
+	}
+	handle @rpc {
+		reverse_proxy 100.120.188.50:18545 {
+			header_up Host {upstream_hostport}
+		}
+	}
+	handle {
+		respond "Finchain JSON-RPC (chain id 8454). POST JSON-RPC requests to this URL." 200
+	}
+}
+
+ws.mainnet.finchain.one {
+	reverse_proxy 100.120.188.50:18546
+}

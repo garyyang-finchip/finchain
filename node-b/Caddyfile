@@ -28,3 +28,10 @@
 {$WS_HOST} {
 	reverse_proxy op-reth:8546
 }
+
+# Further sites served by this Caddy: one file per hostname pair under caddy-sites/ (mounted at
+# /etc/caddy/sites). A second chain on this host gets its public RPC here - the second stack runs
+# without a Caddy of its own (docs/runbook.md section 9) - from a copy of mainnet.caddy.example
+# with that stack's bound address and ports as the upstream. After adding or changing a file:
+#   docker compose -p finchain-b exec caddy caddy reload --config /etc/caddy/Caddyfile
+import /etc/caddy/sites/*.caddy

@@ -170,6 +170,8 @@ services:
       - "443:443/udp"
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      # further sites (a second chain's hostnames), one file each; see caddy-sites/README.md
+      - ./caddy-sites:/etc/caddy/sites:ro
       - caddy-data:/data
       - caddy-config:/config
 

@@ -206,7 +206,7 @@ the original layout. A second chain never shares a file, a volume or a port with
 | Host ports | the defaults (8545, 8546, 8547, 9001, 7300, 8548, 8560, p2p 9222) | the `A_*_PORT` / `B_*_PORT` variables of the host env files, which the compose files also advertise (p2p) |
 | Public endpoint used by the scripts | `PUBLIC_RPC_URL` of `.env` (`https://rpc.finchain.one`) | `PUBLIC_RPC_URL` of `.env.<name>` |
 | On-chain snapshot | `manifests/onchain-<block>.json` | `manifests/onchain-<name>-<block>.json` |
-| Caddy (80/443) | in this stack | not started (`--scale caddy=0`); the first chain's Caddy serves the second chain's hostname through a shared network, delivered with that chain's deployment |
+| Caddy (80/443) | in this stack | not started (`--scale caddy=0`); the first chain's Caddy serves the second chain's hostnames from a site file in `node-b/caddy-sites/` whose upstream is the second stack's op-reth as bound on this host (`node-b/caddy-sites/README.md`; `caddy reload`, no restart) |
 
 The sequence for a second chain is the one of `docs/handbook.md` section 4 with `CHAIN=<name>`
 on every command: `make init-env CHAIN=<name>`, edit the three env files (chain id, L1

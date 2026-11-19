@@ -1,0 +1,53 @@
+{
+  "schema": "finchain.games-extract/1",
+  "acceptance": "M4 K4: the Type 8 (CANNON_KONA) game read back from the factory on the challenger host (docs/proof-plan.md K4, Result)",
+  "environment": "public-testnet",
+  "chainId": 85422,
+  "source": "manifests/evidence/games-20261119T035052Z.json on host B: make games EXTRA_TYPES=8 at 2026-11-19T03:50:52Z over games 0 to 76; the full record (77 games) stays on the host, this file carries its header, summary and game 74 unchanged",
+  "extract": {
+    "schema": "finchain.games/1",
+    "recordedAt": "2026-11-19T03:50:52Z",
+    "l1Rpc": "https://ethereum-sepolia-rpc.publicnode.com",
+    "gameCount": 77,
+    "respectedGameType": 1,
+    "gamesRead": {
+      "from": 0,
+      "to": 76,
+      "extraTypes": [
+        8
+      ]
+    },
+    "summary": {
+      "resolved": 62,
+      "resolvedByChallenger": 58,
+      "inProgress": 15,
+      "notRespectedType": 1,
+      "note": "a game of the permissioned type with one claim and no moves resolves in favour of the root after maxClockDuration; the sender of the resolving transaction says who runs the resolver. Credit is what a party may claim after resolution (the proposer bond returns to the proposer; the challenger holds credit only where it moved); claimCredit calls come from the challenger service and show in its log."
+    },
+    "game74": {
+      "index": 74,
+      "type": 8,
+      "proxy": "0x48e0b14e6db1cfaa4c3565c64c7d508dafa07655",
+      "createdAt": 1795027716,
+      "created": "2026-11-18T18:48:36Z",
+      "l2Block": 305862,
+      "rootClaim": "0xf6ed971427f5c9795135743484a8687213205550be65b5b521c7a27b5de8706e",
+      "startingRootHash": "0x449f80942870b4bceb6d55569c8ec31fa9dda575f1585f0f78567ff3083f4b5d",
+      "startingBlockNumber": 3492,
+      "creator": "0xde49748ec95ac4eab9a12f3bc7124a469b4073b6",
+      "absolutePrestate": "0x038b60ac8db81e83cb87229ef9119b500c5723767806cb93a639d70618cad9fb",
+      "vm": "0xacc005dcd857b401e4732e6f7837135a22825cfa",
+      "status": 0,
+      "statusName": "IN_PROGRESS",
+      "resolvedAt": 0,
+      "claims": 1,
+      "moves": 0,
+      "clockEndsAt": 1795330116,
+      "resolution": null,
+      "creditWei": {
+        "creator": "0",
+        "challenger": "0"
+      }
+    }
+  }
+}

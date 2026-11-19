@@ -53,6 +53,11 @@ frequency (lowcost profile), set the initial bond lower or to zero through the D
 deployment. Setting the initial bond to zero changes only game creation; the per-move
 bonds below are unaffected.
 
+#Mainnet (chain id 8454, since 2026-11-18): the respected type's initial bond is the standard
+0.08 ETH, the DelayedWETH delay 7 days, the proposal cadence one a day (`profiles/mainnet.env`),
+so about 10.5 games and 0.84 ETH are in flight at steady state; the proposer's standing float is
+1.2 ETH, the batcher's 0.3 ETH, the challenger's 0.1 ETH (`docs/mainnet.md`, decisions 2 and 7).
+
 ### 3b. Full dispute path
 
 Every move inside a dispute posts `getRequiredBond(position)`, which grows with depth. The

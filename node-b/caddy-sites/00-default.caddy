@@ -1,0 +1,2 @@
+# Always present so that the import glob in ../Caddyfile matches at least one file.
+# Site files for further hostnames go beside it (see mainnet.caddy.example and README.md).
