@@ -8,6 +8,7 @@
 # the K2b finding). Tracking a Type 8 game needs the prestate alone; answering a dispute on one needs kona-host and an L1
 # endpoint that serves debug_getRawHeader / debug_getRawReceipts (CHALLENGER_L1_RPC_URL; public endpoints do not).
 # Nothing here changes what the public chain trusts: which game type is respected is the anchor state registry's setting.
+# The base file's optional op-challenger-extra.env (OP_CHALLENGER_* settings) applies here too: compose merges env_file lists.
 services:
   op-challenger:
     environment:

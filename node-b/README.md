@@ -14,7 +14,11 @@ Inputs:
 
 - `../chain/out/genesis.json`, `../chain/out/rollup.json`
 - `secrets/jwt.txt`, `secrets/p2p-node-key.txt`, `secrets/op-challenger.env`
-  (from `make install-bundle-b`)
+  (from `make install-bundle-b`); optionally `secrets/op-challenger-extra.env` with
+  `OP_CHALLENGER_*` settings the operator adds by hand, one per line - for example
+  `OP_CHALLENGER_ADDITIONAL_BOND_CLAIMANTS=<proposer address>`, which makes the bond claimer
+  return the proposer's bonds after each game as well as its own credit
+  (`docs/funding-model.md` section 3a); `make restart-b SVC=op-challenger` applies it
 - `.env`: `B_BIND_IP`, `P2P_ADVERTISE_IP` (public IP), `P2P_STATIC_PEERS` (host A),
   `SEQUENCER_HTTP` (host A's execution RPC over the private network), L1 endpoints
   (a different provider than host A), `DISPUTE_GAME_FACTORY`, hostnames, `ACME_EMAIL`

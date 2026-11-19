@@ -57,6 +57,15 @@ bonds below are unaffected.
 0.08 ETH, the DelayedWETH delay 7 days, the proposal cadence one a day (`profiles/mainnet.env`),
 so about 10.5 games and 0.84 ETH are in flight at steady state; the proposer's standing float is
 1.2 ETH, the batcher's 0.3 ETH, the challenger's 0.1 ETH (`docs/mainnet.md`, decisions 2 and 7).
+A bond comes back only when someone calls `claimCredit(proposer)` on the resolved game after the
+delay; op-proposer never does, and op-challenger's bond claimer claims only for its own account
+unless told otherwise. On host B's mainnet stack the claimer is given the proposer as an
+additional claimant (`OP_CHALLENGER_ADDITIONAL_BOND_CLAIMANTS` in
+`node-b/secrets.mainnet/op-challenger-extra.env`), so the float revolves on its own; without it
+the bonds sit in DelayedWETH as credit until claimed by hand. The bond float is operating
+capital, not spend: what the chain consumes is gas (deployment 0.012 ETH; batcher, proposer and
+challenger together about 0.015-0.02 ETH a day at 1 gwei), and the float returns in full once the
+chain stops proposing and its last game has resolved and matured.
 
 ### 3b. Full dispute path
 

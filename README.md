@@ -7,7 +7,7 @@ native runtime environment for FOGA (Finch OG Agent).
 
 The first public network is **Finchain Sepolia**, settled on Ethereum Sepolia. **Finchain
 mainnet** (chain id 8454) is a separate deployment with its own genesis on Ethereum mainnet,
-running since 2026-11-18 and not yet announced as live (`docs/mainnet.md`). `docs/handbook.md` is the
+running on both hosts since 2026-11-19 and not yet announced as live (`docs/mainnet.md`). `docs/handbook.md` is the
 reader's entry point: chain facts, wallet and developer use, running a verifier node,
 how the chain was built.
 
@@ -78,14 +78,16 @@ The full procedure, with expected outputs and acceptance checks, is in
 
 ## Status
 
-v0.3.0-alpha.25: **Finchain mainnet (chain id 8454) is deployed on Ethereum mainnet and running on
-host A** since 2026-11-18 (`docs/mainnet.md`: L1 contracts in one transaction at block 26443400,
+v0.3.0-alpha.26: **Finchain mainnet (chain id 8454) is deployed on Ethereum mainnet and running on
+both hosts** (`docs/mainnet.md`: L1 contracts in one transaction at block 26443400 on 2026-11-18,
 0.012 ETH; L2 genesis `0xd678...497d`; `chain/mainnet/` is the chain record,
-`manifests/onchain-mainnet-26443627.json` the first snapshot; `make up-a CHAIN=mainnet
-PROFILE=mainnet` sequences, batches and proposes once a day). Host B's mainnet stack, the public
-RPC `rpc.mainnet.finchain.one` (`node-b/caddy-sites/`), the Safe, the paid L1 providers and the
-Finchain-embedding prestate follow; until then the mainnet is not announced as live and nothing
-should be bridged to it. M4 on Sepolia: K1-K4 done on the kona-client route (`docs/proof-plan.md`:
+`manifests/onchain-mainnet-26443627.json` the first snapshot; host A sequencing, batching and
+proposing once a day since 2026-11-18, `make up-a CHAIN=mainnet PROFILE=mainnet`; host B deriving
+from L1 with its challenger since 2026-11-19, `make up-b CHAIN=mainnet`, and the public RPC
+`https://rpc.mainnet.finchain.one` served by the first stack's Caddy (`node-b/caddy-sites/`) -
+`manifests/evidence/mainnet-start-2026-11-19.json`). The Safe as owner, a mainnet withdrawal
+cycle, the paid L1 providers and the Finchain-embedding prestate follow; until then the mainnet is
+not announced as live and nothing should be bridged to it. M4 on Sepolia: K1-K4 done on the kona-client route (`docs/proof-plan.md`:
 the op-program client cannot follow the current Sepolia L1, its prestate `0x03e76631...5af1` is
 superseded; `make kona-check` validated Finchain's registry files against the kona-registry crate
 on two hosts (K1); `make prestate` built the kona-client prestate with Finchain embedded on

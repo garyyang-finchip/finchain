@@ -128,6 +128,11 @@ services:
     env_file:
       - path: ${SECRETS_DIR:-./secrets}/op-challenger.env
         required: false   # created by make secrets-*/install-bundle-b; preflight warns when missing
+      # optional operator settings as OP_CHALLENGER_* variables, one per line, e.g.
+      # OP_CHALLENGER_ADDITIONAL_BOND_CLAIMANTS=<proposer address> so that the bond claimer also returns the
+      # proposer's bonds after each game (docs/funding-model.md section 3a); flags on the command line win
+      - path: ${SECRETS_DIR:-./secrets}/op-challenger-extra.env
+        required: false
     volumes:
       - challenger-data:/data
       - ${CHAIN_OUT:-../chain/out}:/chain:ro

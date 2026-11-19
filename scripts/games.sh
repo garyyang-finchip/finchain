@@ -27,6 +27,14 @@ if [ -z "$L1" ]; then
 fi
 [ -n "$L1" ] || die "no L1 RPC: pass it as the first argument or set L1_RPC_URL"
 L1_LABEL="$(rpc_label "$L1")"   # what is printed and recorded: scheme and host, never a provider path or key
+# the endpoint must be the chain's L1: a second chain's env is a copy of the example until edited, and an answer of
+# "0x" from the wrong L1 is otherwise mistaken for a revert (docs/runbook.md section 9)
+l1_want="$(grep -E '^L1_CHAIN_ID=' "$FINCHAIN_ROOT/.env$ENV_SUFFIX" 2>/dev/null | tail -1 | cut -d= -f2- | tr -d '"' || true)"
+if [ -n "$l1_want" ]; then
+  l1_got="$(rpc "$L1" eth_chainId '[]' 2>/dev/null | jq -r '.result // empty' 2>/dev/null || true)"
+  [ -n "$l1_got" ] || die "$L1_LABEL did not answer eth_chainId"
+  [ "$((l1_got))" = "$((l1_want))" ] || die "$L1_LABEL is L1 chain $((l1_got)), but CHAIN=$CHAIN settles on L1 chain $l1_want (.env$ENV_SUFFIX): pass the right endpoint (L1_RPC_URL=...)"
+fi
 LAST="${2:-all}"
 REC="$CHAIN_DIR/out/chain-record.json"; [ -f "$REC" ] || die "chain record not found: $REC (CHAIN=$CHAIN; make export first)"
 DGF="$(jq -r '.l1.DisputeGameFactoryProxy // empty' "$REC")"; PORTAL="$(jq -r '.l1.OptimismPortalProxy // empty' "$REC")"

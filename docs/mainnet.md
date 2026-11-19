@@ -1,6 +1,6 @@
 # Mainnet plan (M5)
 
-Status: **deployed and running on host A** since 2026-11-18. The L1 contracts of Finchain
+Status: **deployed and running on both hosts, public RPC up** (2026-11-19). The L1 contracts of Finchain
 (chain id 8454) were deployed on Ethereum mainnet on 2026-11-18 at L1 block 26443400 in one
 transaction from the deployer (`0x7d8fa9b4...a611c5`, 10,659,717 gas limit, 0.012082 ETH at
 1.36 gwei; op-deployer live mode, mainnet not yet under Glamsterdam rules), the L2 genesis
@@ -10,10 +10,13 @@ been sequencing, batching to mainnet and proposing since about 18:05 UTC the sam
 chain record is `chain/mainnet/` (`deployer/intent.toml`, `deployer/state.json`, `out/`) and
 the on-chain snapshot `manifests/onchain-mainnet-26443627.json` (respected game type 1, initial
 bond 0.08 ETH, owner `0xF8D8...A8E2`, proof maturity 7 days, finality delay 3.5 days). Host B's
-mainnet stack waits for host B's memory (section 3): E05 is a t3.medium, which cannot hold a
-second op-reth, op-node and challenger beside the Sepolia stack, and the owner resizes it to
-t3.large once its other work is done. Until then the mainnet has one node, no public RPC and no
-resolver for its proposals (the challenger comes with host B; games resolve late, not wrongly).
+mainnet stack (`finchain-mainnet-b` on E05, resized to t3.large that morning because a t3.medium
+cannot hold a second op-reth, op-node and challenger beside the Sepolia stack) started on
+2026-11-19 at 08:56 UTC, derived the chain from L1 and caught up with host A in 38 minutes, with
+the challenger tracking the first game; `https://rpc.mainnet.finchain.one` answers through the
+first stack's Caddy since 09:00 UTC the same day - `manifests/evidence/mainnet-start-2026-11-19.json`
+is the record, the Sepolia stack's containers included (nothing of it restarted for the mainnet).
+The chain is not yet called live: the gates of section 4.
 
 What was decided on 2026-11-13: chain id 8454; ETH pays gas and FCT is a governance and utility
 token; the mainnet runs on the same two hosts as Finchain Sepolia, as a second stack on each
@@ -69,12 +72,15 @@ first chain's files, volumes or ports. Status per step (2026-11-19):
 4. Host A done 2026-11-18: `make secrets-a CHAIN=mainnet`, `make fund-roles CHAIN=mainnet
    ROLES="batcher=0.1 proposer=0.15"`, `make up-a CHAIN=mainnet PROFILE=mainnet`
    (`profiles/mainnet.env`: steady batching, one proposal a day); the unsafe head was at #2288
-   and the safe head at #2209 forty minutes later, the finalized head following L1 finality.
-   Host B pending the resize of E05 (section 3): `make bundle-b CHAIN=mainnet` on host A, the
-   bundle moved once as for Sepolia, `make install-bundle-b CHAIN=mainnet`, `make up-b
-   CHAIN=mainnet` (Caddy stays with the first stack), the mainnet site file for the first
-   stack's Caddy, the DNS records of decision 1, `P2P_STATIC_PEERS` and `SEQUENCER_HTTP` at the
-   mainnet ports on both hosts (`make peers-a CHAIN=mainnet`), the non-interference record.
+   and the safe head at #2209 forty minutes later, the finalized head following L1 finality; the
+   proposer created game 0 at 18:29:59 UTC. Host B done 2026-11-19 after the resize of E05
+   (section 3): `make bundle-b CHAIN=mainnet` on host A, the bundle moved once as for Sepolia,
+   `make init-env CHAIN=mainnet` and the two env files on host B (`P2P_STATIC_PEERS` from `make
+   peers-a CHAIN=mainnet`, at the mainnet p2p port 9223; `SEQUENCER_HTTP` at port 18545),
+   `make install-bundle-b CHAIN=mainnet`, `make up-b CHAIN=mainnet` (Caddy stays with the first
+   stack), the mainnet site file for the first stack's Caddy (`node-b/caddy-sites/mainnet.caddy`,
+   one `make restart-b SVC=caddy`), the DNS records of decision 1; the non-interference record is
+   part of `manifests/evidence/mainnet-start-2026-11-19.json`.
 5. Partly done: `make verify-onchain CHAIN=mainnet BLOCK=26443627`
    (`manifests/onchain-mainnet-26443627.json`; the deployment block itself is an archive read
    publicnode does not serve without a token), the initial bond and the owner verified. `make
@@ -138,7 +144,8 @@ No mainnet container is started until that record exists for the dry run.
   then anyway, decision 6); and the standard bond schedule asks the honest side of one
   full-depth game for about 330 ETH until resolution (decision 2's bond line, `docs/funding-model.md`).
 - The two-chain layout proven on the Sepolia hosts without touching the first chain (the
-  non-interference record above): host A done 2026-11-18, host B with its mainnet stack.
+  non-interference record above): done, host A 2026-11-18 and host B 2026-11-19
+  (`manifests/evidence/mainnet-start-2026-11-19.json`).
 - The Safe in place as owner (decision 4, now an ownership transfer); the funding table funded,
   including the bond cycle and the reserve; the L1 providers under contract and serving the
   debug methods (decision 3, now a later step; publicnode carries the launch).

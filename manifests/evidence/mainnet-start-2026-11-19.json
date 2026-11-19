@@ -1,0 +1,164 @@
+{
+  "schema": "finchain.mainnet-start/1",
+  "acceptance": "M5: Finchain mainnet (chain id 8454) running on both hosts beside Finchain Sepolia, with the public RPC answering - the two-chain layout in operation (docs/mainnet.md sections 2 and 3)",
+  "environment": "mainnet",
+  "chainId": 8454,
+  "recordedAt": "2026-11-19T09:34:00Z",
+  "deployment": {
+    "l1Block": 26443400,
+    "transaction": "0x7d8fa9b46355958ce4d663f7eef6c7f6cb4457db14acc590b8e0b64bb3a611c5",
+    "deployerSpentEth": 0.012082,
+    "record": "chain/mainnet/out/deployment.json",
+    "snapshot": "manifests/onchain-mainnet-26443627.json"
+  },
+  "hostA": {
+    "host": "the Mac mini, the same machine as Finchain Sepolia's host A",
+    "project": "finchain-mainnet-a",
+    "startedAt": "2026-11-18T18:05Z (approximately; first status at unsafe head 1290)",
+    "profile": "mainnet (profiles/mainnet.env: steady batching, one proposal a day)",
+    "ports": {
+      "rpc": 18545,
+      "ws": 18546,
+      "nodeRpc": 18547,
+      "p2p": 9223
+    },
+    "observations": [
+      {
+        "at": "2026-11-18T18:28Z",
+        "unsafe": 1846,
+        "safe": 1795,
+        "finalized": 0,
+        "l1Head": 26443706,
+        "l1Finalized": 26443596
+      },
+      {
+        "at": "2026-11-19T03:30Z",
+        "unsafe": 18304,
+        "safe": 18211,
+        "finalized": 17671,
+        "l1Head": 26446442,
+        "l1Finalized": 26446343
+      }
+    ],
+    "firstGame": {
+      "index": 0,
+      "proxy": "0xaed62d9112099cb03a3062d27afea1877343c12f",
+      "gameType": 1,
+      "l2Block": 1489,
+      "created": "2026-11-18T18:29:59Z",
+      "clockEndsAt": "2026-11-22T06:29:59Z",
+      "bondEth": 0.08,
+      "status": "IN_PROGRESS at 2026-11-19T09:33:49Z"
+    },
+    "hotRoleBalancesEth": {
+      "at": "2026-11-19T07:10Z",
+      "batcher": 0.288,
+      "proposer": 1.1199,
+      "challenger": 0.1005,
+      "deployer": 0.0379,
+      "note": "topped up from the owner's wallet to 0.3 / 1.2 / 0.1; the proposer's 0.08 is the bond of game 0, the batcher's spend is one day of calldata batches"
+    }
+  },
+  "hostB": {
+    "host": "E05, the same instance as Finchain Sepolia's host B, resized from t3.medium to t3.large (8 GB) on 2026-11-19 before this stack started",
+    "project": "finchain-mainnet-b",
+    "startedAt": "2026-11-19T08:56Z",
+    "ports": {
+      "rpc": 18545,
+      "ws": 18546,
+      "nodeRpc": 18547,
+      "p2p": 9223
+    },
+    "staticPeer": "/ip4/100.89.247.8/tcp/9223/p2p/16Uiu2HAkzhS7C2J3AfuiSXuCsopYjAdSfhGVw2Gv262vZMmR2GqP",
+    "observations": [
+      {
+        "at": "2026-11-19T08:58Z",
+        "unsafe": 1592,
+        "safe": 1592,
+        "finalized": 0,
+        "l1Head": 26448075,
+        "peers": 1,
+        "note": "deriving from L1 since genesis"
+      },
+      {
+        "at": "2026-11-19T09:34Z",
+        "unsafe": 29226,
+        "safe": 29185,
+        "finalized": 28602,
+        "l1Head": 26448255,
+        "l1Finalized": 26448157,
+        "peers": 1,
+        "note": "caught up with host A within 38 minutes; unsafe from host A's gossip, safe and finalized from L1"
+      }
+    ],
+    "challenger": {
+      "traceTypes": [
+        "permissioned"
+      ],
+      "errorsLast30Min": 0,
+      "tracks": "game 0; resolves it after its clock (the first mainnet resolution expected 2026-11-22T06:30Z)"
+    }
+  },
+  "publicRpc": {
+    "at": "2026-11-19T09:00Z",
+    "servedBy": "the first stack's Caddy on host B (node-b/caddy-sites/mainnet.caddy), certificates obtained from Let's Encrypt for rpc.mainnet.finchain.one and ws.mainnet.finchain.one",
+    "checks": [
+      {
+        "host": "rpc.finchain.one",
+        "eth_chainId": "0x14dae"
+      },
+      {
+        "host": "rpc.mainnet.finchain.one",
+        "eth_chainId": "0x2106"
+      }
+    ]
+  },
+  "nonInterference": {
+    "containersAt": "2026-11-19T09:34Z",
+    "sepoliaStack": [
+      {
+        "name": "finchain-b-op-reth-1",
+        "status": "Up about an hour (since the resize restart)"
+      },
+      {
+        "name": "finchain-b-op-node-1",
+        "status": "Up about an hour"
+      },
+      {
+        "name": "finchain-b-op-challenger-1",
+        "status": "Up about an hour"
+      },
+      {
+        "name": "finchain-b-caddy-1",
+        "status": "Up 34 minutes (recreated once, deliberately, for the caddy-sites mount)"
+      }
+    ],
+    "mainnetStack": [
+      {
+        "name": "finchain-mainnet-b-op-reth-1",
+        "status": "Up 37 minutes"
+      },
+      {
+        "name": "finchain-mainnet-b-op-node-1",
+        "status": "Up 37 minutes"
+      },
+      {
+        "name": "finchain-mainnet-b-op-challenger-1",
+        "status": "Up 37 minutes"
+      }
+    ],
+    "sepoliaHeadsAfter": {
+      "at": "2026-11-19T08:45Z",
+      "unsafe": 330914,
+      "safe": 330876,
+      "finalized": 330264,
+      "note": "Finchain Sepolia's host B kept deriving through the mainnet stack's start; the Sepolia K4 game (#74) kept being tracked by its challenger"
+    },
+    "reading": "the mainnet stack's start did not restart or stall the Sepolia stack; the one Sepolia restart of the day was the instance resize, before the mainnet stack, and the Caddy recreate was the planned change for the shared ingress"
+  },
+  "openAfterThisRecord": [
+    "security group rule for p2p port 9223 (third-party verifiers)",
+    "the proposer as an additional bond claimant on host B's mainnet challenger",
+    "the gates of docs/mainnet.md section 4 before the chain is called live: the Safe as owner, a mainnet deposit -> proof -> withdrawal cycle, the Finchain-embedding prestate for 8454, paid L1 providers, the manifest and registry entry"
+  ]
+}
