@@ -1,0 +1,48 @@
+{
+  "schema": "finchain.kona-host/1",
+  "acceptance": "M4 K2: kona-host built with the chain in its registry, the host side of the cannon-kona path (docs/proof-plan.md K2; drill/kona-host-wrapper.sh)",
+  "environment": "build",
+  "recordedAt": "2026-11-19T11:43:41Z",
+  "chainId": 8454,
+  "source": {
+    "repository": "https://github.com/ethereum-optimism/optimism",
+    "tag": "kona-client/v1.9.0",
+    "commit": "1286a886f0853e07503b46c2d6233b6a2f623286",
+    "crate": "kona-host 1.0.2",
+    "recipe": "cargo build --locked --release --bin kona-host, RUSTFLAGS=-C target-cpu=generic, KONA_CUSTOM_CONFIGS_DIR of K1 (the image builds the same binary with --profile release-perf)",
+    "toolchain": "rustc 1.95.0 (rust:1.95)",
+    "cargo": "docker",
+    "jobs": 2
+  },
+  "binary": {
+    "file": "drill/out/bin/kona-host-finchain-8454-kona-client-v1.9.0",
+    "sha256": "0e051ce25ab9300ff9dbc210b223e1964da395710836c013574324933bff7f19",
+    "bytes": 38688088,
+    "arch": "x86_64",
+    "reportsVersion": "kona-host 1.0.2",
+    "runsIn": "us-docker.pkg.dev/oplabs-tools-artifacts/images/op-challenger:v1.9.6@sha256:4f01ba7d5f4e58d771534522e5624ab3e6e200d8be619a17e1b04c47548bdb93"
+  },
+  "embedded": {
+    "identifier": "mainnet/finchain",
+    "chainList": {
+      "sha256": "5a53e1fc878cf21c2033357906d83b707606169695d4f5a173ed047e9e762e81"
+    },
+    "configs": {
+      "sha256": "b33d96adc5c4336d54d3d29c11c1a0301cc0fad244db31b421963ad6f4d1849c"
+    },
+    "depsets": {
+      "sha256": "f03f41d2edb95fc3d4586847f1588bd5d64e62dbc28f052ee9dcc0b7cdaaea79"
+    },
+    "check": {
+      "method": "the binary is searched for the embedded registry text",
+      "identifierField": {
+        "found": 1
+      },
+      "chainIdField": {
+        "found": 1
+      },
+      "result": "PASS"
+    }
+  },
+  "use": "mounted into the op-challenger container by drill/run-trace.sh behind drill/kona-host-wrapper.sh (--l2-chain-id instead of --rollup-config-path); the same pair is what a cannon-kona challenger for this chain needs"
+}

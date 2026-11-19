@@ -1,0 +1,71 @@
+{
+  "schema": "finchain.prestate/2",
+  "acceptance": "M4 K2: kona-client prestate embeds Finchain configuration - hash recorded, embedding verified (docs/acceptance.md M4; docs/proof-plan.md K2)",
+  "environment": "build",
+  "recordedAt": "2026-11-19T11:03:47Z",
+  "chainId": 8454,
+  "prover": "kona",
+  "source": {
+    "repository": "https://github.com/ethereum-optimism/optimism",
+    "tag": "kona-client/v1.9.0",
+    "commit": "1286a886f0853e07503b46c2d6233b6a2f623286",
+    "recipe": "just reproducible-prestate-kona",
+    "dockerfile": "rust/kona/docker/fpvm-prestates/cannon-repro.dockerfile",
+    "stateType": "multithreaded64-5 (Cannon64 for the MIPS64 VM)",
+    "cargoBuildJobs": "1"
+  },
+  "prestate": {
+    "variant": "kona-client (prestate-artifacts-cannon)",
+    "hash": "0x03f1d952437b64614622d35656242d6149ad8552386f73f6ca4369c2f25ab685",
+    "file": "drill/out/prestates/0x03f1d952437b64614622d35656242d6149ad8552386f73f6ca4369c2f25ab685.bin.gz",
+    "proof": "drill/out/prestates/0x03f1d952437b64614622d35656242d6149ad8552386f73f6ca4369c2f25ab685.json",
+    "bytesGz": 1856337,
+    "proofStep": "0"
+  },
+  "interopVariant": {
+    "name": "kona-client-int (prestate-artifacts-cannon-interop)",
+    "hash": "0x03dfdb3be8b61b0b4e3548a5cd56a42a5ea635d6c94b6a9344178c2a8c180ba5",
+    "note": "built by the same recipe; not used by Finchain"
+  },
+  "embedded": {
+    "method": "KONA_CUSTOM_CONFIGS_DIR merged into the kona-registry crate at build time (drill/kona-configs.sh, K1)",
+    "identifier": "mainnet/finchain",
+    "directory": "/home/ec2-user/finchip/finch/finchain/drill/work/kona-configs-8454",
+    "chainList": {
+      "sha256": "5a53e1fc878cf21c2033357906d83b707606169695d4f5a173ed047e9e762e81"
+    },
+    "configs": {
+      "sha256": "b33d96adc5c4336d54d3d29c11c1a0301cc0fad244db31b421963ad6f4d1849c"
+    },
+    "depsets": {
+      "sha256": "f03f41d2edb95fc3d4586847f1588bd5d64e62dbc28f052ee9dcc0b7cdaaea79"
+    },
+    "rollupSha256": "e22ad39bee57169d64c9b1b8e2a7e13264993cd9df577691c92095e2676c5e8c",
+    "genesisSha256": "d6f8117a3948afdf2a1d18f154c47de98804e5d6e2d833b265c91bc47ed0e695"
+  },
+  "embeddingCheck": {
+    "method": "the decompressed VM memory image is searched for the embedded registry text",
+    "l2GenesisHash": {
+      "value": "0xd678465005d9ba96c23dd4ff112630e5fdfac42d540d4967b77d581bc708497d",
+      "found": 1
+    },
+    "l1GenesisHash": {
+      "value": "0x0580a495ceb198f880da6baed65ad87ae98eb88faf70b94e8332b00393c32ec5",
+      "found": 1
+    },
+    "chainIdField": {
+      "found": 1
+    },
+    "identifierField": {
+      "found": 1
+    },
+    "result": "PASS"
+  },
+  "upstreamReproduction": null,
+  "builder": {
+    "docker": "25.0.14",
+    "just": "1.59.0",
+    "arch": "x86_64"
+  },
+  "use": "run-trace with --trace-type cannon-kona and --run cannon-kona/finchain/file:<prestate> (K2); the CANNON_KONA (8) game implementation of the devnet drill (K3); the public chain only after K4 and a separate decision"
+}
