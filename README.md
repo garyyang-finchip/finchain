@@ -78,18 +78,22 @@ The full procedure, with expected outputs and acceptance checks, is in
 
 ## Status
 
-v0.3.0-alpha.28: **Finchain mainnet (chain id 8454) is deployed on Ethereum mainnet and running on
+v0.3.0-alpha.31: **Finchain mainnet (chain id 8454) is deployed on Ethereum mainnet and running on
 both hosts** (`docs/mainnet.md`: L1 contracts in one transaction at block 26443400 on 2026-11-18,
 0.012 ETH; L2 genesis `0xd678...497d`; `chain/mainnet/` is the chain record,
 `manifests/onchain-mainnet-26443627.json` the first snapshot; host A sequencing, batching and
 proposing once a day since 2026-11-18, `make up-a CHAIN=mainnet PROFILE=mainnet`; host B deriving
 from L1 with its challenger since 2026-11-19, `make up-b CHAIN=mainnet`, and the public RPC
 `https://rpc.mainnet.finchain.one` served by the first stack's Caddy (`node-b/caddy-sites/`) -
-`manifests/evidence/mainnet-start-2026-11-19.json`). A mainnet withdrawal cycle (initiated
-2026-11-19), the paid L1 providers and the Finchain-embedding prestate (built for 8454 on
-2026-11-19, `0x03f1d952...b685`, to be installed as game type 8 with `owner-console.html`, which
-now serves both chains) follow; the Safe comes at a later milestone by the owner's ruling; until
-then the mainnet is not announced as live and nothing should be bridged to it. M4 on Sepolia: K1-K4 done on the kona-client route (`docs/proof-plan.md`:
+`manifests/evidence/mainnet-start-2026-11-19.json`). The Finchain-embedding prestate for 8454
+(`0x03f1d952...b685`, built 2026-11-19 with the K2 pipeline, `manifests/evidence/prestate-8454-*.json`)
+is installed as game type 8 since the same day, by the owner with `owner-console.html` (which now
+serves both chains) and read back by `make k4-readiness CHAIN=mainnet`
+(`manifests/evidence/mainnet-type8-install-2026-11-19.json`), host B's challenger playing it with
+`cannon-kona`; a mainnet withdrawal cycle (initiated 2026-11-19), the first Type 8 game (after the
+anchor leaves the placeholder, 2026-11-25) and the paid L1 providers follow; the Safe comes at a
+later milestone by the owner's ruling; until then the mainnet is not announced as live and nothing
+should be bridged to it. M4 on Sepolia: K1-K4 done on the kona-client route (`docs/proof-plan.md`:
 the op-program client cannot follow the current Sepolia L1, its prestate `0x03e76631...5af1` is
 superseded; `make kona-check` validated Finchain's registry files against the kona-registry crate
 on two hosts (K1); `make prestate` built the kona-client prestate with Finchain embedded on

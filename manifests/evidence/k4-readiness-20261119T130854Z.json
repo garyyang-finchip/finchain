@@ -1,0 +1,195 @@
+{
+  "schema": "finchain.k4-readiness/1",
+  "acceptance": "M4 K4: minimal integration check against the public chain - what a Type 8 (CANNON_KONA) implementation needs there, read back from the chain and the challenger host; the respected game type unchanged (docs/acceptance.md M4; docs/proof-plan.md K4)",
+  "environment": "mainnet",
+  "chainId": 8454,
+  "recordedAt": "2026-11-19T13:08:54Z",
+  "l1Rpc": "https://ethereum-rpc.publicnode.com",
+  "host": {
+    "name": "ip-172-31-27-236.us-east-2.compute.internal",
+    "challengerHost": true,
+    "cores": 2,
+    "memoryGb": 7,
+    "freeDiskGb": 139
+  },
+  "factory": {
+    "address": "0x4aa400aa71f9658dc010dcc9cd7229bd4467536e",
+    "version": "1.6.1",
+    "owner": "0xf8d8846e505e5478c60b57182d39f61b066ca8e2",
+    "gameCount": 1,
+    "gameType1": {
+      "implementation": "0xe1dffcbe4e22b813f26d2106d943c102e7cab87e",
+      "initBondWei": "80000000000000000",
+      "args": {
+        "bytes": 164,
+        "absolutePrestate": "0x038512e02c4c3f7bdaec27d00edf55b7155e0905301e1a88083e4e0a6764d54c",
+        "vm": "0xacc005dcd857b401e4732e6f7837135a22825cfa",
+        "anchorStateRegistry": "0x97e63e52da892c8ae335c2af75ce56a3c03ebf01",
+        "weth": "0x2922fc246c5d5a69576ffdfe5688937b655b8019",
+        "l2ChainId": 8454,
+        "proposer": "0x7c2b388303cebae84ad3448057e074f2b2a65bbb",
+        "challenger": "0xc666b76daa39016bf4eeaa213deb58e612a92dc7"
+      },
+      "argsHex": "0x038512e02c4c3f7bdaec27d00edf55b7155e0905301e1a88083e4e0a6764d54cacc005dcd857b401e4732e6f7837135a22825cfa97e63e52da892c8ae335c2af75ce56a3c03ebf012922fc246c5d5a69576ffdfe5688937b655b801900000000000000000000000000000000000000000000000000000000000021067c2b388303cebae84ad3448057e074f2b2a65bbbc666b76daa39016bf4eeaa213deb58e612a92dc7"
+    },
+    "gameTypeTarget": {
+      "gameType": 8,
+      "implementation": "0x2dda3584b51ef5236f7726dea5a0fb6b3ca94aec",
+      "initBondWei": "80000000000000000",
+      "args": {
+        "bytes": 124,
+        "absolutePrestate": "0x03f1d952437b64614622d35656242d6149ad8552386f73f6ca4369c2f25ab685",
+        "vm": "0xacc005dcd857b401e4732e6f7837135a22825cfa",
+        "anchorStateRegistry": "0x97e63e52da892c8ae335c2af75ce56a3c03ebf01",
+        "weth": "0x2922fc246c5d5a69576ffdfe5688937b655b8019",
+        "l2ChainId": 8454
+      },
+      "argsHex": "0x03f1d952437b64614622d35656242d6149ad8552386f73f6ca4369c2f25ab685acc005dcd857b401e4732e6f7837135a22825cfa97e63e52da892c8ae335c2af75ce56a3c03ebf012922fc246c5d5a69576ffdfe5688937b655b80190000000000000000000000000000000000000000000000000000000000002106",
+      "installed": true,
+      "argsMatchPlan": true
+    }
+  },
+  "anchorStateRegistry": {
+    "address": "0x97e63e52da892c8ae335c2af75ce56a3c03ebf01",
+    "version": "3.9.0",
+    "respectedGameType": 1,
+    "respectedGameTypeAtPortal": 1,
+    "anchorRoot": "0xdead000000000000000000000000000000000000000000000000000000000000",
+    "anchorL2Block": 0,
+    "leftPlaceholder": false,
+    "disputeGameFinalityDelaySeconds": 302400
+  },
+  "portal": {
+    "address": "0x54ee6b884b1f7b0ef2ae3bb4805ab3dc6667aabb",
+    "proofMaturityDelaySeconds": 604800
+  },
+  "implementation": {
+    "address": "0x2dda3584b51ef5236f7726dea5a0fb6b3ca94aec",
+    "version": "2.4.2",
+    "maxGameDepth": 73,
+    "splitDepth": 30,
+    "clockExtension": 10800,
+    "maxClockDuration": 302400,
+    "permissionedImplementation": {
+      "address": "0xe1dffcbe4e22b813f26d2106d943c102e7cab87e",
+      "version": "2.4.0"
+    },
+    "note": "the shared FaultDisputeGame implementation; a game type is this implementation plus the arguments the factory stores for it"
+  },
+  "vm": {
+    "address": "0xacc005dcd857b401e4732e6f7837135a22825cfa",
+    "version": "1.10.1",
+    "stateVersion": 8,
+    "preimageOracle": {
+      "address": "0x1e1d73536a081ef2f355d29794547a9770aeb1e0",
+      "version": "1.1.5",
+      "challengePeriod": 86400,
+      "minProposalSize": 126000
+    }
+  },
+  "weth": {
+    "address": "0x2922fc246c5d5a69576ffdfe5688937b655b8019",
+    "delaySeconds": 302400
+  },
+  "prestate": {
+    "record": "manifests/evidence/prestate-8454-20261119T105453Z.json",
+    "hash": "0x03f1d952437b64614622d35656242d6149ad8552386f73f6ca4369c2f25ab685",
+    "tag": "kona-client/v1.9.0",
+    "stateType": "multithreaded64-5 (Cannon64 for the MIPS64 VM)",
+    "file": "drill/out/prestates/0x03f1d952437b64614622d35656242d6149ad8552386f73f6ca4369c2f25ab685.bin.gz",
+    "proof": "drill/out/prestates/0x03f1d952437b64614622d35656242d6149ad8552386f73f6ca4369c2f25ab685.json",
+    "presentOnThisHost": true,
+    "fileSha256": "0b2136c00bedb266723120b63abe674e4b9d72ced6931305d8afa13e412f86dc",
+    "proofPresentOnThisHost": true
+  },
+  "konaHost": {
+    "record": "manifests/evidence/kona-host-8454-20261119T113826Z.json",
+    "file": "drill/out/bin/kona-host-finchain-8454-kona-client-v1.9.0",
+    "recordSha256": "0e051ce25ab9300ff9dbc210b223e1964da395710836c013574324933bff7f19",
+    "presentOnThisHost": true,
+    "sha256OnThisHost": "0e051ce25ab9300ff9dbc210b223e1964da395710836c013574324933bff7f19",
+    "matchesRecord": true,
+    "wrapperPresent": true
+  },
+  "install": {
+    "gameType": 8,
+    "implementation": "0x2dda3584b51ef5236f7726dea5a0fb6b3ca94aec",
+    "argsHex": "0x03f1d952437b64614622d35656242d6149ad8552386f73f6ca4369c2f25ab685acc005dcd857b401e4732e6f7837135a22825cfa97e63e52da892c8ae335c2af75ce56a3c03ebf012922fc246c5d5a69576ffdfe5688937b655b80190000000000000000000000000000000000000000000000000000000000002106",
+    "argsLayout": "absolutePrestate(32) vm(20) anchorStateRegistry(20) weth(20) l2ChainId(32) - op-challenger gameargs.PackPermissionless, 124 bytes",
+    "transactions": [
+      {
+        "call": "setImplementation(8, 0x2dda3584b51ef5236f7726dea5a0fb6b3ca94aec, args)",
+        "to": "0x4aa400aa71f9658dc010dcc9cd7229bd4467536e",
+        "value": "0",
+        "calldata": "0xb107095700000000000000000000000000000000000000000000000000000000000000080000000000000000000000002dda3584b51ef5236f7726dea5a0fb6b3ca94aec0000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000007c03f1d952437b64614622d35656242d6149ad8552386f73f6ca4369c2f25ab685acc005dcd857b401e4732e6f7837135a22825cfa97e63e52da892c8ae335c2af75ce56a3c03ebf012922fc246c5d5a69576ffdfe5688937b655b8019000000000000000000000000000000000000000000000000000000000000210600000000"
+      },
+      {
+        "call": "setInitBond(8, 80000000000000000)",
+        "to": "0x4aa400aa71f9658dc010dcc9cd7229bd4467536e",
+        "value": "0",
+        "calldata": "0x1e3342400000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000011c37937e080000"
+      }
+    ],
+    "sender": "the factory owner, signed in the browser wallet (owner-console.html); the respected game type is not touched",
+    "initBondWei": "80000000000000000"
+  },
+  "challengerHostChecks": {
+    "challengerL1Rpc": "https://ethereum-rpc.publicnode.com",
+    "debugGetRawHeader": "the method debug_getRawHeader does not exist/is not available",
+    "debugGetRawReceipts": "the method debug_getRawReceipts does not exist/is not available",
+    "ethGetProofOldBlock": "served at block 1",
+    "traceTypesConfigured": [
+      "permissioned",
+      "cannon-kona"
+    ],
+    "minUpdateInterval": "60s",
+    "gameWindow": "336h",
+    "rethProofWindow": 100000
+  },
+  "verdict": {
+    "items": [
+      {
+        "item": "anchor root off the placeholder (a Type 8 game is playable only then)",
+        "status": "pending"
+      },
+      {
+        "item": "MIPS64 state version 8 (Cannon64, the kona prestate format)",
+        "status": "ready"
+      },
+      {
+        "item": "game type installed with the Finchain-embedding prestate",
+        "status": "ready"
+      },
+      {
+        "item": "prestate file on this host",
+        "status": "ready"
+      },
+      {
+        "item": "embedded kona-host on this host",
+        "status": "ready"
+      },
+      {
+        "item": "executable kona-host wrapper beside it (drill/out/bin/kona-host-wrapper.sh)",
+        "status": "ready"
+      },
+      {
+        "item": "challenger L1 endpoint serves debug_getRawHeader",
+        "status": "missing: the method debug_getRawHeader does not exist/is not available"
+      },
+      {
+        "item": "challenger L1 endpoint serves debug_getRawReceipts",
+        "status": "missing: the method debug_getRawReceipts does not exist/is not available"
+      },
+      {
+        "item": "op-reth answers eth_getProof at an old block",
+        "status": "ready"
+      },
+      {
+        "item": "challenger trace types include cannon-kona",
+        "status": "ready"
+      }
+    ],
+    "open": 3,
+    "summary": "3 item(s) not ready"
+  }
+}

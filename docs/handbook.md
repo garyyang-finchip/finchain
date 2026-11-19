@@ -88,9 +88,9 @@ delay 7 days, dispute game finality delay 3.5 days. The initial bond was lowered
 ### 2b. Finchain mainnet (chain id 8454)
 
 Deployed on 2026-11-18 (`docs/mainnet.md`); both nodes and the public RPC up since 2026-11-19
-(`manifests/evidence/mainnet-start-2026-11-19.json`); not yet called live (a mainnet withdrawal
-cycle and the Finchain prestate as game type 8 come first; the Safe follows at a later milestone
-by the owner's ruling). Facts from `chain/mainnet/out/`:
+(`manifests/evidence/mainnet-start-2026-11-19.json`); the Finchain prestate installed as game type
+8 the same day; not yet called live (a mainnet withdrawal cycle comes first; the Safe follows at a
+later milestone by the owner's ruling). Facts from `chain/mainnet/out/`:
 
 | Parameter | Value |
 | --- | --- |
@@ -125,8 +125,10 @@ L1 contracts on Ethereum mainnet (`chain/mainnet/out/l1-addresses.json`):
 
 Proof configuration as read from L1 (`manifests/onchain-mainnet-26443627.json`): respected
 game type 1 (permissioned), initial bond 0.08 ETH, proof maturity delay 7 days, dispute game
-finality delay 3.5 days, prestate op-deployer's default (`0x038512e0...d54c`) until the
-Finchain-embedding prestate is installed (`docs/mainnet.md` decision 6). Roles: owner
+finality delay 3.5 days, prestate op-deployer's default (`0x038512e0...d54c`) for the respected
+type; game type 8 (`CANNON_KONA`, not the respected type) installed by the owner on 2026-11-19 with
+the Finchain-embedding kona-client prestate `0x03f1d952...b685` and a 0.08 ETH bond
+(`manifests/evidence/mainnet-type8-install-2026-11-19.json`; `docs/mainnet.md` decision 6). Roles: owner
 `0xF8D8846e505E5478C60B57182D39f61b066cA8E2` (the same account as on Sepolia), unsafe block
 signer `0x4Ba4...E38D`, batcher `0xaEBc...7968`, proposer `0x7c2b...5bbB`, challenger
 `0xc666...2Dc7`.
@@ -369,7 +371,7 @@ op-challenger to the patch levels in `versions.lock`. The whole account is in
 | M3-C FOGA on Finchain (optional, explicit): twelve reference implementations deployed by the released FOGA 1.0.7 from this repository's world configuration (reference World `finchain-sepolia-85422-20261113T023727Z`, completion block 61548), address book verified by host B at `finalized` (59 contracts MATCH at 61794), genesis T0-T9 on Finchain with both ZK paths (197 of 197 checks, cells as agents 3, 4 and 5), doctor all twelve covenants Pass, the OG living on Finchain as its own cell (born on 1.0.8, serving on 1.0.9 since the same day, account `0x9F76...7aD1`, agent 6, `https://og.finchain.one`) beside the unchanged Sepolia OG; the two-cell business loop at its integration stage (the OG minting tender 5, `cell-b` - joined from the registry's 1.0.9 by this repository's address book at its URL, account `0x2Dd0...15BB`, agent 7 - finding it, running the skill, submitting, accepted by the hashlock verifier, settled and paid; six transactions); the four funding lines read from 292 receipts with three fee components each and the loop's receipts FINAL at 83370 (`make fee-lines`); the run by another operator open | C-1 to C-5 done 2026-11-13 (C-4c at the integration stage); the other operator open | `manifests/evidence/m3c-2026-11-13.json`, `chain/world/finchain-sepolia.json`, `manifests/covenant-world-finchain-sepolia.json`, `manifests/evidence/world-verify-61794.json`, `manifests/evidence/foga-genesis-finchain-sepolia.json`, `manifests/evidence/foga-doctor-finchain-sepolia.json`, `manifests/evidence/og-finchain-2026-11-13.json`, `manifests/evidence/business-loop-2026-11-13.json`, `manifests/evidence/fee-lines-20261113T151307Z.json` |
 | M3 close: the reference-version manifest `finchain-sepolia/2026.11-rc1` (status `candidate`: chain, software digests, roles and shared authority, the covenant World with its 55 contracts and both blocks, the FOGA versions, the acceptance list) and finchain 0.2.0 | done 2026-11-13 | `manifests/finchain-sepolia/2026.11-rc1.json` |
 | M4 proofs and assets: resident challenger exercised (2026-11-15), the kona-client prestate with Finchain embedded (K2, 2026-11-16), full VM dispute drill on an isolated devnet (K3, 2026-11-16 and -17), a Type 8 game type installed on Sepolia and one game tracked by host B's `cannon-kona` challenger (K4, 2026-11-19), deposit -> proof -> withdrawal end to end (finalize due 2026-11-21) | K1-K4 done; the withdrawal's finalize on 2026-11-21 closes M4 | `docs/proof-plan.md`, `docs/acceptance.md` |
-| M5 mainnet: L1 contracts deployed 2026-11-18, host A sequencing since, host B verifying and the public RPC up since 2026-11-19; the Safe, a mainnet withdrawal cycle, the providers and the Finchain prestate follow (`docs/mainnet.md`) | running on both nodes, not announced | `docs/mainnet.md`, `chain/mainnet/`, `manifests/onchain-mainnet-26443627.json`, `manifests/evidence/mainnet-start-2026-11-19.json` |
+| M5 mainnet: L1 contracts deployed 2026-11-18, host A sequencing since, host B verifying and the public RPC up since 2026-11-19, the Finchain prestate installed as game type 8 by the owner the same day; a mainnet withdrawal cycle (initiated 2026-11-19), the first Type 8 game and the providers follow, the Safe at a later milestone (`docs/mainnet.md`) | running on both nodes, not announced | `docs/mainnet.md`, `chain/mainnet/`, `manifests/onchain-mainnet-26443627.json`, `manifests/evidence/mainnet-start-2026-11-19.json`, `manifests/evidence/mainnet-type8-install-2026-11-19.json` |
 
 ### 5.5 Funding
 

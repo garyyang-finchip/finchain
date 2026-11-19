@@ -1,0 +1,87 @@
+{
+  "schema": "finchain.game-type-install/1",
+  "acceptance": "Finchain mainnet: the Type 8 (CANNON_KONA) game implementation installed by the owner as a non-default game type with the Finchain-embedding kona-client prestate for chain 8454, the initial bond set to the standard 0.08 ETH, the respected game type unchanged (docs/mainnet.md decision 6; the Sepolia precedent is K4 in docs/proof-plan.md)",
+  "environment": "mainnet",
+  "chainId": 8454,
+  "recordedAt": "2026-11-19T13:14:27Z",
+  "l1": {
+    "chainId": 1,
+    "disputeGameFactory": "0x4aa400aa71f9658dc010dcc9cd7229bd4467536e",
+    "owner": "0xF8D8846e505E5478C60B57182D39f61b066cA8E2",
+    "anchorStateRegistry": "0x97e63e52da892c8ae335c2af75ce56a3c03ebf01",
+    "respectedGameType": 1
+  },
+  "installed": {
+    "gameType": 8,
+    "gameTypeName": "CANNON_KONA",
+    "implementation": "0x2dda3584b51ef5236f7726dea5a0fb6b3ca94aec",
+    "implementationNote": "the chain's own FaultDisputeGame implementation (v2.4.2, deployed by op-deployer at block 26443400), reused as for Sepolia; a clone of it with the arguments below is one Type 8 game",
+    "args": {
+      "absolutePrestate": "0x03f1d952437b64614622d35656242d6149ad8552386f73f6ca4369c2f25ab685",
+      "vm": "0xacc005dcd857b401e4732e6f7837135a22825cfa",
+      "anchorStateRegistry": "0x97e63e52da892c8ae335c2af75ce56a3c03ebf01",
+      "weth": "0x2922fc246c5d5a69576ffdfe5688937b655b8019",
+      "l2ChainId": 8454,
+      "bytes": 124,
+      "hex": "0x03f1d952437b64614622d35656242d6149ad8552386f73f6ca4369c2f25ab685acc005dcd857b401e4732e6f7837135a22825cfa97e63e52da892c8ae335c2af75ce56a3c03ebf012922fc246c5d5a69576ffdfe5688937b655b80190000000000000000000000000000000000000000000000000000000000002106"
+    },
+    "initBondWei": "80000000000000000",
+    "initBondEth": "0.08"
+  },
+  "transactions": [
+    {
+      "step": "setImplementation(8, implementation, args)",
+      "selector": "0xb1070957",
+      "hash": "0x285c4db5360a649a78390dc63d1177e4b383a15aad1d7b380bf6421a61cb97e7",
+      "block": 26449292,
+      "at": "2026-11-19T13:01:23Z",
+      "from": "0xF8D8846e505E5478C60B57182D39f61b066cA8E2",
+      "to": "0x4aa400aa71f9658dc010dcc9cd7229bd4467536e",
+      "status": "success",
+      "gasUsed": 169291,
+      "feeEth": "0.000368324751364772"
+    },
+    {
+      "step": "setInitBond(8, 80000000000000000)",
+      "selector": "0x1e334240",
+      "hash": "0xb8715b8def61570e49490e6651eb1cbf120fe3a066b5ae59406ce00aaffd9aaf",
+      "block": 26449295,
+      "at": "2026-11-19T13:01:59Z",
+      "from": "0xF8D8846e505E5478C60B57182D39f61b066cA8E2",
+      "to": "0x4aa400aa71f9658dc010dcc9cd7229bd4467536e",
+      "status": "success",
+      "gasUsed": 52587,
+      "feeEth": "0.000114577583307741"
+    }
+  ],
+  "signing": "the owner account in the browser wallet, through owner-console.html (chain selector: mainnet; the calldata it builds was found equal to the one scripts/k4-readiness.sh derives from the chain record and the prestate record)",
+  "prestate": {
+    "hash": "0x03f1d952437b64614622d35656242d6149ad8552386f73f6ca4369c2f25ab685",
+    "record": "manifests/evidence/prestate-8454-20261119T105453Z.json",
+    "registryRecord": "manifests/evidence/kona-configs-8454-20261119T105341Z.json",
+    "konaHostRecord": "manifests/evidence/kona-host-8454-20261119T113826Z.json",
+    "builtOn": "the scratch host (E04) on 2026-11-19 with the K2 pipeline, copied to host B over the private network and checked by digest"
+  },
+  "hostB": {
+    "challenger": "op-challenger v1.9.6",
+    "traceTypes": [
+      "permissioned",
+      "cannon-kona"
+    ],
+    "since": "2026-11-19T13:08Z (recreated after the owner transactions of 13:01Z and before the readiness run of 13:08:54Z)",
+    "command": "make restart-b CHAIN=mainnet KONA=1 SVC=op-challenger (node-b/docker-compose.kona.yml; KONA_L2_CHAIN_ID, KONA_PRESTATE_FILE and KONA_HOST_BIN in node-b/.env.mainnet)",
+    "additionalBondClaimant": "0x7c2b388303cEBAE84aD3448057e074f2b2A65bbB",
+    "additionalBondClaimantNote": "the proposer; loaded from node-b/secrets.mainnet/op-challenger-extra.env at this recreate (the stack's first challenger container of 2026-11-19 ran without it)",
+    "readinessBefore": "k4-readiness-20261119T120603Z.json (type 8 not installed; kept on the host)",
+    "readinessAfter": "manifests/evidence/k4-readiness-20261119T130854Z.json"
+  },
+  "respectedGameType": {
+    "before": 1,
+    "after": 1,
+    "note": "unchanged: Type 8 is a non-default type, it moves no anchor and settles no withdrawal; AnchorStateRegistry.setRespectedGameType is the guardian's call (docs/mainnet.md decision 6)"
+  },
+  "next": {
+    "anchor": "the anchor root is still op-deployer's placeholder; it moves when game 0 (0xaed62d9112099cb03a3062d27afea1877343c12f, created 2026-11-18T18:29:59Z) is resolved after 2026-11-22T06:29:59Z and closed after its 3.5-day finality delay, 2026-11-25T18:29:59Z at the earliest",
+    "firstType8Game": "make k4-create-game CHAIN=mainnet from host A once the anchor has moved; host B's cannon-kona challenger tracks and resolves it"
+  }
+}
