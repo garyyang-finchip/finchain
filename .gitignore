@@ -24,6 +24,9 @@ node-b/.env.*
 !node-b/.env.example
 node-a/secrets.*/
 node-b/secrets.*/
+# host-specific Caddy site files (node-b/caddy-sites/README.md); the placeholder and the example are tracked
+node-b/caddy-sites/*.caddy
+!node-b/caddy-sites/00-default.caddy
 
 # Downloaded binaries and scratch
 bin/
