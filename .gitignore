@@ -45,3 +45,6 @@ drill/devnet/out/
 # python bytecode (drill/rpc-shim.py)
 __pycache__/
 *.pyc
+
+# macOS Finder metadata
+.DS_Store
