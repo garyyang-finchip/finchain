@@ -59,7 +59,7 @@
   button:disabled { opacity: 0.45; cursor: not-allowed; }
   button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
   label { display: grid; gap: 4px; color: var(--muted); font-size: 13px; }
-  input { font: inherit; font-family: var(--font-mono); font-size: 14px; padding: 7px 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); color: var(--fg); width: 100%; box-sizing: border-box; }
+  input, select { font: inherit; font-family: var(--font-mono); font-size: 14px; padding: 7px 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); color: var(--fg); width: 100%; box-sizing: border-box; }
   .fields { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
   @media (max-width: 480px) { .fields { grid-template-columns: 1fr; } dl { grid-template-columns: 1fr; gap: 2px 0; } dt { margin-top: 8px; } }
   pre { font-family: var(--font-mono); font-size: 12.5px; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px; margin: 12px 0 0; overflow-x: auto; white-space: pre-wrap; overflow-wrap: anywhere; }
@@ -75,7 +75,13 @@
 <main>
   <header>
     <h1>Finchain Owner Console</h1>
-    <p class="sub">Owner transactions for Finchain Sepolia (chain id 85422), signed in the browser wallet. Nothing here holds a key.</p>
+    <p class="sub" id="sub">Owner transactions for Finchain Sepolia (chain id 85422), signed in the browser wallet. Nothing here holds a key.</p>
+    <label style="margin-top:10px; max-width: 420px">Chain
+      <select id="chain">
+        <option value="sepolia" selected>Finchain Sepolia (85422) - settled on Sepolia</option>
+        <option value="mainnet">Finchain (8454) - settled on Ethereum mainnet</option>
+      </select>
+    </label>
   </header>
 
   <section>
@@ -87,13 +93,13 @@
     </dl>
     <div class="row" style="margin-top:14px">
       <button id="connect" type="button">Connect wallet</button>
-      <button id="switch" type="button" class="secondary" hidden>Switch to Sepolia</button>
+      <button id="switch" type="button" class="secondary" hidden>Switch network</button>
     </div>
     <p class="hint">If the wallet is not found, open this page in its own browser tab (the wallet extension does not always reach embedded pages) and connect again.</p>
   </section>
 
   <section>
-    <h2>DisputeGameFactory on Sepolia</h2>
+    <h2 id="dgfhead">DisputeGameFactory on Sepolia</h2>
     <dl>
       <dt>Factory</dt><dd id="dgf">0xc752f10ab0696860b11b789a2ab9f4f93331329c</dd>
       <dt>Owner (on chain)</dt><dd id="owner">-</dd>
@@ -106,7 +112,7 @@
 
   <section>
     <h2>Install a game type (setImplementation)</h2>
-    <p class="hint" style="margin:0 0 12px">M4 K4: a game type is the shared FaultDisputeGame implementation plus the arguments the factory stores for it - the absolute prestate among them (<code>docs/proof-plan.md</code>, K4). The defaults are Finchain Sepolia's: game type 8 (<code>CANNON_KONA</code>), the deployed implementation, the Finchain-embedding kona prestate of K2, the MIPS64 VM, the anchor state registry and the permissionless DelayedWETH. <code>make k4-readiness</code> prints the same arguments and calldata for comparison. This does not change the respected game type.</p>
+    <p class="hint" style="margin:0 0 12px">M4 K4: a game type is the shared FaultDisputeGame implementation plus the arguments the factory stores for it - the absolute prestate among them (<code>docs/proof-plan.md</code>, K4). The defaults follow the chain selected above: game type 8 (<code>CANNON_KONA</code>), the deployed implementation, the Finchain-embedding kona prestate built for that chain (K2 for Sepolia, <code>prestate-8454-*</code> for the mainnet), the MIPS64 VM, the chain's anchor state registry and permissionless DelayedWETH. <code>make k4-readiness CHAIN=&lt;chain&gt;</code> prints the same arguments and calldata for comparison. This does not change the respected game type.</p>
     <div class="fields">
       <label>Game type <input id="itype" value="8" inputmode="numeric"></label>
       <label>Implementation <input id="iimpl" value="0x2dda3584b51ef5236f7726dea5a0fb6b3ca94aec"></label>
@@ -155,9 +161,18 @@
 
 <script>
 (function () {
-  const DGF = '0xc752f10ab0696860b11b789a2ab9f4f93331329c';
-  const SEPOLIA = '0xaa36a7';
-  const ASR = '0x31ffb1c4a5d40c7c39a122320db733389eb9c1fb';
+  // the two Finchain deployments; addresses from chain/out/l1-addresses.json and chain/mainnet/out/l1-addresses.json,
+  // prestates from the K2 records (manifests/evidence/prestate-<chainId>-*.json)
+  const CHAINS = {
+    sepolia: { name: 'Finchain Sepolia', l2: 85422, l1Hex: '0xaa36a7', l1Name: 'Sepolia (11155111)', l1Short: 'Sepolia', explorer: 'https://sepolia.etherscan.io/tx/',
+      dgf: '0xc752f10ab0696860b11b789a2ab9f4f93331329c', asr: '0x31ffb1c4a5d40c7c39a122320db733389eb9c1fb', weth: '0x3c40a4e728246f4c0456760f435be6f9788604b6',
+      impl: '0x2dda3584b51ef5236f7726dea5a0fb6b3ca94aec', vm: '0xacc005dcd857b401e4732e6f7837135a22825cfa', prestate: '0x038b60ac8db81e83cb87229ef9119b500c5723767806cb93a639d70618cad9fb' },
+    mainnet: { name: 'Finchain', l2: 8454, l1Hex: '0x1', l1Name: 'Ethereum mainnet (1)', l1Short: 'Ethereum mainnet', explorer: 'https://etherscan.io/tx/',
+      dgf: '0x4aa400aa71f9658dc010dcc9cd7229bd4467536e', asr: '0x97e63e52da892c8ae335c2af75ce56a3c03ebf01', weth: '0x2922fc246c5d5a69576ffdfe5688937b655b8019',
+      impl: '0x2dda3584b51ef5236f7726dea5a0fb6b3ca94aec', vm: '0xacc005dcd857b401e4732e6f7837135a22825cfa', prestate: '0x03f1d952437b64614622d35656242d6149ad8552386f73f6ca4369c2f25ab685' }
+  };
+  let CHAIN = CHAINS.sepolia;
+  let DGF = CHAIN.dgf, L1_HEX = CHAIN.l1Hex, ASR = CHAIN.asr;
   const SEL = { setInitBond: '0x1e334240', initBonds: '0x6593dc6e', owner: '0x8da5cb5b', setImplementation: '0xb1070957', gameImpls: '0x1b685b9e', gameArgs: '0x74cc86ac', getAnchorRoot: '0xd83ef267' };
   const DEAD = '0xdead000000000000000000000000000000000000000000000000000000000000';
   const $ = (id) => document.getElementById(id);
@@ -227,7 +242,7 @@
   function gate() {
     let why = '';
     if (!provider || !account) why = 'connect the wallet first';
-    else if (chainId !== SEPOLIA) why = 'switch the wallet to Sepolia';
+    else if (chainId !== L1_HEX) why = 'switch the wallet to ' + CHAIN.l1Short;
     else if (!owner) why = 'read the factory owner first';
     else if (owner.toLowerCase() !== account.toLowerCase()) why = 'connected account is not the factory owner';
     $('send').disabled = !!(why || !$('calldata').textContent); $('sendwhy').textContent = why || (!$('calldata').textContent ? 'fix the inputs' : '');
@@ -265,12 +280,13 @@
     } catch (e) { log('Connect failed: ' + (e.message || e), 'bad'); }
   }
   function renderChain() {
-    const ok = chainId === SEPOLIA;
-    $('wchain').innerHTML = (ok ? 'Sepolia (11155111) <span class="pill ok">right network</span>' : 'chain ' + parseInt(chainId, 16) + ' <span class="pill bad">not Sepolia</span>');
+    const ok = chainId === L1_HEX;
+    $('wchain').innerHTML = (ok ? CHAIN.l1Name + ' <span class="pill ok">right network</span>' : 'chain ' + parseInt(chainId, 16) + ' <span class="pill bad">not ' + CHAIN.l1Short + '</span>');
+    $('switch').textContent = 'Switch to ' + CHAIN.l1Short;
     $('switch').hidden = ok;
   }
   async function switchChain() {
-    try { await rpc('wallet_switchEthereumChain', [{ chainId: SEPOLIA }]); } catch (e) { log('Switch failed: ' + (e.message || e), 'bad'); }
+    try { await rpc('wallet_switchEthereumChain', [{ chainId: L1_HEX }]); } catch (e) { log('Switch failed: ' + (e.message || e), 'bad'); }
   }
   async function refresh() {
     if (!provider) { log('Connect the wallet first; reads go through it.', 'warn'); return; }
@@ -298,7 +314,7 @@
       log('Asking the wallet to sign ' + label + ' to ' + DGF + ' ...');
       const hash = await rpc('eth_sendTransaction', [{ from: account, to: DGF, value: '0x0', data: data }]);
       const link = document.createElement('div'); link.className = 'warn';
-      link.innerHTML = 'Sent: <a href="https://sepolia.etherscan.io/tx/' + hash + '" target="_blank" rel="noopener">' + hash + '</a> (waiting for the receipt)';
+      link.innerHTML = 'Sent: <a href="' + CHAIN.explorer + hash + '" target="_blank" rel="noopener">' + hash + '</a> (waiting for the receipt)';
       $('log').prepend(link);
       let receipt = null;
       for (let i = 0; i < 60 && !receipt; i++) { await new Promise((r) => setTimeout(r, 6000)); receipt = await rpc('eth_getTransactionReceipt', [hash]); }
@@ -309,6 +325,19 @@
     gate();
   }
 
+  // the chain selector: addresses, defaults and labels follow it; the wallet must then be on that chain's L1
+  function applyChain(key) {
+    CHAIN = CHAINS[key] || CHAINS.sepolia; DGF = CHAIN.dgf; L1_HEX = CHAIN.l1Hex; ASR = CHAIN.asr; owner = null;
+    $('sub').textContent = 'Owner transactions for ' + CHAIN.name + ' (chain id ' + CHAIN.l2 + '), signed in the browser wallet. Nothing here holds a key.';
+    $('dgfhead').textContent = 'DisputeGameFactory on ' + CHAIN.l1Short;
+    $('dgf').textContent = DGF; $('owner').textContent = '-'; $('bond').textContent = '-';
+    $('iimpl').value = CHAIN.impl; $('ipre').value = CHAIN.prestate; $('ivm').value = CHAIN.vm; $('iasr').value = CHAIN.asr; $('iweth').value = CHAIN.weth; $('icid').value = String(CHAIN.l2);
+    $('inow').textContent = '-'; $('ianchor').textContent = '-';
+    if (chainId) renderChain();
+    renderCall(); renderInstall();
+    log('Chain: ' + CHAIN.name + ' (' + CHAIN.l2 + ') on ' + CHAIN.l1Name + '; factory ' + DGF + '. Read the factory and game type again before sending.');
+  }
+  $('chain').addEventListener('change', (e) => applyChain(e.target.value));
   $('connect').addEventListener('click', connect);
   $('switch').addEventListener('click', switchChain);
   $('refresh').addEventListener('click', refresh);

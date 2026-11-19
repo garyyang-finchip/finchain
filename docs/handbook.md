@@ -88,8 +88,9 @@ delay 7 days, dispute game finality delay 3.5 days. The initial bond was lowered
 ### 2b. Finchain mainnet (chain id 8454)
 
 Deployed on 2026-11-18 (`docs/mainnet.md`); both nodes and the public RPC up since 2026-11-19
-(`manifests/evidence/mainnet-start-2026-11-19.json`); not yet called live (the Safe, a mainnet
-withdrawal cycle and the Finchain prestate come first). Facts from `chain/mainnet/out/`:
+(`manifests/evidence/mainnet-start-2026-11-19.json`); not yet called live (a mainnet withdrawal
+cycle and the Finchain prestate as game type 8 come first; the Safe follows at a later milestone
+by the owner's ruling). Facts from `chain/mainnet/out/`:
 
 | Parameter | Value |
 | --- | --- |

@@ -17,7 +17,8 @@
 #   BUILD_JOBS    cargo jobs (default: the machine's cores; the checkout's jobs = 1 is for the prestate build only)
 #   ROLLUP, GENESIS  the chain's files (default <chain dir>/out/); KONA_CHAIN_SLUG and the other drill/kona-configs.sh
 #                 variables describe the chain (the devnet of K3 sets its own slug and superchain)
-# Output: drill/out/bin/kona-host-<slug>-<tag slug> (slug: KONA_CHAIN_SLUG, default finchain) and
+# Output: drill/out/bin/kona-host-<slug>-<tag slug> for Finchain Sepolia, kona-host-<slug>-<chainId>-<tag slug> for any other
+# chain (slug: KONA_CHAIN_SLUG, default finchain; KONA_HOST_NAME sets the file name outright) and
 # manifests/evidence/kona-host-<chainId>-<date>.json. Host: git, jq, docker (the binary is checked inside the
 # op-challenger image, the environment it runs in); 20-40 minutes and about 6 GB of disk for the first build on two
 # cores, a few minutes for a second chain from the same target directory.
@@ -48,7 +49,11 @@ host_version="$(grep -m1 -E '^version' "$repo/rust/kona/bin/host/Cargo.toml" | s
 rust_version="$(grep -m1 -E '^channel' "$repo/rust/rust-toolchain.toml" | sed -E 's/.*"([^"]+)".*/\1/')"
 jobs="${BUILD_JOBS:-$(nproc 2>/dev/null || echo 2)}"
 slug="${KONA_CHAIN_SLUG:-finchain}"
-out="$BIN/kona-host-$slug-$tagslug"
+# one binary per chain on a host that runs two (docs/runbook.md section 9): Finchain Sepolia keeps the K2 name,
+# every other chain carries its chain id in the name; KONA_HOST_NAME overrides both
+if [ -n "${KONA_HOST_NAME:-}" ]; then out="$BIN/$KONA_HOST_NAME"
+elif [ "$chain_id" = 85422 ]; then out="$BIN/kona-host-$slug-$tagslug"
+else out="$BIN/kona-host-$slug-$chain_id-$tagslug"; fi
 target="$WORK/kona-host-target-$tagslug"; mkdir -p "$target"
 stamp="$(date -u +%Y%m%dT%H%M%SZ)"; logf="$LOGS/kona-host-build-$stamp.log"
 
