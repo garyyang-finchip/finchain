@@ -2,10 +2,10 @@
   "manifestVersion": "1",
   "referenceVersion": {
     "id": "finchain-sepolia/2026.11-rc1",
-    "status": "candidate",
+    "status": "superseded",
     "publishedAt": "2026-11-13T16:30:00Z",
     "supersedes": null,
-    "notes": "The M3 close (docs/world.md D12 and D14; finchain 0.2.0): M1, M2, M3-A, M3-B and M3-C passed on public-testnet, M3-C at the integration stage of D9 (the acceptance stage, a second cell run by another operator, stays open); M4 and M5 not run. The L1 configuration is the snapshot at L1 block 12112920; the covenant World is the reference World of 2026-11-13, verified by host B at its finalized block 61794. A candidate becomes recommended when M4's items are run."
+    "notes": "The M3 close (docs/world.md D12 and D14; finchain 0.2.0): M1, M2, M3-A, M3-B and M3-C passed on public-testnet, M3-C at the integration stage of D9 (the acceptance stage, a second cell run by another operator, stays open); M4 and M5 not run. The L1 configuration is the snapshot at L1 block 12112920; the covenant World is the reference World of 2026-11-13, verified by host B at its finalized block 61794. A candidate becomes recommended when M4's items are run. Superseded on 2026-11-22 by finchain-sepolia/2026.11 (status recommended), which records M4 as passed."
   },
   "chain": {
     "name": "Finchain Sepolia",

@@ -382,7 +382,7 @@ its operator's procedure until FOGA provides it.
 | D11 address book | The address book in this repository plus `make verify-world` are the acceptance basis; a read-only web page is recommended and does not block (the public endpoint answers no CORS preflight today). |
 | D12 versions | No FOGA release is an M3 condition; finchain 0.2.0 at the M3 close. FOGA proposals ship as FOGA decides. |
 | D13 default chain | FOGA's bare `foga join` stays on Sepolia; Finchain through `--world` (and through a chain-table entry only if FOGA adopts one later). |
-| D14 manifest | `finchain-sepolia/2026.11-rc1` with status `candidate` at the M3 close; M4 items stay `not-run`. |
+| D14 manifest | `finchain-sepolia/2026.11-rc1` with status `candidate` at the M3 close; M4 items stay `not-run`. Superseded at the M4 close by `finchain-sepolia/2026.11` (status `recommended`, M4 `passed`; finchain 0.3.0). |
 | D15 pace | M3-A and M3-B first, each on its own; M3-C after both hold. No duration is an acceptance promise. |
 
 ## 8. Order of work

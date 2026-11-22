@@ -17,7 +17,7 @@ Files:
 | `covenant-world-<name>.json` | The `covenantWorld` section derived from a FOGA address book by `make world-manifest` (raw code hashes at the completing block, modules, both blocks) |
 | `superseded/` | Sections of Worlds replaced by a later deployment, kept with the reason and the successor's world id |
 | `evidence/` | Acceptance records written by the scripts (rebuild-from-L1, comparisons, EVM acceptance, FOGA isolation, World verification, drills) and the FOGA genesis evidence and doctor report of the reference World |
-| `finchain-sepolia/<version>.json` | Published manifests (one per reference version) |
+| `finchain-sepolia/<version>.json` | Published manifests (one per reference version): `2026.11.json` is the recommended one (M4 close, finchain 0.3.0), `2026.11-rc1.json` the superseded candidate of the M3 close |
 
 Rules:
 

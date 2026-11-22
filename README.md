@@ -78,9 +78,14 @@ The full procedure, with expected outputs and acceptance checks, is in
 
 ## Status
 
-v0.3.0-alpha.32: **M4 closed on 2026-11-22** (the Sepolia withdrawal finalized, the K4 game resolved
-by the `cannon-kona` challenger; the `recommended` manifest follows in v0.3.0) and **Finchain mainnet
-(chain id 8454) is deployed on Ethereum mainnet and running on both hosts** (`docs/mainnet.md`: L1 contracts in one transaction at block 26443400 on 2026-11-18,
+v0.3.0 (2026-11-22): **M4 closed for Finchain Sepolia** - the withdrawal cycle finalized and the K4
+game resolved by the `cannon-kona` challenger on 2026-11-22, and the reference-version manifest
+`manifests/finchain-sepolia/2026.11.json` published with status `recommended` (M1 to M4 `passed` on
+`public-testnet`, the K3 drill on `local-devnet`, M5 `not-run`; the candidate `2026.11-rc1` is
+superseded; the L1 configuration is the snapshot `manifests/onchain-12190350.json`, which shows
+game type 8 installed and the respected type unchanged). The release closes the Sepolia milestone
+only: the mainnet items below are separate work and continue on their own clocks. **Finchain
+mainnet (chain id 8454) is deployed on Ethereum mainnet and running on both hosts** (`docs/mainnet.md`: L1 contracts in one transaction at block 26443400 on 2026-11-18,
 0.012 ETH; L2 genesis `0xd678...497d`; `chain/mainnet/` is the chain record,
 `manifests/onchain-mainnet-26443627.json` the first snapshot; host A sequencing, batching and
 proposing once a day since 2026-11-18, `make up-a CHAIN=mainnet PROFILE=mainnet`; host B deriving

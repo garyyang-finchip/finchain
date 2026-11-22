@@ -42,10 +42,14 @@ published with status `candidate` (D14): M1, M2 and the three M3 acceptances `pa
 the second cell was run by the project owner, not by another operator - and stays open
 without blocking the candidate; the candidate becomes `recommended` when M4's items run.
 
-M4 closed on 2026-11-22: every row below has its record on `public-testnet` (the K3 drill on
-`local-devnet`, as it must be), the last of them the withdrawal finalized that day. The
-reference-version manifest that records M4 as passed follows as `finchain-sepolia/2026.11`
-(status `recommended`, superseding the candidate), with a fresh on-chain snapshot.
+M4 closed on 2026-11-22 (finchain 0.3.0): every row below has its record on `public-testnet`
+(the K3 drill on `local-devnet`, as it must be), the last of them the withdrawal finalized that
+day. The reference-version manifest `manifests/finchain-sepolia/2026.11.json` records it (published
+2026-11-22, status `recommended`, superseding the candidate `2026.11-rc1`): M4 as two entries, the
+public-testnet items and the K3 devnet drill, each with its evidence files; the L1 configuration
+from the snapshot `manifests/onchain-12190350.json` of 2026-11-22 (the respected type 1 and its
+prestate unchanged, game type 8 installed with the Finchain-embedding prestate, the type 1 bond 0 as
+set on 2026-11-11). M5 stays `not-run`: the mainnet work (`docs/mainnet.md`) is not an acceptance yet.
 
 ### M3-A Finchain on its own
 
