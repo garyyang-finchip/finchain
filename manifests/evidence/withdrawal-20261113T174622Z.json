@@ -1,0 +1,100 @@
+{
+  "schema": "finchain.withdrawal/1",
+  "acceptance": "M4: deposit -> proof -> withdrawal end to end with the actual waiting periods (docs/acceptance.md M4; docs/proof-plan.md)",
+  "environment": "public-testnet",
+  "chainId": 85422,
+  "l1ChainId": 11155111,
+  "l2Rpc": "https://rpc.finchain.one",
+  "contracts": {
+    "optimismPortal": "0xeb8fbc0732fc7719838cf73d5377320a6c086b14",
+    "disputeGameFactory": "0xc752f10ab0696860b11b789a2ab9f4f93331329c",
+    "l2ToL1MessagePasser": "0x4200000000000000000000000000000000000016"
+  },
+  "path": "L2ToL1MessagePasser.initiateWithdrawal -> an output proposal (a dispute game of the respected type) covering the L2 block -> OptimismPortal2.proveWithdrawalTransaction against that game -> proof maturity delay, the game resolved and past its finality delay -> OptimismPortal2.finalizeWithdrawalTransaction",
+  "deposit": {
+    "tx": "0x5622e2daa3a1c9142ebb80c37329b562abeb48baf410d69bf2e43cbf9e895afb",
+    "l1Block": 12127515,
+    "at": "2026-11-13T17:41:36Z",
+    "to": "0xeb8fbc0732fc7719838cf73d5377320a6c086b14",
+    "status": "0x1",
+    "note": "the deposit that funded this cycle (scripts/deposit.sh): ETH sent to the OptimismPortal, credited on L2 by derivation"
+  },
+  "withdrawal": {
+    "nonce": "0x0001000000000000000000000000000000000000000000000000000000000000",
+    "sender": "0xa199250f15dce1399288f967f8652a882b1947e9",
+    "target": "0xa199250f15dce1399288f967f8652a882b1947e9",
+    "valueWei": "10000000000000000",
+    "valueEth": "0.01",
+    "gasLimit": 100000,
+    "data": "0x",
+    "hash": "0xac35684545d598c04620693f7784cccc68d00994d797c0f94e7e1dc2a33d46e9",
+    "hashRecomputed": true,
+    "signer": "deployer"
+  },
+  "steps": {
+    "initiate": {
+      "l2Tx": "0xae1de85034eecf7fd35a04e2550972b7470f1c2956a09861031f191d625fb855",
+      "l2Block": 88654,
+      "l2BlockTimestamp": 1794591980,
+      "at": "2026-11-13T17:46:20Z",
+      "recordedAt": "2026-11-13T17:46:22Z"
+    },
+    "prove": {
+      "game": {
+        "index": 48,
+        "address": "0xDd28EaB11EfD4aD3F0e8c495c0942B5314523927",
+        "type": 1,
+        "l2Block": 90294,
+        "createdAt": 1794596412,
+        "created": "2026-11-13T19:00:12Z",
+        "rootClaim": "0xcf0de75d29baf0f0c86e22da74dd169d561debb65d8940c3744fd99b5d89f93a"
+      },
+      "outputRootProof": {
+        "version": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "stateRoot": "0xfe0420a82618530d131c0f86bcb5ab29d88f54e52dd505dfafcc86ee3f890443",
+        "messagePasserStorageRoot": "0x7f8f03b4dd4edaf02f63b2fb1bc50f72f42c7a32cf36c519df6402235b0903ad",
+        "latestBlockhash": "0x30054786fc23bc16dd82d81a407ca338d7dfc2f30f40ff63ea8ded393e4a0ec8",
+        "outputRoot": "0xcf0de75d29baf0f0c86e22da74dd169d561debb65d8940c3744fd99b5d89f93a",
+        "storageSlot": "0x0932614c075e8043bb1db976f94aabccd0dec8bf25bfad28c368dc8a0b38d0f4",
+        "storageProofNodes": 2,
+        "source": "the public L2 RPC: eth_getBlockByNumber and eth_getProof at the game L2 block; the output root recomputed and compared with the game root claim before sending"
+      },
+      "l1Tx": "0x1a9c4232cb0cde118ddfc65252c35ea0659fe961af3fa81992dafb59b99b3d34",
+      "l1Block": 12130239,
+      "provenAt": 1794624636,
+      "at": "2026-11-14T02:50:36Z",
+      "proofSubmitter": "0xA199250F15DCE1399288F967f8652A882B1947e9",
+      "proofMaturityDelaySeconds": 604800,
+      "disputeGameFinalityDelaySeconds": 302400,
+      "maturesAt": "2026-11-21T02:50:36Z",
+      "recordedAt": "2026-11-14T02:50:38Z"
+    },
+    "finalize": {
+      "l1Tx": "0x070294243aadad0271d2892373c4933e6207247ff04a62bb32f4434eb430024c",
+      "l1Block": 12190166,
+      "finalizedAt": 1795368288,
+      "at": "2026-11-22T17:24:48Z",
+      "targetBalanceBeforeWei": "0x1ef9b7fcde317ddf",
+      "targetBalanceAfterWei": "0x1f1d38203ce68aaf",
+      "gameStatus": 2,
+      "gameResolvedAt": 1794898896,
+      "recordedAt": "2026-11-22T17:24:54Z"
+    }
+  },
+  "status": "finalized",
+  "timeline": {
+    "initiatedAt": 1794591980,
+    "gameCreatedAt": 1794596412,
+    "provenAt": 1794624636,
+    "gameResolvedAt": 1794898896,
+    "finalizedAt": 1795368288,
+    "hours": {
+      "initiateToGame": 1.23,
+      "gameToProven": 7.84,
+      "provenToFinalized": 206.57,
+      "gameCreatedToResolved": 84.02,
+      "resolvedToFinalized": 130.39,
+      "endToEnd": 215.64
+    }
+  }
+}

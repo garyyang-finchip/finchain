@@ -112,11 +112,30 @@ sender_role() { # which role an L1 sender is: challenger, proposer or other
   else echo other; fi
 }
 block_ts() { rpcq eth_getBlockByNumber "[\"$(printf '0x%x' "$1")\",false]" | jq -r '.timestamp' | xargs printf '%d'; }
-# resolved_log <proxy> <resolvedAt> -> the game's Resolved log, looked up in a window of L1 blocks around the resolution
-# time. A public endpoint refuses or prunes wide eth_getLogs ranges ("pruned history unavailable"), so the window is
-# estimated from the timestamp at 12 s per slot, padded for missed slots, and widened once; empty when not found.
+# block_at_ts <timestamp> -> the first L1 block whose timestamp is not below it (a binary search over block headers,
+# about 15 header reads between the deployment block and the head); the game's resolvedAt is the timestamp of the
+# block that carried the resolving transaction, so that block is found exactly, missed slots or not.
+block_at_ts() {
+  local ts="$1" lo="$DEPLOY_BLOCK" hi="$latest" mid mts
+  while [ "$lo" -lt "$hi" ]; do
+    mid=$(((lo + hi) / 2)); mts="$(block_ts "$mid" 2>/dev/null || true)"
+    [ -n "$mts" ] || return 1
+    if [ "$mts" -lt "$ts" ]; then lo=$((mid + 1)); else hi="$mid"; fi
+  done
+  echo "$lo"
+}
+# resolved_log <proxy> <resolvedAt> -> the game's Resolved log: first in the two blocks around the block found for the
+# resolution timestamp, then - should a header read fail - in a window estimated at 12 s per slot around that time,
+# padded for missed slots and widened once. A public endpoint refuses or prunes wide eth_getLogs ranges ("pruned history
+# unavailable"), so the windows stay narrow; empty when not found.
 resolved_log() {
-  local proxy="$1" at="$2" est dist pad from to lg
+  local proxy="$1" at="$2" est dist pad from to lg exact
+  if exact="$(block_at_ts "$at")"; then
+    from=$((exact - 1)); [ "$from" -lt "$DEPLOY_BLOCK" ] && from="$DEPLOY_BLOCK"
+    to=$((exact + 1)); [ "$to" -gt "$latest" ] && to="$latest"
+    lg="$(rpc_try 3 eth_getLogs "[{\"address\":\"$proxy\",\"topics\":[\"$TOPIC_RESOLVED\"],\"fromBlock\":\"$(printf '0x%x' "$from")\",\"toBlock\":\"$(printf '0x%x' "$to")\"}]" | jq -c '.[0] // empty' || true)"
+    if [ -n "$lg" ]; then echo "$lg"; return 0; fi
+  fi
   est=$((latest - (latest_ts - at) / 12)); [ "$est" -lt "$DEPLOY_BLOCK" ] && est="$DEPLOY_BLOCK"
   dist=$((latest - est))
   for pad in $((300 + dist / 30)) $((1200 + dist / 8)); do

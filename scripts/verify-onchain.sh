@@ -4,7 +4,8 @@
 # acceptance reference (docs/acceptance.md, docs/governance.md).
 #
 # Usage: scripts/verify-onchain.sh [L1_BLOCK]   (default: latest finalized block)
-# Output: manifests/onchain-<block>.json
+# Output: manifests/onchain-<block>.json - game types 0, 1 and 8 of the factory (8 is the Finchain-embedding
+# kona-client prestate installed as a non-default type, docs/proof-plan.md K4; empty when not installed)
 
 # shellcheck source=scripts/common.sh
 . "$(dirname "${BASH_SOURCE[0]}")/common.sh"
@@ -113,14 +114,14 @@ jq -n \
   --arg asrRetirement "$(call "$ASR" 'retirementTimestamp()(uint64)')" \
   --arg scGuardian "$(call "$superchain" 'guardian()(address)')" \
   --arg scPaused "$(call "$superchain" 'paused()(bool)')" \
-  --argjson game0 "$(game_block 0)" --argjson game1 "$(game_block 1)" \
+  --argjson game0 "$(game_block 0)" --argjson game1 "$(game_block 1)" --argjson game8 "$(game_block 8)" \
   '{snapshot: {l1Block: $block, l1Rpc: $rpc, takenAt: $at, l2ChainId: ($chainId|tonumber)},
     systemConfig: {address: $syscfg, version: $syscfgVersion, owner: $owner, unsafeBlockSigner: $signer, batcherHash: $batcherHash},
     optimismPortal: {address: $portal, version: $portalVersion, respectedGameType: $respected,
                      proofMaturityDelaySeconds: $proofMaturity, disputeGameFinalityDelaySeconds: $gameFinality,
                      guardian: $portalGuardian, paused: $portalPaused},
     anchorStateRegistry: {address: $asr, respectedGameType: $asrRespected, retirementTimestamp: $asrRetirement},
-    disputeGameFactory: {address: $dgf, owner: $dgfOwner, gameCount: $gameCount, games: [$game0, $game1]},
+    disputeGameFactory: {address: $dgf, owner: $dgfOwner, gameCount: $gameCount, games: [$game0, $game1, $game8]},
     superchainConfig: {address: $superchain, guardian: $scGuardian, paused: $scPaused,
                        note: "shared with other chains under standard-overrides; guardian and pause authority are not Finchain roles"}}' \
   > "$OUTFILE"

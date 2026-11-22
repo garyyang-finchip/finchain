@@ -78,8 +78,9 @@ The full procedure, with expected outputs and acceptance checks, is in
 
 ## Status
 
-v0.3.0-alpha.31: **Finchain mainnet (chain id 8454) is deployed on Ethereum mainnet and running on
-both hosts** (`docs/mainnet.md`: L1 contracts in one transaction at block 26443400 on 2026-11-18,
+v0.3.0-alpha.32: **M4 closed on 2026-11-22** (the Sepolia withdrawal finalized, the K4 game resolved
+by the `cannon-kona` challenger; the `recommended` manifest follows in v0.3.0) and **Finchain mainnet
+(chain id 8454) is deployed on Ethereum mainnet and running on both hosts** (`docs/mainnet.md`: L1 contracts in one transaction at block 26443400 on 2026-11-18,
 0.012 ETH; L2 genesis `0xd678...497d`; `chain/mainnet/` is the chain record,
 `manifests/onchain-mainnet-26443627.json` the first snapshot; host A sequencing, batching and
 proposing once a day since 2026-11-18, `make up-a CHAIN=mainnet PROFILE=mainnet`; host B deriving
@@ -105,9 +106,11 @@ check, closed on 2026-11-19: the Type 8 (`CANNON_KONA`) implementation installed
 non-default type with the K2 prestate and a 0.08 ETH bond (`owner-console.html`, `make
 k4-readiness`), game #74 created by host A's proposer with `make k4-create-game` the moment the
 anchor root left op-deployer's placeholder, tracked by host B's `cannon-kona` challenger
-(`node-b/docker-compose.kona.yml`, `KONA=1`) without a validation error, its resolution due
-2026-11-22. `make withdraw` drives the deposit -> proof -> withdrawal cycle step by step; the
-withdrawal proven on 2026-11-14 finalizes on 2026-11-21 and closes M4. Every target takes
+(`node-b/docker-compose.kona.yml`, `KONA=1`) without a validation error and resolved
+`DEFENDER_WINS` by it on 2026-11-22, 72 s after the clock (`games-20261122T175024Z.json`). `make
+withdraw` drives the deposit -> proof -> withdrawal cycle step by step; the withdrawal proven on
+2026-11-14 was finalized on 2026-11-22, 0.01 ETH back on L1 after 215.64 h
+(`withdrawal-20261113T174622Z.json`), which closed M4 (`docs/acceptance.md`). Every target takes
 `CHAIN=<name>` so that the same hosts run a second chain beside the first (`docs/runbook.md`
 section 9), which is how the mainnet runs. `make games` reads the dispute games back from L1 -
 the resident challenger resolved the first ten games on 2026-11-15, 72-168 s after their clocks,

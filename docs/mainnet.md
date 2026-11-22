@@ -89,8 +89,10 @@ first chain's files, volumes or ports. Status per step (2026-11-19):
    and host B's challenger recreated with `KONA=1` the same day (decision 6). The scratch host was
    stopped afterwards. Open on the clocks: the mainnet withdrawal cycle (initiated 2026-11-19,
    `withdrawal-20261119T102234Z.json`: prove after the second proposal, finalize about 2026-11-27),
-   game 0's resolution (2026-11-22) and close (2026-11-25, the anchor leaving the placeholder), then
-   the first Type 8 game.
+   game 0's close (2026-11-25, the anchor leaving the placeholder), then the first Type 8 game.
+   Game 0 resolved `DEFENDER_WINS` on 2026-11-22 at 06:31:47 UTC by host B's challenger, 108 s
+   after its clock, the 0.08 ETH bond credited to the proposer
+   (`manifests/evidence/games-20261122T174848Z.json`).
 6. Remaining: the manifest `manifests/finchain-mainnet/<version>.json`, the registry entry, the
    handbook's mainnet section (the facts are in `docs/handbook.md` already), the FOGA 1.1.0
    release after stability.
@@ -139,7 +141,9 @@ No mainnet container is started until that record exists for the dry run.
 
 ## 4. Gates before the chain is called live
 
-- The Sepolia withdrawal cycle finalized end to end (M4, due 2026-11-21): the exit path works.
+- The Sepolia withdrawal cycle finalized end to end (M4): done 2026-11-22, the exit path works
+  (`manifests/evidence/withdrawal-20261113T174622Z.json`); the mainnet cycle of 2026-11-19 is
+  proven and finalizes about 2026-11-27.
 - `make prestate` reproduces the published kona prestate and the Finchain kona-client prestate
   passes `run-trace` against Sepolia (M4, K2; done 2026-11-16); the devnet drill done (K3; done
   2026-11-16, `manifests/evidence/devnet-dispute-854220-20261116T161502Z.json`, a real `step()`

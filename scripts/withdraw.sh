@@ -210,7 +210,7 @@ prove)
   fi
   echo "output root $output_root equals the game's root claim; storage proof with $(jq -r '.result.storageProof[0].proof | length' <<<"$proofr") nodes"
   if [ "${YES:-0}" != "1" ]; then
-    read -r -p "Prove the withdrawal on Sepolia now (signer $from)? [yes/NO] " answer
+    read -r -p "Prove the withdrawal on L1 now (CHAIN=$CHAIN, signer $from)? [yes/NO] " answer
     [ "$answer" = "yes" ] || die "aborted; nothing was sent"
   fi
   r="$(cast send --rpc-url "$L1_RPC_URL" --private-key "$pk" --json "$PORTAL" \
@@ -245,7 +245,7 @@ finalize)
   before="$(rpc "$L1_RPC_URL" eth_getBalance "[\"$target\",\"latest\"]" | jq -r .result)"
   echo "game $(jq -r .steps.prove.game.index "$RECORD"): $(game_status_name "$gstatus"), resolved $(iso_of "$gresolved"); target $target holds $(hex_to_eth "$before") ETH on L1"
   if [ "${YES:-0}" != "1" ]; then
-    read -r -p "Finalize the withdrawal on Sepolia now (signer $from)? [yes/NO] " answer
+    read -r -p "Finalize the withdrawal on L1 now (CHAIN=$CHAIN, signer $from)? [yes/NO] " answer
     [ "$answer" = "yes" ] || die "aborted; nothing was sent"
   fi
   r="$(cast send --rpc-url "$L1_RPC_URL" --private-key "$pk" --json "$PORTAL" "finalizeWithdrawalTransaction((uint256,address,address,uint256,uint256,bytes))" "$wtx")" || die "finalizeWithdrawalTransaction failed"

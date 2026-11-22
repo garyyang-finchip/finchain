@@ -1,0 +1,633 @@
+{
+  "schema": "finchain.games/1",
+  "acceptance": "M4: resident challenger on host B against the public chain - games resolved and bonds claimed (docs/acceptance.md M4; docs/proof-plan.md level L1)",
+  "environment": "public-testnet",
+  "recordedAt": "2026-11-22T17:50:24Z",
+  "l1Rpc": "https://ethereum-sepolia-rpc.publicnode.com",
+  "disputeGameFactory": "0xc752f10ab0696860b11b789a2ab9f4f93331329c",
+  "optimismPortal": "0xeb8fbc0732fc7719838cf73d5377320a6c086b14",
+  "respectedGameType": 1,
+  "initBondWei": "0",
+  "roles": {
+    "proposer": "0xde49748ec95ac4eab9a12f3bc7124a469b4073b6",
+    "challenger": "0xd0236e0d768cc4456eed2a5373feb35413192e58",
+    "maxClockDurationSeconds": 302400
+  },
+  "gameCount": 82,
+  "gamesRead": {
+    "from": 57,
+    "to": 81,
+    "extraTypes": [
+      8
+    ]
+  },
+  "summary": {
+    "resolved": 20,
+    "resolvedByChallenger": 16,
+    "inProgress": 5,
+    "notRespectedType": 1,
+    "note": "a game of the permissioned type with one claim and no moves resolves in favour of the root after maxClockDuration; the sender of the resolving transaction says who runs the resolver. Credit is what a party may claim after resolution (the proposer bond returns to the proposer; the challenger holds credit only where it moved); claimCredit calls come from the challenger service and show in its log."
+  },
+  "games": [
+    {
+      "index": 57,
+      "type": 1,
+      "proxy": "0xfb41c5553399ba8071619143e108eb1de55bc2e2",
+      "createdAt": 1794665040,
+      "created": "2026-11-14T14:04:00Z",
+      "l2Block": 124620,
+      "rootClaim": "0x2fc693b4b6d187885b1014a710bf7f310f62fd0056623652eb71b6ebb0f74fc5",
+      "status": 2,
+      "statusName": "DEFENDER_WINS",
+      "resolvedAt": 1794967512,
+      "claims": 1,
+      "moves": 0,
+      "clockEndsAt": 1794967440,
+      "resolution": {
+        "tx": "0xa1108d636b8eb92db32ce9df223fdc2b99b93f56fdf2d46e95a2b7c7dac59594",
+        "l1Block": 12158410,
+        "from": "0xd0236e0d768cc4456eed2a5373feb35413192e58",
+        "sender": "challenger",
+        "at": "2026-11-18T02:05:12Z"
+      },
+      "creditWei": {
+        "proposer": "0",
+        "challenger": "0"
+      }
+    },
+    {
+      "index": 58,
+      "type": 1,
+      "proxy": "0x23f55597a03819b5a0a7cda541a95936d0064989",
+      "createdAt": 1794686700,
+      "created": "2026-11-14T20:05:00Z",
+      "l2Block": 135408,
+      "rootClaim": "0x12198330bab9c51652e5a6df1b56b0b1ad96ce3cf7f0c4fb2c9531a3ecb0b105",
+      "status": 2,
+      "statusName": "DEFENDER_WINS",
+      "resolvedAt": 1794989208,
+      "claims": 1,
+      "moves": 0,
+      "clockEndsAt": 1794989100,
+      "resolution": {
+        "tx": "0xb354d50294415b39baff81b6ec523d1abbd54c1a8beb03eb8adacd7555de5f7f",
+        "l1Block": 12160178,
+        "from": "0xd0236e0d768cc4456eed2a5373feb35413192e58",
+        "sender": "challenger",
+        "at": "2026-11-18T08:06:48Z"
+      },
+      "creditWei": {
+        "proposer": "0",
+        "challenger": "0"
+      }
+    },
+    {
+      "index": 59,
+      "type": 1,
+      "proxy": "0x4a35259e25172bd9dc246ce101ab1258a00a89d5",
+      "createdAt": 1794708360,
+      "created": "2026-11-15T02:06:00Z",
+      "l2Block": 146130,
+      "rootClaim": "0x5bafc3d42e4c74a64fa8ba16b57d00e4b1bd6a4501d2c4b4dcda23e2c5522a10",
+      "status": 2,
+      "statusName": "DEFENDER_WINS",
+      "resolvedAt": 1795010868,
+      "claims": 1,
+      "moves": 0,
+      "clockEndsAt": 1795010760,
+      "resolution": {
+        "tx": "0x3e65631bbbcb5bc14ea3e00f803a31991e85c35da72e0493f16f1a1b6b840d63",
+        "l1Block": 12161940,
+        "from": "0xd0236e0d768cc4456eed2a5373feb35413192e58",
+        "sender": "challenger",
+        "at": "2026-11-18T14:07:48Z"
+      },
+      "creditWei": {
+        "proposer": "0",
+        "challenger": "0"
+      }
+    },
+    {
+      "index": 60,
+      "type": 1,
+      "proxy": "0xb4fdc584bf4304ddbd99354b75e7d5805951643d",
+      "createdAt": 1794730020,
+      "created": "2026-11-15T08:07:00Z",
+      "l2Block": 157092,
+      "rootClaim": "0xc641b99d7ab8aff9c189d5cd21724cee6c3058f1508f0ed11cc1b9c125d4c3c0",
+      "status": 2,
+      "statusName": "DEFENDER_WINS",
+      "resolvedAt": 1795032516,
+      "claims": 1,
+      "moves": 0,
+      "clockEndsAt": 1795032420,
+      "resolution": {
+        "tx": "0xf7db2d4a3ca989670dac6c08be008d6c356a632f193a6d84a8899fb7d244a3f2",
+        "l1Block": 12163695,
+        "from": "0xd0236e0d768cc4456eed2a5373feb35413192e58",
+        "sender": "challenger",
+        "at": "2026-11-18T20:08:36Z"
+      },
+      "creditWei": {
+        "proposer": "0",
+        "challenger": "0"
+      }
+    },
+    {
+      "index": 61,
+      "type": 1,
+      "proxy": "0xeabd41372c9dd41a444f145ba661591ccc497b23",
+      "createdAt": 1794751680,
+      "created": "2026-11-15T14:08:00Z",
+      "l2Block": 167821,
+      "rootClaim": "0x2557d77ca9d7da91730970f2d67949536dc5a2dcaa636f09201004cb135431c1",
+      "status": 2,
+      "statusName": "DEFENDER_WINS",
+      "resolvedAt": 1795054140,
+      "claims": 1,
+      "moves": 0,
+      "clockEndsAt": 1795054080,
+      "resolution": null,
+      "creditWei": {
+        "proposer": "0",
+        "challenger": "0"
+      }
+    },
+    {
+      "index": 62,
+      "type": 1,
+      "proxy": "0x2a1e485ed46aac497fa97aacdcecbbc82d355529",
+      "createdAt": 1794773340,
+      "created": "2026-11-15T20:09:00Z",
+      "l2Block": 178777,
+      "rootClaim": "0x58483f48d87e482946e94bf1f5abbe4ddadf87af8d48dbbd96482ac471ed25c0",
+      "status": 2,
+      "statusName": "DEFENDER_WINS",
+      "resolvedAt": 1795076112,
+      "claims": 1,
+      "moves": 0,
+      "clockEndsAt": 1795075740,
+      "resolution": {
+        "tx": "0x2dc43c27b04ccf4ab98773ff37b4a8f039b917adced0780ab6b1eea863998218",
+        "l1Block": 12167201,
+        "from": "0xd0236e0d768cc4456eed2a5373feb35413192e58",
+        "sender": "challenger",
+        "at": "2026-11-19T08:15:12Z"
+      },
+      "creditWei": {
+        "proposer": "0",
+        "challenger": "0"
+      }
+    },
+    {
+      "index": 63,
+      "type": 1,
+      "proxy": "0x11a8a7c8856754a973c31b13b8cc9d7de6b9bb7b",
+      "createdAt": 1794795000,
+      "created": "2026-11-16T02:10:00Z",
+      "l2Block": 189516,
+      "rootClaim": "0xa3cbf047dc032e29694a5863b5cea825e0c79f5498225762a816964ded6e3879",
+      "status": 2,
+      "statusName": "DEFENDER_WINS",
+      "resolvedAt": 1795097496,
+      "claims": 1,
+      "moves": 0,
+      "clockEndsAt": 1795097400,
+      "resolution": {
+        "tx": "0xb9c72d28135381a676d45bde1278b36dca9ed98e2f9a98ec1459ff8278d4fbf0",
+        "l1Block": 12168907,
+        "from": "0xd0236e0d768cc4456eed2a5373feb35413192e58",
+        "sender": "challenger",
+        "at": "2026-11-19T14:11:36Z"
+      },
+      "creditWei": {
+        "proposer": "0",
+        "challenger": "0"
+      }
+    },
+    {
+      "index": 64,
+      "type": 1,
+      "proxy": "0x30543cf08c59e3477dab68bd5e646a387da7c77b",
+      "createdAt": 1794816660,
+      "created": "2026-11-16T08:11:00Z",
+      "l2Block": 200298,
+      "rootClaim": "0x8888240bb7fa97b468bae05c5d93ca19531f564d966b498205ca0bd35bce9dd8",
+      "status": 2,
+      "statusName": "DEFENDER_WINS",
+      "resolvedAt": 1795119144,
+      "claims": 1,
+      "moves": 0,
+      "clockEndsAt": 1795119060,
+      "resolution": {
+        "tx": "0xf955e2baf9a9ea9587b83d6451b3189de5ff29b2e1a17cf552acc13476d37646",
+        "l1Block": 12170653,
+        "from": "0xd0236e0d768cc4456eed2a5373feb35413192e58",
+        "sender": "challenger",
+        "at": "2026-11-19T20:12:24Z"
+      },
+      "creditWei": {
+        "proposer": "0",
+        "challenger": "0"
+      }
+    },
+    {
+      "index": 65,
+      "type": 1,
+      "proxy": "0x4d748e4fc7aae29699a8481988fcdb05128674f5",
+      "createdAt": 1794838320,
+      "created": "2026-11-16T14:12:00Z",
+      "l2Block": 211218,
+      "rootClaim": "0xb30fe1d8c51642d4ae1928d0a4a9ab2960232c0e2f4fd8d7f817f3518a34ffd9",
+      "status": 2,
+      "statusName": "DEFENDER_WINS",
+      "resolvedAt": 1795140828,
+      "claims": 1,
+      "moves": 0,
+      "clockEndsAt": 1795140720,
+      "resolution": {
+        "tx": "0x16d44c470063214dc34879a8c3526388e289097ee2bc98a63d6fb31756bbdeb8",
+        "l1Block": 12172391,
+        "from": "0xd0236e0d768cc4456eed2a5373feb35413192e58",
+        "sender": "challenger",
+        "at": "2026-11-20T02:13:48Z"
+      },
+      "creditWei": {
+        "proposer": "0",
+        "challenger": "0"
+      }
+    },
+    {
+      "index": 66,
+      "type": 1,
+      "proxy": "0x9723c866df41a5f173866c14838bea0b1ea16a84",
+      "createdAt": 1794859980,
+      "created": "2026-11-16T20:13:00Z",
+      "l2Block": 222000,
+      "rootClaim": "0xc0d7bb63a41dd6a4513dfb083d717f91774424970bf0dfb25f70b8dc4e939079",
+      "status": 2,
+      "statusName": "DEFENDER_WINS",
+      "resolvedAt": 1795162464,
+      "claims": 1,
+      "moves": 0,
+      "clockEndsAt": 1795162380,
+      "resolution": null,
+      "creditWei": {
+        "proposer": "0",
+        "challenger": "0"
+      }
+    },
+    {
+      "index": 67,
+      "type": 1,
+      "proxy": "0x7d25b34a2d483595cd18ff1eda6d36af2a77137d",
+      "createdAt": 1794881640,
+      "created": "2026-11-17T02:14:00Z",
+      "l2Block": 232902,
+      "rootClaim": "0xcb6cc8b6301d92df2904cb523a50a0b2922d17560bd256608f9bbbe70645c44c",
+      "status": 2,
+      "statusName": "DEFENDER_WINS",
+      "resolvedAt": 1795184160,
+      "claims": 1,
+      "moves": 0,
+      "clockEndsAt": 1795184040,
+      "resolution": null,
+      "creditWei": {
+        "proposer": "0",
+        "challenger": "0"
+      }
+    },
+    {
+      "index": 68,
+      "type": 1,
+      "proxy": "0xf77b30686f4c16b8f1655c468e675a6cf9c80f6e",
+      "createdAt": 1794903300,
+      "created": "2026-11-17T08:15:00Z",
+      "l2Block": 243654,
+      "rootClaim": "0x0680fe6d43fd7dfba149ee0b2d6a9ebdf8fb27b6670eff692843d7e1d5a02ca6",
+      "status": 2,
+      "statusName": "DEFENDER_WINS",
+      "resolvedAt": 1795205796,
+      "claims": 1,
+      "moves": 0,
+      "clockEndsAt": 1795205700,
+      "resolution": {
+        "tx": "0x9212e52812cc9c6396e3e07b3a7c6830bd1702b164f8f268b608fe1ae0cf1585",
+        "l1Block": 12177369,
+        "from": "0xd0236e0d768cc4456eed2a5373feb35413192e58",
+        "sender": "challenger",
+        "at": "2026-11-20T20:16:36Z"
+      },
+      "creditWei": {
+        "proposer": "0",
+        "challenger": "0"
+      }
+    },
+    {
+      "index": 69,
+      "type": 1,
+      "proxy": "0xa873b2774fecd145e8fc4960665cbe6eed0178c7",
+      "createdAt": 1794924960,
+      "created": "2026-11-17T14:16:00Z",
+      "l2Block": 254443,
+      "rootClaim": "0xf46268ad1ecd68cf49e2490a120d00b9ebc48279ec848054ce1dec69afda3d2e",
+      "status": 2,
+      "statusName": "DEFENDER_WINS",
+      "resolvedAt": 1795227468,
+      "claims": 1,
+      "moves": 0,
+      "clockEndsAt": 1795227360,
+      "resolution": {
+        "tx": "0xbe59a16a8fefa3a033dbf8a41a538a70b46040847cd0c56da1e17652fc813832",
+        "l1Block": 12178998,
+        "from": "0xd0236e0d768cc4456eed2a5373feb35413192e58",
+        "sender": "challenger",
+        "at": "2026-11-21T02:17:48Z"
+      },
+      "creditWei": {
+        "proposer": "0",
+        "challenger": "0"
+      }
+    },
+    {
+      "index": 70,
+      "type": 1,
+      "proxy": "0x36cedda68364d6f68ea7cfb01fe0246fa123a8ff",
+      "createdAt": 1794946620,
+      "created": "2026-11-17T20:17:00Z",
+      "l2Block": 265350,
+      "rootClaim": "0x11bd89d2ef6153bf7b2d285c767a04f0a2b7b0bbb6ed9f40fd6c321b5ddad182",
+      "status": 2,
+      "statusName": "DEFENDER_WINS",
+      "resolvedAt": 1795249140,
+      "claims": 1,
+      "moves": 0,
+      "clockEndsAt": 1795249020,
+      "resolution": null,
+      "creditWei": {
+        "proposer": "0",
+        "challenger": "0"
+      }
+    },
+    {
+      "index": 71,
+      "type": 1,
+      "proxy": "0x4d5aefefd451b9f44e34cf2fa3c214bc10d182ee",
+      "createdAt": 1794968280,
+      "created": "2026-11-18T02:18:00Z",
+      "l2Block": 276126,
+      "rootClaim": "0x9ea5ed054d8bc6143c5003313c48cad952f79e01006e49fc4af4af34fd454ce8",
+      "status": 2,
+      "statusName": "DEFENDER_WINS",
+      "resolvedAt": 1795270788,
+      "claims": 1,
+      "moves": 0,
+      "clockEndsAt": 1795270680,
+      "resolution": {
+        "tx": "0x1ffa692872540852c6ed200743d87fecc5e75e29c676c926032cc2a77b10e80c",
+        "l1Block": 12182372,
+        "from": "0xd0236e0d768cc4456eed2a5373feb35413192e58",
+        "sender": "challenger",
+        "at": "2026-11-21T14:19:48Z"
+      },
+      "creditWei": {
+        "proposer": "0",
+        "challenger": "0"
+      }
+    },
+    {
+      "index": 72,
+      "type": 1,
+      "proxy": "0xe96fcc0156da04b071479a6f5cb207ee532c9ddc",
+      "createdAt": 1794989940,
+      "created": "2026-11-18T08:19:00Z",
+      "l2Block": 287052,
+      "rootClaim": "0x25731498e4f26d4a3bb15db376859d2b4fd80406392452321fc5a2336dacd203",
+      "status": 2,
+      "statusName": "DEFENDER_WINS",
+      "resolvedAt": 1795292448,
+      "claims": 1,
+      "moves": 0,
+      "clockEndsAt": 1795292340,
+      "resolution": {
+        "tx": "0x18c01a380e8f0836d72864f893ba675f72ffcaed5d77abacf961b694755b73dd",
+        "l1Block": 12184109,
+        "from": "0xd0236e0d768cc4456eed2a5373feb35413192e58",
+        "sender": "challenger",
+        "at": "2026-11-21T20:20:48Z"
+      },
+      "creditWei": {
+        "proposer": "0",
+        "challenger": "0"
+      }
+    },
+    {
+      "index": 73,
+      "type": 1,
+      "proxy": "0xfceaf713cef5ccfe0545a2e17855de680144a9c1",
+      "createdAt": 1795011600,
+      "created": "2026-11-18T14:20:00Z",
+      "l2Block": 297846,
+      "rootClaim": "0xd797d92ce479da02c2fd5555545c2b339af00517d2d74396292a08320be46921",
+      "status": 2,
+      "statusName": "DEFENDER_WINS",
+      "resolvedAt": 1795314120,
+      "claims": 1,
+      "moves": 0,
+      "clockEndsAt": 1795314000,
+      "resolution": {
+        "tx": "0x2cd66abac9c7079d86859146d83d8b0a2509265a4e2148d4b31a0ab9da287456",
+        "l1Block": 12185838,
+        "from": "0xd0236e0d768cc4456eed2a5373feb35413192e58",
+        "sender": "challenger",
+        "at": "2026-11-22T02:22:00Z"
+      },
+      "creditWei": {
+        "proposer": "0",
+        "challenger": "0"
+      }
+    },
+    {
+      "index": 74,
+      "type": 8,
+      "proxy": "0x48e0b14e6db1cfaa4c3565c64c7d508dafa07655",
+      "createdAt": 1795027716,
+      "created": "2026-11-18T18:48:36Z",
+      "l2Block": 305862,
+      "rootClaim": "0xf6ed971427f5c9795135743484a8687213205550be65b5b521c7a27b5de8706e",
+      "startingRootHash": "0x449f80942870b4bceb6d55569c8ec31fa9dda575f1585f0f78567ff3083f4b5d",
+      "startingBlockNumber": 3492,
+      "creator": "0xde49748ec95ac4eab9a12f3bc7124a469b4073b6",
+      "absolutePrestate": "0x038b60ac8db81e83cb87229ef9119b500c5723767806cb93a639d70618cad9fb",
+      "vm": "0xacc005dcd857b401e4732e6f7837135a22825cfa",
+      "status": 2,
+      "statusName": "DEFENDER_WINS",
+      "resolvedAt": 1795330188,
+      "claims": 1,
+      "clockEndsAt": 1795330116,
+      "resolution": {
+        "tx": "0xc90171d5fc98fbf781035dfc4659e972e9c0630a5019791ce1b252dae7439641",
+        "l1Block": 12187120,
+        "from": "0xd0236e0d768cc4456eed2a5373feb35413192e58",
+        "sender": "challenger",
+        "at": "2026-11-22T06:49:48Z"
+      },
+      "creditWei": {
+        "creator": "80000000000000000",
+        "challenger": "0"
+      }
+    },
+    {
+      "index": 75,
+      "type": 1,
+      "proxy": "0x0d311c52b1be3b0f661a3cec09fac67bfbdba2de",
+      "createdAt": 1795033320,
+      "created": "2026-11-18T20:22:00Z",
+      "l2Block": 308760,
+      "rootClaim": "0x31a21b7eaa3a5dca29343d03627ed9f0ab6e140ced7ad4be9f3cd035b01156ff",
+      "status": 2,
+      "statusName": "DEFENDER_WINS",
+      "resolvedAt": 1795335804,
+      "claims": 1,
+      "moves": 0,
+      "clockEndsAt": 1795335720,
+      "resolution": {
+        "tx": "0x6365e8c2e94905bcd5935b2a6b50f3dfc4f6d034af05117558d6df2141c762b3",
+        "l1Block": 12187569,
+        "from": "0xd0236e0d768cc4456eed2a5373feb35413192e58",
+        "sender": "challenger",
+        "at": "2026-11-22T08:23:24Z"
+      },
+      "creditWei": {
+        "proposer": "0",
+        "challenger": "0"
+      }
+    },
+    {
+      "index": 76,
+      "type": 1,
+      "proxy": "0xf73b9d602a4a82d90e1ef4d2c72a4b6f671881b3",
+      "createdAt": 1795054980,
+      "created": "2026-11-19T02:23:00Z",
+      "l2Block": 319513,
+      "rootClaim": "0xaef869d82838181a25fbdc7f45f91350e8df77763d5b725e5ad39493540a8cdb",
+      "status": 2,
+      "statusName": "DEFENDER_WINS",
+      "resolvedAt": 1795357512,
+      "claims": 1,
+      "moves": 0,
+      "clockEndsAt": 1795357380,
+      "resolution": {
+        "tx": "0xc04941e59c0334f47c4b3303046a9ccd52afee0e85c961bf4478e14b0c93a44b",
+        "l1Block": 12189312,
+        "from": "0xd0236e0d768cc4456eed2a5373feb35413192e58",
+        "sender": "challenger",
+        "at": "2026-11-22T14:25:12Z"
+      },
+      "creditWei": {
+        "proposer": "0",
+        "challenger": "0"
+      }
+    },
+    {
+      "index": 77,
+      "type": 1,
+      "proxy": "0xa92256e928b51ab9dc0223dd6bf4db4cd32cd6ad",
+      "createdAt": 1795076640,
+      "created": "2026-11-19T08:24:00Z",
+      "l2Block": 330264,
+      "rootClaim": "0x8da36701a597dee654de029284070de23383ff0dd42d86d8cd60335cf7c77753",
+      "status": 0,
+      "statusName": "IN_PROGRESS",
+      "resolvedAt": 0,
+      "claims": 1,
+      "moves": 0,
+      "clockEndsAt": 1795379040,
+      "resolution": null,
+      "creditWei": {
+        "proposer": "0",
+        "challenger": "0"
+      }
+    },
+    {
+      "index": 78,
+      "type": 1,
+      "proxy": "0x6d2d86e73763024ccabf0473f66dfb4d5f774303",
+      "createdAt": 1795098300,
+      "created": "2026-11-19T14:25:00Z",
+      "l2Block": 341202,
+      "rootClaim": "0x925373d039ec28d9ebf0496e534d7da600e2c61389b9716b622f87994a92bed3",
+      "status": 0,
+      "statusName": "IN_PROGRESS",
+      "resolvedAt": 0,
+      "claims": 1,
+      "moves": 0,
+      "clockEndsAt": 1795400700,
+      "resolution": null,
+      "creditWei": {
+        "proposer": "0",
+        "challenger": "0"
+      }
+    },
+    {
+      "index": 79,
+      "type": 1,
+      "proxy": "0xa5795c0bcdb91bfa943198f0451b3e246782c6e2",
+      "createdAt": 1795119960,
+      "created": "2026-11-19T20:26:00Z",
+      "l2Block": 351984,
+      "rootClaim": "0xe938dd15dd593f5831c83cbed730d6d1a7f94d71ff8424cf5b72c9f2e2242e6e",
+      "status": 0,
+      "statusName": "IN_PROGRESS",
+      "resolvedAt": 0,
+      "claims": 1,
+      "moves": 0,
+      "clockEndsAt": 1795422360,
+      "resolution": null,
+      "creditWei": {
+        "proposer": "0",
+        "challenger": "0"
+      }
+    },
+    {
+      "index": 80,
+      "type": 1,
+      "proxy": "0x238481d093b7e23fe51b76b082c3ba9ea2a906f3",
+      "createdAt": 1795141620,
+      "created": "2026-11-20T02:27:00Z",
+      "l2Block": 362892,
+      "rootClaim": "0x714b65a21afac0a9a923be581e8ff8445de57da39e7d31094c9cb7c25d326b4a",
+      "status": 0,
+      "statusName": "IN_PROGRESS",
+      "resolvedAt": 0,
+      "claims": 1,
+      "moves": 0,
+      "clockEndsAt": 1795444020,
+      "resolution": null,
+      "creditWei": {
+        "proposer": "0",
+        "challenger": "0"
+      }
+    },
+    {
+      "index": 81,
+      "type": 1,
+      "proxy": "0x2efca6be9135699e7826705d170e9e19afe0a09a",
+      "createdAt": 1795163280,
+      "created": "2026-11-20T08:28:00Z",
+      "l2Block": 373680,
+      "rootClaim": "0x2d122444f8d1b810086f5e3b7bb1cd16dab2d64dd47def4177be699b3856d6c7",
+      "status": 0,
+      "statusName": "IN_PROGRESS",
+      "resolvedAt": 0,
+      "claims": 1,
+      "moves": 0,
+      "clockEndsAt": 1795465680,
+      "resolution": null,
+      "creditWei": {
+        "proposer": "0",
+        "challenger": "0"
+      }
+    }
+  ]
+}

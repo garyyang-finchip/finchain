@@ -272,7 +272,7 @@ a cell account on each chain. On Finchain it is cell `OG`, account
 `0x9F7647013499C44B7E0432F5E9e22E4Afd447aD1`, ERC-8004 agent 6 of the identity root, under
 FOGA-Cell-v2 with all thirteen covenants; it holds and offers `foga-probe` (skill token 3)
 and `finch-extract-verify` (token 4), its four documents are committed on chain, its channel
-`0x5a8118c2…` is anchored and disclosed, it is admitted to the World's market as submitter
+`0x5a8118c2...` is anchored and disclosed, it is admitted to the World's market as submitter
 and responder, and it is enrolled in the ERC-8490 registry with one cycle run. The birth,
 the skills and the documents cost 0.005 ETH of the 0.05 ETH the chain operations deployer
 sent it. It is served by a second systemd unit on the FOGA host (`foga-og-finchain`, host
@@ -294,8 +294,8 @@ this World in the genesis. FOGA took the fix on its own terms in 1.0.9 (an optio
 block, a probe defect raised at once instead of retried); both OG services were restarted on
 1.0.9 the day it was released (`/healthz` version 1.0.9 on both names), and the same
 readiness check of the Finchain OG then passed 36 items with the one warning and no failure
-("probed 0x9F76…7aD1 at block 82141 in 1012 ms"). The two other FOGA-side items M3-C
-produced went the same way: `--world https://…` for `join`, `genesis` and `doctor` is in
+("probed 0x9F76...7aD1 at block 82141 in 1012 ms"). The two other FOGA-side items M3-C
+produced went the same way: `--world https://...` for `join`, `genesis` and `doctor` is in
 1.0.9 (this repository's address book is joined by its URL, section 5.5), and the ERC-8447
 eligibility sentinel for agent id 0 is an upstream item (section 5.4 and
 `chain/world/README.md`).
@@ -325,7 +325,7 @@ made for it, by one command - the address book named by its URL in this reposito
 npx -y @finchip.ai/foga join --world https://raw.githubusercontent.com/garyyang-finchip/finchain/main/chain/world/finchain-sepolia.json --rpc https://rpc.finchain.one --run stub
 ```
 
-The package fetched the book (sha256 `fc26a8f23848…`, kept under `~/.foga/worlds/` by chain
+The package fetched the book (sha256 `fc26a8f23848...`, kept under `~/.foga/worlds/` by chain
 id, worldId and content hash), the chain operations deployer funded the identity with 0.05 ETH
 (block 82422), and the join did the rest: account `0x2Dd0c30383EcD6414e0b9DD6F10bf27BFe8715BB`,
 ERC-8004 agent 7, skill tokens 5 and 6 offered, documents committed, channel opened and
@@ -397,7 +397,7 @@ its operator's procedure until FOGA provides it.
 | C-2 World | E06, released FOGA, `--world chain/world/finchain-sepolia.world.json` | `chain/world/finchain-sepolia.json` with `completionBlock` |
 | C-3 verification | E06 (`make world-manifest` with the package's bundle), B (`make verify-world` at `finalized`), E06 again (`make world-manifest` with B's report) | `manifests/covenant-world-finchain-sepolia.json` with `completionBlock` and `verifiedAt`, `manifests/evidence/world-verify-<block>.json` |
 | C-4a genesis T0-T9 | E06, released 1.0.7, `--world chain/world/finchain-sepolia.json` | `manifests/evidence/foga-genesis-finchain-sepolia.json`, `manifests/evidence/foga-doctor-finchain-sepolia.json` (done 2026-11-13) |
-| C-4b the OG on Finchain (D8) | E06, the checkout at v1.0.8, `foga join --world … --rpc …`, a second service at `og.finchain.one` | `manifests/evidence/og-finchain-2026-11-13.json` (done 2026-11-13) |
+| C-4b the OG on Finchain (D8) | E06, the checkout at v1.0.8, `foga join --world ... --rpc ...`, a second service at `og.finchain.one` | `manifests/evidence/og-finchain-2026-11-13.json` (done 2026-11-13) |
 | C-4c the second cell and the business loop (D9, D10) | integration stage: host B's machine as an RPC user (`cell-b`, the registry's 1.0.9, the address book by URL), the OG as the demander (E06) | `manifests/evidence/business-loop-2026-11-13.json` (done 2026-11-13, integration stage; the acceptance stage - another operator - open) |
 | C-5 funding lines and the loop at finalized | B (`make fee-lines`) | `manifests/evidence/fee-lines-20261113T151307Z.json` (done 2026-11-13: 292 receipts, the four lines with three fee components each, the seven loop receipts FINAL at 83370); the M3-C summary `manifests/evidence/m3c-2026-11-13.json` |
 | Close | - | finchain 0.2.0, manifest `manifests/finchain-sepolia/2026.11-rc1.json` (status `candidate`, validated against `manifests/manifest.schema.json`; done 2026-11-13) |

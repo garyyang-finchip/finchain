@@ -55,7 +55,7 @@ L2_BLOCK="${L2_BLOCK:-$finalized}"
 [ "$L2_BLOCK" -gt "$anchor_block" ] || die "L2 block $L2_BLOCK is not after the anchor block $anchor_block"
 out="$(rpc "$NODE" optimism_outputAtBlock "[\"$(printf '0x%x' "$L2_BLOCK")\"]" | jq -c .result)"
 root="$(jq -r .outputRoot <<<"$out")"; [ -n "$root" ] && [ "$root" != null ] || die "op-node gave no output root for block $L2_BLOCK"
-echo "Type $GAME_TYPE game on Finchain Sepolia through $L1_LABEL"
+echo "Type $GAME_TYPE game on Finchain (chain id $L2_CHAIN_ID, CHAIN=$CHAIN) through $L1_LABEL"
 echo "  implementation $impl ($args_len bytes of arguments, prestate $installed_prestate); anchor $anchor_root at L2 block $anchor_block"
 echo "  root claim: output root $root of L2 block $L2_BLOCK (op-node finalized $finalized); initial bond $bond wei"
 if [ "${DRY_RUN:-0}" = 1 ]; then echo "  DRY_RUN=1: nothing sent"; exit 0; fi

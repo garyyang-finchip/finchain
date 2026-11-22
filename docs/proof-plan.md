@@ -349,11 +349,18 @@ Steps 1 to 4 ran in one day, with the anchor's clock the only wait:
 | 4. One game | 2026-11-18 18:48:36 (L1 block time), host A | a waiting loop on host A retried `make k4-create-game` every two minutes until the anchor had moved, then created game **#74** `0x48e0b14e6DB1Cfaa4C3565c64C7d508DAfA07655`, type 8, root claim at L2 block 305862 from op-node's finalized output, sent by the proposer with the 0.08 ETH bond (transaction `0x2c2d79b9...d975a`) | `manifests/evidence/k4-game-20261118T184904Z.json`; `k4-games-extract-20261119T035052Z.json`, the summary and game #74 from host B's `make games EXTRA_TYPES=8` record of 2026-11-19 03:50 UTC (type 8, creator the proposer, prestate `0x038b60ac...`, IN_PROGRESS, 1 claim; 62 of the 77 games resolved, 58 by the challenger) |
 | 3. Challenger | from 2026-11-18 18:49, host B | the `cannon-kona` player took the game up in its first update cycle after creation (one warning, "local node not sufficiently up to date", the L1 head one block short for that cycle), validated the prestate and the starting root without error and has logged `Game info ... claims 1, In Progress` once a minute since: 545 lines on the game by 04:02 UTC on 2026-11-19, 544 of them that line, one warning, no error; the root is honest, so there is nothing to counter | `manifests/evidence/k4-challenger-log-20261119.jsonl` (the first three and the last two lines, and the counts) |
 
-K4 is done by the criterion above. The game's clock ends 2026-11-22 06:48:36 UTC; the
-challenger is expected to resolve it `DEFENDER_WINS` in the first cycle after that, and `make
-games EXTRA_TYPES=8` records it then. What remains open on Sepolia is what K4 excluded: no
-dispute was played on the public chain, and the challenger's L1 endpoint still lacks the raw-RLP
-methods a dispute would need (`docs/mainnet.md` decision 3).
+K4 is done by the criterion above, and the game's end came as expected: its clock ended
+2026-11-22 06:48:36 UTC and host B's `cannon-kona` challenger resolved it `DEFENDER_WINS` 72 s
+later, at 06:49:48 UTC (transaction `0xc90171d5...9641`, L1 block 12187120), the 0.08 ETH bond
+credited to its creator, the proposer - `manifests/evidence/games-20261122T175024Z.json` (`make
+games EXTRA_TYPES=8 LAST=25` on 2026-11-22: games #57 to #81, #74 the one game of type 8,
+twenty resolved, every resolution by the challenger where the log was found). What remains open
+on Sepolia is what K4 excluded: no dispute was played on the public chain, and the challenger's
+L1 endpoint still lacks the raw-RLP methods a dispute would need (`docs/mainnet.md` decision 3).
+
+The same day closed M4: the withdrawal initiated on 2026-11-13 and proven on 2026-11-14 was
+finalized on 2026-11-22 at 17:24:48 UTC, 0.01 ETH back on L1
+(`manifests/evidence/withdrawal-20261113T174622Z.json`, "M4 close" in `docs/acceptance.md`).
 
 ## Resident service on the public testnet
 

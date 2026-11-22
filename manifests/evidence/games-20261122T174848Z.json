@@ -1,0 +1,117 @@
+{
+  "schema": "finchain.games/1",
+  "acceptance": "M4: resident challenger on host B against the public chain - games resolved and bonds claimed (docs/acceptance.md M4; docs/proof-plan.md level L1)",
+  "environment": "mainnet",
+  "recordedAt": "2026-11-22T17:48:48Z",
+  "l1Rpc": "https://ethereum-rpc.publicnode.com",
+  "disputeGameFactory": "0x4aa400aa71f9658dc010dcc9cd7229bd4467536e",
+  "optimismPortal": "0x54ee6b884b1f7b0ef2ae3bb4805ab3dc6667aabb",
+  "respectedGameType": 1,
+  "initBondWei": "80000000000000000",
+  "roles": {
+    "proposer": "0x7c2b388303cebae84ad3448057e074f2b2a65bbb",
+    "challenger": "0xc666b76daa39016bf4eeaa213deb58e612a92dc7",
+    "maxClockDurationSeconds": 302400
+  },
+  "gameCount": 4,
+  "gamesRead": {
+    "from": 0,
+    "to": 3,
+    "extraTypes": []
+  },
+  "summary": {
+    "resolved": 1,
+    "resolvedByChallenger": 1,
+    "inProgress": 3,
+    "notRespectedType": 0,
+    "note": "a game of the permissioned type with one claim and no moves resolves in favour of the root after maxClockDuration; the sender of the resolving transaction says who runs the resolver. Credit is what a party may claim after resolution (the proposer bond returns to the proposer; the challenger holds credit only where it moved); claimCredit calls come from the challenger service and show in its log."
+  },
+  "games": [
+    {
+      "index": 0,
+      "type": 1,
+      "proxy": "0xaed62d9112099cb03a3062d27afea1877343c12f",
+      "createdAt": 1795026599,
+      "created": "2026-11-18T18:29:59Z",
+      "l2Block": 1489,
+      "rootClaim": "0x69bd17daa9b92ee9af0c4fcdff8c2aaa6800c14b97027187c25db8afc965856f",
+      "status": 2,
+      "statusName": "DEFENDER_WINS",
+      "resolvedAt": 1795329107,
+      "claims": 1,
+      "moves": 0,
+      "clockEndsAt": 1795328999,
+      "resolution": {
+        "tx": "0xaed6d15410f5581a3c2ee8dac0d62b5c2c63619ec43fac7d3f7477a65e669980",
+        "l1Block": 26468877,
+        "from": "0xc666b76daa39016bf4eeaa213deb58e612a92dc7",
+        "sender": "challenger",
+        "at": "2026-11-22T06:31:47Z"
+      },
+      "creditWei": {
+        "proposer": "80000000000000000",
+        "challenger": "0"
+      }
+    },
+    {
+      "index": 1,
+      "type": 1,
+      "proxy": "0x129f40714bfd114fd32beb398bc065c751847a93",
+      "createdAt": 1795113047,
+      "created": "2026-11-19T18:30:47Z",
+      "l2Block": 44713,
+      "rootClaim": "0xd78f8bac1de8bfdd82757e120082e61d899ac25b5a99fb07a372930d20a823a3",
+      "status": 0,
+      "statusName": "IN_PROGRESS",
+      "resolvedAt": 0,
+      "claims": 1,
+      "moves": 0,
+      "clockEndsAt": 1795415447,
+      "resolution": null,
+      "creditWei": {
+        "proposer": "0",
+        "challenger": "0"
+      }
+    },
+    {
+      "index": 2,
+      "type": 1,
+      "proxy": "0x2f5bb350f96671c3e28c6557112e01fe892074dd",
+      "createdAt": 1795199507,
+      "created": "2026-11-20T18:31:47Z",
+      "l2Block": 87925,
+      "rootClaim": "0x97cb738ae833c6bfcbe088db777a2b6f0ee35a841e278300965188149b900d07",
+      "status": 0,
+      "statusName": "IN_PROGRESS",
+      "resolvedAt": 0,
+      "claims": 1,
+      "moves": 0,
+      "clockEndsAt": 1795501907,
+      "resolution": null,
+      "creditWei": {
+        "proposer": "0",
+        "challenger": "0"
+      }
+    },
+    {
+      "index": 3,
+      "type": 1,
+      "proxy": "0x12eb9d3c91e3e073a6c1507c5199b2be557ad253",
+      "createdAt": 1795285967,
+      "created": "2026-11-21T18:32:47Z",
+      "l2Block": 131125,
+      "rootClaim": "0x91e2ef9c8127b250f77d8fd48c71b54a83265fab914fa5f514bd0c73ffdb8d01",
+      "status": 0,
+      "statusName": "IN_PROGRESS",
+      "resolvedAt": 0,
+      "claims": 1,
+      "moves": 0,
+      "clockEndsAt": 1795588367,
+      "resolution": null,
+      "creditWei": {
+        "proposer": "0",
+        "challenger": "0"
+      }
+    }
+  ]
+}
