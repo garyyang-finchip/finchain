@@ -97,6 +97,28 @@ first chain's files, volumes or ports. Status per step (2026-11-19):
    handbook's mainnet section (the facts are in `docs/handbook.md` already), the FOGA 1.1.0
    release after stability.
 
+Running acceptance after v0.3.0 (the owner's plan of 2026-11-23): the open items are read back on
+the contract clocks, as one continuous group where the clocks allow, with the scripts prepared
+beforehand and nothing developed, packaged or released in between; what cannot be shortened is the
+clocks themselves. Three checkpoints keep a successful transaction from being mistaken for a closed
+mechanism. (1) The anchor and the bond are two separate acceptances: `closeGame()` moves the anchor
+only for a game of the respected type that is finalized, valid and ahead of the current anchor, and
+the credit's way back is `claimCredit` after the DelayedWETH delay - so the anchor root is read
+against game 0's root claim, and the bond is read as the game closed, the DelayedWETH unlock paid
+out, the paying transaction found and the proposer's L1 balance moved by the bond (net of the
+bonds of the games created in between); `make games CHAIN=mainnet` reads all of this (the `bond`
+block of each game, `anchor`, `balances`; schema `finchain.games/2`). (2) A Type 8 game running
+on mainnet does not make Type 8 the respected type: the first Type 8 game (`make k4-create-game
+CHAIN=mainnet` on host A once the anchor has moved) is tracked and resolved by host B's
+`cannon-kona` challenger and settles nothing; changing the respected type is the guardian's
+decision and stays an M5 question (decision 6). (3) The mainnet withdrawal is finalized as its own
+acceptance: `make withdraw CHAIN=mainnet ARGS="finalize ..."` is accepted on the target's L1
+balance moving by the withdrawn amount, with the game, the proof maturity, the finality condition
+and the transaction hash in `withdrawal-20261119T102234Z.json`, not on the script's exit status.
+Expected order: game 0's close and payout from 2026-11-25T18:29:59Z (3.5 days after its
+resolution), then the first Type 8 game; the withdrawal's finalize from 2026-11-26T19:16:59Z; the
+Type 8 game's resolution 3.5 days after its creation.
+
 The separate dry run with a throwaway chain name was dropped by the owner on 2026-11-19 as a
 self-imposed wait; what remains of it is the compose rendering check (`make lint` renders the
 host files with the example env) and the runtime non-interference record below, taken before

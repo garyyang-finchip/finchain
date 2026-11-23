@@ -62,6 +62,15 @@ SEL_STARTING_ROOT=0x25fc2ace   # startingRootHash()
 SEL_STARTING_BLOCK=0x70872aa5  # startingBlockNumber()
 EXTRA_TYPES="${EXTRA_TYPES:-}"
 TOPIC_RESOLVED=0x5e186f09b9c93491f14e277eea7faa5de6a2d4bda75a79af7a3684fbfb42da60   # Resolved(GameStatus indexed)
+# the bond's way back (op-contracts v7): resolve() unlocks the credit in DelayedWETH; claimCredit(recipient) closes the
+# game first (closeGame: the game finalized under the anchor state registry's rules, which also moves the anchor when the
+# game qualifies) and then withdraws the credit after the WETH delay, paying the recipient in the same transaction.
+SEL_BOND_MODE=0x378dd48c       # bondDistributionMode() -> 0 UNDECIDED (not closed), 1 NORMAL, 2 REFUND
+SEL_WETH=0x3fc8cef3            # weth() -> the game's DelayedWETH
+SEL_WETH_WITHDRAWALS=0xcd47bde1  # DelayedWETH.withdrawals(game, recipient) -> (amount, timestamp): the unlock, amount 0 once paid
+SEL_WETH_DELAY=0x6a42b8f8      # DelayedWETH.delay()
+SEL_ANCHOR=0xd83ef267          # AnchorStateRegistry.getAnchorRoot() -> (root, l2BlockNumber)
+TOPIC_WITHDRAWAL=0x7fcf532c15f0a6db0bd6d0e038bea71d30d808c7d98cb3bf7268a95bf5081b65  # WETH Withdrawal(address indexed src, uint256 wad): src is the game
 
 # ecall <to> <data> -> the raw hex result. A public endpoint drops or rate-limits a burst of requests, so an error or an
 # empty answer is asked again (six attempts in all, with a growing pause) before the script gives up on the call.
@@ -147,8 +156,51 @@ resolved_log() {
   return 1
 }
 
+# logs_first <address> <topics (JSON array)> <from> <to> -> the first log in [from, to], read in windows a public endpoint accepts
+logs_first() {
+  local addr="$1" topics="$2" a="$3" to="$4" b lg
+  while [ "$a" -le "$to" ]; do
+    b=$((a + 3999)); [ "$b" -gt "$to" ] && b="$to"
+    lg="$(rpc_try 3 eth_getLogs "[{\"address\":\"$addr\",\"topics\":$topics,\"fromBlock\":\"$(printf '0x%x' "$a")\",\"toBlock\":\"$(printf '0x%x' "$b")\"}]" | jq -c '.[0] // empty' || true)"
+    if [ -n "$lg" ]; then echo "$lg"; return 0; fi
+    a=$((b + 1))
+  done
+  return 1
+}
+# bond_cycle <proxy> <recipient> <status> -> JSON: whether the game is closed (bondDistributionMode set), the DelayedWETH
+# unlock of the recipient's credit (amount left, unlock time) and, once paid, the paying transaction (the WETH Withdrawal
+# log of this game, searched from the end of the WETH delay); null fields while the game is in progress
+weth_delay=""
+bond_cycle() {
+  local proxy="$1" who="$2" st="$3" mode closed weth wd amount uts claim=null from_b lg ctx cblock cfrom
+  if [ "$st" = "0" ]; then echo '{"closed": false, "bondDistributionMode": 0, "wethUnlock": null, "claim": null}'; return; fi
+  mode="$(word_n "$(ecall "$proxy" "$SEL_BOND_MODE")" 0)"; closed=false; [ "$mode" = "0" ] || closed=true
+  weth="$(word_addr "$(ecall "$proxy" "$SEL_WETH")" 0)"
+  [ -n "$weth_delay" ] || weth_delay="$(word_n "$(ecall "$weth" "$SEL_WETH_DELAY")" 0)"
+  wd="$(ecall "$weth" "${SEL_WETH_WITHDRAWALS}$(pad_a "$proxy")$(pad_a "$who")")"; amount="$(word_n "$wd" 0)"; uts="$(word_n "$wd" 1)"
+  if [ "$closed" = true ] && [ "$amount" = "0" ] && [ "$uts" != "0" ]; then
+    from_b="$(block_at_ts "$((uts + weth_delay))" 2>/dev/null || echo "$DEPLOY_BLOCK")"; from_b=$((from_b - 5)); [ "$from_b" -lt "$DEPLOY_BLOCK" ] && from_b="$DEPLOY_BLOCK"
+    if lg="$(logs_first "$weth" "[\"$TOPIC_WITHDRAWAL\",\"0x$(pad_a "$proxy")\"]" "$from_b" "$latest")"; then
+      ctx="$(jq -r .transactionHash <<<"$lg")"; cblock=$(( $(jq -r .blockNumber <<<"$lg") ))
+      cfrom="$(rpcq eth_getTransactionByHash "[\"$ctx\"]" | jq -r '.from // ""')"
+      claim="$(jq -cn --arg tx "$ctx" --argjson b "$cblock" --arg from "$cfrom" --arg who "$(sender_role "$cfrom")" --arg at "$(iso_of "$(block_ts "$cblock")")" --arg wad "$(word_n "$(jq -r .data <<<"$lg")" 0)" \
+        '{tx: $tx, l1Block: $b, from: $from, sender: $who, at: $at, paidWei: $wad}')"
+    fi
+  fi
+  jq -cn --argjson closed "$closed" --argjson mode "$mode" --arg amount "$amount" --argjson uts "$uts" --argjson claim "$claim" \
+    '{closed: $closed, bondDistributionMode: $mode, wethUnlock: (if $uts == 0 then null else {amountLeftWei: $amount, unlockedAt: $uts, unlocked: ($uts | todate)} end), claim: $claim}'
+}
+bond_marks() { # bond_marks <bond JSON> -> the markers of the table line
+  local m=""; [ "$(jq -r .closed <<<"$1")" != "true" ] || m=" closed"
+  [ "$(jq -r '.claim.tx // empty' <<<"$1")" = "" ] || m="$m paid $(jq -r '.claim.tx' <<<"$1" | cut -c1-10)... by $(jq -r '.claim.sender' <<<"$1")"
+  printf '%s' "$m"
+}
+
 count="$(word_n "$(ecall "$DGF" "$SEL_GAME_COUNT")" 0)"
 respected="$(word_n "$(ecall "$PORTAL" "$SEL_RESPECTED")" 0)"
+ASR="$(jq -r '.l1.AnchorStateRegistryProxy // empty' "$REC")"
+anchor_root=""; anchor_block=""
+if [ -n "$ASR" ]; then ar="$(ecall "$ASR" "$SEL_ANCHOR")"; anchor_root="$(word_hex "$ar" 0)"; anchor_block="$(word_n "$ar" 1)"; fi
 init_bond="$(word_n "$(ecall "$DGF" "${SEL_INIT_BONDS}$(pad_u "$respected")")" 0)"
 now="$(date +%s)"
 latest=$(( $(rpcq eth_blockNumber '[]' | jq -r .) )); latest_ts="$(block_ts "$latest")"
@@ -174,6 +226,7 @@ while [ "$i" -lt "$count" ]; do
       xmax_clock="$(word_n "$(ecall "$proxy" "$SEL_MAX_CLOCK")" 0)"
       xcredit_cr="$(word_n "$(ecall "$proxy" "${SEL_CREDIT}$(pad_a "$xcreator")")" 0)"
       xcredit_c=""; [ -z "$challenger_addr" ] || xcredit_c="$(word_n "$(ecall "$proxy" "${SEL_CREDIT}$(pad_a "$challenger_addr")")" 0)"
+      xbond="$(bond_cycle "$proxy" "$xcreator" "$xstatus")"
       xres=null
       if [ "$xstatus" != "0" ]; then
         resolved=$((resolved + 1))
@@ -187,12 +240,12 @@ while [ "$i" -lt "$count" ]; do
       else
         in_progress=$((in_progress + 1))
       fi
-      printf '  #%-3s %s  type %s  L2 %-7s created %s  %-15s claims %s  creator %s  prestate %s...  credit creator %s\n' "$i" "$proxy" "$type" "$xl2b" "$(iso_of "$created")" "$(status_name "$xstatus")" "$xclaims" "$xcreator" "${xpre:0:18}" "$(hex_to_eth "$(printf '0x%x' "$xcredit_cr")")"
+      printf '  #%-3s %s  type %s  L2 %-7s created %s  %-15s claims %s  creator %s  prestate %s...  credit creator %s%s\n' "$i" "$proxy" "$type" "$xl2b" "$(iso_of "$created")" "$(status_name "$xstatus")" "$xclaims" "$xcreator" "${xpre:0:18}" "$(hex_to_eth "$(printf '0x%x' "$xcredit_cr")")" "$(bond_marks "$xbond")"
       games="$(jq -cn --argjson g "$games" --argjson i "$i" --argjson t "$type" --arg p "$proxy" --argjson c "$created" --arg cs "$(iso_of "$created")" --argjson l2 "$xl2b" --arg root "$xroot" \
         --argjson st "$xstatus" --arg stn "$(status_name "$xstatus")" --argjson ra "$xresolved_at" --argjson claims "$xclaims" --argjson res "$xres" --arg creator "$xcreator" --arg pre "$xpre" --arg vm "$xvm" \
-        --arg sroot "$xsroot" --argjson sblock "$xsblock" --argjson ce "$((created + xmax_clock))" --arg ccr "$xcredit_cr" --arg cc "$xcredit_c" \
+        --arg sroot "$xsroot" --argjson sblock "$xsblock" --argjson ce "$((created + xmax_clock))" --arg ccr "$xcredit_cr" --arg cc "$xcredit_c" --argjson bond "$xbond" \
         '$g + [{index: $i, type: $t, proxy: $p, createdAt: $c, created: $cs, l2Block: $l2, rootClaim: $root, startingRootHash: $sroot, startingBlockNumber: $sblock, creator: $creator, absolutePrestate: $pre, vm: $vm,
-                status: $st, statusName: $stn, resolvedAt: $ra, claims: $claims, moves: ($claims - 1), clockEndsAt: $ce, resolution: $res, creditWei: {creator: $ccr, challenger: (if $cc == "" then null else $cc end)}}]')"
+                status: $st, statusName: $stn, resolvedAt: $ra, claims: $claims, moves: ($claims - 1), clockEndsAt: $ce, resolution: $res, creditWei: {creator: $ccr, challenger: (if $cc == "" then null else $cc end)}, bond: $bond}]')"
       i=$((i + 1)); sleep 0.3; continue
     fi
     games="$(jq -cn --argjson g "$games" --argjson i "$i" --argjson t "$type" --arg p "$proxy" --argjson c "$created" '$g + [{index: $i, type: $t, proxy: $p, createdAt: $c, note: "not the respected type; not read"}]')"
@@ -210,6 +263,7 @@ while [ "$i" -lt "$count" ]; do
   fi
   credit_p="$(word_n "$(ecall "$proxy" "${SEL_CREDIT}$(pad_a "$proposer_addr")")" 0)"
   credit_c="$(word_n "$(ecall "$proxy" "${SEL_CREDIT}$(pad_a "$challenger_addr")")" 0)"
+  bond="$(bond_cycle "$proxy" "$proposer_addr" "$status")"
   resolution=null
   if [ "$status" != "0" ]; then
     resolved=$((resolved + 1))
@@ -226,26 +280,46 @@ while [ "$i" -lt "$count" ]; do
   fi
   moves=$((claims - 1))   # every move appends a claim; the root claim is claim 0 (no log query: a public endpoint rations eth_getLogs)
   clock_ends=$((created + max_clock))
-  printf '  #%-3s %s  L2 %-7s created %s  %-15s claims %s moves %s%s  credit P %s C %s\n' "$i" "$proxy" "$l2b" "$(iso_of "$created")" "$(status_name "$status")" "$claims" "$moves" \
+  printf '  #%-3s %s  L2 %-7s created %s  %-15s claims %s moves %s%s  credit P %s C %s%s\n' "$i" "$proxy" "$l2b" "$(iso_of "$created")" "$(status_name "$status")" "$claims" "$moves" \
     "$([ "$status" != "0" ] && echo "  resolved $(iso_of "$resolved_at") by $(jq -r '.sender // "?"' <<<"$resolution")" || echo "  clock ends $(iso_of "$clock_ends")$([ "$now" -gt "$clock_ends" ] && echo ' (resolvable)')")" \
-    "$(hex_to_eth "$(printf '0x%x' "$credit_p")")" "$(hex_to_eth "$(printf '0x%x' "$credit_c")")"
+    "$(hex_to_eth "$(printf '0x%x' "$credit_p")")" "$(hex_to_eth "$(printf '0x%x' "$credit_c")")" "$(bond_marks "$bond")"
   games="$(jq -cn --argjson g "$games" --argjson i "$i" --argjson t "$type" --arg p "$proxy" --argjson c "$created" --arg cs "$(iso_of "$created")" --argjson l2 "$l2b" --arg root "$root" \
     --argjson st "$status" --arg stn "$(status_name "$status")" --argjson ra "$resolved_at" --argjson claims "$claims" --argjson moves "$moves" --argjson res "$resolution" \
-    --arg cp "$credit_p" --arg cc "$credit_c" --argjson ce "$clock_ends" \
-    '$g + [{index: $i, type: $t, proxy: $p, createdAt: $c, created: $cs, l2Block: $l2, rootClaim: $root, status: $st, statusName: $stn, resolvedAt: $ra, claims: $claims, moves: $moves, clockEndsAt: $ce, resolution: $res, creditWei: {proposer: $cp, challenger: $cc}}]')"
+    --arg cp "$credit_p" --arg cc "$credit_c" --argjson ce "$clock_ends" --argjson bond "$bond" \
+    '$g + [{index: $i, type: $t, proxy: $p, createdAt: $c, created: $cs, l2Block: $l2, rootClaim: $root, status: $st, statusName: $stn, resolvedAt: $ra, claims: $claims, moves: $moves, clockEndsAt: $ce, resolution: $res, creditWei: {proposer: $cp, challenger: $cc}, bond: $bond}]')"
   i=$((i + 1)); sleep 0.3
 done
+
+# the DelayedWETH delay (read inside bond_cycle's subshell, so once more here for the record), the anchor (which game's
+# root it is, among the games read) and the hot roles' L1 balances at the head block
+if [ -n "${proxy:-}" ] && [ -z "$weth_delay" ]; then
+  weth_a="$(word_addr "$(ecall "$proxy" "$SEL_WETH" 2>/dev/null || echo 0x)" 0)"
+  [ "$weth_a" = "0x" ] || [ "${#weth_a}" -ne 42 ] || weth_delay="$(word_n "$(ecall "$weth_a" "$SEL_WETH_DELAY")" 0)"
+fi
+anchor=null
+if [ -n "$anchor_root" ]; then
+  anchor_game="$(jq -r --arg r "$anchor_root" '[.[] | select(.rootClaim == $r) | .index] | first // empty' <<<"$games")"
+  anchor="$(jq -cn --arg r "$anchor_root" --argjson b "$anchor_block" --arg g "$anchor_game" '{root: $r, l2Block: $b, gameIndex: (if $g == "" then null else ($g | tonumber) end), placeholder: ($r | startswith("0xdead0000"))}')"
+  echo "anchor: root $anchor_root at L2 block $anchor_block$([ -n "$anchor_game" ] && echo " (game #$anchor_game)")$(jq -r 'if .placeholder then " - still op-deployer'"'"'s placeholder" else "" end' <<<"$anchor")"
+fi
+balances=null
+if [ -n "$proposer_addr" ]; then
+  bal_p="$(rpcq eth_getBalance "[\"$proposer_addr\",\"$(printf '0x%x' "$latest")\"]" | jq -r .)"; bal_c="$(rpcq eth_getBalance "[\"$challenger_addr\",\"$(printf '0x%x' "$latest")\"]" | jq -r .)"
+  balances="$(jq -cn --argjson b "$latest" --arg p "$bal_p" --arg pe "$(hex_to_eth "$bal_p")" --arg c "$bal_c" --arg ce "$(hex_to_eth "$bal_c")" '{l1Block: $b, proposerWeiHex: $p, proposerEth: $pe, challengerWeiHex: $c, challengerEth: $ce}')"
+  echo "balances at L1 block $latest: proposer $(hex_to_eth "$bal_p") ETH, challenger $(hex_to_eth "$bal_c") ETH"
+fi
 
 out="$FINCHAIN_ROOT/manifests/evidence/games-$(date -u +%Y%m%dT%H%M%SZ).json"
 mkdir -p "$(dirname "$out")"
 jq -n --arg l1 "$L1_LABEL" --arg dgf "$DGF" --arg portal "$PORTAL" --argjson count "$count" --argjson first "$first" --argjson respected "$respected" --arg bond "$init_bond" --arg env "$ENVIRONMENT" \
-  --arg challenger "$challenger_addr" --arg proposer "$proposer_addr" --argjson maxClock "${max_clock:-0}" --argjson games "$games" \
+  --arg challenger "$challenger_addr" --arg proposer "$proposer_addr" --argjson maxClock "${max_clock:-0}" --argjson games "$games" --argjson anchor "$anchor" --argjson balances "$balances" --arg wdelay "${weth_delay:-}" \
   --argjson resolved "$resolved" --argjson byc "$by_challenger" --argjson inprog "$in_progress" --argjson other "$other_type" --arg extra "$EXTRA_TYPES" --arg at "$(date -u +%Y-%m-%dT%H:%M:%SZ)" '
-  {schema: "finchain.games/1", acceptance: "M4: resident challenger on host B against the public chain - games resolved and bonds claimed (docs/acceptance.md M4; docs/proof-plan.md level L1)",
+  {schema: "finchain.games/2", acceptance: "M4: resident challenger on host B against the public chain - games resolved and bonds claimed (docs/acceptance.md M4; docs/proof-plan.md level L1)",
    environment: $env, recordedAt: $at, l1Rpc: $l1, disputeGameFactory: $dgf, optimismPortal: $portal, respectedGameType: $respected, initBondWei: $bond,
    roles: {proposer: $proposer, challenger: $challenger, maxClockDurationSeconds: $maxClock},
+   anchor: $anchor, balances: $balances, delayedWethDelaySeconds: (if $wdelay == "" then null else ($wdelay | tonumber) end),
    gameCount: $count, gamesRead: {from: $first, to: ($count - 1), extraTypes: (if $extra == "" then [] else ($extra | split(",") | map(tonumber)) end)},
    summary: {resolved: $resolved, resolvedByChallenger: $byc, inProgress: $inprog, notRespectedType: $other,
-             note: "a game of the permissioned type with one claim and no moves resolves in favour of the root after maxClockDuration; the sender of the resolving transaction says who runs the resolver. Credit is what a party may claim after resolution (the proposer bond returns to the proposer; the challenger holds credit only where it moved); claimCredit calls come from the challenger service and show in its log."},
+             note: "a game of the permissioned type with one claim and no moves resolves in favour of the root after maxClockDuration; the sender of the resolving transaction says who runs the resolver. Credit is what a party may claim after resolution (the proposer bond returns to the proposer; the challenger holds credit only where it moved). The bond block of each game says whether the game is closed (bondDistributionMode set by closeGame, which also moves the anchor when the game qualifies), what DelayedWETH still holds for the recipient and when it was unlocked, and - once paid - the transaction that paid it (claimCredit by the challenger service, which closes the game in the same call)."},
    games: $games}' > "$out"
 echo "summary: $resolved resolved ($by_challenger by the challenger $challenger_addr), $in_progress in progress, $other_type of another type; report $out"
