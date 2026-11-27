@@ -1,0 +1,296 @@
+{
+  "schema": "finchain.games/2",
+  "acceptance": "M4: resident challenger on host B against the public chain - games resolved and bonds claimed (docs/acceptance.md M4; docs/proof-plan.md level L1)",
+  "environment": "mainnet",
+  "recordedAt": "2026-11-25T19:15:46Z",
+  "l1Rpc": "https://ethereum-rpc.publicnode.com",
+  "disputeGameFactory": "0x4aa400aa71f9658dc010dcc9cd7229bd4467536e",
+  "optimismPortal": "0x54ee6b884b1f7b0ef2ae3bb4805ab3dc6667aabb",
+  "respectedGameType": 1,
+  "initBondWei": "80000000000000000",
+  "roles": {
+    "proposer": "0x7c2b388303cebae84ad3448057e074f2b2a65bbb",
+    "challenger": "0xc666b76daa39016bf4eeaa213deb58e612a92dc7",
+    "maxClockDurationSeconds": 302400
+  },
+  "anchor": {
+    "root": "0x69bd17daa9b92ee9af0c4fcdff8c2aaa6800c14b97027187c25db8afc965856f",
+    "l2Block": 1489,
+    "gameIndex": 0,
+    "placeholder": false
+  },
+  "balances": {
+    "l1Block": 26494218,
+    "proposerWeiHex": "0x6945f37f6a30566",
+    "proposerEth": "0.474109",
+    "challengerWeiHex": "0x161a00b7199381b",
+    "challengerEth": "0.099537"
+  },
+  "delayedWethDelaySeconds": 302400,
+  "gameCount": 9,
+  "gamesRead": {
+    "from": 0,
+    "to": 8,
+    "extraTypes": [
+      8
+    ]
+  },
+  "summary": {
+    "resolved": 4,
+    "resolvedByChallenger": 1,
+    "inProgress": 5,
+    "notRespectedType": 1,
+    "note": "a game of the permissioned type with one claim and no moves resolves in favour of the root after maxClockDuration; the sender of the resolving transaction says who runs the resolver. Credit is what a party may claim after resolution (the proposer bond returns to the proposer; the challenger holds credit only where it moved). The bond block of each game says whether the game is closed (bondDistributionMode set by closeGame, which also moves the anchor when the game qualifies), what DelayedWETH still holds for the recipient and when it was unlocked, and - once paid - the transaction that paid it (claimCredit by the challenger service, which closes the game in the same call)."
+  },
+  "games": [
+    {
+      "index": 0,
+      "type": 1,
+      "proxy": "0xaed62d9112099cb03a3062d27afea1877343c12f",
+      "createdAt": 1795026599,
+      "created": "2026-11-18T18:29:59Z",
+      "l2Block": 1489,
+      "rootClaim": "0x69bd17daa9b92ee9af0c4fcdff8c2aaa6800c14b97027187c25db8afc965856f",
+      "status": 2,
+      "statusName": "DEFENDER_WINS",
+      "resolvedAt": 1795329107,
+      "claims": 1,
+      "moves": 0,
+      "clockEndsAt": 1795328999,
+      "resolution": null,
+      "creditWei": {
+        "proposer": "80000000000000000",
+        "challenger": "0"
+      },
+      "bond": {
+        "closed": true,
+        "bondDistributionMode": 1,
+        "wethUnlock": {
+          "amountLeftWei": "80000000000000000",
+          "unlockedAt": 1795631603,
+          "unlocked": "2026-11-25T18:33:23Z"
+        },
+        "claim": null
+      }
+    },
+    {
+      "index": 1,
+      "type": 1,
+      "proxy": "0x129f40714bfd114fd32beb398bc065c751847a93",
+      "createdAt": 1795113047,
+      "created": "2026-11-19T18:30:47Z",
+      "l2Block": 44713,
+      "rootClaim": "0xd78f8bac1de8bfdd82757e120082e61d899ac25b5a99fb07a372930d20a823a3",
+      "status": 2,
+      "statusName": "DEFENDER_WINS",
+      "resolvedAt": 1795415519,
+      "claims": 1,
+      "moves": 0,
+      "clockEndsAt": 1795415447,
+      "resolution": null,
+      "creditWei": {
+        "proposer": "80000000000000000",
+        "challenger": "0"
+      },
+      "bond": {
+        "closed": false,
+        "bondDistributionMode": 0,
+        "wethUnlock": null,
+        "claim": null
+      }
+    },
+    {
+      "index": 2,
+      "type": 1,
+      "proxy": "0x2f5bb350f96671c3e28c6557112e01fe892074dd",
+      "createdAt": 1795199507,
+      "created": "2026-11-20T18:31:47Z",
+      "l2Block": 87925,
+      "rootClaim": "0x97cb738ae833c6bfcbe088db777a2b6f0ee35a841e278300965188149b900d07",
+      "status": 2,
+      "statusName": "DEFENDER_WINS",
+      "resolvedAt": 1795501967,
+      "claims": 1,
+      "moves": 0,
+      "clockEndsAt": 1795501907,
+      "resolution": null,
+      "creditWei": {
+        "proposer": "80000000000000000",
+        "challenger": "0"
+      },
+      "bond": {
+        "closed": false,
+        "bondDistributionMode": 0,
+        "wethUnlock": null,
+        "claim": null
+      }
+    },
+    {
+      "index": 3,
+      "type": 1,
+      "proxy": "0x12eb9d3c91e3e073a6c1507c5199b2be557ad253",
+      "createdAt": 1795285967,
+      "created": "2026-11-21T18:32:47Z",
+      "l2Block": 131125,
+      "rootClaim": "0x91e2ef9c8127b250f77d8fd48c71b54a83265fab914fa5f514bd0c73ffdb8d01",
+      "status": 2,
+      "statusName": "DEFENDER_WINS",
+      "resolvedAt": 1795588487,
+      "claims": 1,
+      "moves": 0,
+      "clockEndsAt": 1795588367,
+      "resolution": {
+        "tx": "0x1d78b8e63787a4a1c81d13c337194b6a9b4afeebd1fa3a5099dff0048226c7e4",
+        "l1Block": 26490437,
+        "from": "0xc666b76daa39016bf4eeaa213deb58e612a92dc7",
+        "sender": "challenger",
+        "at": "2026-11-25T06:34:47Z"
+      },
+      "creditWei": {
+        "proposer": "80000000000000000",
+        "challenger": "0"
+      },
+      "bond": {
+        "closed": false,
+        "bondDistributionMode": 0,
+        "wethUnlock": null,
+        "claim": null
+      }
+    },
+    {
+      "index": 4,
+      "type": 1,
+      "proxy": "0xcdb2b6b8403bbcb7ced87b3be8d7d31bff8ef600",
+      "createdAt": 1795372427,
+      "created": "2026-11-22T18:33:47Z",
+      "l2Block": 174301,
+      "rootClaim": "0x6c086274ebbc0fd392cc556152915a202bedafe55da88d9fab6cd77dc75bb657",
+      "status": 0,
+      "statusName": "IN_PROGRESS",
+      "resolvedAt": 0,
+      "claims": 1,
+      "moves": 0,
+      "clockEndsAt": 1795674827,
+      "resolution": null,
+      "creditWei": {
+        "proposer": "0",
+        "challenger": "0"
+      },
+      "bond": {
+        "closed": false,
+        "bondDistributionMode": 0,
+        "wethUnlock": null,
+        "claim": null
+      }
+    },
+    {
+      "index": 5,
+      "type": 1,
+      "proxy": "0xaa4eb07c020ce37a12def19ed20acc0759724ff7",
+      "createdAt": 1795458887,
+      "created": "2026-11-23T18:34:47Z",
+      "l2Block": 217526,
+      "rootClaim": "0xa11cce3406925f5b0f9928a526816a63c852111dbced8fe7de08840c0824051e",
+      "status": 0,
+      "statusName": "IN_PROGRESS",
+      "resolvedAt": 0,
+      "claims": 1,
+      "moves": 0,
+      "clockEndsAt": 1795761287,
+      "resolution": null,
+      "creditWei": {
+        "proposer": "0",
+        "challenger": "0"
+      },
+      "bond": {
+        "closed": false,
+        "bondDistributionMode": 0,
+        "wethUnlock": null,
+        "claim": null
+      }
+    },
+    {
+      "index": 6,
+      "type": 1,
+      "proxy": "0x55c9ae8f9f1bcb7d9c36ce1c6ad8891fe5425ee4",
+      "createdAt": 1795545347,
+      "created": "2026-11-24T18:35:47Z",
+      "l2Block": 260941,
+      "rootClaim": "0x4727b338bc94a5dafdc4ffe482dd2946b3234195abf235d86b9c5ad5b3e47689",
+      "status": 0,
+      "statusName": "IN_PROGRESS",
+      "resolvedAt": 0,
+      "claims": 1,
+      "moves": 0,
+      "clockEndsAt": 1795847747,
+      "resolution": null,
+      "creditWei": {
+        "proposer": "0",
+        "challenger": "0"
+      },
+      "bond": {
+        "closed": false,
+        "bondDistributionMode": 0,
+        "wethUnlock": null,
+        "claim": null
+      }
+    },
+    {
+      "index": 7,
+      "type": 1,
+      "proxy": "0x5bcb4209c4120b5994dcc6a2b47410749bc72abc",
+      "createdAt": 1795631843,
+      "created": "2026-11-25T18:37:23Z",
+      "l2Block": 304117,
+      "rootClaim": "0x07166977d6a2a55cb3fb7d9b06306969248be322e6de3d871e047debbbac2196",
+      "status": 0,
+      "statusName": "IN_PROGRESS",
+      "resolvedAt": 0,
+      "claims": 1,
+      "moves": 0,
+      "clockEndsAt": 1795934243,
+      "resolution": null,
+      "creditWei": {
+        "proposer": "0",
+        "challenger": "0"
+      },
+      "bond": {
+        "closed": false,
+        "bondDistributionMode": 0,
+        "wethUnlock": null,
+        "claim": null
+      }
+    },
+    {
+      "index": 8,
+      "type": 8,
+      "proxy": "0x476361480aae4ca15e5468c86e03c2351e379965",
+      "createdAt": 1795633991,
+      "created": "2026-11-25T19:13:11Z",
+      "l2Block": 305053,
+      "rootClaim": "0xd06d897228622a302d60c0043d1c86b6fb95a259716d62b3f7020bfc337e0811",
+      "startingRootHash": "0x69bd17daa9b92ee9af0c4fcdff8c2aaa6800c14b97027187c25db8afc965856f",
+      "startingBlockNumber": 1489,
+      "creator": "0x7c2b388303cebae84ad3448057e074f2b2a65bbb",
+      "absolutePrestate": "0x03f1d952437b64614622d35656242d6149ad8552386f73f6ca4369c2f25ab685",
+      "vm": "0xacc005dcd857b401e4732e6f7837135a22825cfa",
+      "status": 0,
+      "statusName": "IN_PROGRESS",
+      "resolvedAt": 0,
+      "claims": 1,
+      "moves": 0,
+      "clockEndsAt": 1795936391,
+      "resolution": null,
+      "creditWei": {
+        "creator": "0",
+        "challenger": "0"
+      },
+      "bond": {
+        "closed": false,
+        "bondDistributionMode": 0,
+        "wethUnlock": null,
+        "claim": null
+      }
+    }
+  ]
+}

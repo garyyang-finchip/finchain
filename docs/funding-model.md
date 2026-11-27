@@ -39,12 +39,14 @@ measured.
 ### 3a. Initial bonds in flight
 
 Each game creation pays `initBonds[gameType]` (standard configuration: 0.08 ETH). The bond
-returns to the proposer only after the game resolves (max clock duration, 3.5 days at
-standard parameters) and the DelayedWETH withdrawal delay (7 days at standard parameters).
+returns to the proposer only after the game resolves (max clock duration, 3.5 days) and the
+DelayedWETH withdrawal delay (3.5 days on Finchain mainnet, `DelayedWETH.delay()` read on chain
+as 302400 s in `manifests/evidence/games-20261126T131704Z.json`; this section said 7 days until
+2026-11-28).
 
 Rolling occupancy = proposals per day x recovery days x initial bond. Examples at 0.08 ETH
-and 10.5 days recovery: hourly proposals -> 252 games x 0.08 = 20.2 ETH; 6-hourly -> 42
-games x 0.08 = 3.36 ETH. With a 7-day recovery and hourly proposals the figure is 13.44 ETH.
+and 7 days recovery: hourly proposals -> 168 games x 0.08 = 13.44 ETH; 6-hourly -> 28 games
+x 0.08 = 2.24 ETH; daily -> 7 games x 0.08 = 0.56 ETH.
 These are liquidity requirements, not consumption, but they must exist.
 
 Testnet options, each recorded in the manifest when used: lower `PROPOSER_INTERVAL`
@@ -54,18 +56,19 @@ deployment. Setting the initial bond to zero changes only game creation; the per
 bonds below are unaffected.
 
 #Mainnet (chain id 8454, since 2026-11-18): the respected type's initial bond is the standard
-0.08 ETH, the DelayedWETH delay 7 days, the proposal cadence one a day (`profiles/mainnet.env`),
-so about 10.5 games and 0.84 ETH are in flight at steady state; the proposer's standing float is
-1.2 ETH, the batcher's 0.3 ETH, the challenger's 0.1 ETH (`docs/mainnet.md`, decisions 2 and 7).
-A bond comes back only when someone calls `claimCredit(proposer)` on the resolved game after the
-delay; op-proposer never does, and op-challenger's bond claimer claims only for its own account
-unless told otherwise. On host B's mainnet stack the claimer is given the proposer as an
-additional claimant (`OP_CHALLENGER_ADDITIONAL_BOND_CLAIMANTS` in
+0.08 ETH, the DelayedWETH delay 3.5 days, the proposal cadence one a day
+(`profiles/mainnet.env`), so about 7 games and 0.56 ETH are in flight at steady state; the
+proposer's standing float is 1.2 ETH, the batcher's 0.3 ETH, the challenger's 0.1 ETH
+(`docs/mainnet.md`, decisions 2 and 7). A bond comes back only when someone calls
+`claimCredit(proposer)` on the resolved game after the delay; op-proposer never does, and
+op-challenger's bond claimer claims only for its own account unless told otherwise. On host B's
+mainnet stack the claimer is given the proposer as an additional claimant
+(`OP_CHALLENGER_ADDITIONAL_BOND_CLAIMANTS` in
 `node-b/secrets.mainnet/op-challenger-extra.env`), so the float revolves on its own; without it
 the bonds sit in DelayedWETH as credit until claimed by hand. The bond float is operating
 capital, not spend: what the chain consumes is gas (deployment 0.012 ETH; batcher, proposer and
-challenger together about 0.015-0.02 ETH a day at 1 gwei), and the float returns in full once the
-chain stops proposing and its last game has resolved and matured.
+challenger together about 0.015-0.02 ETH a day at 1 gwei), and the float returns in full once
+the chain stops proposing and its last game has resolved and matured.
 
 ### 3b. Full dispute path
 

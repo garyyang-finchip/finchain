@@ -96,8 +96,9 @@ from L1 with its challenger since 2026-11-19, `make up-b CHAIN=mainnet`, and the
 is installed as game type 8 since the same day, by the owner with `owner-console.html` (which now
 serves both chains) and read back by `make k4-readiness CHAIN=mainnet`
 (`manifests/evidence/mainnet-type8-install-2026-11-19.json`), host B's challenger playing it with
-`cannon-kona`; a mainnet withdrawal cycle (initiated 2026-11-19), the first Type 8 game (after the
-anchor leaves the placeholder, 2026-11-25) and the paid L1 providers follow; the Safe comes at a
+`cannon-kona`; the mainnet withdrawal cycle (initiated 2026-11-19) was finalized on 2026-11-27,
+the first Type 8 game was created on 2026-11-25 from the moved anchor, and the paid L1 providers
+follow; the Safe comes at a
 later milestone by the owner's ruling; until then the mainnet is not announced as live and nothing
 should be bridged to it. M4 on Sepolia: K1-K4 done on the kona-client route (`docs/proof-plan.md`:
 the op-program client cannot follow the current Sepolia L1, its prestate `0x03e76631...5af1` is
@@ -115,7 +116,9 @@ anchor root left op-deployer's placeholder, tracked by host B's `cannon-kona` ch
 `DEFENDER_WINS` by it on 2026-11-22, 72 s after the clock (`games-20261122T175024Z.json`). `make
 withdraw` drives the deposit -> proof -> withdrawal cycle step by step; the withdrawal proven on
 2026-11-14 was finalized on 2026-11-22, 0.01 ETH back on L1 after 215.64 h
-(`withdrawal-20261113T174622Z.json`), which closed M4 (`docs/acceptance.md`). Every target takes
+(`withdrawal-20261113T174622Z.json`), which closed M4 (`docs/acceptance.md`); on mainnet the cycle
+initiated on 2026-11-19 was finalized on 2026-11-27, 0.01 ETH back on L1 after 199.16 h
+(`withdrawal-20261119T102234Z.json`, `docs/mainnet.md`). Every target takes
 `CHAIN=<name>` so that the same hosts run a second chain beside the first (`docs/runbook.md`
 section 9), which is how the mainnet runs. `make games` reads the dispute games back from L1 -
 the resident challenger resolved the first ten games on 2026-11-15, 72-168 s after their clocks,
