@@ -98,9 +98,10 @@ serves both chains) and read back by `make k4-readiness CHAIN=mainnet`
 (`manifests/evidence/mainnet-type8-install-2026-11-19.json`), host B's challenger playing it with
 `cannon-kona`; the mainnet withdrawal cycle (initiated 2026-11-19) was finalized on 2026-11-27,
 the first Type 8 game was created on 2026-11-25 from the moved anchor, and the paid L1 providers
-follow; the Safe comes at a
-later milestone by the owner's ruling; until then the mainnet is not announced as live and nothing
-should be bridged to it. M4 on Sepolia: K1-K4 done on the kona-client route (`docs/proof-plan.md`:
+follow; the Safe comes at the AI-PoUW maturity milestone by the owner's ruling and is not a gate
+for calling the chain live; until the gates of `docs/mainnet.md` section 4 are met the mainnet is
+not announced as live and nothing should be bridged to it. M4 on Sepolia: K1-K4 done on the
+kona-client route (`docs/proof-plan.md`:
 the op-program client cannot follow the current Sepolia L1, its prestate `0x03e76631...5af1` is
 superseded; `make kona-check` validated Finchain's registry files against the kona-registry crate
 on two hosts (K1); `make prestate` built the kona-client prestate with Finchain embedded on

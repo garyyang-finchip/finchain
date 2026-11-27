@@ -38,15 +38,22 @@ measured.
 
 ### 3a. Initial bonds in flight
 
-Each game creation pays `initBonds[gameType]` (standard configuration: 0.08 ETH). The bond
-returns to the proposer only after the game resolves (max clock duration, 3.5 days) and the
-DelayedWETH withdrawal delay (3.5 days on Finchain mainnet, `DelayedWETH.delay()` read on chain
-as 302400 s in `manifests/evidence/games-20261126T131704Z.json`; this section said 7 days until
-2026-11-28).
+Each game creation pays `initBonds[gameType]` (standard configuration: 0.08 ETH). On the
+uncontested path the bond returns to the proposer after three waits: the game resolves after its
+max clock duration (3.5 days); `claimCredit` can close it and unlock the credit in DelayedWETH
+only once the game is past the dispute game finality delay (3.5 days); a second `claimCredit`
+pays it after the DelayedWETH delay (3.5 days). On both Finchain deployments the three are 302400
+s each (`manifests/onchain-mainnet-26443627.json`; `DelayedWETH.delay()` read again in
+`manifests/evidence/games-20261126T131704Z.json`), so the cycle is about 10.5 days plus the time
+the services take to act; mainnet's game 0 took 10.50 days from creation to payability. Until
+2026-11-28 this section named a 7-day DelayedWETH delay and no finality delay, and on that day a
+7-day cycle; the total of 10.5 days was right, the parts were not, and the 7-day figure is
+withdrawn.
 
 Rolling occupancy = proposals per day x recovery days x initial bond. Examples at 0.08 ETH
-and 7 days recovery: hourly proposals -> 168 games x 0.08 = 13.44 ETH; 6-hourly -> 28 games
-x 0.08 = 2.24 ETH; daily -> 7 games x 0.08 = 0.56 ETH.
+and 10.5 days recovery: hourly proposals -> 252 games x 0.08 = 20.16 ETH; 6-hourly -> 42 games
+x 0.08 = 3.36 ETH; daily -> 10.5 games x 0.08 = 0.84 ETH on average (10 or 11 games, 0.80 or
+0.88 ETH, at any one time).
 These are liquidity requirements, not consumption, but they must exist.
 
 Testnet options, each recorded in the manifest when used: lower `PROPOSER_INTERVAL`
@@ -56,8 +63,8 @@ deployment. Setting the initial bond to zero changes only game creation; the per
 bonds below are unaffected.
 
 #Mainnet (chain id 8454, since 2026-11-18): the respected type's initial bond is the standard
-0.08 ETH, the DelayedWETH delay 3.5 days, the proposal cadence one a day
-(`profiles/mainnet.env`), so about 7 games and 0.56 ETH are in flight at steady state; the
+0.08 ETH, the bond cycle about 10.5 days, the proposal cadence one a day
+(`profiles/mainnet.env`), so about 10.5 games and 0.84 ETH are in flight at steady state; the
 proposer's standing float is 1.2 ETH, the batcher's 0.3 ETH, the challenger's 0.1 ETH
 (`docs/mainnet.md`, decisions 2 and 7). A bond comes back only when someone calls
 `claimCredit(proposer)` on the resolved game after the delay; op-proposer never does, and
@@ -108,9 +115,11 @@ games a day instead of 24, which cuts the games in flight (and the proposer's ga
 v0.3.0-alpha.24) runs one cycle per minute of L1 time instead of one per block, a fifth of the
 reads; a move, a resolution or a claim is at most a minute later than it could be, against
 clocks of 3.5 days and a 3-hour clock extension. `--game-window` (`CHALLENGER_GAME_WINDOW`,
-336h since the same version) tracks 14 days instead of 28: two full chess clocks (7 days) plus
-the 3.5-day finality and withdrawal delays, plus 3.5 days of margin; at four games a day that
-is 56 games in the window at steady state instead of 112, and any older game's bond stays
+336h since the same version) tracks 14 days instead of 28. An uncontested game needs 10.5 days
+of it (the 3.5-day clock, the 3.5-day finality delay, the 3.5-day DelayedWETH delay), which
+leaves 3.5 days of margin; a game played out to both full chess clocks (7 days) needs the whole
+14 days with the two delays and leaves no margin for the services' own delay. At four games a day
+that is 56 games in the window at steady state instead of 112, and any older game's bond stays
 claimable by hand. `CHALLENGER_L1_RPC_URL` gives the challenger an endpoint with a known
 quota, separate from op-node's endpoint and from the ad hoc reads of `make games`; a metered
 provider counts each call inside a batch, so size the plan from the figures above - the free

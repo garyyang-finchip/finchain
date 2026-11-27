@@ -62,9 +62,10 @@ SEL_STARTING_ROOT=0x25fc2ace   # startingRootHash()
 SEL_STARTING_BLOCK=0x70872aa5  # startingBlockNumber()
 EXTRA_TYPES="${EXTRA_TYPES:-}"
 TOPIC_RESOLVED=0x5e186f09b9c93491f14e277eea7faa5de6a2d4bda75a79af7a3684fbfb42da60   # Resolved(GameStatus indexed)
-# the bond's way back (op-contracts v7): resolve() unlocks the credit in DelayedWETH; claimCredit(recipient) closes the
-# game first (closeGame: the game finalized under the anchor state registry's rules, which also moves the anchor when the
-# game qualifies) and then withdraws the credit after the WETH delay, paying the recipient in the same transaction.
+# the bond's way back (op-contracts v7): resolve() decides the game and records the credit; claimCredit(recipient)
+# closes the game first (closeGame: only once the game is finalized under the anchor state registry's rules - resolved
+# and past the dispute game finality delay - which also moves the anchor when the game qualifies), and its first call
+# unlocks the credit in DelayedWETH; a claimCredit after the WETH delay withdraws it and pays the recipient. Three waits.
 SEL_BOND_MODE=0x378dd48c       # bondDistributionMode() -> 0 UNDECIDED (not closed), 1 NORMAL, 2 REFUND
 SEL_WETH=0x3fc8cef3            # weth() -> the game's DelayedWETH
 SEL_WETH_WITHDRAWALS=0xcd47bde1  # DelayedWETH.withdrawals(game, recipient) -> (amount, timestamp): the unlock, amount 0 once paid
@@ -320,6 +321,6 @@ jq -n --arg l1 "$L1_LABEL" --arg dgf "$DGF" --arg portal "$PORTAL" --argjson cou
    anchor: $anchor, balances: $balances, delayedWethDelaySeconds: (if $wdelay == "" then null else ($wdelay | tonumber) end),
    gameCount: $count, gamesRead: {from: $first, to: ($count - 1), extraTypes: (if $extra == "" then [] else ($extra | split(",") | map(tonumber)) end)},
    summary: {resolved: $resolved, resolvedByChallenger: $byc, inProgress: $inprog, notRespectedType: $other,
-             note: "a game of the permissioned type with one claim and no moves resolves in favour of the root after maxClockDuration; the sender of the resolving transaction says who runs the resolver. Credit is what a party may claim after resolution (the proposer bond returns to the proposer; the challenger holds credit only where it moved). The bond block of each game says whether the game is closed (bondDistributionMode set by closeGame, which also moves the anchor when the game qualifies), what DelayedWETH still holds for the recipient and when it was unlocked, and - once paid - the transaction that paid it (claimCredit by the challenger service, which closes the game in the same call)."},
+             note: "a game of the permissioned type with one claim and no moves resolves in favour of the root after maxClockDuration; the sender of the resolving transaction says who runs the resolver. Credit is what a party may claim after resolution (the proposer bond returns to the proposer; the challenger holds credit only where it moved). The bond block of each game says whether the game is closed (bondDistributionMode set by closeGame, which also moves the anchor when the game qualifies), what DelayedWETH still holds for the recipient and when it was unlocked, and - once paid - the transaction that paid it (claimCredit by the challenger service: its first call after the game finality delay closes the game and unlocks the credit, a call after the DelayedWETH delay pays it)."},
    games: $games}' > "$out"
 echo "summary: $resolved resolved ($by_challenger by the challenger $challenger_addr), $in_progress in progress, $other_type of another type; report $out"
